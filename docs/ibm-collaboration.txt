@@ -1,0 +1,87 @@
+This is an initial proposal on the way we can collaborate with IBM on
+trace2model project.
+
+Currently, Filebench supports two basic execution abstractions: processes and
+threads. To support virtualization emulation, we propose to add two more
+abstractions: VMs - virtual machines and HPVs - hyperviser. At the moment, to
+define a workload in Filebench, one would write something like that:
+
+define process process1 {
+ define thread1 {
+   <description of what this thread does>
+ }
+ define thread2 {
+   <description of what this thread does>
+ }
+ ...
+}
+
+define process process2 {
+ define thread1 {
+   <description of what this thread does>
+ }
+ define thread2 {
+   <description of what this thread does>
+ }
+ ...
+}
+...
+
+In the virtualization case, one would define hypervisor and virtual
+machines in addition, for example:
+
+define hpv1 {
+ define vm1 {
+   define process process1 {
+     define thread1 {
+       <description of what this thread  does>
+     }
+     define thread1 {
+       <description of what this thread  does>
+     }
+     ...
+  }
+ ...
+ define vm2 {
+   define process process1 {
+     define thread1 {
+       <description of what this thread  does>
+     }
+     define thread1 {
+       <description of what this thread  does>
+     }
+     ...
+  }
+ ...
+}
+
+define hvp2 {
+ <vms with processes with treads defined here, as before>
+}
+
+So, when Filebench executes Thread1 operations, it transforms them in according
+with VMs and HPVs properties. For example, if Thread1 is defined to writes 1MB
+to some file, Filebench can split this write request in a series of 128KB
+requests if  VM1 is set up to use IDE controller emulator and HPV1 is VMWare ESX
+v.3.1.
+
+In order to understand what transformations happen with I/O requests, we need to
+analyse traces from multiple levels. And this is where T2M project comes in: it
+should help us to analyse traces. We can focus on this part till FAST
+deadline.  After that FSL could work on modifying Filebench to support above
+mentioned abstractions. Another modification that we would need to add to
+Filebench is NFS-client backend. That's what FSL also could do after the FAST
+deadline.
+
+In short, the plan we propose is the following:
+1) FSL works on trace analyser
+2) IBM provides us with traces from different levels
+3) FSL processes these traces using the analyser and makes conclusions:
+   3a) validates that the analyser works properly
+   3b) looks into how requests transform in a virtualized environment
+4) FSL sends generated workload models back to IBM so that IBM can
+run them and collect new traces, which FSL can compare to the original
+traces for the sake of validity check.
+
+That's the work that we cand do for coming FAST. Filebench modifications and
+related work can be postponed to Octorber-December.
