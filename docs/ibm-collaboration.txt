@@ -95,23 +95,34 @@ related work can be postponed to Octorber-December.
 IBM replied that they like the idea a lot. Dean propsed the following list of
 initial items for on-coming discussion:
 
-1) Need a way to collect traces from the VM's vfs level (should we just use
-strace or can we do something with kprobes? I think you had been working on
-something for this)
-2) Need to discuss how 'synchronized' the different levels of traces need to be.
-3) Need to agree on the levels at which each trace will be taken. Depending on
-the level, a different trace type might be used. Currently I see the following
-levels
-a) Guest VFS level (see 1) above)
-b) ESX hypervisor. Do we want just vscsistats tables or actual traces (which are
-still missing the latency information)
-c) File Level: Using GPFS tracing to capture the incoming NFS requests
-d) Server block level using blktrace ( We store data on a single scsi device to
-make things simple)
-4) For each trace above, need to understand the required trace format into which
-they must be converted. Are there any existing tools for converting any of the
-above traces? We will definitely need a tool to convert the gpfs traces...
-5) Applications and benchmarks to trace. Is FB OLTP fixed?
-6) Method of sharing traces and tools. Can we setup a wiki and data repository?
+1) Project goals, responsibilities, paper/FAST
 
-Vasily suggests to discuss caching affects at I/O layers as well.
+2) Method of sharing traces and tools. Can we setup a wiki and a data
+repository?
+
+3) For each trace, need to understand the required trace format into which they
+must be converted. Are there any existing tools for converting any of the above
+traces? We will definitely need a tool to convert the gpfs traces.
+
+4) Need a way to collect traces from the VM's vfs level (should we just use
+strace or can we do something with kprobes? I think you had been working on
+something for this).
+
+5) Need to discuss how 'synchronized' the different levels of traces need to be.
+
+6) Need to agree on the levels at which each trace will be taken. Depending on
+the level, a different trace type might be used. Currently I see the following
+levels:
+  a) Guest VFS level (see 1) above)
+  b) ESX hypervisor. Do we want just vscsistats tables or actual traces
+     (which are still missing the latency information)
+  c) File Level: Using GPFS tracing to capture the incoming NFS requests
+  d) Block Level: Using GPFS tracing (We store data on a single scsi device to
+     make things simple) Note that we use GPFS tracing since it makes it simpler
+     to get both the file and block level traces in a single output file.
+
+7) Applications and benchmarks to trace.
+
+Vasily suggests to discuss caching affects at I/O layers as well:
+
+8) How do we emulate caching effects at certain I/O stack levels?
