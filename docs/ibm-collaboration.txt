@@ -126,3 +126,96 @@ levels:
 Vasily suggests to discuss caching affects at I/O layers as well:
 
 8) How do we emulate caching effects at certain I/O stack levels?
+
+** 7 July 2011 **
+
+The summary of the points discussed during the first meeting:
+
+> 1) Project goals, responsibilities, paper/FAST
+
+For the coming FAST deadline the focus of the project is solely on converting
+I/O traces to workload models. Traces from different I/O stack layers (including
+GPFS layer) will be collected by IBM and used as one of the use cases in the
+paper. As a side product we will be able to characterize how the workload
+changes as we go down the stack. In the future (after the FAST deadline) it will
+allow us to incorporate I/O stack simulation in Filebench.
+
+> 2) Method of sharing traces and tools. Can we setup a wiki and a data
+> repository?
+
+FSL will set up a wiki and a trace repository through which we can exchange
+traces and models.
+
+> 3) For each trace,  need to understand the required trace format into which they
+> must be converted. Are there any existing tools for converting any of the above
+> traces? We will definitely need a tool to convert the gpfs traces.
+
+We will use DataSeries format for trace storage and analysis in this project.
+Other formats have to be converted to DataSeries. One can 1) either write a tool
+that directly converts a foreign format to DataSeries, 2) either write a tool
+that converts foreign format to a CSV file, which then is converted to
+the DataSeries using csv2ds tool.
+
+Traces come from different layers, e.g., block layer and file system layer.
+Field names in trace records are different for different layers.  We
+need to agree on the field names. We will stick to the field specifications
+defined by SNIA, but we're not limited by them. FSL has looked into the fields
+for the block layer traces and will send the specification to IBM soon.  The
+decision on file system trace fields will be done a bit later.
+
+> 4) Need a way to collect traces from the VM's vfs level (should we just use
+> strace or can we do something with kprobes? I think you had been working on
+> something for this).
+
+There are several ways to collect application/VFS level traces:
+
+1) instrument the application (only if we have application's source code)
+2) instrument libc (we won't be able to trace mmap()-based accesses)
+3) ptrace (slow and can't trace mmap()-based accesses)
+4) intercept system calls & page fault handlers or vfs calls:
+	a) hardcoded
+	b) kprobes
+	c) audit() subsystem
+	d) use compiler-based approach (talk to Justin about that)
+	e) tracefs
+
+Vasily will look into all these possibilities more carefully and then we can
+make a decision.
+
+> 5) Need to discuss how 'synchronized' the different levels of traces need to be.
+
+Discrepancy of several seconds among traces does not seem to be a problem in
+this project. For now, we assume that it is OK to just start trace collectors
+sequentially one after another before the workload is generated. If in the
+future it will cause problems - we'll figure something out.
+
+> 6) Need to agree on the levels at which each trace will be taken.
+
+We agreed on the following levels:
+  a) Guest VFS level (trace method to be decided)
+  b) Guest Block level (blktrace)
+  c) ESX hypervisor (vscsistats)
+  d) Storage Server File Level (Using GPFS tracing for incoming NFS requests)
+  e) Storage Server Block Level (Using GPFS tracing)
+
+> 7) Applications and benchmarks to trace.
+
+In the order of complexity and timing:
+
+a) Filebench micro-workloads
+b) Filebench macro-workloads (oltp, fileserver, etc.)
+c) Application emulators (web, db, mail stressers)
+d) Real-world traces
+
+> 8) Other
+
+Anna noticed that along with trace one needs to collect accuracy parameters. So,
+we need to decide on the set of accuracy parameters soon.
+
+IBM has their own scripts to collect GPFS traces. Can we easily add them to the
+framework?.. Looks like yes. We will discuss this with Anna via private e-mails.
+
+Renu noticed that often Storage Servers export their data via iSCSI, so we at
+least need to mention this. But it might be even better to use iSCSI, not NFS,
+because block traces are simpler.
+
