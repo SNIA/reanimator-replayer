@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
 		std::cout << "Field types:\n";
 		std::cout << "\ttimestamp - int64\n";
 		std::cout << "\tfilename - variable32 (string)\n";
-		std::cout << "\topcode - byte\n";
+		std::cout << "\topcode - byte (\"r\" or \"w\")\n";
 		std::cout << "\toffset - int64\n";
 		std::cout << "\tiosize - int64\n";
 		return 1;
@@ -87,7 +87,12 @@ int main(int argc, char *argv[]) {
 	 */
 	timestamp.set((ExtentType::int64)atoi(argv[1]));
 	filename.set(argv[2]);
-	opcode.set((ExtentType::byte)atoi(argv[3]));
+	if (!strcmp(argv[3], "r"))
+		opcode.set((ExtentType::byte)0x0);
+	else if (!strcmp(argv[3], "w"))
+		opcode.set((ExtentType::byte)0x1);
+	else
+		opcode.set((ExtentType::byte)0x2);
 	offset.set((ExtentType::int64)atoi(argv[4]));
 	size.set((ExtentType::int64)atoi(argv[5]));
 
