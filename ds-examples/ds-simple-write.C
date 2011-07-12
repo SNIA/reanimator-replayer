@@ -1,7 +1,7 @@
 /*
- * A program to write out a single row into a DataSeries
- * file that has a single extent type with schema:
- * timestamp<int64>, op_code<byte>, size<int64>, filename<variable length string>
+ * A program to write a single row into a DataSeries file
+ * with a single extent type. Extent's schema is:
+ * timestamp, filename, opcode, offset, iosize
  */
 
 #include <iostream>
@@ -10,48 +10,51 @@
 #include <DataSeries/DataSeriesFile.hpp>
 #include <DataSeries/DataSeriesModule.hpp>
 
-using namespace std;
-
 int main(int argc, char *argv[]) {
-	if (argc < 6) {
-		cout << "Too few parameters!\n";
-		cout << "Usage: dswrite <timestamp> <op_code> <size>"
-				" <filename> <outfile>\n";
-		cout << "Field types:\n";
-		cout << "\t timestamp - int64\n";
-		cout << "\t op_code - byte\n";
-		cout << "\t size - int64\n";
-		cout << "\t filename - variable32 (string)\n";
+	if (argc != 7) {
+		std::cout << "Wrong usage!\n";
+		std::cout << "Usage: ds-simple-write <timestamp> <filename> "
+				"<opcode> <offset> <iosize> <outfile>\n";
+		std::cout << "Field types:\n";
+		std::cout << "\ttimestamp - int64\n";
+		std::cout << "\tfilename - variable32 (string)\n";
+		std::cout << "\topcode - byte\n";
+		std::cout << "\toffset - int64\n";
+		std::cout << "\tiosize - int64\n";
 		return 1;
 	}
+
+	const char *outfile = argv[6];
 
 	/*
 	 * First, let'a define a schema for our extent.  Don't forget to
 	 * include namespace and version information: you will get a warning if
 	 * you don't have either a namespace or a version.  Remember to follow
 	 * the heirarchical naming conventions when naming extents.  It's mostly
-	 * like Trace::<type of trace>::<Machine type>::<workload
-	 * type>::<anything else that is appropriate>
+	 * like Trace::<type of trace>::<Machine type>::
+	 * <workload type>::<anything else that is appropriate>
 	 */
 	const char *extentXMLDescription =
 		"<ExtentType name=\"Trace::Fictitious::Linux\""
 			" namespace=\"http://www.fsl.cs.sunysb.edu/\""
 			" version=\"0.1\">\n"
 		"  <field type=\"int64\" name=\"timestamp\"/>\n"
-		"  <field type=\"byte\" name=\"op_code\"/>\n"
-		"  <field type=\"int64\" name=\"size\"/>\n"
 		"  <field type=\"variable32\" name=\"filename\"/>\n"
+		"  <field type=\"byte\" name=\"opcode\"/>\n"
+		"  <field type=\"int64\" name=\"offset\"/>\n"
+		"  <field type=\"int64\" name=\"iosize\"/>\n"
 		"</ExtentType>\n";
 
 	ExtentTypeLibrary extentTypeLibrary;
-	const ExtentType& extentType =
-			 extentTypeLibrary.registerTypeR(extentXMLDescription);
+
+	const ExtentType &extentType =
+		 extentTypeLibrary.registerTypeR(extentXMLDescription);
 
 	/*
-	 * A sink is a wrapper to a DataSeries output file. Create
-	 * a sink and write out the extent type extent.
+	 * Sink is a wrapper for a DataSeries output file.
+	 * Create a sink and write out the extent type extent.
 	 */
-	DataSeriesSink outfileSink(argv[5]);
+	DataSeriesSink outfileSink(outfile);
 	outfileSink.writeExtentLibrary(extentTypeLibrary);
 
 	/*
@@ -59,17 +62,20 @@ int main(int argc, char *argv[]) {
 	 * processes extents using ExtentSeries (iterator)
 	 * and put them into the sink.
 	 */
+	uint32_t target_extent_size = 4096;
 	ExtentSeries extentSeries;
-	OutputModule outputModule(outfileSink, extentSeries, extentType, 1024);
+	OutputModule outputModule(outfileSink, extentSeries,
+					extentType, target_extent_size);
 
 	/*
-	 * These are handles to the fields in the
-	 * "current record" of extentSeries
+	 * These are handles for the fields in the
+	 * "current record" of extentSeries.
 	 */
 	Int64Field timestamp(extentSeries, "timestamp");
-	ByteField op_code(extentSeries, "op_code");
-	Int64Field size(extentSeries, "size");
 	Variable32Field filename(extentSeries, "filename");
+	ByteField opcode(extentSeries, "opcode");
+	Int64Field offset(extentSeries, "offset");
+	Int64Field size(extentSeries, "iosize");
 
 	/*
 	 * Initiate a new record in extentSeries
@@ -79,13 +85,14 @@ int main(int argc, char *argv[]) {
 	/*
 	 * Set new records of the extentSeries
 	 */
-	timestamp.set((int64_t)atoi(argv[1]) );
-	op_code.set((char)atoi(argv[2]));
-	size.set((int64_t)atoi(argv[3]));
-	filename.set(argv[4]);
+	timestamp.set((ExtentType::int64)atoi(argv[1]));
+	filename.set(argv[2]);
+	opcode.set((ExtentType::byte)atoi(argv[3]));
+	offset.set((ExtentType::int64)atoi(argv[4]));
+	size.set((ExtentType::int64)atoi(argv[5]));
 
 	/*
-	 * Ask output module to finilize the file.
+	 * Ask output module to finilize the file
 	 */
 	outputModule.flushExtent();
 	outputModule.close();
