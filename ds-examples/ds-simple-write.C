@@ -1,4 +1,19 @@
 /*
+ * Copyright (c) 2011 Jack Ma
+ * Copyright (c) 2011 Vasily Tarasov
+ * Copyright (c) 2011 Koundinya Santhosh Kumar
+ * Copyright (c) 2011 Erez Zadok
+ * Copyright (c) 2011 Geoff Kuenning
+ * Copyright (c) 2011 Stony Brook University
+ * Copyright (c) 2011 Harvey Mudd College
+ * Copyright (c) 2011 The Research Foundation of SUNY
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+
+/*
  * A program to write a single row into a DataSeries file
  * with a single extent type. Extent's schema is:
  * timestamp, filename, opcode, offset, iosize
