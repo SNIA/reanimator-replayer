@@ -1,0 +1,18 @@
+- In sync mode/async we skip requests that were not executed in time.  This must
+  be tweakable.
+- Block offsets are in blocks, but I/O size is not. Should be resolved somehow.
+- Perform opt handling properly
+- compilation on 64bit machine fails
+- configuration_data.push_back((uint64_t)atof(iter->c_str())); float->uint64_t
+  conversion? And back again?
+- if ((offset.val() + request_size.val()) > BUFFER_SIZE) { - should be request
+  size
+- playFlag is set as a result of side effect
+- Time during which to play the trace, should be implemented in a better way,
+  without processed_ flag
+- read(), write() should be compared
+	a) to the return in the trace (if different - what do we do?)
+	b) to the size submitted
+- Should return values match?
+- Should we use O_DIRECT to pre-read the trace? This can eliminate cache
+  pollution.
