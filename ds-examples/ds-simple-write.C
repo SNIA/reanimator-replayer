@@ -50,10 +50,12 @@ int main(int argc, char *argv[]) {
 	 * <workload type>::<anything else that is appropriate>
 	 */
 	const char *extentXMLDescription =
-		"<ExtentType name=\"Trace::Fictitious::Linux\""
-			" namespace=\"http://www.fsl.cs.sunysb.edu/\""
-			" version=\"0.1\">\n"
-		"  <field type=\"int64\" name=\"timestamp\"/>\n"
+		"<ExtentType namespace=\"http://www.fsl.cs.sunysb.edu/\""
+		  " name=\"Trace::Fictitious::Linux\""
+		  " version=\"0.1\""
+		  " comment=\"extent comment does NOT go to the ds file\">\n"
+		"  <field type=\"int64\" name=\"timestamp\""
+		  " comment=\"field comment does NOT go to the ds file\"/>\n"
 		"  <field type=\"variable32\" name=\"filename\"/>\n"
 		"  <field type=\"byte\" name=\"opcode\"/>\n"
 		"  <field type=\"int64\" name=\"offset\"/>\n"
