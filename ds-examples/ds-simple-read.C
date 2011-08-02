@@ -100,7 +100,7 @@ public:
 	 * data (extents and rows) are processed. */
 	void completeProcessing()
 	{
-		std::cout << count_ << " rows processed\n";
+		std::cout << count_ << " row(s) processed\n";
 	}
 };
 
