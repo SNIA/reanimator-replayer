@@ -1,0 +1,16 @@
+<ExtentType name="IOTTAFSL:Trace:Block:read_write" namespace="iotta.snia.org.fsl.cs.sunysb.edu" version="1.00">
+  <field name="logical_IO_id" type="int64" opt_nullable="yes"/>
+  <field name="enter_time" type="int64" opt_nullable="yes"/>
+  <field name="leave_time" type="int64" opt_nullable="yes"/>
+  <field name="return_time" type="int64" opt_nullable="yes"/>
+  <field name="system_id" type="int32" opt_nullable="yes"/>
+  <field name="process_id" type="int32" opt_nullable="yes"/>
+  <field name="device_id" type="int32"/>
+  <field name="completion_status" type="int32" opt_nullable="yes"/>
+  <field name="operation" type="byte" comment="0 - read, 1 - write"/>
+  <field name="offset" type="int64" comment="in bytes"/>
+  <field name="request_size" type="int64" comment="in bytes"/>
+  <field name="actual_size" type="int64" opt_nullable="yes" comment="in bytes"/>
+  <field name="semantic_type" type="byte" opt_nullable="yes" comment="0 - unknow, 1 - plain data, etc."/>
+  <field name="semantic_type_name" type="variable32" opt_nullable="yes"/>
+</ExtentType>

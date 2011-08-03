@@ -1,0 +1,3 @@
+<ExtentType name="commentary" namespace="iotta.snia.org" version="1.00">
+  <field name="comments" type="variable32"/>
+</ExtentType>
