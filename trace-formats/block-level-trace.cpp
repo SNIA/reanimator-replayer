@@ -138,6 +138,7 @@ int main(int argc, char *argv[]) {
 	Int64Field enter_time(rwExtentSeries, "enter_time", 1);
 	Int64Field leave_time(rwExtentSeries, "leave_time", 1);
 	Int64Field return_time(rwExtentSeries, "return_time", 1);
+	Int64Field exit_time(rwExtentSeries, "exit_time", 1);
 	Int32Field system_id(rwExtentSeries, "system_id", 1);
 	Int32Field process_id(rwExtentSeries, "process_id", 1);
 	Int32Field device_id(rwExtentSeries, "device_id");
@@ -154,7 +155,8 @@ int main(int argc, char *argv[]) {
 	logical_IO_id.setNull();
 	enter_time.set(1312397100 * SECOND);
 	leave_time.set(1312397101 * SECOND);
-	return_time.set(1312397105 * SECOND);
+	return_time.set(1312397106 * SECOND);
+	exit_time.set(1312397107 * SECOND);
 	system_id.set(SYSTEM_ID_VM_BLOCK);
 	process_id.set(PROCESS_ID_VM_PDFLUSH);
 	device_id.set(DEVICE_ID_VM_SDA);
@@ -170,6 +172,7 @@ int main(int argc, char *argv[]) {
 	enter_time.set(1312397102 * SECOND);
 	leave_time.set(1312397103 * SECOND);
 	return_time.set(1312397104 * SECOND);
+	exit_time.set(1312397105 * SECOND);
 	system_id.set(SYSTEM_ID_GPFS_BLOCK);
 	process_id.set(PROCESS_ID_GPFS_PDFLUSH);
 	device_id.set(DEVICE_ID_GPFS_SDB);

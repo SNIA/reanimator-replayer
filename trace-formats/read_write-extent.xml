@@ -3,6 +3,7 @@
   <field name="enter_time" type="int64" opt_nullable="yes"/>
   <field name="leave_time" type="int64" opt_nullable="yes"/>
   <field name="return_time" type="int64" opt_nullable="yes"/>
+  <field name="exit_time" type="int64" opt_nullable="yes"/>
   <field name="system_id" type="int32" opt_nullable="yes"/>
   <field name="process_id" type="int32" opt_nullable="yes"/>
   <field name="device_id" type="int32"/>
