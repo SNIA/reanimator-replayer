@@ -194,7 +194,7 @@ public:
 	}
 	
 	/* Register the record and field values in string format into fields */
-	void updateRecord(string &record)
+	void updateRecord(string &record, bool quietmode)
 	{
 		vector<string> split_data;
 		boost::split(split_data, record, boost::is_any_of(","));
@@ -237,7 +237,7 @@ public:
 			}
 			if (nullable)
 				fieldSpace.setNullField(extentname, fieldname);
-			else {
+			else if (!quietmode) {
 				cerr << extentname << ":" << fieldname << " ";
 				cerr << "WARNING: Attempting to setNull to a non-nullable field. ";
 				cerr << "This field will take on default value instead." << endl;
@@ -270,15 +270,23 @@ private:
 
 
 int main(int argc, char *argv[]) {
+	bool quietmode = false;
 	if (argc < 4) {
 		std::cout << "Wrong usage!\n";
-		std::cout << "Usage: " << argv[0] << " <outputfile> <tablefile> <spec_string_file> <inputfiles...> \n";
+		std::cout << "Usage: " << argv[0] << " [-q] <outputfile> <tablefile> <spec_string_file> <inputfiles...> \n";
 		return 1;
 	}
 
-	const char *outfile = argv[1];
-	std::ifstream tablefile(argv[2]);
-	std::ifstream specfile(argv[3]);
+	int current_arg = 1;
+
+	if (strcmp("-q", argv[current_arg]) == 0) {
+		quietmode = true;
+		current_arg++;
+	}
+
+	const char *outfile = argv[current_arg++];
+	std::ifstream tablefile(argv[current_arg++]);
+	std::ifstream specfile(argv[current_arg++]);
 
 	if (!tablefile.is_open()) {
 		std::cout << "Could not open table file!\n";
@@ -298,7 +306,7 @@ int main(int argc, char *argv[]) {
 
 	/* Create Tables and Fields */
 	DataSeriesWriteModule writemod = DataSeriesWriteModule(table, specs, outfile);
-	for (int i = 4; i < argc; i++) {
+	for (int i = current_arg++; i < argc; i++) {
 		std::ifstream inputfile(argv[i]);
 		cout << "Processing input file " << argv[i] << endl;
 		if (!inputfile.is_open()) {
@@ -307,7 +315,7 @@ int main(int argc, char *argv[]) {
 		}
 		string line;
 		while (getline(inputfile, line))
-			writemod.updateRecord(line);	
+			writemod.updateRecord(line, quietmode);
 	}
 
 }
