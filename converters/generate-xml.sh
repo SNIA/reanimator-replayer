@@ -2,18 +2,38 @@
 
 #This script generates xml files given a configuration table in a folder named 'xml'.
 
-# params: tablefile spec-string-file
+# params: tablefile [spec-string-file]
 
-if [ $# != 2 ]; then
-	echo "Usage: $0 <tablefile> <spec-string-file>"
+# If no specification string is specified, generate a specification string based on
+# tablefile
+
+if [ $# == 0 ]; then
+	echo "Usage: $0 <tablefile>"
 	exit 1
 fi
 
 mkdir -p xml
 
-calls=`sed -e "s/\s//g" $2| tr -d "\n" | sed 's/"//g'  | cut -d ";" -f 1- --output-delimiter=" "`
+if [ $# == 1 ]; then
+	specstring=""
+	callstring=""
+	while read line;
+	do
+		name=`cut -f 1 <<< "$line"`
+		if [[ `grep -P "/$name/" <<< "$callstring"` == '' ]]; then
+			allfields=`sed 's/ /,/g' <<< $(grep -P "^$name\t" $1 | awk '{ print $2 }')`
+			specstring="$specstring""$name($allfields);"
+			callstring="$callstring""/$name/"
+		fi
+	done < $1
+else
+	specstring="`cat $2`"
+fi
 
-for call in $calls 
+
+calls=`sed -e "s/\s//g" <<<$specstring| tr -d "\n" | sed 's/"//g'  | cut -d ";" -f 1- --output-delimiter=" "`
+
+for call in $calls
 do
 	callname=`echo $call | cut -d "(" -f 1`
 	parms=`echo $call | cut -d "(" -f 2 | sed 's/)//' | cut -d "," -f 1- --output-delimiter=" "`
@@ -46,7 +66,7 @@ do
 			else
 				op=no
 			fi
-			echo "<field name=\"$parm\" type=\"$typename\" opt_nullable=\"$op\"/>" >> xml/$callname.xml
+			echo "  <field name=\"$parm\" type=\"$typename\" opt_nullable=\"$op\"/>" >> xml/$callname.xml
 
 		done
 
