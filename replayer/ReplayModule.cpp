@@ -19,11 +19,13 @@
 #include <vector>
 #include <set>
 #include <string.h>
+#include <getopt.h>
 #include <DataSeries/PrefetchBufferModule.hpp>
 #include <DataSeries/TypeIndexModule.hpp>
 #include <DataSeries/RowAnalysisModule.hpp>
 #include <boost/foreach.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/program_options.hpp>
 
 #include "Commander.hpp"
 
@@ -150,63 +152,101 @@ private:
 
 int main(int argc, char *argv[])
 {
-	std::string usage =
-		"Usage: "
-			"replay "
-			"[-v] "
-			"-sync|-async "
-			"device_id "
-			"<configuration file> "
-			"<dataseries files...>\n";
+	/* Option Processing */
+	boost::program_options::options_description visible("Allowed options");
+	visible.add_options()
+		("help,h", "produce help message")
+		("verbose,v", "replay in verbose mode")
+		("mode,m", boost::program_options::value<std::string>(),
+					"-sync or -async replaying mode")
+		("device,d", boost::program_options::value<std::string>(),
+					"device_id")
+		("config,c", boost::program_options::value<std::string>(),
+					"config file")
+	;
 
-	if (strcmp(argv[1],"-v") == 0) {
-		if (argc < 6) {
-			std::cout << usage;
-			return 1;
-		}
-	} else {
-		if (argc < 5) {
-			std::cout << usage;
-			return 1;
-		}
-	}
+	boost::program_options::options_description desc("Hidden options");
+	desc.add_options()
+		("input-files", boost::program_options::
+					value<std::vector<std::string> >(),
+					"input files")
+		;
+	desc.add(visible);
 
-	int argnum = 1;
+	boost::program_options::positional_options_description p;
+	p.add("input-files", -1);
 
-	/* check if verbose mode is enabled */
+	boost::program_options::variables_map vm;
+	boost::program_options::store(boost::program_options::
+					command_line_parser(argc, argv).
+					options(desc).positional(p).run(), vm);
+	boost::program_options::notify(vm);
+
 	bool verbose = false;
-	if (strcmp(argv[argnum], "-v") == 0) {
-		verbose = true;
-		argnum++;
-	}
+	std::string mode;
+	std::string device_id;
+	std::string config_file;
+	std::vector<std::string> input_files;
 
-	/* calculate buffer placement to allign with page. Floor division. */
-	void *mbuffer = malloc(BUFFER_SIZE);
-	void *buffer((void*)(((uint64_t)(mbuffer) + 4096 - 1) / 4096 * 4096));
-
-	/* create a Commander that executes operations */
-	Commander *commander;
-	if (strcmp(argv[argnum], "-sync") == 0) {
-		argnum++;
-		commander = new SynchronousCommander(argv[argnum],
-						     buffer,
-						     verbose);
-		argnum++;
-	} else if (strcmp(argv[argnum], "-async") == 0) {
-		argnum++;
-		commander = new AsynchronousCommander(argv[argnum],
-						      buffer,
-						      verbose);
-		argnum++;
-	} else {
-		std::cout << usage;
+	if (vm.count("help")) {
+		std::cout << visible << std::endl;
 		return 1;
 	}
 
+	if (vm.count("verbose"))
+		verbose = true;
+
+	if (vm.count("mode")) {
+		mode = vm["mode"].as<std::string>();
+		if (mode != "sync" and mode != "async") {
+			std::cout << "Unsupported mode" << std::endl;
+			return 1;
+		}
+	} else {
+		std::cout << "No mode specified" << std::endl;
+		return 1;
+	}
+
+	if (vm.count("device"))
+		device_id = vm["device"].as<std::string>();
+	else {
+		std::cout << "No device specified" << std::endl;
+		return 1;
+	}
+
+	if (vm.count("config"))
+		config_file = vm["config"].as<std::string>();
+	else {
+		std::cout << "No configuration file specified" << std::endl;
+		return 1;
+	}
+
+	if (vm.count("input-files")) {
+		input_files = vm["input-files"].as<std::vector<std::string> >();
+	} else {
+		std::cout << "No input dataseries files" << std::endl;
+		return 1;
+	}
+	return 0;
+
+	/* create a Commander that executes operations and create buffer
+		alligned with page by floor division */
+	Commander *commander;
+	void *mbuffer = malloc(BUFFER_SIZE);
+	void *buffer((void*)(((uint64_t)(mbuffer) + 4096 - 1) / 4096 * 4096));
+
+	if (mode == "sync")
+		commander = new SynchronousCommander(device_id,
+						     buffer,
+						     verbose);
+	else
+		commander = new AsynchronousCommander(device_id,
+						      buffer,
+						      verbose);
+
 	/* Read in the configuration file */
 	std::ifstream input;
-	input.open(argv[argnum]);
-	argnum++;
+	input.open(config_file.c_str());
 
 	std::string line;
 	std::map<std::string,std::vector<uint64_t> > configuration;
@@ -241,8 +281,10 @@ int main(int argc, char *argv[])
 	/* Specify to read in the extent type "read_write" */
 	TypeIndexModule source("read_write");
 
-	for (int i = argnum; i < argc; i++)
-		source.addSource(argv[i]);
+	for (std::vector<std::string>::iterator iter = input_files.begin();
+				      iter != input_files.end();
+				      iter++)
+		source.addSource(*iter);
 
 	/* Parallel decompress and stats, 64MiB buffer */
 	PrefetchBufferModule prefetch(source, 64 * 1024 * 1024);
