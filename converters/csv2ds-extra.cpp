@@ -176,7 +176,7 @@ public:
 			}
 			string myExtentXMLDescription, str;
 			while (getline(myExtentXMLFile, str))
-				myExtentXMLDescription += str;
+				myExtentXMLDescription += str + "\n";
 			
 			/* Register the ExtentXMLDescription */
 			const ExtentType &myExtentType =
