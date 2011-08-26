@@ -182,7 +182,7 @@ int main(int argc, char *argv[])
 
 	/* calculate buffer placement to allign with page. Floor division. */
 	void *mbuffer = malloc(BUFFER_SIZE);
-	void *buffer((void*)(((int)(mbuffer) + 4096 - 1) / 4096 * 4096));
+	void *buffer((void*)(((uint64_t)(mbuffer) + 4096 - 1) / 4096 * 4096));
 
 	/* create a Commander that executes operations */
 	Commander *commander;
