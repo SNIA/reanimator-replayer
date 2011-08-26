@@ -279,7 +279,7 @@ int main(int argc, char *argv[]) {
 
 	int current_arg = 1;
 
-	if (strcmp("-q", argv[current_arg]) == 0) {
+	if (!strcmp("-q", argv[current_arg])) {
 		quietmode = true;
 		current_arg++;
 	}
@@ -306,7 +306,7 @@ int main(int argc, char *argv[]) {
 
 	/* Create Tables and Fields */
 	DataSeriesWriteModule writemod = DataSeriesWriteModule(table, specs, outfile);
-	for (int i = current_arg++; i < argc; i++) {
+	for (int i = current_arg; i < argc; i++) {
 		std::ifstream inputfile(argv[i]);
 		cout << "Processing input file " << argv[i] << endl;
 		if (!inputfile.is_open()) {
