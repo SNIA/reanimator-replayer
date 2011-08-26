@@ -5,7 +5,7 @@
 
 TABLEFILE=tables/snia_to_blktrace_fields_mapping.csv
 OUTPUTFILE=$1
-SPECSTRINGFILE=string/blktrace
+SPECSTRINGFILE=specstrings/blktrace
 
 if [ ! -e csv2ds-extra ]; then
 	echo "csv2ds-extra binary is not found. Maybe make it?"
@@ -44,8 +44,8 @@ echo -n "" > /tmp/blktrace.parsed
 while read line;
 do
 	# the second field (time) is in nanoseconds
-	echo $line | awk -v time=$(expr `echo $line | cut -f 2 -d ' '` \* 4294967296 / 1000000000) '{ printf("%s,%s,%s\n",$1, time, $3) }'
-done < /tmp/blktrace.unparsed
+	echo $line | awk -v time=$(echo `echo $line | cut -f 2 -d ' '` \* 4294967296 / 1000000000 | bc) '{ printf("%s,%s,%s\n",$1, time, $3) }'
+done < /tmp/blktrace.unparsed > /tmp/blktrace.parsed
 
 
 ./csv2ds-extra $OUTPUTFILE $TABLEFILE $SPECSTRINGFILE /tmp/blktrace.parsed
