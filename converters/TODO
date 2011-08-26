@@ -1,0 +1,3 @@
+- exit system call is not traced, because it is a different type of probe
+  in SystemTap, so it requires special handling.
+  
