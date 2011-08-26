@@ -8,7 +8,7 @@
 # tablefile
 
 if [ $# == 0 ]; then
-	echo "Usage: $0 <tablefile>"
+	echo "Usage: $0 <tablefile> [spec-string-file]"
 	exit 1
 fi
 
