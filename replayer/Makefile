@@ -30,3 +30,6 @@ ReplayModule.o: ReplayModule.cpp Commander.hpp
 
 clean:
 	rm -f $(TARGETS) $(REPLAY_OBJECTS)
+
+install:
+	cp dsblkreplay /usr/local/bin/
