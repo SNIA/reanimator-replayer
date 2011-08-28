@@ -47,7 +47,7 @@
 #include <string.h>
 #include <queue>
 
-#define NANO_TIME_MULTIPLIER 1000 * 1000 * 1000
+#define NANO_TIME_MULTIPLIER (1000UL * 1000UL * 1000UL)
 
 class Commander {
 

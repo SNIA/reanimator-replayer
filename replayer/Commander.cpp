@@ -59,7 +59,7 @@ void Commander::waitUntil(uint64_t time)
 
 	int64_t timeDelta = (time - startTime + startRealTime) - currentTime;
 
-	if (timeDelta <= 0 && time != prevTime)	{
+	if (timeDelta <= 0 /* && time != prevTime */)	{
 		lateOps++;
 		if (verbose) {
 			std::cout << "Operation did not execute in time."

@@ -29,7 +29,7 @@
 
 #include "Commander.hpp"
 
-#define BUFFER_SIZE 1024 * 1024 * 1024
+#define BUFFER_SIZE (1024 * 1024 * 1024)
 #define BLOCK_SIZE 512
 
 class BlocktraceReplayModule : public RowAnalysisModule {
@@ -227,7 +227,6 @@ int main(int argc, char *argv[])
 		std::cout << "No input dataseries files" << std::endl;
 		return 1;
 	}
-	return 0;
 
 	/* create a Commander that executes operations and create buffer
 		alligned with page by floor division */
