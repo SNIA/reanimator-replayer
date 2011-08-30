@@ -304,3 +304,7 @@ fork
 dup	descriptor	0	int32	$fildes
 dup2	old_descriptor	0	int32	$oldfd
 dup2	new_descriptor	0	int32	$newfd
+rename	given_oldname	0	variable32	user_string($oldname)
+rename	full_oldname	1	variable32	""
+rename	given_newname	0	variable32	user_string($newname)
+rename	full_newname	1	variable32	""
