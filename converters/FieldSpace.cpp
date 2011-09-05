@@ -107,7 +107,7 @@ void FieldSpace::setField(string &syscallname, string &fieldname, string &val)
 			doSet<BoolField, bool>(syscallname, fieldname, buffer);
 			break;
 		case ExtentType::ft_byte:
-			*(ExtentType::byte*)buffer = val.c_str()[0];
+			*(ExtentType::byte*)buffer = (char)atoi(val.c_str());
 			doSet<ByteField,ExtentType::byte>(syscallname, fieldname, buffer);
 			break;
 		case ExtentType::ft_int32:
@@ -115,7 +115,7 @@ void FieldSpace::setField(string &syscallname, string &fieldname, string &val)
 			doSet<Int32Field,ExtentType::int32>(syscallname, fieldname, buffer);
 			break;
 		case ExtentType::ft_int64:
-			*(ExtentType::int64*)buffer = atof(val.c_str());
+			*(ExtentType::int64*)buffer = atoll(val.c_str());
 			doSet<Int64Field,ExtentType::int64>(syscallname, fieldname, buffer);
 			break;
 		case ExtentType::ft_double:

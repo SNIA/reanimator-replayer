@@ -3,12 +3,17 @@
 # ./spc2ds.sh <outputfile> <inputfile>
 
 
-TABLEFILE=table/blocktrace.csv
+TABLEFILE=tables/snia_to_blktrace_fields_mapping.csv
 OUTPUTFILE=$1
-SPECSTRINGFILE=string/spctrace
+SPECSTRINGFILE=specstrings/spctrace
 
 if [ ! -e csv2ds-extra ]; then
 	echo "csv2ds-extra binary is not found. Maybe make it?"
+	exit 1
+fi
+
+if [ ! -e pre-processor ]; then
+	echo "pre-processor binary is not found. Maybe make it?"
 	exit 1
 fi
 
@@ -27,24 +32,25 @@ if [ -z "$OUTPUTFILE" ]; then
         exit 1
 fi
 
-i=1
 INPUTFILE=$2
-
 if [ -z "$INPUTFILE" ]; then
         echo "You must provide input files!"
         exit 1
 fi
 
-echo "Parsing spcetrace"
-sed 's/r/0/g;s/w/1/g;s/\.//g;s/,/ /g' $INPUTFILE > /tmp/spctrace.unparsed
+TEMPFILE=`mktemp`
+echo "Using temporary file" $TEMPFILE
 
-echo "Line processing"
-echo -n "" > /tmp/spctrace.parsed
-while read line;
-do
-	echo $line | awk -v time=$(expr `echo $line | cut -f 5 -d ' '` \* 4294967296 / 1000000) '{printf("%s,%s,%s,%s,%s\n",$1, $2, $3, $4, time) }'  >> /tmp/spctrace.parsed
-done < /tmp/spctrace.unparsed
+echo "Parsing spectrace..."
+./pre-processor spc $INPUTFILE $TEMPFILE
 
-echo $OUTPUTFILE $TABLEFILE $SPECSTRINGFILE /tmp/spctrace.parsed
-./csv2ds-extra $OUTPUTFILE $TABLEFILE $SPECSTRINGFILE /tmp/spctrace.parsed
-#rm -f /tmp/spctrace.parsed
+if [ $? -ne 0 ]; then
+        rm -f $TEMPFILE
+        exit $?
+fi
+
+echo "Converting to DataSeries..."
+./csv2ds-extra -q $OUTPUTFILE $TABLEFILE $SPECSTRINGFILE $TEMPFILE
+
+echo "Removing temporary file" $TEMPFILE
+rm -f $TEMPFILE

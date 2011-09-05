@@ -154,7 +154,7 @@ public:
 
 	/* Constructor to set up all extents and fields */
 	DataSeriesWriteModule(config_table_type &table, specs_type &specs, const char *outfile)
-		: table_(table), specs_(specs), outfileSink(outfile)
+		: outfileSink(outfile), table_(table), specs_(specs)
 	{
 		/* Registering extent types to the library */
 		ExtentTypeLibrary extentTypeLibrary;

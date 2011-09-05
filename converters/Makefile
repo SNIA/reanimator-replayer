@@ -1,15 +1,16 @@
 
 # ----- Make Constants (used by the default build rules in make) -----
 
-OPTFLAGS = -O2
+OPTFLAGS = -O0 -Wall -Wconversion -Werror -std=c++0x
 #CXXFLAGS = -g -Wall -Wextra -pedantic -lDataSeries -I/usr/include/libxml2/ $(OPTFLAGS)
 CXXFLAGS = -g -lDataSeries -I/usr/include/libxml2/ -I/usr/local/boost_1_46_1 $(OPTFLAGS)
 CXX      = g++
 
 # ----- Handy Constants (used in this file) -----
 
-TARGETS = csv2ds-extra
+TARGETS = csv2ds-extra pre-processor
 CSV2DS-EXTRA_OBJECTS = FieldSpace.o csv2ds-extra.o
+PRE-PROCESSOR_OBJECTS = pre-processor.o
 
 # ----- Make Rules -----
 
@@ -17,9 +18,13 @@ all:    $(TARGETS)
 
 csv2ds-extra:    $(CSV2DS-EXTRA_OBJECTS)
 		$(CXX) $(CXXFLAGS) -o csv2ds-extra $(CSV2DS-EXTRA_OBJECTS)
+pre-processor: $(PRE-PROCESSOR_OBJECTS)
+				$(CXX) $(CXXFLAGS) -o pre-processor $(PRE-PROCESSOR_OBJECTS)
+
 clean:
-		rm -f $(TARGETS) $(CSV2DS-EXTRA_OBJECTS)
+		rm -f $(TARGETS) $(CSV2DS-EXTRA_OBJECTS) $(PRE-PROCESSOR_OBJECTS)
 
 # ----- Dependencies (as produced by g++ -MM *.cpp) ----- 
+csv2ds-extra.o: csv2ds-extra.cpp FieldSpace.hpp
 FieldSpace.o: FieldSpace.cpp FieldSpace.hpp
-csv2ds-extra.o: csv2ds-extra.cpp
+pre-processor.o: pre-processor.cpp

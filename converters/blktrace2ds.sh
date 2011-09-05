@@ -12,6 +12,11 @@ if [ ! -e csv2ds-extra ]; then
 	exit 1
 fi
 
+if [ ! -e pre-processor ]; then
+	echo "pre-processor binary is not found. Maybe make it?"
+	exit 1
+fi
+
 if [ ! -e $TABLEFILE ]; then
 	echo "blocktrace table file is not found! Please put it in $TABLEFILE"
 	exit 1
@@ -35,19 +40,32 @@ if [ -z "$INPUTFILE" ]; then
         exit 1
 fi
 
-echo "Parsing blktrace file using blkparse"
+TEMPFILE1=`mktemp`
+echo "Using temporary file" $TEMPFILE1
 
-blkparse -F A,"read_write %T%t %p,%M%m,%d,%S,%N\n" $INPUTFILE | grep read_write > /tmp/blktrace.unparsed
+echo "Parsing blktrace file using blkparse..."
+blkparse -F A,"read_write,%T%t,%p,%M%m,%d,%S,%N\n" $INPUTFILE | grep read_write > $TEMPFILE1
+if [ $? -ne 0 ]; then
+        rm -f $TEMPFILE1
+        exit $?
+fi
 
-echo "Line processing"
-echo -n "" > /tmp/blktrace.parsed
-while read line;
-do
-	# the second field (time) is in nanoseconds
-	echo $line | awk -v time=$(echo `echo $line | cut -f 2 -d ' '` \* 4294967296 / 1000000000 | bc) '{ printf("%s,%s,%s\n",$1, time, $3) }'
-done < /tmp/blktrace.unparsed > /tmp/blktrace.parsed
+TEMPFILE2=`mktemp`
+echo "Using temporary file" $TEMPFILE2
 
+echo "Pre-processing ..."
+./pre-processor blk $TEMPFILE1 $TEMPFILE2
 
-./csv2ds-extra $OUTPUTFILE $TABLEFILE $SPECSTRINGFILE /tmp/blktrace.parsed
-#rm -f /tmp/blktrace.unparsed
-#rm -f /tmp/blktrace.parsed
+if [ $? -ne 0 ]; then
+        rm -f $TEMPFILE1 $TEMPFILE2
+        exit $?
+fi
+
+echo "Cleaning up" $TEMPFILE1
+rm -f $TEMPFILE1
+
+echo "Converting to DataSeries..."
+./csv2ds-extra -q $OUTPUTFILE $TABLEFILE $SPECSTRINGFILE $TEMPFILE2
+
+echo "Cleaning up" $TEMPFILE2
+rm -f $TEMPFILE2
