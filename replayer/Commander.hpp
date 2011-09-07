@@ -34,30 +34,33 @@
  *	the first time.
  *
 */
+#ifndef COMMANDER_HPP_
+#define COMMANDER_HPP_
 
-#include <iostream>
-#include <fcntl.h>
-#include <unistd.h>
-#include <aio.h>
-#include <time.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <string.h>
+#include <string>
+#include <cstdint>
 #include <queue>
+#include <aio.h>
 
-#define NANO_TIME_MULTIPLIER (1000UL * 1000UL * 1000UL)
+#include "ReplayStats.hpp"
+
+#define NANO_TIME_MULTIPLIER (1000ULL * 1000ULL * 1000ULL)
 
 class Commander {
 
 public:
-	Commander(std::string output_device, void *bufferPtr, bool verboseFlag);
+	Commander(std::string output_device, void *bufferPtr, bool verboseFlag,
+			ReplayStats *stats);
 
 	~Commander();
 
-	/* Wait until specified real time, then return */
-	void waitUntil(uint64_t time);
+	/* Wait until specified relative record time, then return
+	 *
+	 * @time: The timestamp associated with the record, in nanos.
+	 *
+	 * @return: The actual time spent waiting, in nanos. A negative value
+	 * indicates that we returned ahead of time. */
+	int64_t waitUntil(uint64_t time);
 
 	/* Execute an operation with specified time, offset, and size */
 	virtual void execute(uint64_t operation,
@@ -68,30 +71,33 @@ public:
 	/* Execute cleanup procedures, if any */
 	virtual void cleanup() = 0;
 
+	/* Return the current time in uint64_t in nanoseconds */
+	static uint64_t timeNow();
+
 	/* Write out trace statistics to cout */
 	void writeStats();
 
+	/* Return the replay statistics object associated with this commander. */
+	ReplayStats *getReplayStats() const;
+
 protected:
-	/* Return the current time in uint64_t in nanoseconds */
-	uint64_t timeNow();
 
 	int fd;
 	void *buffer;
 	bool timeInitialized;
-	uint64_t startTime, startRealTime, prevTime;
-
-	uint64_t totalRead, totalWrite, totalData;
-	uint64_t totalReadTime, totalWriteTime;
-	uint64_t lateOps, failedOps;
-
+	uint64_t traceRecordStartTime; /* The first time in the trace record */
+	/* The wall clock time when we started replaying the trace */
+	uint64_t replayStartWallclockTime;
 	bool verbose;
+	ReplayStats *stats;
 };
 
 class SynchronousCommander : public Commander {
 public:
 	SynchronousCommander(std::string output_device,
 			     void *bufferPtr,
-			     bool verboseFlag);
+			     bool verboseFlag,
+			     ReplayStats *stats);
 
 	void execute(uint64_t operation,
 			     uint64_t time,
@@ -100,13 +106,15 @@ public:
 
 	void cleanup();
 
+	virtual ~SynchronousCommander() {}
 };
 
 class AsynchronousCommander : public Commander {
 public:
 	AsynchronousCommander(std::string output_device,
 			      void *bufferPtr,
-			      bool verboseFlag);
+			      bool verboseFlag,
+			      ReplayStats *stats);
 
 	void execute(uint64_t operation,
 			     uint64_t time,
@@ -120,8 +128,10 @@ public:
 		Else return false. */
 	bool checkControlBlockQueue();
 
-private:
-	std::queue<aiocb*> control_block_queue;
+	virtual ~AsynchronousCommander() {}
 
+private:
+	std::queue<aiocb64*> control_block_queue;
 };
 
+#endif /* COMMANDER_HPP_ */

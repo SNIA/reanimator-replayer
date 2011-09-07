@@ -31,7 +31,7 @@ has the ExtentType called "read_write" with the following fields:
 2) offset (Int64Field) - block offset number (512 bytes per block)
 3) request_size (Int64Field) - I/O size in bytes
 4) operation (ByteField) - operation type: 0 for read and 1 for write
-5) enter_time (Int64Field) - timestamp in nanosecond
+5) enter_time (Int64Field) - timestamp in Tfracs.
 
 CONFIGURATION FILE FORMAT
 

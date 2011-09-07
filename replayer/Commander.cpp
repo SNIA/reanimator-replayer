@@ -12,83 +12,93 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
+#define _LARGEFILE64_SOURCE	1
+#define OPERATION_READ		0
 
 #include "Commander.hpp"
 
+#include <iostream>
+#include <string>
+#include <sstream>
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <aio.h>
+
+#include <ctime>
+#include <cstdint>
+#include <cstdio>
+#include <cstdlib>
+#include <cerrno>
+#include <cstring>
+
+#include <queue>
+
+#include <stdexcept>
+
 Commander::Commander(std::string output_device,
 		     void *bufferPtr,
-		     bool verboseFlag)
-	: fd(open(output_device.c_str(), O_RDWR | O_DIRECT)),
+		     bool verboseFlag,
+		     ReplayStats *stats)
+	: fd(-1),
 	  buffer(bufferPtr),
 	  timeInitialized(false),
-	  totalRead(0), totalWrite(0), totalData(0),
-	  totalReadTime(0), totalWriteTime(0), lateOps(0), failedOps(0),
-	  verbose(verboseFlag)
+	  verbose(verboseFlag),
+	  stats(stats)
 {
+	fd = open(output_device.c_str(), O_RDWR | O_DIRECT | O_LARGEFILE);
 	if (fd < 0) {
-		std::cout << "Warning: Cannot find device" << std::endl;
-		exit(0);
+		std::stringstream msg;
+		msg << "Cannot open device '" << output_device << "': " <<
+				strerror(errno) << " (errno = " << errno << ").";
+		throw std::runtime_error(msg.str());
+	}
+
+	if (!bufferPtr) {
+		throw std::invalid_argument("NULL buffer");
+	}
+
+	if (!stats) {
+		throw std::invalid_argument("NULL stats");
 	}
 }
 
 Commander::~Commander()
 {
-	if (!close(fd))
-		std::cout << "Warning: Error closing file" << std::endl;
+	if (close(fd))
+		std::cerr << "Warning: Error closing device (errno = " << errno <<
+			").\n";
 }
 
-void Commander::waitUntil(uint64_t time)
+int64_t Commander::waitUntil(uint64_t time)
 {
-	struct timespec sleeptime;
-
 	uint64_t currentTime = timeNow();
 
 	if (!timeInitialized) {
-		/* wait until starting time */
-		sleeptime.tv_sec = time / NANO_TIME_MULTIPLIER;
-		sleeptime.tv_nsec = time % NANO_TIME_MULTIPLIER;
-		nanosleep(&sleeptime, NULL);
-
 		timeInitialized = true;
-		startTime = time;
-		prevTime = time;
-
-		currentTime = timeNow();
-		startRealTime = currentTime;
+		traceRecordStartTime = time;
+		stats->replayStartWallclockTime = replayStartWallclockTime =
+				currentTime;
+		return 0; /* Don't wait if this is the first record */
 	}
 
-	int64_t timeDelta = (time - startTime + startRealTime) - currentTime;
+	int64_t timeDelta = (time - traceRecordStartTime) -
+			(currentTime - replayStartWallclockTime);
 
-	if (timeDelta <= 0 /* && time != prevTime */)	{
-		lateOps++;
-		if (verbose) {
-			std::cout << "Operation did not execute in time."
-				  << std::endl;
-			std::cout << "\tTrace Time: " << time << " "
-				  << "Time Difference: " << timeDelta
-				  << std::endl;
-		}
-	} else {
+	/* FIXME: Replace the hard-coded value below with (some constant times)
+	 * the clock resolution. */
+	if (timeDelta > 100) {
+		struct timespec sleeptime;
 		sleeptime.tv_sec = timeDelta / NANO_TIME_MULTIPLIER;
 		sleeptime.tv_nsec = timeDelta % NANO_TIME_MULTIPLIER;
 		nanosleep(&sleeptime, NULL);
+	} else {
+		stats->lateOps++;
 	}
 
-	prevTime = time;
-}
-
-void Commander::writeStats()
-{
-	std::cout << "IO Summary: "
-		  << (timeNow() - startRealTime) << " tracetime, "
-		  << totalData << " operationdata, "
-		  << totalRead << " reads, "
-		  << totalWrite << " writes, "
-		  << totalReadTime << " readtime, "
-		  << totalWriteTime << " writetime, "
-		  << lateOps << " lateops, "
-		  << failedOps << " failedops"
-		  << std::endl;
+	return -timeDelta;
 }
 
 uint64_t Commander::timeNow()
@@ -100,45 +110,43 @@ uint64_t Commander::timeNow()
 
 SynchronousCommander::SynchronousCommander(std::string output_device,
 					   void *bufferPtr,
-					   bool verboseFlag)
-	: Commander(output_device, bufferPtr, verboseFlag) { }
+					   bool verboseFlag,
+					   ReplayStats *stats)
+	: Commander(output_device, bufferPtr, verboseFlag, stats) { }
 
 void SynchronousCommander::execute(uint64_t operation,
 				   uint64_t time,
 				   uint64_t offset,
 				   uint64_t size)
 {
-	waitUntil(time);
+	typedef ssize_t (*readWriteOp_t)(int fd, void *buf, size_t count,
+			__off64_t offset);
 
+	readWriteOp_t rwOp = (operation == OPERATION_READ) ?
+			pread64 : (readWriteOp_t)pwrite64;
+
+	stats->currentDelay = waitUntil(time);
 	uint64_t start = timeNow();
 
-	lseek(fd, offset, SEEK_SET);
-
-	if (operation == 0) {
-		if (read(fd, buffer, size) == -1) {
-			failedOps++;
-			if (verbose)
-				std::cout << time
-					  << ": can't create read request!"
-					  << std::endl;
+	if (rwOp(fd, buffer, size, offset) != -1) {
+		uint64_t elapsedTime = timeNow() - start;
+		if (operation == OPERATION_READ) {
+			stats->totalReadTime += elapsedTime;
+		}  else {
+			stats->totalWriteTime += elapsedTime;
 		}
-
-		totalReadTime += timeNow() - start;
-		totalRead++;
-	} else {
-		if (write(fd, buffer, size) == -1) {
-			failedOps++;
-			if (verbose)
-				std::cout << time
-					  << ": can't create write request!"
-					  << std::endl;
+		stats->totalData += size;
+	}
+	else {
+		stats->failedOps++;
+		if (verbose) {
+			std::cerr << "Failed " << ((operation == OPERATION_READ) ? "read" :
+				"write") << ":" << time << "," << offset << "," << size << ": "
+				<< strerror(errno) << "(errno = " << errno << ").\n";
 		}
-
-		totalWriteTime += timeNow() - start;
-		totalWrite++;
 	}
 
-	totalData += size;
+	(operation == OPERATION_READ) ? stats->totalRead++ : stats->totalWrite++;
 }
 
 void SynchronousCommander::cleanup()
@@ -150,8 +158,9 @@ void SynchronousCommander::cleanup()
 
 AsynchronousCommander::AsynchronousCommander(std::string output_device,
 					     void *bufferPtr,
-					     bool verboseFlag)
-	:	Commander(output_device, bufferPtr, verboseFlag)
+					     bool verboseFlag,
+					     ReplayStats *stats)
+	:	Commander(output_device, bufferPtr, verboseFlag, stats)
 {
 
 }
@@ -161,38 +170,29 @@ void AsynchronousCommander::execute(uint64_t operation,
 				    uint64_t offset,
 				    uint64_t size)
 {
-	aiocb * cb = new aiocb;
-	memset(cb, 0, sizeof(aiocb));
+	aiocb64 * cb = new aiocb64;
+	memset(cb, 0, sizeof(aiocb64));
 	cb->aio_nbytes = size;
 	cb->aio_fildes = fd;
 	cb->aio_offset = offset;
 	cb->aio_buf = buffer;
 	control_block_queue.push(cb);
+	ssize_t (*readWriteOp)(aiocb64*) =
+			(operation == OPERATION_READ) ? aio_read64 : aio_write64;
 
 	waitUntil(time);
-
-	if (operation == 0) {
-		if (aio_read(cb) != 0) {
-			failedOps++;
-			if (verbose)
-				std::cout << time
-					  << ": can't create aio_read request!"
-					  << std::endl;
-		}
-		totalRead++;
+	if (readWriteOp(cb) != -1) {
+		stats->totalData += size;
 	} else {
-		if (aio_write(cb) != 0) {
-			failedOps++;
-			if (verbose)
-				std::cout << time
-					  << ": can't create aio_write request!"
-					  << std::endl;
+		stats->failedOps++;
+		if (verbose) {
+			std::cerr << "Failed " << ((operation == OPERATION_READ) ? "read" :
+				"write") << "," << time << "," << offset << "," << size << ": "
+				<< strerror(errno) << "(errno = " << errno << ").\n";
 		}
-		totalWrite++;
 	}
 
 	checkControlBlockQueue();
-	totalData += size;
 }
 
 void AsynchronousCommander::cleanup()
@@ -205,7 +205,10 @@ bool AsynchronousCommander::checkControlBlockQueue()
 	if (control_block_queue.empty())
 		return 0;
 
-	switch (aio_error(control_block_queue.front())) {
+	int error;
+	aiocb64 *cb;
+
+	switch ((error=aio_error((aiocb*)(cb=control_block_queue.front())))) {
 		case 0:
 			delete control_block_queue.front();
 			control_block_queue.pop();
@@ -213,18 +216,46 @@ bool AsynchronousCommander::checkControlBlockQueue()
 		case EINPROGRESS:
 			break;
 		default:
-			failedOps++;
-			if (verbose)
-				std::cout << "Warning: "
-					  << "can't execute asychronous command"
-					  << std::endl;
+			stats->failedOps++;
+			if (verbose) {
+				/* FIXME: Should LIO_NOP be handled separately here? */
+				std::cerr << "Failed " << ((cb->aio_lio_opcode == LIO_READ) ?
+					"read" : "write") << "," << cb->aio_offset << "," <<
+					cb->aio_nbytes << ": " << strerror(cb->__error_code) <<
+					"(errno = " << cb->__error_code << ").\n";
+			}
 			delete control_block_queue.front();
 			control_block_queue.pop();
 			break;
 	}
 
 	if (control_block_queue.empty())
-		return 0;
+		return false;
 	else
-		return 1;
+		return true;
+}
+
+ReplayStats *Commander::getReplayStats() const
+{
+	return stats;
+}
+
+void Commander::writeStats()
+{
+	uint64_t now = Commander::timeNow();
+	std::cout << "Running since: " <<
+			(now - stats->replayStartWallclockTime) /
+			NANO_TIME_MULTIPLIER << " (s)"
+			<< ", last trace record: " << stats->lastReplayedRecordTimestamp
+			<< " (Tfracs)"
+			<< ", current delay: " << stats->currentDelay /
+			NANO_TIME_MULTIPLIER << " (s)"
+			<< "\nReads: " << stats->totalRead
+			<< ", writes: " << stats->totalWrite
+			<< ", late ops: " << stats->lateOps
+			<< ", failed ops: " << stats->failedOps
+			<< "\nread time: " << stats->totalReadTime /
+			NANO_TIME_MULTIPLIER
+			<< ", write time: " << stats->totalWriteTime /
+			NANO_TIME_MULTIPLIER << std::endl;
 }

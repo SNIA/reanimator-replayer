@@ -13,7 +13,8 @@
 # published by the Free Software Foundation.
 #
 
-CXXFLAGS = -O2 -g -Wall -lDataSeries -I/usr/include/libxml2/
+CXXFLAGS = -O0 -g -Wall -Werror -std=c++0x -lDataSeries \
+           -I/usr/include/libxml2/
 CXX = g++
 
 TARGETS = dsblkreplay
@@ -25,8 +26,11 @@ dsblkreplay: $(REPLAY_OBJECTS)
 	$(CXX) $(CXXFLAGS) -o dsblkreplay $(REPLAY_OBJECTS)
 
 # the lines below are obtained using `g++ -MM`
-Commander.o: Commander.cpp Commander.hpp
-ReplayModule.o: ReplayModule.cpp Commander.hpp
+Commander.o: Commander.cpp Commander.hpp ReplayStats.hpp
+	$(CXX) $(CXXFLAGS) -c -o Commander.o Commander.cpp
+
+ReplayModule.o: ReplayModule.cpp Commander.hpp ReplayStats.hpp
+	$(CXX) $(CXXFLAGS) -c -o ReplayModule.o ReplayModule.cpp
 
 clean:
 	rm -f $(TARGETS) $(REPLAY_OBJECTS)
