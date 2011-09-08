@@ -13,24 +13,28 @@
 # published by the Free Software Foundation.
 #
 
-CXXFLAGS = -O0 -g -Wall -Werror -std=c++0x -lDataSeries \
-           -I/usr/include/libxml2/
+INCLUDES = -I/usr/include/libxml2/
+LIBS = -lDataSeries -lrt
+CXXFLAGS = -O0 -g -Wall -Werror -std=c++0x -D_GNU_SOURCE=1 $(INCLUDES) $(LIBS)
 CXX = g++
 
 TARGETS = dsblkreplay
-REPLAY_OBJECTS = ReplayModule.o Commander.o
+REPLAY_OBJECTS = ReplayStats.o ReplayModule.o Commander.o
 
 all: $(TARGETS)
 
 dsblkreplay: $(REPLAY_OBJECTS)
-	$(CXX) $(CXXFLAGS) -o dsblkreplay $(REPLAY_OBJECTS)
+	$(CXX) $(LIBS) -o dsblkreplay $(REPLAY_OBJECTS)
 
 # the lines below are obtained using `g++ -MM`
 Commander.o: Commander.cpp Commander.hpp ReplayStats.hpp
-	$(CXX) $(CXXFLAGS) -c -o Commander.o Commander.cpp
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o Commander.o Commander.cpp
 
 ReplayModule.o: ReplayModule.cpp Commander.hpp ReplayStats.hpp
-	$(CXX) $(CXXFLAGS) -c -o ReplayModule.o ReplayModule.cpp
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o ReplayModule.o ReplayModule.cpp
+
+ReplayStats.o: ReplayStats.hpp ReplayStats.cpp
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o ReplayStats.o ReplayStats.cpp
 
 clean:
 	rm -f $(TARGETS) $(REPLAY_OBJECTS)

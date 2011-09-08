@@ -94,8 +94,6 @@ int64_t Commander::waitUntil(uint64_t time)
 		sleeptime.tv_sec = timeDelta / NANO_TIME_MULTIPLIER;
 		sleeptime.tv_nsec = timeDelta % NANO_TIME_MULTIPLIER;
 		nanosleep(&sleeptime, NULL);
-	} else {
-		stats->lateOps++;
 	}
 
 	return -timeDelta;
@@ -122,31 +120,64 @@ void SynchronousCommander::execute(uint64_t operation,
 	typedef ssize_t (*readWriteOp_t)(int fd, void *buf, size_t count,
 			__off64_t offset);
 
-	readWriteOp_t rwOp = (operation == OPERATION_READ) ?
-			pread64 : (readWriteOp_t)pwrite64;
+	readWriteOp_t rwOp;
+
+	switch (operation) {
+	case OPERATION_READ:
+		stats->readsSubmitted++;
+		stats->readsSubmittedSize += size;
+		rwOp = pread64;
+		break;
+
+	case OPERATION_WRITE:
+		stats->writesSubmitted++;
+		stats->writesSubmittedSize += size;
+		rwOp = (readWriteOp_t) pwrite64;
+		break;
+	}
 
 	stats->currentDelay = waitUntil(time);
+
 	uint64_t start = timeNow();
+	ssize_t ret = rwOp(fd, buffer, size, offset);
+	uint64_t end = timeNow();
 
-	if (rwOp(fd, buffer, size, offset) != -1) {
-		uint64_t elapsedTime = timeNow() - start;
-		if (operation == OPERATION_READ) {
-			stats->totalReadTime += elapsedTime;
-		}  else {
-			stats->totalWriteTime += elapsedTime;
+	switch (operation) {
+	case OPERATION_READ:
+		if (stats->currentDelay > 100)
+			stats->lateReads++;
+
+		if (ret != -1) { /* Successful read. */
+			stats->readsSucceeded++;
+			stats->readsSucceededSize += size;
+			stats->readTimeSuccess += (end - start);
+		} else { /* Failed read. */
+			stats->readsFailedSize += size;
+			stats->readTimeFailure += (end - start);
 		}
-		stats->totalData += size;
-	}
-	else {
-		stats->failedOps++;
-		if (verbose) {
-			std::cerr << "Failed " << ((operation == OPERATION_READ) ? "read" :
-				"write") << ":" << time << "," << offset << "," << size << ": "
-				<< strerror(errno) << "(errno = " << errno << ").\n";
+		break;
+
+	case OPERATION_WRITE:
+		if (stats->currentDelay > 100)
+			stats->lateWrites++;
+
+		if (ret != -1) { /* Successful write. */
+			stats->writesSucceeded++;
+			stats->writesSucceededSize += size;
+			stats->writeTimeSuccess += (end - start);
+		} else { /* Failed write. */
+			stats->writesFailedSize += size;
+			stats->writeTimeFailure += (end - start);
 		}
+		break;
 	}
 
-	(operation == OPERATION_READ) ? stats->totalRead++ : stats->totalWrite++;
+	if (ret == -1 && verbose) {
+		std::cerr << "Failed " << ((operation == OPERATION_READ) ? "read" :
+			"write") << ": " << time << "," << offset << "," << size << ": "
+			<< strerror(errno) << " (errno = " << errno << ").\n";
+
+	}
 }
 
 void SynchronousCommander::cleanup()
@@ -170,26 +201,47 @@ void AsynchronousCommander::execute(uint64_t operation,
 				    uint64_t offset,
 				    uint64_t size)
 {
-	aiocb64 * cb = new aiocb64;
-	memset(cb, 0, sizeof(aiocb64));
-	cb->aio_nbytes = size;
-	cb->aio_fildes = fd;
-	cb->aio_offset = offset;
-	cb->aio_buf = buffer;
-	control_block_queue.push(cb);
-	ssize_t (*readWriteOp)(aiocb64*) =
-			(operation == OPERATION_READ) ? aio_read64 : aio_write64;
+	/* TODO: Handle out of memory */
+	aio_op_t *op = (aio_op_t *) calloc(1, sizeof(aio_op_t));
+	op->opcode = operation;
+	op->cb.aio_nbytes = size;
+	op->cb.aio_fildes = fd;
+	op->cb.aio_offset = offset;
+	op->cb.aio_buf = buffer;
 
-	waitUntil(time);
-	if (readWriteOp(cb) != -1) {
-		stats->totalData += size;
-	} else {
-		stats->failedOps++;
-		if (verbose) {
-			std::cerr << "Failed " << ((operation == OPERATION_READ) ? "read" :
-				"write") << "," << time << "," << offset << "," << size << ": "
-				<< strerror(errno) << "(errno = " << errno << ").\n";
+	control_block_queue.push(op);
+
+	ssize_t (*aio_op)(aiocb64*) = (operation == OPERATION_READ) ?
+			aio_read64 : aio_write64;
+
+	stats->currentDelay = waitUntil(time);
+
+	int ret = aio_op(&op->cb);
+
+	switch (operation) {
+	case OPERATION_READ:
+		if (ret != -1) { /* Successfully submitted read. */
+			stats->readsSubmitted++;
+			stats->readsSubmittedSize += size;
+		} else { /* Failed to submit this read. */
+			stats->readsFailedSize += size;
 		}
+		break;
+
+	case OPERATION_WRITE:
+		if (ret != -1) { /* Successfully submitted write. */
+			stats->writesSubmitted++;
+			stats->writesSubmittedSize += size;
+		} else { /* Failed to submit this write. */
+			stats->writesFailedSize += size;
+		}
+		break;
+	}
+
+	if (ret == -1 && verbose) {
+		std::cerr << "Failed " << ((operation == OPERATION_READ) ? "read" :
+			"write") << ": " << time << "," << offset << "," << size << ": "
+			<< strerror(errno) << " (errno = " << errno << ").\n";
 	}
 
 	checkControlBlockQueue();
@@ -205,24 +257,42 @@ bool AsynchronousCommander::checkControlBlockQueue()
 	if (control_block_queue.empty())
 		return 0;
 
-	int error;
-	aiocb64 *cb;
+	aio_op_t *op = control_block_queue.front();
+	int error = aio_error64(&op->cb);
 
-	switch ((error=aio_error((aiocb*)(cb=control_block_queue.front())))) {
+	switch (error) {
 		case 0:
+			switch (op->opcode) {
+			case OPERATION_READ:
+				stats->readsSucceeded++;
+				stats->readsSucceededSize += op->cb.aio_nbytes;
+				break;
+			case OPERATION_WRITE:
+				stats->writesSucceeded++;
+				stats->writesSucceededSize += op->cb.aio_nbytes;
+				break;
+			}
+
 			delete control_block_queue.front();
 			control_block_queue.pop();
 			break;
 		case EINPROGRESS:
 			break;
 		default:
-			stats->failedOps++;
+			switch (op->opcode) {
+			case OPERATION_READ:
+				stats->readsFailedSize += op->cb.aio_nbytes;
+				break;
+			case OPERATION_WRITE:
+				stats->writesFailedSize += op->cb.aio_nbytes;
+				break;
+			}
 			if (verbose) {
 				/* FIXME: Should LIO_NOP be handled separately here? */
-				std::cerr << "Failed " << ((cb->aio_lio_opcode == LIO_READ) ?
-					"read" : "write") << "," << cb->aio_offset << "," <<
-					cb->aio_nbytes << ": " << strerror(cb->__error_code) <<
-					"(errno = " << cb->__error_code << ").\n";
+				std::cerr << "Failed " << ((op->opcode == OPERATION_READ) ?
+					"read" : "write") << ": " << op->cb.aio_offset << "," <<
+					op->cb.aio_nbytes << ": " << strerror(op->cb.__error_code)
+					<< " (errno = " << op->cb.__error_code << ").\n";
 			}
 			delete control_block_queue.front();
 			control_block_queue.pop();
@@ -238,24 +308,4 @@ bool AsynchronousCommander::checkControlBlockQueue()
 ReplayStats *Commander::getReplayStats() const
 {
 	return stats;
-}
-
-void Commander::writeStats()
-{
-	uint64_t now = Commander::timeNow();
-	std::cout << "Running since: " <<
-			(now - stats->replayStartWallclockTime) /
-			NANO_TIME_MULTIPLIER << " (s)"
-			<< ", last trace record: " << stats->lastReplayedRecordTimestamp
-			<< " (Tfracs)"
-			<< ", current delay: " << stats->currentDelay /
-			NANO_TIME_MULTIPLIER << " (s)"
-			<< "\nReads: " << stats->totalRead
-			<< ", writes: " << stats->totalWrite
-			<< ", late ops: " << stats->lateOps
-			<< ", failed ops: " << stats->failedOps
-			<< "\nread time: " << stats->totalReadTime /
-			NANO_TIME_MULTIPLIER
-			<< ", write time: " << stats->totalWriteTime /
-			NANO_TIME_MULTIPLIER << std::endl;
 }

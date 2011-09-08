@@ -13,6 +13,8 @@
  * published by the Free Software Foundation.
  */
 
+#define _LARGEFILE64_SOURCE	1
+
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -36,6 +38,8 @@
 #include <sys/types.h>
 #include <getopt.h>
 
+#include <stdexcept>
+
 #include "Commander.hpp"
 #include "ReplayStats.hpp"
 
@@ -44,12 +48,14 @@
 #define BLOCK_SIZE	(512)
 
 /* The commander whose status we want to report. */
-static Commander *c = NULL;
+static ReplayStats *rs = NULL;
 
 void reportProgress(int sig)
 {
-	if (c) {
-		c->writeStats();
+	if (rs) {
+		rs->printStats(std::cout);
+	} else {
+		std::cout << "Nothing to report." << std::endl;
 	}
 }
 
@@ -57,16 +63,26 @@ class BlocktraceReplayModule : public RowAnalysisModule {
 public:
 	BlocktraceReplayModule(DataSeriesModule &source,
 		     std::map<std::string,std::vector<uint64_t> > &config,
-		     Commander *cmder)
+		     Commander *cmder, ReplayStats *replayStats, bool verboseFlag)
 		: RowAnalysisModule(source),
 		  configuration(config),
 		  commander(cmder),
+		  stats(replayStats),
+		  verbose(verboseFlag),
 		  process_id(series, "process_id", Field::flag_nullable),
 		  operation(series, "operation"),
 		  offset(series, "offset"),
 		  request_size(series, "request_size"),
 		  enter_time(series,"enter_time", Field::flag_nullable)
 	{
+		if (!commander) {
+			throw std::invalid_argument("NULL Commander");
+		}
+
+		if (!stats) {
+			throw std::invalid_argument("NULL ReplayStats");
+		}
+
 		/* compute affine transformation for each
 				field then store it in transform */
 		for (std::map<std::string,
@@ -91,12 +107,28 @@ public:
 
 	void processRow()
 	{
-		if (request_size.val() > BUFFER_SIZE) {
-			std::stringstream msg;
-			msg << "request size (" << request_size.val() << ") exceeds "
-					<< BUFFER_SIZE;
-			dumpRow(msg.str().c_str());
-			commander->getReplayStats()->rowsOutOfRange++;
+		/* Update the record timestamp of the last trace record to be
+		 * replayed. The value is in Tfracs.*/
+		stats->lastRecordTimestamp = enter_time.val();
+
+		switch ((int)operation.val()) {
+		case OPERATION_READ:
+			stats->readRecords++;
+			stats->readRecordsSize += request_size.val();
+			break;
+
+		case OPERATION_WRITE:
+			stats->writeRecords++;
+			stats->writeRecordsSize += request_size.val();
+			break;
+
+		default:
+			/* Should never be here */
+			if (verbose) {
+				std::stringstream msg;
+				msg << "unknown operation type " << (int)operation.val();
+				dumpRow(std::clog, msg.str().c_str());
+			}
 			return;
 		}
 
@@ -110,7 +142,16 @@ public:
 			!findVal(operation.val(), "operation", &operation_val) ||
 			!findVal(offset.val(), "offset", &offset_val) ||
 			!findVal(request_size.val(), "request_size", &request_size_val)) {
-			commander->getReplayStats()->rowsOutOfRange++;
+			return;
+		}
+
+		if (request_size_val > BUFFER_SIZE) {
+			if (verbose) {
+				std::stringstream msg;
+				msg << "transformed request size (" << request_size_val << ")"
+						" exceeds " << BUFFER_SIZE;
+				dumpRow(std::clog, msg.str().c_str());
+			}
 			return;
 		}
 
@@ -118,10 +159,6 @@ public:
 		enter_time_val = (uint64_t) (((double)enter_time_val) /
 				(((uint64_t)1)<<32) * NANO_TIME_MULTIPLIER);
 
-		/* Update the record timestamp of the last trace record to be
-		 * replayed. The value is in Tfracs.*/
-		commander->getReplayStats()->lastReplayedRecordTimestamp =
-				enter_time.val();
 		/* All parameters are in range, execute the operation. */
 		commander->execute(operation_val,
 				   enter_time_val,
@@ -136,7 +173,7 @@ public:
 
 	void printResult()
 	{
-		commander->writeStats();
+		commander->getReplayStats()->printStats(std::cout);
 	}
 
 private:
@@ -146,10 +183,12 @@ private:
 	{
 		std::vector<uint64_t> fieldConfig = configuration[fieldname];
 		if (value < fieldConfig[0] || value > fieldConfig[1]) {
-			std::stringstream msg;
-			msg << fieldname << ": value is out of range [" << fieldConfig[0] <<
-					"," << fieldConfig[1] << "]";
-			dumpRow(msg.str().c_str());
+			if (verbose) {
+				std::stringstream msg;
+				msg << fieldname << ": value (" << value << ") is out of range"
+						" [" << fieldConfig[0] << "," << fieldConfig[1] << "]";
+				dumpRow(std::cerr, msg.str().c_str());
+			}
 			return false;
 		}
 
@@ -159,9 +198,9 @@ private:
 		return true;
 	}
 
-	void dumpRow(const char *msg)
+	void dumpRow(std::ostream &out, const char *msg)
 	{
-		std::cerr << process_id.val() << "," << operation.val() << "," <<
+		out << process_id.val() << "," << (int)operation.val() << "," <<
 			offset.val() << "," << request_size.val() << "," << enter_time.val()
 			<< ": " << msg << ".\n";
 	}
@@ -169,6 +208,8 @@ private:
 	std::map<std::string,std::vector<double> > transform;
 	std::map<std::string,std::vector<uint64_t> > configuration;
 	Commander *commander;
+	ReplayStats *stats;
+	bool verbose;
 
 	/* DataSeries Block Trace Fields */
 	Int32Field process_id;
@@ -332,7 +373,7 @@ int main(int argc, char *argv[])
 		source.addSource(*iter);
 
 	/* Set up the interrupt based status report mechanism. */
-	c = commander;
+	rs = stats;
 	struct sigaction usr1_action;
 	usr1_action.sa_handler = reportProgress;
 	sigemptyset(&usr1_action.sa_mask);
@@ -341,7 +382,8 @@ int main(int argc, char *argv[])
 
 	/* Parallel decompress and stats, 64MiB buffer */
 	prefetch = new PrefetchBufferModule(source, 64 * 1024 * 1024);
-	replayer = new BlocktraceReplayModule(*prefetch, configuration, commander);
+	replayer = new BlocktraceReplayModule(*prefetch, configuration, commander,
+			stats, verbose);
 
 	/* Replay all extents. */
 	while (replayer->getExtent());
@@ -355,11 +397,12 @@ cleanup:
 	if (mbuffer)
 		free(mbuffer);
 
-	if (stats)
+	if (stats) {
+		rs = NULL;
 		delete stats;
+	}
 
 	if (commander) {
-		c = NULL;
 		delete commander;
 	}
 

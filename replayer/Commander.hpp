@@ -42,9 +42,18 @@
 #include <queue>
 #include <aio.h>
 
-#include "ReplayStats.hpp"
+#define OPERATION_READ		0
+#define OPERATION_WRITE		1
 
 #define NANO_TIME_MULTIPLIER (1000ULL * 1000ULL * 1000ULL)
+
+#include "ReplayStats.hpp"
+
+typedef struct aio_op
+{
+	aiocb64 cb;
+	int opcode; /* OPERATION_READ or OPERATION_WRITE */
+} aio_op_t;
 
 class Commander {
 
@@ -62,7 +71,8 @@ public:
 	 * indicates that we returned ahead of time. */
 	int64_t waitUntil(uint64_t time);
 
-	/* Execute an operation with specified time, offset, and size */
+	/* Execute an operation with specified time, offset, and size.
+	 * FIXME: Use enumerators for operation codes. */
 	virtual void execute(uint64_t operation,
 			     uint64_t time,
 			     uint64_t offset,
@@ -73,9 +83,6 @@ public:
 
 	/* Return the current time in uint64_t in nanoseconds */
 	static uint64_t timeNow();
-
-	/* Write out trace statistics to cout */
-	void writeStats();
 
 	/* Return the replay statistics object associated with this commander. */
 	ReplayStats *getReplayStats() const;
@@ -131,7 +138,7 @@ public:
 	virtual ~AsynchronousCommander() {}
 
 private:
-	std::queue<aiocb64*> control_block_queue;
+	std::queue<aio_op_t*> control_block_queue;
 };
 
 #endif /* COMMANDER_HPP_ */
