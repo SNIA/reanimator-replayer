@@ -211,7 +211,7 @@ void AsynchronousCommander::execute(uint64_t operation,
 
 	control_block_queue.push(op);
 
-	ssize_t (*aio_op)(aiocb64*) = (operation == OPERATION_READ) ?
+	int (*aio_op)(aiocb64*) = (operation == OPERATION_READ) ?
 			aio_read64 : aio_write64;
 
 	stats->currentDelay = waitUntil(time);
