@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2011 Jack Ma
  * Copyright (c) 2011 Vasily Tarasov
- * Copyright (c) 2011 Koundinya Santhosh Kumar
+ * Copyright (c) 2011 Santhosh Kumar Koundinya
  * Copyright (c) 2011 Erez Zadok
  * Copyright (c) 2011 Geoff Kuenning
  * Copyright (c) 2011 Stony Brook University
@@ -22,7 +22,8 @@ void ReplayStats::printStats(std::ostream &out)
 	uint64_t now = Commander::timeNow();
 	out	<< "Running since: " << (now - replayStartWallclockTime) /
 			NANO_TIME_MULTIPLIER << " (s), "
-		<< "Current delay: " << currentDelay / NANO_TIME_MULTIPLIER << " (s).\n"
+		<< "Current delay: " << (currentDelay - replayStartWallclockTime) /
+			NANO_TIME_MULTIPLIER << " (s).\n"
 
 		<< "Total: " << (readRecords + writeRecords) << " records, "
 		<< (readsSubmitted + writesSubmitted) << " submitted, "

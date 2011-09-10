@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2011 Jack Ma
  * Copyright (c) 2011 Vasily Tarasov
- * Copyright (c) 2011 Koundinya Santhosh Kumar
+ * Copyright (c) 2011 Santhosh Kumar Koundinya
  * Copyright (c) 2011 Erez Zadok
  * Copyright (c) 2011 Geoff Kuenning
  * Copyright (c) 2011 Stony Brook University
@@ -48,7 +48,8 @@ public: /* Internal state is left public for convenience. */
 	uint64_t readTimeSuccess, readTimeFailure;
 	uint64_t writeTimeSuccess, writeTimeFailure;
 
-	/* Use a signed quantity for current delay. We can be ahead sometimes. */
+	/* The current delay, in nanos. We use a signed quantity for current delay,
+	 * as we can be ahead sometimes. */
 	int64_t currentDelay;
 
 	/* Trace start (wall clock) time in nanos. */

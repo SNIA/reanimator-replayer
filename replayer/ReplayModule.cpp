@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2011 Jack Ma
  * Copyright (c) 2011 Vasily Tarasov
- * Copyright (c) 2011 Koundinya Santhosh Kumar
+ * Copyright (c) 2011 Santhosh Kumar Koundinya
  * Copyright (c) 2011 Erez Zadok
  * Copyright (c) 2011 Geoff Kuenning
  * Copyright (c) 2011 Stony Brook University
@@ -12,8 +12,6 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
-
-#define _LARGEFILE64_SOURCE	1
 
 #include <iostream>
 #include <string>
@@ -48,12 +46,12 @@
 #define BLOCK_SIZE	(512)
 
 /* The commander whose status we want to report. */
-static ReplayStats *rs = NULL;
+static ReplayStats *gReplayStats = NULL;
 
 void reportProgress(int sig)
 {
-	if (rs) {
-		rs->printStats(std::cout);
+	if (gReplayStats) {
+		gReplayStats->printStats(std::cout);
 	} else {
 		std::cout << "Nothing to report." << std::endl;
 	}
@@ -181,7 +179,16 @@ private:
 	bool findVal(uint64_t value, std::string fieldname,
 			uint64_t *transformedValue)
 	{
-		std::vector<uint64_t> fieldConfig = configuration[fieldname];
+		std::map<std::string,std::vector<uint64_t> >::iterator
+				fcIterator = configuration.find(fieldname);
+
+		/* Nothing to do if we do not have a configuration entry. */
+		if (fcIterator == configuration.end()) {
+			*transformedValue = value;
+			return true;
+		}
+
+		std::vector<uint64_t> &fieldConfig = fcIterator->second;
 		if (value < fieldConfig[0] || value > fieldConfig[1]) {
 			if (verbose) {
 				std::stringstream msg;
@@ -192,7 +199,7 @@ private:
 			return false;
 		}
 
-		std::vector<double> fieldTransform = transform[fieldname];
+		std::vector<double> &fieldTransform = transform[fieldname];
 		*transformedValue =  (uint64_t) (value * fieldTransform[0] +
 				fieldTransform[1]);
 		return true;
@@ -225,7 +232,7 @@ int main(int argc, char *argv[])
 	bool verbose = false;
 	std::string mode;
 	std::string device_id;
-	std::string config_file;
+	std::string configFileName;
 	std::vector<std::string> input_files;
 	Commander *commander = NULL;
 	void *mbuffer = NULL;
@@ -234,7 +241,7 @@ int main(int argc, char *argv[])
 	std::string line;
 	std::map<std::string,std::vector<uint64_t> > configuration;
 	TypeIndexModule source("read_write");
-	std::ifstream input;
+	std::ifstream configFile;
 	PrefetchBufferModule *prefetch = NULL;
 	BlocktraceReplayModule *replayer = NULL;
 	ReplayStats *stats = NULL;
@@ -295,12 +302,10 @@ int main(int argc, char *argv[])
 		goto cleanup;
 	}
 
+	/* Configureation files are optional. No configuration file means that
+	 * the user does not want any transformation. */
 	if (vm.count("config"))
-		config_file = vm["config"].as<std::string>();
-	else {
-		std::cerr << "No configuration file specified.\n";
-		goto cleanup;
-	}
+		configFileName = vm["config"].as<std::string>();
 
 	if (vm.count("input-files")) {
 		input_files = vm["input-files"].as<std::vector<std::string> >();
@@ -334,46 +339,55 @@ int main(int argc, char *argv[])
 						      verbose,
 						      stats);
 
-	/* Read in the configuration file */
-	input.open(config_file.c_str());
+	if (configFileName.length() > 0) {
+		/* The user supplied a configuration file. Read it in. */
+		configFile.open(configFileName.c_str());
 
-	rowNum = 0;
-	while (getline(input, line)) {
-		rowNum++;
-		std::vector<std::string> split_data;
-		boost::split(split_data, line, boost::is_any_of(","));
+		if (configFile.is_open()) {
+			rowNum = 0;
+			while (getline(configFile, line)) {
+				rowNum++;
+				std::vector<std::string> split_data;
+				boost::split(split_data, line, boost::is_any_of(","));
 
-		std::vector<uint64_t> configuration_data;
-		for (std::vector<std::string>::iterator
-						iter = ++split_data.begin();
-						iter != split_data.end();
-						iter++)
-			configuration_data.push_back((uint64_t)atoll(iter->c_str()));
+				std::vector<uint64_t> configuration_data;
+				for (std::vector<std::string>::iterator
+								iter = ++split_data.begin();
+								iter != split_data.end();
+								iter++)
+					configuration_data.push_back((uint64_t)atoll(iter->c_str()));
 
-		if (configuration_data.size() != 4) {
-			std::cerr << "Illegal row in configuration file: " << rowNum <<
-					": '" << line << "'.\n";
+				if (configuration_data.size() != 4) {
+					std::cerr << "Illegal row in configuration file: " << rowNum <<
+							": '" << line << "'.\n";
+					goto cleanup;
+				}
+
+				configuration[split_data[0]] = configuration_data;
+			}
+
+			configFile.close();
+		} else {
+			std::cerr << "Unable to open configuration file '" << configFileName <<
+					"'.\n";
 			goto cleanup;
 		}
 
-		configuration[split_data[0]] = configuration_data;
+		if (verbose && (configuration.size() == 0)) {
+			/* Just print a warning. No harm in supplying a configuration file
+			 * with no entries in it */
+			std::cerr << "Empty configuration file.\n";
+		}
 	}
 
-	if (configuration.size() == 0) {
-		std::cerr << "Invalid configuration file.\n";
-		goto cleanup;
-	}
-
-	input.close();
-
-	/* Specify to read in the extent type "read_write" */
+	/* Specify to read in the extent type "read_write". */
 	for (std::vector<std::string>::iterator iter = input_files.begin();
 				      iter != input_files.end();
 				      iter++)
 		source.addSource(*iter);
 
 	/* Set up the interrupt based status report mechanism. */
-	rs = stats;
+	gReplayStats = stats;
 	struct sigaction usr1_action;
 	usr1_action.sa_handler = reportProgress;
 	sigemptyset(&usr1_action.sa_mask);
@@ -398,9 +412,12 @@ cleanup:
 		free(mbuffer);
 
 	if (stats) {
-		rs = NULL;
+		gReplayStats = NULL;
 		delete stats;
 	}
+
+	if (configFile.is_open())
+		configFile.close();
 
 	if (commander) {
 		delete commander;

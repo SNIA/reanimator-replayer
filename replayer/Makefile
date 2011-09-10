@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2011 Jack Ma
 # Copyright (c) 2011 Vasily Tarasov
-# Copyright (c) 2011 Koundinya Santhosh Kumar
+# Copyright (c) 2011 Santhosh Kumar Koundinya
 # Copyright (c) 2011 Erez Zadok
 # Copyright (c) 2011 Geoff Kuenning
 # Copyright (c) 2011 Stony Brook University
@@ -15,7 +15,8 @@
 
 INCLUDES = -I/usr/include/libxml2/
 LIBS = -lDataSeries -lrt
-CXXFLAGS = -O0 -g -Wall -Werror -std=c++0x -D_GNU_SOURCE=1 $(INCLUDES) $(LIBS)
+CXXFLAGS = -O0 -g -Wall -Werror -std=c++0x -D_GNU_SOURCE -D_LARGEFILE_SOURCE \
+			-D_FILE_OFFSET_BITS=64 $(INCLUDES) $(LIBS)
 CXX = g++
 
 TARGETS = dsblkreplay
