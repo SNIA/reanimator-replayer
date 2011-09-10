@@ -1,11 +1,11 @@
 #!/bin/bash
-
-#This script generates xml files given a configuration table in a folder named 'xml'.
-
+# This script generates xml files given a configuration table in a folder named
+# 'xml'.
+#
 # params: tablefile [spec-string-file]
-
-# If no specification string is specified, generate a specification string based on
-# tablefile
+#
+# If no specification string is specified, generate a specification string based
+# on tablefile.
 
 if [ $# == 0 ]; then
 	echo "Usage: $0 <tablefile> [spec-string-file]"

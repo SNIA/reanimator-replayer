@@ -181,7 +181,7 @@ public:
 			/* Register the ExtentXMLDescription */
 			const ExtentType &myExtentType =
 				 extentTypeLibrary.registerTypeR(myExtentXMLDescription);
-				 
+
 			/* Create ExtentSeries, OutPutModule, and fields */
 			ExtentSeries *myExtentSeries = new ExtentSeries();
 			ExtentSeriesSpace[extentname] = myExtentSeries;

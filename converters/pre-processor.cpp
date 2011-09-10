@@ -1,7 +1,7 @@
 /*
  * pre-processor.cpp
  *
- * Copyright (c) 2011 Koundinya Santhosh Kumar
+ * Copyright (c) 2011 Santhosh Kumar Koundinya
  * Copyright (c) 2011 Jack Ma
  * Copyright (c) 2011 Vasily Tarasov
  * Copyright (c) 2011 Erez Zadok
