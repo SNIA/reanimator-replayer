@@ -160,7 +160,7 @@ public:
 		/* All parameters are in range, execute the operation. */
 		commander->execute(operation_val,
 				   enter_time_val,
-				   offset_val * BLOCK_SIZE,
+				   offset_val,
 				   request_size_val);
 	}
 
