@@ -3,7 +3,7 @@
 BEGIN {
 	FS = ","
 	rwratio_accuracy = 10
-	devsize = "6000m"
+	devsize = "10g"
 	devname = "sdc"
 	dotfdir = "dotfdir"
 	min = -1
@@ -41,19 +41,19 @@ BEGIN {
 
 	if (readnum_norm != 0) {
 		if (readnum_norm == 1)
-			printf "    flowop read name=myread,filename=%s,iosize=%d,random\n",\
+			printf "    flowop read name=myread,filename=%s,iosize=%d,random,directio\n",\
 					 devname, riosize > dotfname
 		else
-			printf "    flowop read name=myread,filename=%s,iosize=%d,iters=%d,random\n",\
+			printf "    flowop read name=myread,filename=%s,iosize=%d,iters=%d,random,directio\n",\
 					 devname, riosize, readnum_norm - 1 > dotfname
 	}
 
 	if (writenum_norm != 0) {
 		if (writenum_norm == 1) 
-			printf "    flowop write name=mywrite,filename=%s,iosize=%d,random\n",\
+			printf "    flowop write name=mywrite,filename=%s,iosize=%d,random,directio\n",\
 					 devname, riosize > dotfname
 		else
-			printf "    flowop write name=mywrite,filename=%s,iosize=%d,iters=%d,random\n",\
+			printf "    flowop write name=mywrite,filename=%s,iosize=%d,iters=%d,random,directio\n",\
 					 devname, riosize, writenum_norm - 1 > dotfname
 	}
 
