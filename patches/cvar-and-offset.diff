@@ -6570,10 +6570,10 @@ index 0000000..695628c
 +#endif /* _CVAR_TOKENS_H */
 diff --git a/fb_cvar.c b/fb_cvar.c
 new file mode 100644
-index 0000000..c7a7e84
+index 0000000..f80d34b
 --- /dev/null
 +++ b/fb_cvar.c
-@@ -0,0 +1,505 @@
+@@ -0,0 +1,507 @@
 +/*
 + * fb_cvar.c
 + *
@@ -6941,8 +6941,10 @@ index 0000000..c7a7e84
 +	cvar_lib = cvar_libraries[cvar->cvar_lib_info->index];
 +	cvar->cvar_handle = cvar_lib->cvar_op.cvar_alloc_handle(parameters,
 +			ipc_cvar_heapalloc, ipc_cvar_heapfree);
-+	if (cvar->cvar_handle)
++	if (!cvar->cvar_handle) {
++		ret = -1;
 +		goto out;
++	}
 +
 +	ret = 0;
 +
@@ -7470,7 +7472,7 @@ index 4dc6962..8276e69 100644
  	ipc_ismdelete();
  	exit(error);
 diff --git a/parser_gram.y b/parser_gram.y
-index 1e6b77f..99deb35 100644
+index 1e6b77f..0641459 100644
 --- a/parser_gram.y
 +++ b/parser_gram.y
 @@ -31,6 +31,8 @@
@@ -7877,7 +7879,7 @@ index 1e6b77f..99deb35 100644
 +		cvar->round = 0;
 +
 +	ret = init_cvar_handle(cvar, type, parameters);
-+	if (!ret) {
++	if (ret) {
 +		filebench_log(LOG_FATAL, "define cvar: failed for custom variable %s",
 +		    name);
 +		filebench_shutdown(1);
