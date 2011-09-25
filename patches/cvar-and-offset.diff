@@ -116,7 +116,7 @@ index 0000000..3cf88d8
 +	rm -f ${CVAR_NAME}.o lib${CVAR_NAME}.so.${MAJOR_VERSION}.${MINOR_VERSION}
 diff --git a/cvars/rand-empirical/rand-empirical.c b/cvars/rand-empirical/rand-empirical.c
 new file mode 100644
-index 0000000..7d244b0
+index 0000000..13256d5
 --- /dev/null
 +++ b/cvars/rand-empirical/rand-empirical.c
 @@ -0,0 +1,256 @@
@@ -176,7 +176,7 @@ index 0000000..7d244b0
 +	cvar_trace("cdf_filename = %s", handle.cdf_filename);
 +
 +	/* Seed the state. */
-+	mts_goodseed(&handle.state);
++	mts_seed32(&handle.state, 0);
 +
 +	/* All set. Now allocate space for the handle in the shared segment and
 +	 * copy the state over. */
@@ -259,7 +259,7 @@ index 0000000..7d244b0
 +	  }
 +
 +	  h->values[i] = strtol(line_buff, &cdf_start, 10);
-+	  h->cdfs[i] = strtod(cdf_start, NULL);
++	  h->cdfs[i] = strtod(cdf_start + 1, NULL);
 +	}
 +	cvar_trace("%d entries found in CDF file", i);
 +
@@ -6570,10 +6570,10 @@ index 0000000..695628c
 +#endif /* _CVAR_TOKENS_H */
 diff --git a/fb_cvar.c b/fb_cvar.c
 new file mode 100644
-index 0000000..74e6723
+index 0000000..c7a7e84
 --- /dev/null
 +++ b/fb_cvar.c
-@@ -0,0 +1,499 @@
+@@ -0,0 +1,505 @@
 +/*
 + * fb_cvar.c
 + *
@@ -6931,6 +6931,12 @@ index 0000000..74e6723
 +	}
 +
 +	cvar->cvar_lib_info = t;
++	ret = pthread_mutex_init(&cvar->cvar_lock, NULL);
++	if (ret) {
++		filebench_log(LOG_ERROR, "Custom variable lock initialization failed "
++				"with error %d.", ret);
++		goto out;
++	}
 +
 +	cvar_lib = cvar_libraries[cvar->cvar_lib_info->index];
 +	cvar->cvar_handle = cvar_lib->cvar_op.cvar_alloc_handle(parameters,
