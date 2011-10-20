@@ -157,6 +157,10 @@ public:
 		enter_time_val = (uint64_t) (((double)enter_time_val) /
 				(((uint64_t)1)<<32) * NANO_TIME_MULTIPLIER);
 
+		/* Round offset to sector size */
+		offset_val = ((uint64_t)((offset_val / SECTOR_SIZE) + 0.5)) *
+				SECTOR_SIZE;
+
 		/* All parameters are in range, execute the operation. */
 		commander->execute(operation_val,
 				   enter_time_val,

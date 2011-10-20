@@ -12,8 +12,6 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
-#define OPERATION_READ		0
-#define OPERATION_WRITE		1
 
 #include "Commander.hpp"
 
@@ -33,6 +31,7 @@
 #include <cstdlib>
 #include <cerrno>
 #include <cstring>
+#include <cassert>
 
 #include <queue>
 
@@ -117,6 +116,7 @@ void SynchronousCommander::execute(uint64_t operation,
 				   uint64_t offset,
 				   uint64_t size)
 {
+	assert(!(offset % SECTOR_SIZE));
 	typedef ssize_t (*readWriteOp_t)(int fd, void *buf, size_t count,
 			__off64_t offset);
 
@@ -201,6 +201,7 @@ void AsynchronousCommander::execute(uint64_t operation,
 				    uint64_t offset,
 				    uint64_t size)
 {
+	assert(!(offset % SECTOR_SIZE));
 	/* TODO: Handle out of memory */
 	aio_op_t *op = (aio_op_t *) calloc(1, sizeof(aio_op_t));
 	op->opcode = operation;
