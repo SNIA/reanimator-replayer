@@ -42,7 +42,7 @@ bool spcProcessRow(const string &inRow, string &outRow)
 	boost::split(fields, inRow, boost::is_any_of(","));
 
 	if (fields.size() < 5) {
-		cerr << "SPC: Malformed record: '" << inRow << "'. Too few columns.\n";
+		clog << "SPC: Malformed record: '" << inRow << "'. Too few columns.\n";
 		return false;
 	}
 
@@ -73,8 +73,8 @@ bool spcProcessRow(const string &inRow, string &outRow)
 			(((uint64_t)1)<<32));
 
 	stringstream formattedRow;
-	formattedRow << extentName << "," << asu << "," << offset << "," << size << "," << opcode << ","
-			<< timestamp;
+	formattedRow << extentName << "," << asu << "," << offset << "," << size
+			<< "," << opcode << "," << timestamp;
 
 	outRow = formattedRow.str();
 
@@ -87,7 +87,7 @@ bool blkProcessRow(const string &inRow, string &outRow)
 	boost::split(fields, inRow, boost::is_any_of(","));
 
 	if (fields.size() < 7) {
-		cerr << "BLK: Malformed record: '" << inRow << "'. Too few columns."
+		clog << "BLK: Malformed record: '" << inRow << "'. Too few columns."
 				"\n";
 		return false;
 	}
@@ -124,7 +124,7 @@ bool vssProcessRow(const string &inRow, string &outRow)
 	boost::split(fields, inRow, boost::is_any_of(","));
 
 	if (fields.size() != 6) {
-		cerr << "VSS: Malformed record: '" << inRow << "'. Incorrect number of"
+		clog << "VSS: Malformed record: '" << inRow << "'. Incorrect number of"
 				" columns.\n";
 		return false;
 	}
@@ -151,8 +151,8 @@ bool vssProcessRow(const string &inRow, string &outRow)
 
 	/* DataSeries expects the time in Tfracs. One tfrac is 1/(2^32) of a
 	 * second */
-	uint64_t timestamp = (uint64_t)(atoll(fields[5].c_str()) / MICRO_MULTIPLIER
-			 * (((uint64_t)1)<<32) );
+	uint64_t timestamp = (uint64_t)(atof(fields[5].c_str()) / MICRO_MULTIPLIER
+			 * (((uint64_t)1)<<32));
 
 	stringstream formattedRow;
 	formattedRow << extentName << "," << size << "," << opcode << "," << offset
@@ -163,9 +163,51 @@ bool vssProcessRow(const string &inRow, string &outRow)
 	return true;
 }
 
+bool mpsProcessRow(const string &inRow, string &outRow)
+{
+	vector<string> fields;
+	boost::split(fields, inRow, boost::is_any_of(","));
+
+	if (fields.size() != 15) {
+		clog << "MPST: Malformed record: '" << inRow << "'. Incorrect number of"
+				" columns.\n";
+		return false;
+	}
+
+	/* Input is of the following format:	 *
+	 * <"DiskRead" | "DiskWrite", <TimeStamp>, <Process Name ( PID)>,
+	 * <ThreadID>, <IrpPtr>, <ByteOffset>, <IOSize>, <ElapsedTime>, <DiskNum>,
+	 * <IrpFlags>, <DiskSvcTime>, <I/O Pri>, <VolSnap>, <FileObject>, <FileName>
+	 *
+	 * Output should be:
+	 * "read_write", <enter_time>, <exit_time>, <process_id>, <operation>,
+	 * <offset>, <request_size>
+	 */
+
+	const char *extentName = "read_write";
+	uint64_t enterTime = (uint64_t)(atof(fields[1].c_str()) / MICRO_MULTIPLIER
+			 * (((uint64_t)1)<<32));
+	uint64_t exitTime = (uint64_t)(atof(fields[7].c_str()) / MICRO_MULTIPLIER
+			 * (((uint64_t)1)<<32)) + enterTime;
+	uint32_t pid = atoi(strchr(fields[2].c_str(), '(') + 1);
+	uint8_t operation = (fields[0].find("DiskRead") == string::npos) ?
+			OPERATION_READ : OPERATION_WRITE;
+	uint64_t offset = atoll(fields[5].c_str());
+	uint64_t requestSize = atoll(fields[6].c_str());
+
+	stringstream formattedRow;
+	formattedRow << extentName << "," << enterTime << "," << exitTime << "," <<
+			pid << "," << operation << "," << offset << "," << requestSize;
+
+	outRow = formattedRow.str();
+
+	return true;
+}
+
 void showUsage(const char *pgmname)
 {
-	cerr << "Usage:   " << pgmname << " <blk | spc | vss> <input file> <output file>\n";
+	cerr << "Usage:   " << pgmname << " <blk | spc | vss | mps> <input file> "
+			"<output file>\n";
 	cerr << "Example: " << pgmname << " spc /foo/bar /foo/baz\n";
 }
 
@@ -196,6 +238,8 @@ int main(int argc, char *argv[])
 		processRow = blkProcessRow;
 	else if (!strcmp("vss", traceType))
 		processRow = vssProcessRow;
+	else if (!strcmp("mps", traceType))
+		processRow = mpsProcessRow;
 	else {
 		cerr << "Unsupported trace type '" << traceType << "'.\n";
 		goto cleanup;

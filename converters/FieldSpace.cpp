@@ -1,6 +1,22 @@
-
+/*
+ * FieldSpace.cpp
+ *
+ * Copyright (c) 2011 Jack Ma
+ * Copyright (c) 2011 Vasily Tarasov
+ * Copyright (c) 2011 Santhosh Kumar Koundinya
+ * Copyright (c) 2011 Erez Zadok
+ * Copyright (c) 2011 Geoff Kuenning
+ * Copyright (c) 2011 Stony Brook University
+ * Copyright (c) 2011 Harvey Mudd College
+ * Copyright (c) 2011 The Research Foundation of SUNY
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
 
 #include "FieldSpace.hpp"
+#include <stdexcept>
 
 using namespace std;
 
@@ -8,191 +24,200 @@ FieldSpace::FieldSpace()
 {
 }
 
-void FieldSpace::addFields(string &syscallname, ExtentSeries &series)
+void FieldSpace::addFields(const string &syscallName, ExtentSeries &series)
 {
-	string fieldName;
 	const ExtentType * extenttype = series.getType();
-	for	(uint32_t i = 0; i < extenttype->getNFields(); i++)
-	{
-		fieldName = extenttype->getFieldName(i);
+	for	(uint32_t i = 0; i < extenttype->getNFields(); i++) {
+		const string &fieldName = extenttype->getFieldName(i);
 		bool nullable = extenttype->getNullable(fieldName);
 
-		switch ((ExtentType::fieldType) extenttype->getFieldType(fieldName))
-		{
+		switch ((ExtentType::fieldType) extenttype->getFieldType(fieldName)) {
 			case ExtentType::ft_bool :
-				addField(syscallname, fieldName, new BoolField(series, fieldName, nullable), ExtentType::ft_bool);
+				addField(syscallName, fieldName, new BoolField(
+						series, fieldName, nullable), ExtentType::ft_bool);
 				break;
 			case ExtentType::ft_byte :
-				addField(syscallname, fieldName, new ByteField(series, fieldName, nullable), ExtentType::ft_byte);
+				addField(syscallName, fieldName, new ByteField(
+						series, fieldName, nullable), ExtentType::ft_byte);
 				break;
 			case ExtentType::ft_int32 :
-				addField(syscallname, fieldName, new Int32Field(series, fieldName, nullable), ExtentType::ft_int32);
+				addField(syscallName, fieldName, new Int32Field(
+						series, fieldName, nullable), ExtentType::ft_int32);
 				break;
 			case ExtentType::ft_int64 :
-				addField(syscallname, fieldName, new Int64Field(series, fieldName, nullable), ExtentType::ft_int64);
+				addField(syscallName, fieldName, new Int64Field(
+						series, fieldName, nullable), ExtentType::ft_int64);
 				break;
 			case ExtentType::ft_double :
-				addField(syscallname, fieldName, new DoubleField(series, fieldName, nullable), ExtentType::ft_double);
+				addField(syscallName, fieldName, new DoubleField(
+						series, fieldName, nullable), ExtentType::ft_double);
 				break;
 			case ExtentType::ft_variable32 :
-				addField(syscallname, fieldName, new Variable32Field(series, fieldName, nullable), ExtentType::ft_variable32);
+				addField(syscallName, fieldName, new Variable32Field(
+						series, fieldName, nullable),
+						ExtentType::ft_variable32);
 				break;
 			default:
-				cerr << "Ignoring unsupported field type: " << fieldName << endl;
+				cerr << "Unsupported field type: " << fieldName
+					<< endl;
+				break;
 		}
 	}
 }
 
-
-void FieldSpace::addField(string &syscallname, string &fieldname, void* field_obj, ExtentType::fieldType field_type)
+void FieldSpace::addField(const string &syscallName, const string &fieldName,
+		void* fieldObj, ExtentType::fieldType fieldType)
 {
-	fieldspace[syscallname][fieldname] = make_pair(field_obj, field_type);
+	fieldSpace[syscallName][fieldName] = make_pair(fieldObj, fieldType);
 }
 
 template <typename FType>
-void FieldSpace::doSetNull(string &syscallname, string &fieldname)
+void FieldSpace::doSetNull(string &syscallName, string &fieldName)
 {
 	/* Look up if field is nullable */
-	((FType*)(fieldspace[syscallname][fieldname].first))->setNull();
+	((FType*)(fieldSpace[syscallName][fieldName].first))->setNull();
 }
 
 template <typename FType, typename EType>
-void FieldSpace::doSet(string &syscallname, string &fieldname, void* val)
+void FieldSpace::doSet(string &syscallName, string &fieldName, void* val)
 {
-	((FType*)(fieldspace[syscallname][fieldname].first))->set(*(EType*)val);
+	((FType*)(fieldSpace[syscallName][fieldName].first))->set(*(EType*)val);
 }
 
 template <typename FType, typename EType>
-EType FieldSpace::doGet(string &syscallname, string &fieldname)
+EType FieldSpace::doGet(string &syscallName, string &fieldName)
 {
-	return ((FType*)(fieldspace[syscallname][fieldname].first))->val();
+	return ((FType*)(fieldSpace[syscallName][fieldName].first))->val();
 }
 
-void FieldSpace::setNullField(string &syscallname, string &fieldname)
+void FieldSpace::setNullField(string &syscallName, string &fieldName)
 {
-	switch (fieldspace[syscallname][fieldname].second) {
+	switch (fieldSpace[syscallName][fieldName].second) {
 		case ExtentType::ft_bool:
-			doSetNull<BoolField>(syscallname, fieldname);
+			doSetNull<BoolField>(syscallName, fieldName);
 			break;
 		case ExtentType::ft_byte:
-			doSetNull<ByteField>(syscallname, fieldname);
+			doSetNull<ByteField>(syscallName, fieldName);
 			break;
 		case ExtentType::ft_int32:
-			doSetNull<Int32Field>(syscallname, fieldname);
+			doSetNull<Int32Field>(syscallName, fieldName);
 			break;
 		case ExtentType::ft_int64:
-			doSetNull<Int64Field>(syscallname, fieldname);
+			doSetNull<Int64Field>(syscallName, fieldName);
 			break;
 		case ExtentType::ft_double:
-			doSetNull<DoubleField>(syscallname, fieldname);
+			doSetNull<DoubleField>(syscallName, fieldName);
 			break;
 		case ExtentType::ft_variable32:
-			doSetNull<Variable32Field>(syscallname, fieldname);
+			doSetNull<Variable32Field>(syscallName, fieldName);
 			break;
 		default:
-			cerr << "Unknown FieldType detected!" << endl;
-			exit(1);
+			stringstream msg;
+			msg << "Unsupported field type: " <<
+					fieldSpace[syscallName][fieldName].second;
+			throw runtime_error(msg.str());
 	}
 }
 
-void FieldSpace::setField(string &syscallname, string &fieldname, string &val)
+void FieldSpace::setField(string &syscallName, string &fieldName, string &val)
 {
 	void *buffer = malloc(8);
-	switch (fieldspace[syscallname][fieldname].second) {
+	switch (fieldSpace[syscallName][fieldName].second) {
 		case ExtentType::ft_bool:
 			if (val == "0")
 				*(bool*)buffer = true;
 			else
 				*(bool*)buffer = false;
-			doSet<BoolField, bool>(syscallname, fieldname, buffer);
+			doSet<BoolField, bool>(syscallName, fieldName, buffer);
 			break;
 		case ExtentType::ft_byte:
 			*(ExtentType::byte*)buffer = (char)atoi(val.c_str());
-			doSet<ByteField,ExtentType::byte>(syscallname, fieldname, buffer);
+			doSet<ByteField,ExtentType::byte>(syscallName, fieldName, buffer);
 			break;
 		case ExtentType::ft_int32:
 			*(ExtentType::int32*)buffer = atoi(val.c_str());
-			doSet<Int32Field,ExtentType::int32>(syscallname, fieldname, buffer);
+			doSet<Int32Field,ExtentType::int32>(syscallName, fieldName, buffer);
 			break;
 		case ExtentType::ft_int64:
 			*(ExtentType::int64*)buffer = atoll(val.c_str());
-			doSet<Int64Field,ExtentType::int64>(syscallname, fieldname, buffer);
+			doSet<Int64Field,ExtentType::int64>(syscallName, fieldName, buffer);
 			break;
 		case ExtentType::ft_double:
 			*(double*)buffer = atof(val.c_str());
-			doSet<DoubleField,double>(syscallname, fieldname, buffer);
+			doSet<DoubleField,double>(syscallName, fieldName, buffer);
 			break;
 		case ExtentType::ft_variable32:
-			doSet<Variable32Field,string>(syscallname, fieldname, &val);
+			doSet<Variable32Field,string>(syscallName, fieldName, &val);
 			break;
 		default:
-			cerr << "Unknown FieldType detected!" << endl;
-			exit(1);
+			stringstream msg;
+			msg << "Unsupported field type: " <<
+					fieldSpace[syscallName][fieldName].second;
+			throw runtime_error(msg.str());
 	}
 }
 
 
-double FieldSpace::getField(string &syscallname, string &fieldname)
+double FieldSpace::getField(string &syscallName, string &fieldName)
 {
-	switch (fieldspace[syscallname][fieldname].second) {
+	switch (fieldSpace[syscallName][fieldName].second) {
 		case ExtentType::ft_bool:
-			if (doGet<BoolField, bool>(syscallname, fieldname))
+			if (doGet<BoolField, bool>(syscallName, fieldName))
 				return 1;
 			else
 				return 0;
 		case ExtentType::ft_byte:
-			return doGet<ByteField,ExtentType::byte>(syscallname, fieldname);
+			return doGet<ByteField,ExtentType::byte>(syscallName, fieldName);
 		case ExtentType::ft_int32:
-			return doGet<Int32Field,ExtentType::int32>(syscallname, fieldname);
+			return doGet<Int32Field,ExtentType::int32>(syscallName, fieldName);
 		case ExtentType::ft_int64:
-			return doGet<Int64Field,ExtentType::int64>(syscallname, fieldname);
+			return doGet<Int64Field,ExtentType::int64>(syscallName, fieldName);
 		case ExtentType::ft_double:
-			return doGet<DoubleField,double>(syscallname, fieldname);
+			return doGet<DoubleField,double>(syscallName, fieldName);
 		case ExtentType::ft_variable32:
 			cerr << "Variable32 getField is not supported" << endl;
 			return 0;
 		default:
-			cerr << "Unknown FieldType detected!" << endl;
-			exit(1);
+			stringstream msg;
+			msg << "Unsupported field type: " <<
+					fieldSpace[syscallName][fieldName].second;
+			throw runtime_error(msg.str());
 	}
 }
 
 FieldSpace::~FieldSpace()
 {
-
-	for(field_space_data_type::iterator iter = fieldspace.begin();
-					    iter != fieldspace.end();
-					    iter++)
-	{
-		for(field_space_entry_type::iterator iter2 = iter->second.begin();
-						     iter2 != iter->second.end();
-						     iter2++)
-		{
-			switch (iter2->second.second) {
+	for(FieldSpaceDataType::iterator fsdti = fieldSpace.begin();
+			fsdti != fieldSpace.end(); fsdti++) {
+		for(FieldSpaceEntryType::iterator fseti = fsdti->second.begin();
+						     fseti != fsdti->second.end();
+						     fseti++) {
+			switch (fseti->second.second) {
 				case ExtentType::ft_bool:
-					delete (BoolField*) iter2->second.first;
+					delete (BoolField*) fseti->second.first;
 					break;
 				case ExtentType::ft_byte:
-					delete (ByteField*) iter2->second.first;
+					delete (ByteField*) fseti->second.first;
 					break;
 				case ExtentType::ft_int32:
-					delete (Int32Field*) iter2->second.first;
+					delete (Int32Field*) fseti->second.first;
 					break;
 				case ExtentType::ft_int64:
-					delete (Int64Field*) iter2->second.first;
+					delete (Int64Field*) fseti->second.first;
 					break;
 				case ExtentType::ft_double:
-					delete (DoubleField*) iter2->second.first;
+					delete (DoubleField*) fseti->second.first;
 					break;
 				case ExtentType::ft_variable32:
-					delete (Variable32Field*) iter2->second.first;
+					delete (Variable32Field*) fseti->second.first;
 					break;
 				default:
-					cerr << "Unknown FieldType detected!" << endl;
-					exit(1);
+					/* Don't throw an exception in the destructor.
+					 * Just log an error. */
+					cerr << "Unsupported field type: " << fseti->second.second <<
+							"\n";
+					break;
 			}
 		}
 	}
 }
-
-

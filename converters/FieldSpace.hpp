@@ -1,3 +1,21 @@
+/*
+ * FieldSpace.hpp
+ *
+ * Copyright (c) 2011 Jack Ma
+ * Copyright (c) 2011 Vasily Tarasov
+ * Copyright (c) 2011 Santhosh Kumar Koundinya
+ * Copyright (c) 2011 Erez Zadok
+ * Copyright (c) 2011 Geoff Kuenning
+ * Copyright (c) 2011 Stony Brook University
+ * Copyright (c) 2011 Harvey Mudd College
+ * Copyright (c) 2011 The Research Foundation of SUNY
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+
+/* TODO: Add a description of the class here. */
 
 #include <iostream>
 #include <stdint.h>
@@ -7,50 +25,52 @@
 #include <DataSeries/ExtentType.hpp>
 #include <DataSeries/DataSeriesFile.hpp>
 
-#ifndef FIELDSPACE_HPP
-#define FIELDSPACE_HPP
+#ifndef FIELD_SPACE_HPP_
+#define FIELD_SPACE_HPP_
 
-/* map<fieldname, pair<address, ExtentType> */
-typedef std::map<std::string, std::pair<void*, ExtentType::fieldType> > field_space_entry_type;
+/* map<fieldName, pair<address, ExtentType> */
+typedef std::map<std::string, std::pair<void*, ExtentType::fieldType> >
+	FieldSpaceEntryType;
 
-/* map<syscallname, field_space_entry_type> */
-typedef std::map<std::string,field_space_entry_type> field_space_data_type;
-
+/* map<syscallName, field_space_entry_type> */
+typedef std::map<std::string, FieldSpaceEntryType> FieldSpaceDataType;
 
 using namespace std;
 
-class FieldSpace {
+class FieldSpace
+{
 public:
-
 	FieldSpace();
 
-	// Disable copy constructor.
-	FieldSpace(FieldSpace &fspace);
-	
+	void addFields(const string &syscallName, ExtentSeries &series);
+
+	void addField(const std::string &syscallName, const std::string &fieldName,
+			void* fieldObj, ExtentType::fieldType fieldType);
+
+	template <typename FType>
+	void doSetNull(std::string &syscallName, std::string &fieldName);
+
+	template <typename FType, typename EType>
+	void doSet(std::string &syscallName, std::string &fieldName, void* val);
+
+	template <typename FType, typename EType>
+	EType doGet(std::string &syscallName, std::string &fieldName);
+
+	void setNullField(std::string &syscallName, std::string &fieldName);
+
+	void setField(std::string &syscallName, std::string &fieldName,
+			std::string &val);
+
+	double getField(std::string &syscallName, std::string &fieldName);
+
 	~FieldSpace();
 
-	void addFields(string &syscallname, ExtentSeries &series);
-	
-	void addField(std::string &syscallname, std::string &fieldname, void* field_obj, ExtentType::fieldType field_type);
-	
-	template <typename FType>
-	void doSetNull(std::string &syscallname, std::string &fieldname);
-
-	template <typename FType, typename EType>
-	void doSet(std::string &syscallname, std::string &fieldname, void* val);
-
-	template <typename FType, typename EType>
-	EType doGet(std::string &syscallname, std::string &fieldname);
-
-	void setNullField(std::string &syscallname, std::string &fieldname);
-
-	void setField(std::string &syscallname, std::string &fieldname, std::string &val);
-
-	double getField(std::string &syscallname, std::string &fieldname);
-
 private:
-	field_space_data_type fieldspace;
+	/* Disable copy and assignment. */
+	FieldSpace(FieldSpace &fspace);
+	FieldSpace &operator=(const FieldSpace &fspace);
+
+	FieldSpaceDataType fieldSpace;
 };
 
-
-#endif
+#endif /* FIELD_SPACE_HPP_ */
