@@ -302,7 +302,7 @@ int main(int argc, char *argv[])
 		goto cleanup;
 	}
 
-	/* Configureation files are optional. No configuration file means that
+	/* Configuration files are optional. No configuration file means that
 	 * the user does not want any transformation. */
 	if (vm.count("config"))
 		configFileName = vm["config"].as<std::string>();
