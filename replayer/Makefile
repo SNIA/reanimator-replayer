@@ -14,7 +14,7 @@
 #
 
 INCLUDES = -I/usr/include/libxml2/
-LIBS = -lDataSeries -lrt
+LIBS = -lDataSeries -laio
 CXXFLAGS = -O0 -g -Wall -Werror -std=c++0x -D_GNU_SOURCE -D_LARGEFILE_SOURCE \
 			-D_FILE_OFFSET_BITS=64 $(INCLUDES) $(LIBS)
 CXX = g++
@@ -25,7 +25,7 @@ REPLAY_OBJECTS = ReplayStats.o ReplayModule.o Commander.o
 all: $(TARGETS)
 
 dsblkreplay: $(REPLAY_OBJECTS)
-	$(CXX) $(LIBS) -o dsblkreplay $(REPLAY_OBJECTS)
+	$(CXX) $(CXXFLAGS) $(LIBS) -o dsblkreplay $(REPLAY_OBJECTS)
 
 # the lines below are obtained using `g++ -MM`
 Commander.o: Commander.cpp Commander.hpp ReplayStats.hpp

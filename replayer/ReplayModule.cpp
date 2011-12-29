@@ -41,26 +41,26 @@
 #include "Commander.hpp"
 #include "ReplayStats.hpp"
 
-#define BUFFER_SIZE	(1024 * 1024 * 1024)
-#define PAGE_SIZE	(4096)
-#define BLOCK_SIZE	(512)
+#define BUFFER_SIZE	(1024ULL * 1024ULL * 1024ULL)
+/* TODO: What's the right value to use? We use 512 as that's what btreplay uses.
+ * The maximum value is available at /proc/sys/fs/aio-max-nr */
+#define MAX_EVENTS   (512)
 
 /* The commander whose status we want to report. */
 static ReplayStats *gReplayStats = NULL;
 
 void reportProgress(int sig)
 {
-	if (gReplayStats) {
+	if (gReplayStats)
 		gReplayStats->printStats(std::cout);
-	} else {
+	else
 		std::cout << "Nothing to report." << std::endl;
-	}
 }
 
 class BlocktraceReplayModule : public RowAnalysisModule {
 public:
 	BlocktraceReplayModule(DataSeriesModule &source,
-		     std::map<std::string,std::vector<uint64_t> > &config,
+            std::map<std::string,std::vector<uint64_t> > &config,
 		     Commander *cmder, ReplayStats *replayStats, bool verboseFlag)
 		: RowAnalysisModule(source),
 		  configuration(config),
@@ -239,7 +239,6 @@ int main(int argc, char *argv[])
 	std::string configFileName;
 	std::vector<std::string> input_files;
 	Commander *commander = NULL;
-	void *mbuffer = NULL;
 	void *buffer = NULL;
 	int rowNum;
 	std::string line;
@@ -250,7 +249,8 @@ int main(int argc, char *argv[])
 	BlocktraceReplayModule *replayer = NULL;
 	ReplayStats *stats = NULL;
 
-	/* Option Processing */
+	/* Option Processing.
+	 * TODO: Move option processing to a separate function. */
 	boost::program_options::options_description visible("Allowed options");
 	visible.add_options()
 		("help,h", "produce help message")
@@ -320,16 +320,12 @@ int main(int argc, char *argv[])
 
 	/* create a Commander that executes operations and create buffer
 		alligned with page by floor division */
-	mbuffer = malloc(BUFFER_SIZE);
-	if (!mbuffer) {
-		std::cerr << "Out of memory. Unable to allocate buffer of size " <<
-				BUFFER_SIZE << " bytes.\n";
-		goto cleanup;
+	ret = posix_memalign(&buffer, getpagesize(), BUFFER_SIZE);
+	if (ret) {
+      std::cerr << "Out of memory. Unable to allocate aligned buffer of size "
+            << BUFFER_SIZE << " bytes.\n";
+      goto cleanup;
 	}
-
-	/* buffer represents mbuffer aligned to a PAGE_SIZE'd boundary. */
-	buffer = (void*)(((uint64_t)(mbuffer) + PAGE_SIZE - 1) / PAGE_SIZE
-			* PAGE_SIZE);
 
 	stats = new ReplayStats;
 	if (mode == "sync")
@@ -341,7 +337,8 @@ int main(int argc, char *argv[])
 		commander = new AsynchronousCommander(device_id,
 						      buffer,
 						      verbose,
-						      stats);
+						      stats,
+						      MAX_EVENTS);
 
 	if (configFileName.length() > 0) {
 		/* The user supplied a configuration file. Read it in. */
@@ -412,8 +409,8 @@ int main(int argc, char *argv[])
 	ret = EXIT_SUCCESS;
 
 cleanup:
-	if (mbuffer)
-		free(mbuffer);
+	if (buffer)
+		free(buffer);
 
 	if (stats) {
 		gReplayStats = NULL;

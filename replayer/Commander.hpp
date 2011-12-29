@@ -40,7 +40,7 @@
 #include <string>
 #include <cstdint>
 #include <queue>
-#include <aio.h>
+#include <libaio.h>
 
 #define OPERATION_READ		0
 #define OPERATION_WRITE		1
@@ -49,12 +49,6 @@
 #define NANO_TIME_MULTIPLIER (1000ULL * 1000ULL * 1000ULL)
 
 #include "ReplayStats.hpp"
-
-typedef struct aio_op
-{
-	aiocb64 cb;
-	int opcode; /* OPERATION_READ or OPERATION_WRITE */
-} aio_op_t;
 
 class Commander {
 
@@ -122,7 +116,8 @@ public:
 	AsynchronousCommander(std::string output_device,
 			      void *bufferPtr,
 			      bool verboseFlag,
-			      ReplayStats *stats);
+			      ReplayStats *stats,
+			      int maxevents_);
 
 	void execute(uint64_t operation,
 			     uint64_t time,
@@ -131,15 +126,14 @@ public:
 
 	void cleanup();
 
-	/* Clean out the first/oldest item in control_block_queue if finished.
-		Return true if control_block is not empty after operation.
-		Else return false. */
-	bool checkControlBlockQueue();
-
 	virtual ~AsynchronousCommander() {}
 
 private:
-	std::queue<aio_op_t*> control_block_queue;
+	int checkSubmittedEvents();
+
+	io_context_t io_ctx;
+	int maxevents;
+	struct timespec ios_st;
 };
 
 #endif /* COMMANDER_HPP_ */

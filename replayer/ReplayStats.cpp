@@ -22,14 +22,16 @@ void ReplayStats::printStats(std::ostream &out)
 	uint64_t now = Commander::timeNow();
 	out	<< "Running since: " << (now - replayStartWallclockTime) /
 			NANO_TIME_MULTIPLIER << " (s), "
-		<< "Current delay: " << (currentDelay - replayStartWallclockTime) /
-			NANO_TIME_MULTIPLIER << " (s).\n"
+		<< "Current delay: " << (currentDelay / (int64_t) NANO_TIME_MULTIPLIER)
+		      << " (s), "
+		<< "Last record timestamp : " << lastRecordTimestamp << " (Tfracs).\n"
 
 		<< "Total: " << (readRecords + writeRecords) << " records, "
 		<< (readsSubmitted + writesSubmitted) << " submitted, "
 		<< (readsSucceeded + writesSucceeded) << " succeeded, "
-		<< (readsSubmitted + writesSubmitted - readsSucceeded -
-				writesSucceeded) << " failed, "
+		<< (readsPending + writesPending) << " pending, "
+		<< (readsSubmitted + writesSubmitted - readsSucceeded - writesSucceeded
+		      - readsPending - writesPending) << " failed, "
 		<< (readsSubmitted + writesSubmitted - lateReads - lateWrites)
 				<< " on-time, "
 		<< lateReads + lateWrites << " delayed.\n"
@@ -37,14 +39,16 @@ void ReplayStats::printStats(std::ostream &out)
 		<< "Reads: " << readRecords << " records, "
 		<< readsSubmitted << " submitted, "
 		<< readsSucceeded << " succeeded, "
-		<< (readsSubmitted - readsSucceeded) << " failed, "
+		<< readsPending << " pending, "
+		<< (readsSubmitted - readsSucceeded - readsPending) << " failed, "
 		<< (readsSubmitted - lateReads) << " on-time, "
 		<< lateReads << " delayed.\n"
 
 		<< "Writes: " << writeRecords << " records, "
 		<< writesSubmitted << " submitted, "
 		<< writesSucceeded << " succeeded, "
-		<< (writesSubmitted - writesSucceeded) << " failed, "
+		<< writesPending << " pending, "
+		<< (writesSubmitted - writesSucceeded - writesPending) << " failed, "
 		<< (writesSubmitted - lateWrites) << " on-time, "
 		<< lateWrites << " delayed." << std::endl;
 }
