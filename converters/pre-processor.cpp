@@ -192,7 +192,7 @@ bool mpsProcessRow(const string &inRow, string &outRow)
 	uint64_t exitTime = (uint64_t)(atof(fields[7].c_str()) / MICRO_MULTIPLIER
 			 * (((uint64_t)1)<<32)) + enterTime;
 	uint32_t pid = atoi(strchr(fields[2].c_str(), '(') + 1);
-	uint8_t operation = (fields[0].find("DiskRead") == string::npos) ?
+	uint8_t operation = (fields[0].find("DiskRead") != string::npos) ?
 			OPERATION_READ : OPERATION_WRITE;
 	uint64_t offset = atoll(fields[5].c_str());
 	uint64_t requestSize = atoll(fields[6].c_str());
