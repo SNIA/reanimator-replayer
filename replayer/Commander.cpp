@@ -132,7 +132,7 @@ void SynchronousCommander::execute(uint64_t operation,
 	typedef ssize_t (*readWriteOp_t)(int fd, void *buf, size_t count,
 			__off64_t offset);
 
-	readWriteOp_t rwOp;
+	readWriteOp_t rwOp = NULL;
 
 	switch (operation) {
 	case OPERATION_READ:
@@ -146,6 +146,10 @@ void SynchronousCommander::execute(uint64_t operation,
 		stats->writesSubmittedSize += size;
 		rwOp = (readWriteOp_t) pwrite64;
 		break;
+
+	default:
+	    assert(0 && "Illegal Operation.");
+	    break;
 	}
 
 	stats->currentDelay = waitUntil(time);
@@ -156,8 +160,12 @@ void SynchronousCommander::execute(uint64_t operation,
 
 	switch (operation) {
 	case OPERATION_READ:
-		if (stats->currentDelay > 100)
+		if (stats->currentDelay > 0) {
 			stats->lateReads++;
+			stats->readsLateTime += stats->currentDelay;
+		} else if (stats->currentDelay < 0) {
+		    stats->readsEarlyTime += stats->currentDelay;
+		}
 
 		if (ret != -1) { /* Successful read. */
 			stats->readsSucceeded++;
@@ -170,8 +178,12 @@ void SynchronousCommander::execute(uint64_t operation,
 		break;
 
 	case OPERATION_WRITE:
-		if (stats->currentDelay > 100)
+		if (stats->currentDelay > 0) {
 			stats->lateWrites++;
+			stats->writesLateTime += stats->currentDelay;
+		} else if (stats->currentDelay < 0) {
+		    stats->writesEarlyTime += stats->currentDelay;
+		}
 
 		if (ret != -1) { /* Successful write. */
 			stats->writesSucceeded++;
@@ -188,7 +200,6 @@ void SynchronousCommander::execute(uint64_t operation,
 		std::cerr << "Failed " << ((operation == OPERATION_READ) ? "read" :
 			"write") << ": " << time << "," << offset << "," << size << ": "
 			<< strerror(errno) << " (errno = " << errno << ").\n";
-
 	}
 }
 
@@ -256,8 +267,12 @@ void AsynchronousCommander::execute(uint64_t operation,
 
 	switch (operation) {
 	case OPERATION_READ:
-      if (stats->currentDelay > 100)
-         stats->lateReads++;
+        if (stats->currentDelay > 0) {
+            stats->lateReads++;
+            stats->readsLateTime += stats->currentDelay;
+        } else if (stats->currentDelay < 0) {
+            stats->readsEarlyTime += stats->currentDelay;
+        }
 
 		if (rc == 1) { /* Successfully submitted read. */
 			stats->readsSubmitted++;
@@ -269,8 +284,12 @@ void AsynchronousCommander::execute(uint64_t operation,
 		break;
 
 	case OPERATION_WRITE:
-      if (stats->currentDelay > 100)
-         stats->lateWrites++;
+        if (stats->currentDelay > 0) {
+            stats->lateWrites++;
+            stats->writesLateTime += stats->currentDelay;
+        } else if (stats->currentDelay < 0) {
+            stats->writesEarlyTime += stats->currentDelay;
+        }
 
 		if (rc == 1) { /* Successfully submitted write. */
 			stats->writesSubmitted++;

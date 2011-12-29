@@ -28,7 +28,9 @@ public:
 	   writeRecordsSize(0), writesSubmittedSize(0), writesSucceededSize(0),
 	   writesFailedSize(0), readTimeSuccess(0), readTimeFailure(0),
 	   writeTimeSuccess(0), writeTimeFailure(0), currentDelay(0),
-	   replayStartWallclockTime(0), lastRecordTimestamp(0) {}
+	   readsLateTime(0), readsEarlyTime(0), writesLateTime(0),
+	   writesEarlyTime(0), replayStartWallclockTime(0), lastRecordTimestamp(0)
+	{}
 
 	void printStats(std::ostream &out);
 
@@ -53,6 +55,10 @@ public: /* Internal state is left public for convenience. */
 	/* The current delay, in nanos. We use a signed quantity for current delay,
 	 * as we can be ahead sometimes. */
 	volatile int64_t currentDelay;
+
+	/* The sum of all positive and negative time deltas */
+	volatile uint64_t readsLateTime, readsEarlyTime, writesLateTime,
+	    writesEarlyTime;
 
 	/* Trace start (wall clock) time in nanos. */
 	volatile uint64_t replayStartWallclockTime;

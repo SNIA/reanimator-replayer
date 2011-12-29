@@ -34,7 +34,9 @@ void ReplayStats::printStats(std::ostream &out)
 		      - readsPending - writesPending) << " failed, "
 		<< (readsSubmitted + writesSubmitted - lateReads - lateWrites)
 				<< " on-time, "
-		<< lateReads + lateWrites << " delayed.\n"
+		<< lateReads + lateWrites << " delayed, "
+		<< (readsLateTime + writesLateTime) << " (ns) total late, "
+		<< (readsEarlyTime + writesEarlyTime) << " (ns) total early.\n"
 
 		<< "Reads: " << readRecords << " records, "
 		<< readsSubmitted << " submitted, "
@@ -42,7 +44,9 @@ void ReplayStats::printStats(std::ostream &out)
 		<< readsPending << " pending, "
 		<< (readsSubmitted - readsSucceeded - readsPending) << " failed, "
 		<< (readsSubmitted - lateReads) << " on-time, "
-		<< lateReads << " delayed.\n"
+		<< lateReads << " delayed, "
+		<< readsLateTime << " (ns) total late, "
+		<< readsEarlyTime << " (ns) total early.\n"
 
 		<< "Writes: " << writeRecords << " records, "
 		<< writesSubmitted << " submitted, "
@@ -50,5 +54,7 @@ void ReplayStats::printStats(std::ostream &out)
 		<< writesPending << " pending, "
 		<< (writesSubmitted - writesSucceeded - writesPending) << " failed, "
 		<< (writesSubmitted - lateWrites) << " on-time, "
-		<< lateWrites << " delayed." << std::endl;
+		<< lateWrites << " delayed, "
+        << writesLateTime << " (ns) total late, "
+        << writesEarlyTime << " (ns) total early." << std::endl;
 }
