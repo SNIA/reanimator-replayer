@@ -95,7 +95,7 @@ bool blkProcessRow(const string &inRow, string &outRow)
 	/*
 	 * Input rows are formatted as follows:
 	 * <extent name>, <timestamp in nanos>, <process id>, <device id>,
-	 * <operation code>, <offset>, <request size>
+	 * <operation code>, <sector>, <request size>
 	 *
 	 * Example: read_write,0001145250,243,81,W,25168280,4096
 	 */
@@ -106,7 +106,9 @@ bool blkProcessRow(const string &inRow, string &outRow)
 	const string &processId = fields[2];
 	const string &deviceId = fields[3];
 	int opcode = (fields[4][0] == 'R') ? OPERATION_READ : OPERATION_WRITE;
-	const string &offset = fields[5];
+	/* FIXME: Use the sector size of the machine from which the block trace was
+	 * collected instead of the default SECTOR_SIZE. */
+	uint64_t offset = (uint64_t) atoll(fields[5].c_str()) * SECTOR_SIZE;
 	const string &requestSize = fields[6];
 
 	stringstream s;
