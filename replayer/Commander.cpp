@@ -71,10 +71,14 @@ Commander::~Commander()
 			").\n";
 }
 
+/*
+ * time variable MUST be in nano seconds
+ */
 int64_t Commander::waitUntil(uint64_t time)
 {
 	uint64_t currentTime = timeNow();
 
+	/* Initialize times, this happens when the first request is replayed */
 	if (!timeInitialized) {
 		timeInitialized = true;
 		traceRecordStartTime = time;
@@ -84,29 +88,42 @@ int64_t Commander::waitUntil(uint64_t time)
 	}
 
 	int64_t timeDelta = (int64_t)(time - traceRecordStartTime) -
-			(currentTime - replayStartWallclockTime);
+				(currentTime - replayStartWallclockTime);
 
-	/* FIXME: Replace the hard-coded value below with (some constant times)
-	 * the clock resolution. */
+	/*
+	 * If timeDelta is sufficiently large, sleep.
+	 * Make sure that if we are woken up too early - sleep more.
+	 * XXX: Replace the hard-coded value below
+	 *
+	 */
 	if (timeDelta > 100) {
 		struct timespec sleeptime, remtime;
 		int rc;
 
 		sleeptime.tv_sec = timeDelta / NANO_TIME_MULTIPLIER;
 		sleeptime.tv_nsec = timeDelta % NANO_TIME_MULTIPLIER;
-      for (;;) {
-         rc = nanosleep(&sleeptime, &remtime);
-         if (rc == 0)
-            break;
-         if (errno != EINTR) {
-            std::cerr << "sleep failed with errno = " << errno << "\n";
-            break;
-         }
-         /* TODO: Account for the context switch time */
-         sleeptime = remtime;
-      }
+
+		for (;;) {
+			rc = nanosleep(&sleeptime, &remtime);
+			if (rc == 0)
+				break;
+
+			if (errno != EINTR) {
+				std::cerr << "sleep failed with errno = " << errno << "\n";
+				break;
+			}
+
+			/*
+			 * XXX: Check that remtime is lareger than 100 
+			 */
+			sleeptime = remtime;
+		}
 	}
 
+	/*
+	 * Return how late this request was. If it came earlier,
+	 * then negative time is returned.
+	 */
 	return -timeDelta;
 }
 
@@ -208,27 +225,29 @@ void SynchronousCommander::cleanup()
 
 }
 
-/* AsynchronousCommander */
+/****************************************************
+ ************ AsynchronousCommander *****************
+ ****************************************************/
 
 AsynchronousCommander::AsynchronousCommander(std::string output_device,
-					     void *bufferPtr,
-					     bool verboseFlag,
-					     ReplayStats *stats,
-					     int maxevents_)
-	:	Commander(output_device, bufferPtr, verboseFlag, stats), io_ctx(NULL),
-	 	maxevents(maxevents_)
+						void *bufferPtr,
+						bool verboseFlag,
+						ReplayStats *stats,
+						int maxevents_)
+	: Commander(output_device, bufferPtr, verboseFlag, stats),
+	  io_ctx(NULL), maxevents(maxevents_)
 {
-   int rc = io_setup(maxevents, &io_ctx);
-   if (rc) {
-      std::stringstream msg;
-      msg << "io_setup failed with errno=" << -rc;
-      throw new std::runtime_error(msg.str());
-   }
+	int rc = io_setup(maxevents, &io_ctx);
+	if (rc)
+		assert(false);
 
-   /* Request service times are in the order of milli-seconds.  Choose the sleep
-    * time to be a tenth of the average service time. */
-   ios_st.tv_sec = 0;
-   ios_st.tv_nsec = 100000;
+	/*
+	 * For disk drives, request service times are in the order of
+	 * milli-seconds.  Choose the sleep
+	 * time to be a tenth of the average service time.
+	 */
+	ios_st.tv_sec = 0;
+	ios_st.tv_nsec = 100000;
 }
 
 void AsynchronousCommander::execute(uint64_t operation,
@@ -237,59 +256,74 @@ void AsynchronousCommander::execute(uint64_t operation,
 				    uint64_t size)
 {
 	assert(!(offset % SECTOR_SIZE));
-   /* TODO: Handle out of memory */
-   iocb *iocbp = (iocb *) malloc(sizeof(iocb));
-   switch (operation) {
-   case OPERATION_READ:
-      io_prep_pread(iocbp, fd, buffer, size, offset);
-      break;
-   case OPERATION_WRITE:
-      io_prep_pwrite(iocbp, fd, buffer, size, offset);
-      break;
-   default:
-      assert(false && "Illegal operation");
-      break;
-   }
 
-	stats->currentDelay = waitUntil(time);
-   struct iocb *ios[] = {iocbp};
-
-   int rc;
-   while ((rc = io_submit(io_ctx, 1, ios)) && rc == -EAGAIN) {
-       int eventsCompleted = checkSubmittedEvents();
-       if (!eventsCompleted) {
-          /* No need to handle errors here, really! EFAULT and EINVAL are
-           * unlikey to happen. EINTER is a good thing, as a completed request
-           * could be the cause of the interrupt */
-          nanosleep(&ios_st, NULL);
-       }
-   }
+	/*
+	 * Allocating and initializing I/O Control Block
+	 * XXX: pre-allocate a pool of iocbps
+	 */
+	struct iocb *iocbp = (struct iocb *)malloc(sizeof(struct iocb));
+	if (!iocbp)
+		assert(false);
 
 	switch (operation) {
 	case OPERATION_READ:
-        if (stats->currentDelay > 0) {
-            stats->lateReads++;
-            stats->readsLateTime += stats->currentDelay;
-        } else if (stats->currentDelay < 0) {
-            stats->readsEarlyTime += stats->currentDelay;
-        }
+		io_prep_pread(iocbp, fd, buffer, size, offset);
+		break;
+	case OPERATION_WRITE:
+		io_prep_pwrite(iocbp, fd, buffer, size, offset);
+		break;
+	default:
+		assert(false);
+		break;
+	}
 
-		if (rc == 1) { /* Successfully submitted read. */
+	struct iocb *ios[] = {iocbp};
+
+	/*
+	 * Wait till the request time comes. Simulatneously
+	 * save the wait time for statistics.
+	 */
+	stats->currentDelay = waitUntil(time);
+
+	/*
+	 * Submit I/O. In case -EAGAIN is returned, check for
+	 * completed events, this should free some in-kernel
+	 * resources.
+	 */
+	int rc;
+	while ((rc = io_submit(io_ctx, 1, ios)) && rc == -EAGAIN) {
+		int eventsCompleted = checkSubmittedEvents();
+		/*
+		 * If no completed events, just wait a bit
+		 */
+		if (!eventsCompleted)
+			nanosleep(&ios_st, NULL);
+	}
+
+	switch (operation) {
+	case OPERATION_READ:
+		if (stats->currentDelay > 0) {
+			stats->lateReads++;
+			stats->readsLateTime += stats->currentDelay;
+		} else if (stats->currentDelay < 0) {
+			stats->readsEarlyTime += stats->currentDelay;
+		}
+
+		if (rc == 1) { /* Successfully submitted read */
 			stats->readsSubmitted++;
-			stats->readsPending++;
 			stats->readsSubmittedSize += size;
-		} else { /* Failed to submit this read. */
+			stats->readsPending++;
+		} else { /* Failed to submit this read */
 			stats->readsFailedSize += size;
 		}
 		break;
-
 	case OPERATION_WRITE:
-        if (stats->currentDelay > 0) {
-            stats->lateWrites++;
-            stats->writesLateTime += stats->currentDelay;
-        } else if (stats->currentDelay < 0) {
-            stats->writesEarlyTime += stats->currentDelay;
-        }
+		if (stats->currentDelay > 0) {
+			stats->lateWrites++;
+			stats->writesLateTime += stats->currentDelay;
+		} else if (stats->currentDelay < 0) {
+			stats->writesEarlyTime += stats->currentDelay;
+		}
 
 		if (rc == 1) { /* Successfully submitted write. */
 			stats->writesSubmitted++;
@@ -302,8 +336,9 @@ void AsynchronousCommander::execute(uint64_t operation,
 	}
 
 	if (rc != 1 && verbose) {
-		std::cerr << "Failed " << ((operation == OPERATION_READ) ? "read" :
-			"write") << ": " << time << "," << offset << "," << size << ": "
+		std::cerr << "Failed "
+			<< ((operation == OPERATION_READ) ? "read" : "write")
+			<< ": " << time << "," << offset << "," << size << ": "
 			<< strerror(errno) << " (errno = " << -rc << ").\n";
 	}
 
@@ -312,48 +347,52 @@ void AsynchronousCommander::execute(uint64_t operation,
 
 void AsynchronousCommander::cleanup()
 {
-   struct timespec wait_time = {1, 0}; /* 1 second sleep time */
+	struct timespec wait_time = {1, 0}; /* 1 second sleep time */
 
-   while (stats->readsPending || stats->writesPending) {
-      checkSubmittedEvents();
-      /* Don't bother with what nanosleep returns for now */
-      nanosleep(&wait_time, NULL);
-   }
+	while (stats->readsPending || stats->writesPending) {
+		checkSubmittedEvents();
+		nanosleep(&wait_time, NULL);
+	}
 }
 
 int AsynchronousCommander::checkSubmittedEvents()
 {
-    int eventsCompleted = 0;
-   io_event event;
-   while (io_getevents(io_ctx, 0, 1, &event, NULL) == 1) {
-      switch (event.obj->aio_lio_opcode) {
-      case IO_CMD_PREAD:
-         stats->readsPending--;
-         if (event.res == event.obj->u.c.nbytes) {
-            stats->readsSucceeded++;
-            stats->readsSucceededSize += event.obj->u.c.nbytes;
-         } else {
-            stats->readsFailedSize += event.obj->u.c.nbytes;
-         }
-         break;
-      case IO_CMD_PWRITE:
-         stats->writesPending--;
-         if (event.res == event.obj->u.c.nbytes) {
-            stats->writesSucceeded++;
-            stats->writesSucceededSize += event.obj->u.c.nbytes;
-         } else {
-            stats->writesFailedSize += event.obj->u.c.nbytes;
-         }
-         break;
-      default:
-         assert(0 && "Illegal operation");
-         break;
-      }
-      eventsCompleted++;
-      free(event.obj);
-   }
+	int eventsCompleted = 0;
+	struct io_event event;
 
-   return eventsCompleted;
+	/*
+	 * XXX: we can get multiple events with a single call,
+	 * without calling io_getevents() multiple times.
+	 */
+	while (io_getevents(io_ctx, 0, 1, &event, NULL) == 1) {
+		switch (event.obj->aio_lio_opcode) {
+		case IO_CMD_PREAD:
+			stats->readsPending--;
+			if (event.res == event.obj->u.c.nbytes) {
+				stats->readsSucceeded++;
+				stats->readsSucceededSize += event.obj->u.c.nbytes;
+			} else {
+		 		stats->readsFailedSize += event.obj->u.c.nbytes;
+			}
+			break;
+		case IO_CMD_PWRITE:
+			stats->writesPending--;
+			if (event.res == event.obj->u.c.nbytes) {
+				stats->writesSucceeded++;
+				stats->writesSucceededSize += event.obj->u.c.nbytes;
+			} else {
+				stats->writesFailedSize += event.obj->u.c.nbytes;
+			}
+			break;
+		default:
+			assert(false);
+		break;
+		}
+		eventsCompleted++;
+		free(event.obj);
+	}
+
+	return eventsCompleted;
 }
 
 ReplayStats *Commander::getReplayStats() const
