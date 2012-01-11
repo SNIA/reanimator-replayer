@@ -44,7 +44,7 @@
 #define BUFFER_SIZE	(1024ULL * 1024ULL * 1024ULL)
 /* TODO: What's the right value to use? We use 512 as that's what btreplay uses.
  * The maximum value is available at /proc/sys/fs/aio-max-nr */
-#define MAX_EVENTS   (512)
+#define MAX_EVENTS   (64ULL * 1024ULL)
 
 /* The commander whose status we want to report. */
 static ReplayStats *gReplayStats = NULL;
