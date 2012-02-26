@@ -1,19 +1,31 @@
 /*
- * pre-processor.cpp
- *
- * Copyright (c) 2011 Santhosh Kumar Koundinya
- * Copyright (c) 2011 Jack Ma
- * Copyright (c) 2011 Vasily Tarasov
- * Copyright (c) 2011 Erez Zadok
- * Copyright (c) 2011 Geoff Kuenning
- * Copyright (c) 2011 Stony Brook University
- * Copyright (c) 2011 Harvey Mudd College
- * Copyright (c) 2011 The Research Foundation of SUNY
+ * Copyright (c) 2011-2012 Santhosh Kumar Koundinya
+ * Copyright (c) 2011-2012 Jack Ma
+ * Copyright (c) 2011-2012 Vasily Tarasov
+ * Copyright (c) 2011-2012 Erez Zadok
+ * Copyright (c) 2011-2012 Geoff Kuenning
+ * Copyright (c) 2011-2012 Stony Brook University
+ * Copyright (c) 2011-2012 Harvey Mudd College
+ * Copyright (c) 2011-2012 The Research Foundation of SUNY
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+ *
+ * pre-processor converts various units in different block trace formats
+ * to the units defined by the SNIA standard. E.g., time is converted to Tfracs,
+ * offset and I/O size to bytes, etc.
+ *
+ * This tool is usually invoked by a trace-specific convertor (e.g.,
+ * blktrace2ds) after some preliminary conversion is already done. The reason
+ * why unit conversion is performed in a separate tool (but not in the shell) is
+ * speed.
+ *
+ * The tool produces a new CSV file that is then fed to a csv2ds-extra tool.
+ *
+ * Usage: pre-processor <trace_type> <input_file> <output_file>
+ * 	  Recognized trace_types: spc, blk, vss, mps
  *
  */
 
@@ -94,21 +106,19 @@ bool blkProcessRow(const string &inRow, string &outRow)
 
 	/*
 	 * Input rows are formatted as follows:
-	 * <extent name>, <timestamp in nanos>, <process id>, <device id>,
-	 * <operation code>, <sector>, <request size>
+	 * <extent name>,<timestamp in nanos>,<process id>,<device id>,
+	 * <operation code>,<offset in sectors>,<request size in sectors>
 	 *
-	 * Example: read_write,0001145250,243,81,W,25168280,4096
+	 * Example: read_write,0001145250,243,81,WS,25168280,4096
 	 */
 
 	const string &extent_name = fields[0];
 	uint64_t timestamp = (uint64_t)((atof(fields[1].c_str()) /
-			NANO_MULTIPLIER) * (((uint64_t)1)<<32));
+				NANO_MULTIPLIER) * (((uint64_t)1)<<32));
 	const string &processId = fields[2];
 	const string &deviceId = fields[3];
 	int opcode = (fields[4][0] == 'R') ? OPERATION_READ : OPERATION_WRITE;
-	/* FIXME: Use the sector size of the machine from which the block trace was
-	 * collected instead of the default SECTOR_SIZE. */
-	uint64_t offset = (uint64_t) atoll(fields[5].c_str()) * SECTOR_SIZE;
+	uint64_t offset = (uint64_t)atoll(fields[5].c_str()) * SECTOR_SIZE;
 	const string &requestSize = fields[6];
 
 	stringstream s;
@@ -183,7 +193,7 @@ bool mpsProcessRow(const string &inRow, string &outRow)
 	 *
 	 * Output should be:
 	 * "read_write", <enter_time>, <exit_time>, <process_id>, <operation>,
-	 * <offset>, <request_size>
+	 * <offset>, <request_size in bytes>
 	 */
 
 	const char *extentName = "read_write";
@@ -215,19 +225,20 @@ void showUsage(const char *pgmname)
 
 int main(int argc, char *argv[])
 {
-	int ret = EXIT_FAILURE;
-	int rowNum;
-	string inRow, outRow;
-	bool (*processRow)(const string &inRow, string &outRow) = NULL;
-	ifstream inFile;
-	ofstream outFile;
 	const char *traceType;
 	const char *inFileName;
 	const char *outFileName;
+	ifstream inFile;
+	ofstream outFile;
+	string inRow;
+	string outRow;
+	bool (*processRow)(const string &inRow, string &outRow) = NULL;
+	int rowNum;
+	int ret = EXIT_SUCCESS;
 
 	if (argc < 4) {
 		showUsage(argv[0]);
-		return 1;
+		return EXIT_FAILURE;
 	}
 
 	traceType = argv[1];
@@ -244,18 +255,22 @@ int main(int argc, char *argv[])
 		processRow = mpsProcessRow;
 	else {
 		cerr << "Unsupported trace type '" << traceType << "'.\n";
+		showUsage(argv[0]);
+		ret = EXIT_FAILURE;
 		goto cleanup;
 	}
 
 	inFile.open(inFileName, ios_base::in);
 	if (!inFile.is_open()) {
 		cerr << "Unable to open input file '" << inFileName << "'.\n";
+		ret = EXIT_FAILURE;
 		goto cleanup;
 	}
 
 	outFile.open(outFileName, ios_base::out);
 	if (!outFile.is_open()) {
 		cerr << "Unable to open output file '" << outFileName << "'.\n";
+		ret = EXIT_FAILURE;
 		goto cleanup;
 	}
 
@@ -264,14 +279,12 @@ int main(int argc, char *argv[])
 		rowNum++;
 		if (!processRow(inRow, outRow)) {
 			cerr << "Error processing record " << rowNum << ".\n";
+			ret = EXIT_FAILURE;
 			continue;
 		}
 
 		outFile << outRow << "\n";
 	}
-
-	/* All is well */
-	ret = EXIT_SUCCESS;
 
 cleanup:
 	if (inFile.is_open()) {
