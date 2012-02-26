@@ -1,14 +1,44 @@
 #!/bin/bash
+
 #
-# Usage: ./blktrace2ds.sh <outputfile> <blktrace_base_file>
+# Copyright (c) 2011-2012 Jack Ma
+# Copyright (c) 2011-2012 Santhosh Kumar Koundinya
+# Copyright (c) 2011-2012 Vasily Tarasov
+# Copyright (c) 2011-2012 Erez Zadok
+# Copyright (c) 2011-2012 Geoff Kuenning
+# Copyright (c) 2011-2012 Stony Brook University
+# Copyright (c) 2011-2012 Harvey Mudd College
+# Copyright (c) 2011-2012 The Research Foundation of SUNY
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+
+#
+# blktrace2ds.sh converts traces in blktrace format to Dataseries format.
+# The sequence of operations performed by this script is the following:
+# 1. Run blkparse to create CSV file in an appropriate format
+# 2. Run pre-processor that performs unit conversion
+#    (doing this in C++, not in bash, increases the speed drastically)
+# 3. Use csv2ds-extra to convert CSV to Dataseries format.
+#    Specification of the fields in the input CSV file and the mapping
+#    between CSV fields to Dataseries fields are provided by
+#    specstrings/blktrace and tables/snia_to_blktrace_fields_mapping.csv
+#    files, in order.
+#
+
+#
+# Usage: blktrace2ds.sh <outputfile> <blktrace_base_file>
+#
 
 if [ $# -ne 2 ]; then
-	echo "Usage: $0 <outputfile> <blktrace_base_file>"
+	echo "Usage: $0 <blktrace_base_file> <outputfile> "
 	exit 1
 fi
 
-OUTPUTFILE=$1
-INPUTFILE=$2
+INPUTFILE=$1
+OUTPUTFILE=$2
 
 TABLEFILE=./tables/snia_to_blktrace_fields_mapping.csv
 SPECSTRINGFILE=./specstrings/blktrace
@@ -34,55 +64,45 @@ if [ ! -e $SPECSTRINGFILE ]; then
 	exit 1
 fi
 
-if [ -z "$OUTPUTFILE" ]; then
-	echo "You must the output file name as a first argument!"
-	exit 1
-fi
-
 if [ -z "$INPUTFILE" ]; then
-	echo "You must provide input files!"
+	echo "You must specify input file as a 1st argument!"
 	exit 1
 fi
 
-TEMPFILE1=`mktemp`
-echo "Using temporary file" $TEMPFILE1
+if [ -z "$OUTPUTFILE" ]; then
+	echo "You must specify output file as a 2nd argument!"
+	exit 1
+fi
 
-# Run blkparse and grep separately to improve error reporting.
+echo "Parsing blktrace file with blkparse..."
 
-echo "Parsing blktrace file using blkparse..."
-blkparse -F Q,"read_write,%T%t,%p,%M%m,%d,%S,%N\n" $INPUTFILE > $TEMPFILE1
+TEMPFILE=`mktemp`
+echo "Using temporary file $TEMPFILE"
+
+blkparse -q -f '' -F Q,"read_write,%T%t,%p,%M%m,%d,%S,%N\n" -o $TEMPFILE $INPUTFILE
 RET=$?
 if [ $RET -ne 0 ]; then
 	echo "blkparse failed with error code $RET"
-	rm -f $TEMPFILE1
+	rm -f $TEMPFILE
 	exit $RET
 fi
+
+echo "Pre-processing..."
 
 TEMPFILE2=`mktemp`
-echo "Using temporary file" $TEMPFILE2
+echo "Using temporary file $TEMPFILE2"
 
-grep read_write $TEMPFILE1 > $TEMPFILE2
-RET=$?
-if [ $RET -ne 0 ]; then
-	echo "Unable to find events with TRACE ACTION 'Q'"
-	rm -f $TEMPFILE1 $TEMPFILE2
-	exit $RET
-fi
-
-echo "Pre-processing ..."
-./pre-processor blk $TEMPFILE2 $TEMPFILE1
+./pre-processor blk $TEMPFILE $TEMPFILE2
 RET=$?
 if [ $RET -ne 0 ]; then
 	# Nothing to report here. The pre-processor would have reported error(s).
-	rm -f $TEMPFILE1 $TEMPFILE2
+	rm -f $TEMPFILE $TEMPFILE2
  	exit $RET
 fi
 
-echo "Cleaning up" $TEMPFILE2
-rm -f $TEMPFILE2
-
 echo "Converting to DataSeries..."
-./csv2ds-extra -q $OUTPUTFILE $TABLEFILE $SPECSTRINGFILE $TEMPFILE1
+./csv2ds-extra -q $OUTPUTFILE $TABLEFILE $SPECSTRINGFILE $TEMPFILE2
 
-echo "Cleaning up" $TEMPFILE1
-rm -f $TEMPFILE1
+echo "Cleaning up"
+rm -f $TEMPFILE
+rm -f $TEMPFILE2
