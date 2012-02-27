@@ -3,7 +3,7 @@
 # ./systrace2ds.sh <outputfile> <spec_string_file> <inputfiles...>
 
 
-TABLEFILE=tables/snia_to_systemtap_fields_mapping.csv
+TABLEFILE=tables/snia_syscall_fields.table
 OUTPUTFILE=$1
 SPECSTRINGFILE=$2
 

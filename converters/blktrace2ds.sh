@@ -40,7 +40,7 @@ fi
 INPUTFILE=$1
 OUTPUTFILE=$2
 
-TABLEFILE=./tables/snia_to_blktrace_fields_mapping.csv
+TABLEFILE=./tables/snia_block_fields.table
 SPECSTRINGFILE=./specstrings/blktrace
 
 if [ ! -e csv2ds-extra ]; then
