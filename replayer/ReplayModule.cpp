@@ -71,7 +71,8 @@ public:
 		  operation(series, "operation"),
 		  offset(series, "offset"),
 		  request_size(series, "request_size"),
-		  enter_time(series,"enter_time", Field::flag_nullable)
+		  enter_time(series,"enter_time", Field::flag_nullable),
+		  sync_flag(series, "sync_flag", Field::flag_nullable)
 	{
 		if (!commander) {
 			throw std::invalid_argument("NULL Commander");
@@ -135,11 +136,14 @@ public:
 		uint64_t operation_val;
 		uint64_t offset_val;
 		uint64_t request_size_val;
+		uint64_t sync_flag_val;
 
 		if (!findVal(enter_time.val(), "enter_time", &enter_time_val) ||
 			!findVal(operation.val(), "operation", &operation_val) ||
 			!findVal(offset.val(), "offset", &offset_val) ||
-			!findVal(request_size.val(), "request_size", &request_size_val)) {
+			!findVal(request_size.val(), "request_size", &request_size_val) ||
+			!findVal(sync_flag.val(), "sync_flag", &sync_flag_val))
+		{
 			return;
 		}
 
@@ -165,7 +169,8 @@ public:
 		commander->execute(operation_val,
 				   enter_time_val,
 				   offset_val,
-				   request_size_val);
+				   request_size_val,
+				   sync_flag_val);
 	}
 
 	void completeProcessing()
@@ -228,6 +233,7 @@ private:
 	Int64Field offset;
 	Int64Field request_size;
 	Int64Field enter_time;
+	BoolField sync_flag;
 };
 
 int main(int argc, char *argv[])

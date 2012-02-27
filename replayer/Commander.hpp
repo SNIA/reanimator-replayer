@@ -71,7 +71,8 @@ public:
 	virtual void execute(uint64_t operation,
 			     uint64_t time,
 			     uint64_t offset,
-			     uint64_t size) = 0;
+			     uint64_t size,
+			     bool sync) = 0;
 
 	/* Execute cleanup procedures, if any */
 	virtual void cleanup() = 0;
@@ -104,7 +105,8 @@ public:
 	void execute(uint64_t operation,
 			     uint64_t time,
 			     uint64_t offset,
-			     uint64_t size);
+			     uint64_t size,
+			     bool sync);
 
 	void cleanup();
 
@@ -122,7 +124,8 @@ public:
 	void execute(uint64_t operation,
 			     uint64_t time,
 			     uint64_t offset,
-			     uint64_t size);
+			     uint64_t size,
+			     bool sync);
 
 	void cleanup();
 

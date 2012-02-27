@@ -14,6 +14,7 @@
  */
 
 #include "Commander.hpp"
+#include "aio_sync_flag.h"
 
 #include <iostream>
 #include <string>
@@ -143,7 +144,8 @@ SynchronousCommander::SynchronousCommander(std::string output_device,
 void SynchronousCommander::execute(uint64_t operation,
 				   uint64_t time,
 				   uint64_t offset,
-				   uint64_t size)
+				   uint64_t size,
+				   bool sync)
 {
 	assert(!(offset % SECTOR_SIZE));
 	typedef ssize_t (*readWriteOp_t)(int fd, void *buf, size_t count,
@@ -253,7 +255,8 @@ AsynchronousCommander::AsynchronousCommander(std::string output_device,
 void AsynchronousCommander::execute(uint64_t operation,
 				    uint64_t time,
 				    uint64_t offset,
-				    uint64_t size)
+				    uint64_t size,
+				    bool sync)
 {
 	assert(!(offset % SECTOR_SIZE));
 
@@ -276,6 +279,9 @@ void AsynchronousCommander::execute(uint64_t operation,
 		assert(false);
 		break;
 	}
+
+	if (sync)
+		io_set_sync_flag(iocbp);
 
 	struct iocb *ios[] = {iocbp};
 
