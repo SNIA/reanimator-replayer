@@ -118,12 +118,14 @@ bool blkProcessRow(const string &inRow, string &outRow)
 	const string &processId = fields[2];
 	const string &deviceId = fields[3];
 	int opcode = (fields[4][0] == 'R') ? OPERATION_READ : OPERATION_WRITE;
+	int sync_flag = (fields[4].find('S') == string::npos) ? 0 : 1;
 	uint64_t offset = (uint64_t)atoll(fields[5].c_str()) * SECTOR_SIZE;
 	const string &requestSize = fields[6];
 
 	stringstream s;
 	s << extent_name << "," << timestamp << "," << processId << "," << deviceId
-			<< "," << opcode << "," << offset << "," << requestSize;
+			<< "," << opcode << "," << offset << "," << requestSize
+			<< "," << sync_flag;
 
 	outRow = s.str();
 

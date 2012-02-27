@@ -13,3 +13,4 @@ read_write	request_size	0	int64
 read_write	actual_size	1	int64
 read_write	semantic_type	1	byte
 read_write	semantic_type_name	1	variable32
+read_write	sync_flag	1	bool
