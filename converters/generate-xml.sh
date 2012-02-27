@@ -2,34 +2,29 @@
 # This script generates xml files given a configuration table in a folder named
 # 'xml'.
 #
-# params: tablefile [spec-string-file]
+# params: tablefile
 #
 # If no specification string is specified, generate a specification string based
 # on tablefile.
 
-if [ $# == 0 ]; then
-	echo "Usage: $0 <tablefile> [spec-string-file]"
+if [ $# != 1 ]; then
+	echo "Usage: $0 <tablefile>"
 	exit 1
 fi
 
 mkdir -p xml
 
-if [ $# == 1 ]; then
-	specstring=""
-	callstring=""
-	while read line;
-	do
-		name=`cut -f 1 <<< "$line"`
-		if [[ `grep -P "/$name/" <<< "$callstring"` == '' ]]; then
-			allfields=`sed 's/ /,/g' <<< $(grep -P "^$name\t" $1 | awk '{ print $2 }')`
-			specstring="$specstring""$name($allfields);"
-			callstring="$callstring""/$name/"
-		fi
-	done < $1
-else
-	specstring="`cat $2`"
-fi
-
+specstring=""
+callstring=""
+while read line;
+do
+	name=`cut -f 1 <<< "$line"`
+	if [[ `grep -P "/$name/" <<< "$callstring"` == '' ]]; then
+		allfields=`sed 's/ /,/g' <<< $(grep -P "^$name\t" $1 | awk '{ print $2 }')`
+		specstring="$specstring""$name($allfields);"
+		callstring="$callstring""/$name/"
+	fi
+done < $1
 
 calls=`sed -e "s/\s//g" <<<$specstring| tr -d "\n" | sed 's/"//g'  | cut -d ";" -f 1- --output-delimiter=" "`
 
