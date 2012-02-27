@@ -47,7 +47,7 @@ config_table_type makeTable(std::ifstream &input) {
 		vector<string> split_data;
 		boost::split(split_data, line, boost::is_any_of("\t"));
 
-		if (split_data.size() != 5) {
+		if (split_data.size() != 4) {
 			std::cout << "Illegal table file" << std::endl;
 			exit(1);
 		}
