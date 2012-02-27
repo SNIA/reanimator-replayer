@@ -3,7 +3,7 @@
 # ./systrace2ds.sh <outputfile> <spec_string_file> <inputfiles...>
 
 
-TABLEFILE=tables/snia_syscall_fields.table
+TABLEFILE=tables/snia_block_fields.table
 OUTPUTFILE=$1
 SPECSTRINGFILE=$2
 

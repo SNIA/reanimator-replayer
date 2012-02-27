@@ -2,9 +2,9 @@
 #
 # ./vss2ds.sh <outputfile> <vscsistats file>
 
-TABLEFILE=tables/snia_to_blktrace_fields_mapping.csv
+TABLEFILE=tables/snia_block_fields.table
 OUTPUTFILE=$1
-SPECSTRINGFILE=specstrings/vscsistats
+SPECSTRINGFILE=specstrings/vscsistats.spec
 
 if [ ! -e csv2ds-extra ]; then
 	echo "csv2ds-extra binary is not found. Maybe make it?"

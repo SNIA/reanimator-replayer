@@ -24,7 +24,7 @@
 # 3. Use csv2ds-extra to convert CSV to Dataseries format.
 #    Specification of the fields in the input CSV file and the mapping
 #    between CSV fields to Dataseries fields are provided by
-#    specstrings/blktrace and tables/snia_to_blktrace_fields_mapping.csv
+#    specstrings/blktrace.spec and tables/snia_block_fields.table
 #    files, in order.
 #
 
@@ -41,7 +41,7 @@ INPUTFILE=$1
 OUTPUTFILE=$2
 
 TABLEFILE=./tables/snia_block_fields.table
-SPECSTRINGFILE=./specstrings/blktrace
+SPECSTRINGFILE=./specstrings/blktrace.spec
 
 if [ ! -e csv2ds-extra ]; then
 	echo "csv2ds-extra binary is not found. Maybe make it?"
