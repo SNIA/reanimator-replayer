@@ -125,9 +125,9 @@ void FieldSpace::setField(string &syscallName, string &fieldName, string &val)
 	switch (fieldSpace[syscallName][fieldName].second) {
 		case ExtentType::ft_bool:
 			if (val == "0")
-				*(bool*)buffer = true;
-			else
 				*(bool*)buffer = false;
+			else
+				*(bool*)buffer = true;
 			doSet<BoolField, bool>(syscallName, fieldName, buffer);
 			break;
 		case ExtentType::ft_byte:
