@@ -406,8 +406,7 @@ int main(int argc, char *argv[])
 	replayer = new BlocktraceReplayModule(*prefetch, configuration, commander,
 			stats, verbose);
 
-	/* Replay all extents. */
-	std::cout << "Replaying the trace...\n";
+	std::cout << "Replaying the trace..." << std::endl;
 	while (replayer->getExtent());
 
 	replayer->printResult();
