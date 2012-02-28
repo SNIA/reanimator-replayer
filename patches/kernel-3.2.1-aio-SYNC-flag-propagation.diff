@@ -1,0 +1,60 @@
+diff -up ./fs/aio.c.orig ./fs/aio.c
+--- ./fs/aio.c.orig	2012-01-12 14:42:45.000000000 -0500
++++ ./fs/aio.c	2012-02-27 17:45:34.431015418 -0500
+@@ -1636,6 +1636,11 @@ static int io_submit_one(struct kioctx *
+ 		}
+ 	}
+ 
++	#define IOCB_FLAG_SYNC (1 << 1)
++	if (iocb->aio_flags & IOCB_FLAG_SYNC)
++		kiocbSetSync(req);
++	#undef IOCB_FLAG_SYNC
++
+ 	ret = put_user(req->ki_key, &user_iocb->aio_key);
+ 	if (unlikely(ret)) {
+ 		dprintk("EFAULT: aio_key\n");
+diff -up ./fs/direct-io.c.orig ./fs/direct-io.c
+--- ./fs/direct-io.c.orig	2012-01-12 14:42:45.000000000 -0500
++++ ./fs/direct-io.c	2012-02-27 17:50:03.878008677 -0500
+@@ -1110,8 +1110,10 @@ __blockdev_direct_IO(int rw, struct kioc
+ 	size_t bytes;
+ 	struct buffer_head map_bh = { 0, };
+ 
+-	if (rw & WRITE)
+-		rw = WRITE_ODIRECT;
++	if (rw & WRITE) {
++		if (kiocbIsSync(iocb))
++			rw = WRITE_ODIRECT;
++	}
+ 
+ 	if (bdev)
+ 		bdev_blkbits = blksize_bits(bdev_logical_block_size(bdev));
+diff -up ./include/linux/aio.h.orig ./include/linux/aio.h
+--- ./include/linux/aio.h.orig	2012-02-27 17:31:54.000000000 -0500
++++ ./include/linux/aio.h	2012-02-27 17:37:13.230027818 -0500
+@@ -34,6 +34,7 @@ struct kioctx;
+ /* #define KIF_LOCKED		0 */
+ #define KIF_KICKED		1
+ #define KIF_CANCELLED		2
++#define KIF_SYNC		3
+ 
+ #define kiocbTryLock(iocb)	test_and_set_bit(KIF_LOCKED, &(iocb)->ki_flags)
+ #define kiocbTryKick(iocb)	test_and_set_bit(KIF_KICKED, &(iocb)->ki_flags)
+@@ -41,14 +42,17 @@ struct kioctx;
+ #define kiocbSetLocked(iocb)	set_bit(KIF_LOCKED, &(iocb)->ki_flags)
+ #define kiocbSetKicked(iocb)	set_bit(KIF_KICKED, &(iocb)->ki_flags)
+ #define kiocbSetCancelled(iocb)	set_bit(KIF_CANCELLED, &(iocb)->ki_flags)
++#define kiocbSetSync(iocb)	set_bit(KIF_SYNC, &(iocb)->ki_flags)
+ 
+ #define kiocbClearLocked(iocb)	clear_bit(KIF_LOCKED, &(iocb)->ki_flags)
+ #define kiocbClearKicked(iocb)	clear_bit(KIF_KICKED, &(iocb)->ki_flags)
+ #define kiocbClearCancelled(iocb)	clear_bit(KIF_CANCELLED, &(iocb)->ki_flags)
++#define kiocbClearSync(iocb)	clear_bit(KIF_SYNC, &(iocb)->ki_flags)
+ 
+ #define kiocbIsLocked(iocb)	test_bit(KIF_LOCKED, &(iocb)->ki_flags)
+ #define kiocbIsKicked(iocb)	test_bit(KIF_KICKED, &(iocb)->ki_flags)
+ #define kiocbIsCancelled(iocb)	test_bit(KIF_CANCELLED, &(iocb)->ki_flags)
++#define kiocbIsSync(iocb)	test_bit(KIF_SYNC, &(iocb)->ki_flags)
+ 
+ /* is there a better place to document function pointer methods? */
+ /**
