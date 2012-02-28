@@ -407,6 +407,7 @@ int main(int argc, char *argv[])
 			stats, verbose);
 
 	/* Replay all extents. */
+	std::cout << "Replaying the trace...\n";
 	while (replayer->getExtent());
 
 	replayer->printResult();
