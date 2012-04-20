@@ -1,0 +1,1 @@
+Common(time_called,time_returned,time_recorded,executing_pid,executing_tid,executing_uid,return_value);open(given_pathname,full_pathname,flag_read_only,flag_write_only,flag_read_and_write,flag_append,flag_create,flag_direct);read(descriptor,bytes_requested);close(descriptor);
