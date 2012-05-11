@@ -50,6 +50,7 @@ bool processMkdirRequest(const string &inRow, string &outRow)
 	vector<string> fields;
 	vector<string> diropargs;
 	const char *extentName = "mkdir_request";
+	unsigned int xid;
 
 	stringstream tokenizer(inRow);
 	string num;
@@ -63,7 +64,10 @@ bool processMkdirRequest(const string &inRow, string &outRow)
 		string &file_name = diropargs[1];
 
 		string &timestamp = fields[0];
-		string &rpc_xid = fields[12];
+		stringstream rpc_xid;
+		rpc_xid << std::hex << fields[12];
+		rpc_xid >> xid;
+		
 		string path_name = (fields.size() >= 16) ? fields[15] : ",";
 
 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
@@ -71,7 +75,7 @@ bool processMkdirRequest(const string &inRow, string &outRow)
 
 		stringstream formattedRow;
 		formattedRow << extentName << "," << tfracs_timestamp << ","
-			<< rpc_xid << "," << dir_handle << "," << file_name 
+			<< xid << "," << dir_handle << "," << file_name 
 			<< "," << path_name;
 
 		outRow = formattedRow.str();
@@ -87,24 +91,28 @@ bool processMkdirReply(const string &inRow, string &outRow)
 	bool ret = true;
 	vector<string> fields;
 	const char *extentName = "mkdir_reply";
+	unsigned int xid;
 
 	stringstream tokenizer(inRow);
 	string num;
 	while (tokenizer >> num)
 		fields.push_back(num);
- 
-	if (fields.size() >= 15) {
+
+
+ 	if (fields.size() >= 15) {
  		string &timestamp = fields[0];
-		string &rpc_xid = fields[14];
-		string dir = (fields.size() >= 18) ? fields[17] : "";
-		string par_dir = (fields.size() >= 21) ? fields[20] : ",";
+		stringstream rpc_xid;
+		rpc_xid << std::hex << fields[14];
+		rpc_xid >> xid;
+ 		string dir = (fields.size() >= 18) ? fields[17] : "";
+ 		string par_dir = (fields.size() >= 21) ? fields[20] : ",";
  
  		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
  			(((uint64_t)1)<<32));
 
 		stringstream formattedRow;
 		formattedRow << extentName << "," << tfracs_timestamp << ","
-			<< rpc_xid << "," << dir << "," << par_dir;
+			<< xid << "," << dir << "," << par_dir;
 
 		outRow = formattedRow.str();
 	} else {
@@ -122,6 +130,7 @@ bool processAccessRequest(const string &inRow, string &outRow)
 	uint32_t field_offset = 0;
 	int read, lookup, modify, extend, del, execute;
 	read = lookup = modify = extend = del = execute = 0;
+	unsigned int xid;
 
 	stringstream tokenizer(inRow);
 	string num;
@@ -152,7 +161,9 @@ bool processAccessRequest(const string &inRow, string &outRow)
 			}
 		}
 
-		string &rpc_xid = fields[field_offset+3];
+		stringstream rpc_xid;
+		rpc_xid << std::hex << fields[field_offset+3];
+		rpc_xid >> xid;
 		string path_name = (fields.size() >= (field_offset + 7)) ? fields[field_offset+6] : ",";
 		
 		string file_handle = fh.substr(3, fh.length()-4);
@@ -162,7 +173,7 @@ bool processAccessRequest(const string &inRow, string &outRow)
 
 		stringstream formattedRow;
 		formattedRow << extentName << "," << tfracs_timestamp << ","
-			<< rpc_xid << "," << file_handle << "," << read << 
+			<< xid << "," << file_handle << "," << read << 
 			lookup << modify << extend << del << execute << "," 
 			<< path_name;
 
@@ -187,6 +198,8 @@ bool processAccessReply(const string &inRow, string &outRow)
 
 	stringstream tokenizer(inRow);
 	string num;
+	unsigned int xid;
+	
 	while (tokenizer >> num)
 		fields.push_back(num);
 
@@ -277,7 +290,9 @@ bool processAccessReply(const string &inRow, string &outRow)
 			}
 		}
 		
-		string &rpc_xid = fields[field_offset+3];
+		stringstream rpc_xid;
+		rpc_xid << std::hex << fields[field_offset + 3];
+		rpc_xid >> xid;
 		string path_name = (fields.size() >= (field_offset + 7)) ? fields[field_offset+6] : ",";
 
 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
@@ -285,7 +300,7 @@ bool processAccessReply(const string &inRow, string &outRow)
 
 		stringstream formattedRow;
 		formattedRow << extentName << "," << tfracs_timestamp << ","
-			<< rpc_xid << "," << alw_read << alw_lookup << 
+			<< xid << "," << alw_read << alw_lookup << 
 			alw_modify << alw_extend << alw_del << alw_execute 
 			<< "," << dny_read << dny_lookup << dny_modify << 
 			dny_extend << dny_del << dny_execute << "," << 
@@ -307,13 +322,17 @@ bool processGetAttrRequest(const string &inRow, string &outRow)
 
 	stringstream tokenizer(inRow);
 	string num;
+	unsigned int xid;
+	
 	while (tokenizer >> num)
 		fields.push_back(num);
 
 	if (fields.size() >= 13) {
 		string &timestamp = fields[0];
 		string &fh = fields[9];
-		string &rpc_xid = fields[12];
+		stringstream rpc_xid;
+		rpc_xid << std::hex << fields[12];
+		rpc_xid >> xid;
 		string path_name = (fields.size() >= 16) ? fields[15] : ",";
 		
 		string file_handle = fh.substr(3, fh.length());
@@ -323,7 +342,7 @@ bool processGetAttrRequest(const string &inRow, string &outRow)
 
 		stringstream formattedRow;
 		formattedRow << extentName << "," << tfracs_timestamp << ","
-			<< rpc_xid << "," << file_handle << ","  << path_name;
+			<< xid << "," << file_handle << ","  << path_name;
 
 		outRow = formattedRow.str();
 	} else {
@@ -343,6 +362,7 @@ bool processGetAttrReply(const string &inRow, string &outRow)
 
 	stringstream tokenizer(inRow);
 	string num;
+	unsigned int xid;
 	while (tokenizer >> num)
 		fields.push_back(num);
 
@@ -360,7 +380,9 @@ bool processGetAttrReply(const string &inRow, string &outRow)
 		string &raw_mode = fields[field_offset];
 		string raw_uid = fields[field_offset+1];
 		string raw_gid = fields[field_offset+2];
-		string &rpc_xid = fields[field_offset+5];
+		stringstream rpc_xid;
+		rpc_xid << std::hex << fields[field_offset+5];
+		rpc_xid >> xid;
 		
 		string path_name = (fields.size() >= (field_offset + 9)) ? fields[field_offset+8] : ",";
 
@@ -373,7 +395,7 @@ bool processGetAttrReply(const string &inRow, string &outRow)
 
 		stringstream formattedRow;
 		formattedRow << extentName << "," << tfracs_timestamp << ","
-			<< rpc_xid << "," << file_type << "," << mode << "," 
+			<< xid << "," << file_type << "," << mode << "," 
 			<< uid << "," << gid << "," << path_name;
 
 		outRow = formattedRow.str();
@@ -390,7 +412,7 @@ bool processLookupRequest(const string &inRow, string &outRow)
 	vector<string> fields;
 	vector<string> diropargs;
 	const char *extentName = "lookup_request";
-
+	unsigned int xid;
 	stringstream tokenizer(inRow);
 	string num;
 	while (tokenizer >> num)
@@ -403,7 +425,9 @@ bool processLookupRequest(const string &inRow, string &outRow)
 		string &file_name = diropargs[1];
 
 		string &timestamp = fields[0];
-		string &rpc_xid = fields[12];
+		stringstream rpc_xid;
+		rpc_xid << std::hex << fields[12];
+		rpc_xid >> xid;
 		string path_name = (fields.size() >= 16) ? fields[15] : ",";
 
 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
@@ -411,7 +435,7 @@ bool processLookupRequest(const string &inRow, string &outRow)
 
 		stringstream formattedRow;
 		formattedRow << extentName << "," << tfracs_timestamp << ","
-			<< rpc_xid << "," << dir_handle << "," << file_name 
+			<< xid << "," << dir_handle << "," << file_name 
 			<< "," << path_name;
 
 		outRow = formattedRow.str();
@@ -427,7 +451,8 @@ bool processLookupReply(const string &inRow, string &outRow)
 	bool ret = true;
 	vector<string> fields;
 	const char *extentName = "lookup_reply";
-
+	unsigned int xid;
+	
 	stringstream tokenizer(inRow);
 	string num;
 	while (tokenizer >> num)
@@ -435,7 +460,10 @@ bool processLookupReply(const string &inRow, string &outRow)
 
 	if (fields.size() >= 16) {
 		string &timestamp = fields[0];
-		string &rpc_xid = fields[15];
+
+		stringstream rpc_xid;
+		rpc_xid << std::hex << fields[15];
+		rpc_xid >> xid;
 
 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
 			(((uint64_t)1)<<32));
@@ -449,7 +477,7 @@ bool processLookupReply(const string &inRow, string &outRow)
 			string error = error_field.substr(6, error_field.length());
 
 			formattedRow << extentName << "," << tfracs_timestamp << ","
-				<< rpc_xid << "," << error << "," << path_name;
+				<< xid << "," << error << "," << path_name;
 
 		} else if (string::npos != inRow.find("FH:")) {
 			string &fh = fields[12];
@@ -463,7 +491,7 @@ bool processLookupReply(const string &inRow, string &outRow)
 				path_name1 << "*" << path_name2;*/
 			
 			formattedRow << extentName << "," << tfracs_timestamp << ","
-				<< rpc_xid << "," << file_handle << "," << 
+				<< xid << "," << file_handle << "," << 
 				path_name1;
 
 		}
@@ -483,6 +511,7 @@ bool processCreateRequest(const string &inRow, string &outRow)
 	vector<string> diropargs;
 	const char *extentName = "create_request";
 	int mode = 0;
+	unsigned int xid;
 
 	stringstream tokenizer(inRow);
 	string num;
@@ -498,7 +527,9 @@ bool processCreateRequest(const string &inRow, string &outRow)
 			string &file_name = diropargs[1];
 
 			string &timestamp = fields[0];
-			string &rpc_xid = fields[13];
+			stringstream rpc_xid;
+			rpc_xid << std::hex << fields[13];
+			rpc_xid >> xid;
 			string path_name = (fields.size() >= 17) ? fields[16] : ",";
 
 			uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
@@ -506,7 +537,7 @@ bool processCreateRequest(const string &inRow, string &outRow)
 
 			stringstream formattedRow;
 			formattedRow << extentName << "," << tfracs_timestamp << ","
-				<< rpc_xid << "," << dir_handle << "," << file_name 
+				<< xid << "," << dir_handle << "," << file_name 
 				<< "," << mode << "," << path_name;
 
 			outRow = formattedRow.str();
@@ -528,25 +559,27 @@ bool processCreateReply(const string &inRow, string &outRow)
 	bool ret = true;
 	vector<string> fields;
 	const char *extentName = "create_reply";
-
+	unsigned int xid;
+	
 	stringstream tokenizer(inRow);
 	string num;
 	while (tokenizer >> num)
 		fields.push_back(num);
- 
-	if (fields.size() >= 15) {
-		string &timestamp = fields[0];
 
-		string &rpc_xid = fields[14];
-		string dir = (fields.size() >= 18) ? fields[17] : "";
-		string par_dir = (fields.size() >= 21) ? fields[20] : ",";
+ 	if (fields.size() >= 15) {
+ 		string &timestamp = fields[0];
+		stringstream rpc_xid;
+		rpc_xid << std::hex << fields[14];
+		rpc_xid >> xid;
+ 		string dir = (fields.size() >= 18) ? fields[17] : "";
+ 		string par_dir = (fields.size() >= 21) ? fields[20] : ",";
 
 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
 			(((uint64_t)1)<<32));
 
 		stringstream formattedRow;
 		formattedRow << extentName << "," << tfracs_timestamp << ","
-			<< rpc_xid << "," << dir << "," << par_dir;
+			<< xid << "," << dir << "," << par_dir;
 
 		outRow = formattedRow.str();
 	} else {
@@ -563,6 +596,7 @@ bool processRemoveRequest(const string &inRow, string &outRow)
 	vector<string> diropargs;
 	const char *extentName = "remove_request";
 
+	unsigned int xid;
 	stringstream tokenizer(inRow);
 	string num;
 	while (tokenizer >> num)
@@ -575,7 +609,9 @@ bool processRemoveRequest(const string &inRow, string &outRow)
 		string &file_name = diropargs[1];
 
 		string &timestamp = fields[0];
-		string &rpc_xid = fields[12];
+		stringstream rpc_xid;
+		rpc_xid << std::hex << fields[12];
+		rpc_xid >> xid;
 		string path_name = (fields.size() >= 16) ? fields[15] : ",";
 
 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
@@ -583,7 +619,7 @@ bool processRemoveRequest(const string &inRow, string &outRow)
 
 		stringstream formattedRow;
 		formattedRow << extentName << "," << tfracs_timestamp << ","
-			<< rpc_xid << "," << dir_handle << "," << file_name 
+			<< xid << "," << dir_handle << "," << file_name 
 			<< "," << path_name;
 
 		outRow = formattedRow.str();
@@ -599,7 +635,8 @@ bool processRemoveReply(const string &inRow, string &outRow)
 	bool ret = true;
 	vector<string> fields;
 	const char *extentName = "remove_reply";
-
+	unsigned int xid;
+	
 	stringstream tokenizer(inRow);
 	string num;
 	while (tokenizer >> num)
@@ -607,7 +644,9 @@ bool processRemoveReply(const string &inRow, string &outRow)
 
 	if (fields.size() >= 15) {
 		string &timestamp = fields[0];
-		string &rpc_xid = fields[14];
+		stringstream rpc_xid;
+		rpc_xid << std::hex << fields[14];
+		rpc_xid >> xid;
 		string path_name = (fields.size() >= 18) ? fields[17] : ",";
 
 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
@@ -615,7 +654,7 @@ bool processRemoveReply(const string &inRow, string &outRow)
 
 		stringstream formattedRow;
 		formattedRow << extentName << "," << tfracs_timestamp << ","
-			<< rpc_xid << "," << path_name;
+			<< xid << "," << path_name;
 
 		outRow = formattedRow.str();
 	} else {
@@ -630,7 +669,8 @@ bool processCommitRequest(const string &inRow, string &outRow)
 	bool ret = true;
 	vector<string> fields;
 	const char *extentName = "commit_request";
-
+	unsigned int xid;
+	
 	stringstream tokenizer(inRow);
 	string num;
 	while (tokenizer >> num)
@@ -639,7 +679,9 @@ bool processCommitRequest(const string &inRow, string &outRow)
 	if (fields.size() >= 13) {
 		string &timestamp = fields[0];
 		string &fh = fields[9];
-		string &rpc_xid = fields[12];
+		stringstream rpc_xid;
+		rpc_xid << std::hex << fields[12];
+		rpc_xid >> xid;
 		string path_name = (fields.size() >= 16) ? fields[15] : ",";
 
 		string file_handle = fh.substr(3, fh.length());
@@ -648,7 +690,7 @@ bool processCommitRequest(const string &inRow, string &outRow)
 
 		stringstream formattedRow;
 		formattedRow << extentName << "," << tfracs_timestamp << ","
-			<< rpc_xid << "," << file_handle << "," << path_name;
+			<< xid << "," << file_handle << "," << path_name;
 
 		outRow = formattedRow.str();
 	} else {
@@ -663,7 +705,8 @@ bool processCommitReply(const string &inRow, string &outRow)
 	bool ret = true;
 	vector<string> fields;
 	const char *extentName = "commit_reply";
-
+	unsigned int xid;
+	
 	stringstream tokenizer(inRow);
 	string num;
 	while (tokenizer >> num)
@@ -671,7 +714,9 @@ bool processCommitReply(const string &inRow, string &outRow)
 
 	if (fields.size() >= 15) {
 		string &timestamp = fields[0];
-		string &rpc_xid = fields[14];
+		stringstream rpc_xid;
+		rpc_xid << std::hex << fields[14];
+		rpc_xid >> xid;
 		string path_name = (fields.size() >= 18) ? fields[17] : ",";
 
 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
@@ -679,7 +724,7 @@ bool processCommitReply(const string &inRow, string &outRow)
 
 		stringstream formattedRow;
 		formattedRow << extentName << "," << tfracs_timestamp << ","
-			<< rpc_xid << "," << path_name;
+			<< xid << "," << path_name;
 
 		outRow = formattedRow.str();
 	} else {
@@ -694,7 +739,8 @@ bool processPathconfRequest(const string &inRow, string &outRow)
 	bool ret = true;
 	vector<string> fields;
 	const char *extentName = "pathconf_request";
-
+	unsigned int xid;
+	
 	stringstream tokenizer(inRow);
 	string num;
 	while (tokenizer >> num)
@@ -703,7 +749,9 @@ bool processPathconfRequest(const string &inRow, string &outRow)
 	if (fields.size() >= 13) {
 		string &timestamp = fields[0];
 		string &fh = fields[9];
-		string &rpc_xid = fields[12];
+		stringstream rpc_xid;
+		rpc_xid << std::hex << fields[12];
+		rpc_xid >> xid;
 		string path_name = (fields.size() >= 16) ? fields[15] : ",";
 
 		string file_handle = fh.substr(3, fh.length());
@@ -712,7 +760,7 @@ bool processPathconfRequest(const string &inRow, string &outRow)
 
 		stringstream formattedRow;
 		formattedRow << extentName << "," << tfracs_timestamp << ","
-			<< rpc_xid << "," << file_handle << ","  << path_name;
+			<< xid << "," << file_handle << ","  << path_name;
 
 		outRow = formattedRow.str();
 	} else {
@@ -727,7 +775,8 @@ bool processPathconfReply(const string &inRow, string &outRow)
 	bool ret = true;
 	vector<string> fields;
 	const char *extentName = "pathconf_reply";
-
+	unsigned int xid;
+	
 	stringstream tokenizer(inRow);
 	string num;
 	while (tokenizer >> num)
@@ -735,7 +784,9 @@ bool processPathconfReply(const string &inRow, string &outRow)
 
 	if (fields.size() >= 15) {
 		string &timestamp = fields[0];
-		string &rpc_xid = fields[14];
+		stringstream rpc_xid;
+		rpc_xid << std::hex << fields[14];
+		rpc_xid >> xid;
 		string path_name = (fields.size() >= 18) ? fields[17] : ",";
 		
 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
@@ -743,7 +794,7 @@ bool processPathconfReply(const string &inRow, string &outRow)
 
 		stringstream formattedRow;
 		formattedRow << extentName << "," << tfracs_timestamp << ","
-			<< rpc_xid << "," << path_name;
+			<< xid << "," << path_name;
 
 		outRow = formattedRow.str();
 	} else {
@@ -758,7 +809,8 @@ bool processFsinfoRequest(const string &inRow, string &outRow)
 	bool ret = true;
 	vector<string> fields;
 	const char *extentName = "fsinfo_request";
-
+	unsigned int xid;
+	
 	stringstream tokenizer(inRow);
 	string num;
 	while (tokenizer >> num)
@@ -767,7 +819,9 @@ bool processFsinfoRequest(const string &inRow, string &outRow)
 	if (fields.size() >= 13) {
 		string &timestamp = fields[0];
 		string &fh = fields[9];
-		string &rpc_xid = fields[12];
+		stringstream rpc_xid;
+		rpc_xid << std::hex << fields[12];
+		rpc_xid >> xid;
 		string path_name = (fields.size() >= 16) ? fields[15] : ",";
 		
 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
@@ -776,7 +830,7 @@ bool processFsinfoRequest(const string &inRow, string &outRow)
 
 		stringstream formattedRow;
 		formattedRow << extentName << "," << tfracs_timestamp << ","
-			<< rpc_xid << "," << file_handle << "," << path_name;
+			<< xid << "," << file_handle << "," << path_name;
 
 		outRow = formattedRow.str();
 	} else {
@@ -791,7 +845,8 @@ bool processFsinfoReply(const string &inRow, string &outRow)
 	bool ret = true;
 	vector<string> fields;
 	const char *extentName = "fsinfo_reply";
-
+	unsigned int xid;
+	
 	stringstream tokenizer(inRow);
 	string num;
 	while (tokenizer >> num)
@@ -799,7 +854,9 @@ bool processFsinfoReply(const string &inRow, string &outRow)
 
 	if (fields.size() >= 15) {
 		string &timestamp = fields[0];
-		string &rpc_xid = fields[14];
+		stringstream rpc_xid;
+		rpc_xid << std::hex << fields[14];
+		rpc_xid >> xid;
 		string path_name = (fields.size() >= 18) ? fields[17] : ",";
 		
 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
@@ -807,7 +864,7 @@ bool processFsinfoReply(const string &inRow, string &outRow)
 
 		stringstream formattedRow;
 		formattedRow << extentName << "," << tfracs_timestamp << ","
-			<< rpc_xid << "," << path_name;
+			<< xid << "," << path_name;
 
 		outRow = formattedRow.str();
 	} else {
@@ -822,7 +879,8 @@ bool processReadRequest(const string &inRow, string &outRow)
 	bool ret = true;
 	vector<string> fields;
 	const char *extentName = "read_request";
-
+	unsigned int xid;
+	
 	stringstream tokenizer(inRow);
 	string num;
 	while (tokenizer >> num)
@@ -831,7 +889,9 @@ bool processReadRequest(const string &inRow, string &outRow)
 	if (fields.size() >= 15) {
 		string &timestamp = fields[0];
 		string &fh = fields[9];
-		string &rpc_xid = fields[14];
+		stringstream rpc_xid;
+		rpc_xid << std::hex << fields[14];
+		rpc_xid >> xid;
 		string path_name = (fields.size() >= 18) ? fields[17] : ",";
 
 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
@@ -842,7 +902,7 @@ bool processReadRequest(const string &inRow, string &outRow)
 
 		stringstream formattedRow;
 		formattedRow << extentName << "," << tfracs_timestamp << ","
-			<< rpc_xid << "," << file_handle << "," << offset << "," 
+			<< xid << "," << file_handle << "," << offset << "," 
 			<< length << "," << path_name;
 
 		outRow = formattedRow.str();
@@ -858,7 +918,8 @@ bool processReadReply(const string &inRow, string &outRow)
 	bool ret = true;
 	vector<string> fields;
 	const char *extentName = "read_reply";
-
+	unsigned int xid;
+	
 	stringstream tokenizer(inRow);
 	string num;
 	while (tokenizer >> num)
@@ -866,7 +927,9 @@ bool processReadReply(const string &inRow, string &outRow)
 
 	if (fields.size() >= 16) {
 		string &timestamp = fields[0];
-		string &rpc_xid = fields[15];
+		stringstream rpc_xid;
+		rpc_xid << std::hex << fields[15];
+		rpc_xid >> xid;
 		string path_name = (fields.size() >= 19) ? fields[18] : ",";
 		
 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
@@ -875,7 +938,7 @@ bool processReadReply(const string &inRow, string &outRow)
 
 		stringstream formattedRow;
 		formattedRow << extentName << "," << tfracs_timestamp << ","
-			<< rpc_xid << "," << length << "," << path_name;
+			<< xid << "," << length << "," << path_name;
 
 		outRow = formattedRow.str();
 	} else {
@@ -890,7 +953,8 @@ bool processWriteRequest(const string &inRow, string &outRow)
 	bool ret = true;
 	vector<string> fields;
 	const char *extentName = "write_request";
-
+	unsigned int xid;
+	
 	stringstream tokenizer(inRow);
 	string num;
 	while (tokenizer >> num)
@@ -902,7 +966,9 @@ bool processWriteRequest(const string &inRow, string &outRow)
 		int unstable = (fields[12] ==  "UNSTABLE") ? 1 : 0;
 		int data_sync = (fields[12] == "DATA_SYNC") ? 1 : 0;
 		int file_sync = (fields[12] == "FILE_SYNC") ? 1 : 0;
-		string &rpc_xid = fields[15];
+		stringstream rpc_xid;
+		rpc_xid << std::hex << fields[15];
+		rpc_xid >> xid;
 		string path_name = (fields.size() >= 19) ? fields[18] : ",";
 
 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
@@ -913,7 +979,7 @@ bool processWriteRequest(const string &inRow, string &outRow)
 
 		stringstream formattedRow;
 		formattedRow << extentName << "," << tfracs_timestamp << ","
-			<< rpc_xid << "," <<file_handle << "," << offset << "," 
+			<< xid << "," <<file_handle << "," << offset << "," 
 			<< length << "," << unstable << "," << data_sync << "," 
 			<< file_sync << "," << path_name;
 
@@ -930,7 +996,8 @@ bool processWriteReply(const string &inRow, string &outRow)
 	bool ret = true;
 	vector<string> fields;
 	const char *extentName = "write_reply";
-
+	unsigned int xid;
+	
 	stringstream tokenizer(inRow);
 	string num;
 	while (tokenizer >> num)
@@ -942,7 +1009,9 @@ bool processWriteReply(const string &inRow, string &outRow)
 		int unstable = (fields[13] ==  "UNSTABLE") ? 1 : 0;
 		int data_sync = (fields[13] == "DATA_SYNC") ? 1 : 0;
 		int file_sync = (fields[13] == "FILE_SYNC") ? 1 : 0;
-		string &rpc_xid = fields[16];
+		stringstream rpc_xid;
+		rpc_xid << std::hex << fields[16];
+		rpc_xid >> xid;
 		string path_name = (fields.size() >= 20) ? fields[19] : ",";
 
 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
@@ -951,7 +1020,7 @@ bool processWriteReply(const string &inRow, string &outRow)
 
 		stringstream formattedRow;
 		formattedRow << extentName << "," << tfracs_timestamp << ","
-			<< rpc_xid << "," << length << "," << unstable << ","
+			<< xid << "," << length << "," << unstable << ","
 			<< data_sync << "," << file_sync << "," << path_name;
 
 		outRow = formattedRow.str();

@@ -1,5 +1,5 @@
 Common	time_called	0	int64
-Common	xid	0	variable32
+Common	xid	0	int32
 fsinfo_request	file_handle	0	variable32
 fsinfo_request	full_pathname	1	variable32
 fsinfo_reply	full_pathname	1	variable32
