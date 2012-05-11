@@ -42,6 +42,8 @@
 
 using namespace std;
 
+static uint64_t rowsProcessed, rowsSkipped, rowsMalformed;
+
 bool processMkdirRequest(const string &inRow, string &outRow)
 {
 	bool ret = true;
@@ -452,7 +454,7 @@ bool processLookupReply(const string &inRow, string &outRow)
 		} else if (string::npos != inRow.find("FH:")) {
 			string &fh = fields[12];
 			string path_name1 = (fields.size() >= 19) ? fields[18] : ",";
-			//string &path_name2 = (fields.size() >= 25) ? fields[24] : "";
+			//string &path_name2 = (fields.size() >= 25) ?  //fields[24] : ",";
 			
 			string file_handle = fh.substr(3, fh.length());
 
@@ -969,9 +971,11 @@ bool processRow(const string &inRow, string &outRow, bool &write_outRow)
 	bool (*processReply) (const string &inRow, string &outRow) = NULL;
 	
 	outRow = "";
-	
 
-	if (boost::regex_match(inRow, CALLEXPR)) {
+	if (string::npos != inRow.find(";")) {
+		clog << "NFS: Malformed record: '" << inRow <<"\n";
+		rowsMalformed++;
+	} else if (boost::regex_match(inRow, CALLEXPR)) {
 		if (string::npos != inRow.find(" WRITE ")) {
 			processRequest = processWriteRequest;
 			write_outRow = true;
@@ -987,30 +991,36 @@ bool processRow(const string &inRow, string &outRow, bool &write_outRow)
 		} else if (string::npos != inRow.find(" COMMIT ")) {
 			processRequest = processCommitRequest;
 			write_outRow = true;
-		}else if (string::npos != inRow.find(" MKDIR ")) {
+		} else if (string::npos != inRow.find(" MKDIR ")) {
 			processRequest = processMkdirRequest;
 			write_outRow = true;
-		}else if (string::npos != inRow.find(" LOOKUP ")) {
+		} else if (string::npos != inRow.find(" LOOKUP ")) {
 			processRequest = processLookupRequest;
 			write_outRow = true;
-		}else if (string::npos != inRow.find(" GETATTR ")) {
+		} else if (string::npos != inRow.find(" GETATTR ")) {
 			processRequest = processGetAttrRequest;
 			write_outRow = true;
-		}else if (string::npos != inRow.find(" CREATE ")) {
+		} else if (string::npos != inRow.find(" CREATE ")) {
 			processRequest = processCreateRequest;
 			write_outRow = true;
-		}else if (string::npos != inRow.find(" REMOVE ")) {
+		} else if (string::npos != inRow.find(" REMOVE ")) {
 			processRequest = processRemoveRequest;
 			write_outRow = true;
-		}else if (string::npos != inRow.find(" ACCESS ")) {
+		} else if (string::npos != inRow.find(" ACCESS ")) {
 			processRequest = processAccessRequest;
 			write_outRow = true;
-		}
+		} else {
+			clog << "NFS: Skipping record: '" << inRow <<"\n";
+			rowsSkipped ++;
+		}	
 
 		if (NULL != processRequest) { 
 			if(!processRequest(inRow, outRow)) {
 				clog << "NFS: Malformed record: '" << inRow <<"\n";
+				rowsMalformed++;
 				return false;
+			} else {
+				rowsProcessed++;
 			}
 		}
 	} else if (boost::regex_match(inRow, REPLYEXPR)) {
@@ -1029,30 +1039,36 @@ bool processRow(const string &inRow, string &outRow, bool &write_outRow)
 		} else if (string::npos != inRow.find(" COMMIT ")) {
 			processReply = processCommitReply;
 			write_outRow = true;
-		}else if (string::npos != inRow.find(" MKDIR ")) {
+		} else if (string::npos != inRow.find(" MKDIR ")) {
 			processReply = processMkdirReply;
 			write_outRow = true;
-		}else if (string::npos != inRow.find(" LOOKUP ")) {
+		} else if (string::npos != inRow.find(" LOOKUP ")) {
 			processReply = processLookupReply;
 			write_outRow = true;
-		}else if (string::npos != inRow.find(" GETATTR ")) {
+		} else if (string::npos != inRow.find(" GETATTR ")) {
 			processReply = processGetAttrReply;
 			write_outRow = true;
-		}else if (string::npos != inRow.find(" CREATE ")) {
+		} else if (string::npos != inRow.find(" CREATE ")) {
 			processReply = processCreateReply;
 			write_outRow = true;
-		}else if (string::npos != inRow.find(" REMOVE ")) {
+		} else if (string::npos != inRow.find(" REMOVE ")) {
 			processReply = processRemoveReply;
 			write_outRow = true;
-		}else if (string::npos != inRow.find(" ACCESS ")) {
+		} else if (string::npos != inRow.find(" ACCESS ")) {
 			processReply = processAccessReply;
 			write_outRow = true;
+		} else {
+			clog << "NFS: Skipping record: '" << inRow <<"\n";
+			rowsSkipped++;
 		}
 
 		if (NULL != processReply) { 
 			if(!processReply(inRow, outRow)) {
 				clog << "NFS: Malformed record: '" << inRow <<"\n";
+				rowsMalformed++;
 				return false;
+			} else {
+				rowsProcessed++;
 			}
 		}
 
@@ -1113,6 +1129,9 @@ int main(int argc, char *argv[])
 			write_outRow = false;
 		}
 	}
+	clog << rowsProcessed << " row(s) processed." << "\n";
+	clog << rowsSkipped << " row(s) skipped." << "\n";
+	clog << rowsMalformed << " row(s) malformed." << "\n"; 
 
 cleanup:
 	if (inFile.is_open()) {
