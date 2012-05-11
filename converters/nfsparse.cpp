@@ -1,31 +1,35 @@
 /*
- * NFS Call-Reply can be captured by sniffing ethernet packets. tshark is a 
- * network protocol analyzer which has the capability to decode NFS packets. 
- * Below command can be used to capture the network packets using tshark in PCAP
- * format.
- * # tshark -i eth0 -F libpcap -w <output_file>
+ * Copyright (c) 2012 Sudhir Kasanavesi
+ * Copyright (c) 2012 Kalyan Chandra
+ * Copyright (c) 2012 Nihar Reddy
+ * Copyright (c) 2012 Vasily Tarasov
+ * Copyright (c) 2012 Erez Zadok
+ * Copyright (c) 2012 Stony Brook University
+ * Copyright (c) 2012 The Research Foundation of SUNY
  *
- * We need to apply NFS display filters on the output_file again using tshark to
- * convert it to a readable format. Below command can be used 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * We assume that Ethernet packets are captured in PCAP format using tcpdump
+ * tool.  Tshark  network protocol has a capability to decode NFS packets
+ * from Ethernet frames.  Below command can be used:
+ *
  * # tshark -r <pcap_file> -R nfs -t e -z proto,colinfo,rpc.xid,rpc.xid [-z proto,colinfo,nfs.full_name,nfs.full_name] > <output_file>
  *
- * This tool assumes that the rpc.xid is captured for all the packets, this is 
- * useful to correlate between NFS Call - NFS Reply. However, tshark supports 
- * full file name snooping from version 1.6.5. NFS full file names can be 
- * captured using optional [-z proto,colinfo,nfs.full_name,nfs.full_name] display
- * filter.
+ * [-z proto,colinfo,nfs.full_name,nfs.full_name] is an optinal filter
+ * that instructs tshark to deduce full file name for approriate NFS
+ * procedures. It is supported only starting from version 1.6.5.
  *
- * This tool is invoked by a nfs trace-convertor i.e. nfstrace2ds to convert
- * the tshark network captured in PCAP format to DataSeries format.
+
+ * nfsparse is usually invoked by nfstrace2d.sh to convert trace in a PCAP
+ * format to the DataSeries format.  nfsparse produces a new CSV file that is
+ * then fed to a csv2ds-extra tool.
  *
- * The tool produces a new CSV file that is then fed to a csv2ds-extra tool.
- *
- * Usage: nfsparse <tshark_capture_file> <output_file>
- * <tshark_capture_file> : file after applying the above specified nfs display 
- * filters on the PCAP format. 
- * <output_file> : CSV file to be written.
+ * Usage: nfsparse <pcap_file> <output_csv_file>
  *
  */
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -45,17 +49,20 @@ bool processMkdirRequest(const string &inRow, string &outRow)
 	vector<string> diropargs;
 	const char *extentName = "mkdir_request";
 
-	boost::split(fields, inRow, boost::is_any_of(" "));
+	stringstream tokenizer(inRow);
+	string num;
+	while (tokenizer >> num)
+		fields.push_back(num);
 
-	if (fields.size() >= 14) {
+	if (fields.size() >= 13) {
 		boost::split(diropargs, fields[9], boost::is_any_of("/"));
 		string &dh = diropargs[0];
 		string dir_handle = dh.substr(3, dh.length());
 		string &file_name = diropargs[1];
 
 		string &timestamp = fields[0];
-		string &rpc_xid = fields[13];
-		string path_name = (fields.size() >= 18) ? fields[17] : ",";
+		string &rpc_xid = fields[12];
+		string path_name = (fields.size() >= 16) ? fields[15] : ",";
 
 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
 			(((uint64_t)1)<<32));
@@ -79,16 +86,19 @@ bool processMkdirReply(const string &inRow, string &outRow)
 	vector<string> fields;
 	const char *extentName = "mkdir_reply";
 
-	boost::split(fields, inRow, boost::is_any_of(" "));
-
-	if (fields.size() >= 16) {
-		string &timestamp = fields[0];
-		string &rpc_xid = fields[15];
-		string dir = (fields.size() >= 20) ? fields[19] : ",";
-		string par_dir = (fields.size() >= 24) ? fields[23] : ",";
-
-		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
-			(((uint64_t)1)<<32));
+	stringstream tokenizer(inRow);
+	string num;
+	while (tokenizer >> num)
+		fields.push_back(num);
+ 
+	if (fields.size() >= 15) {
+ 		string &timestamp = fields[0];
+		string &rpc_xid = fields[14];
+		string dir = (fields.size() >= 18) ? fields[17] : "";
+		string par_dir = (fields.size() >= 21) ? fields[20] : ",";
+ 
+ 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
+ 			(((uint64_t)1)<<32));
 
 		stringstream formattedRow;
 		formattedRow << extentName << "," << tfracs_timestamp << ","
@@ -111,7 +121,10 @@ bool processAccessRequest(const string &inRow, string &outRow)
 	int read, lookup, modify, extend, del, execute;
 	read = lookup = modify = extend = del = execute = 0;
 
-	boost::split(fields, inRow, boost::is_any_of(" "));
+	stringstream tokenizer(inRow);
+	string num;
+	while (tokenizer >> num)
+		fields.push_back(num);
 
 	if (fields.size() >= 12) {
 		string &timestamp = fields[0];
@@ -137,8 +150,8 @@ bool processAccessRequest(const string &inRow, string &outRow)
 			}
 		}
 
-		string &rpc_xid = fields[field_offset+4];
-		string path_name = (fields.size() >= (field_offset + 9)) ? fields[field_offset+8] : ",";
+		string &rpc_xid = fields[field_offset+3];
+		string path_name = (fields.size() >= (field_offset + 7)) ? fields[field_offset+6] : ",";
 		
 		string file_handle = fh.substr(3, fh.length()-4);
 
@@ -170,9 +183,12 @@ bool processAccessReply(const string &inRow, string &outRow)
 	dny_read = dny_lookup = dny_modify = dny_extend = dny_del = dny_execute = 0;
 	uint32_t field_offset = 0;
 
-	boost::split(fields, inRow, boost::is_any_of(" "));
+	stringstream tokenizer(inRow);
+	string num;
+	while (tokenizer >> num)
+		fields.push_back(num);
 
-	if (fields.size() >= 15) {
+	if (fields.size() >= 14) {
 		string &timestamp = fields[0];
 		
 		if (string::npos != inRow.find("Allowed") && string::npos != inRow.find("Denied")){
@@ -259,8 +275,8 @@ bool processAccessReply(const string &inRow, string &outRow)
 			}
 		}
 		
-		string &rpc_xid = fields[field_offset+4];
-		string path_name = (fields.size() >= (field_offset + 9)) ? fields[field_offset+8] : ",";
+		string &rpc_xid = fields[field_offset+3];
+		string path_name = (fields.size() >= (field_offset + 7)) ? fields[field_offset+6] : ",";
 
 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
 			(((uint64_t)1)<<32));
@@ -287,13 +303,16 @@ bool processGetAttrRequest(const string &inRow, string &outRow)
 	vector<string> fields;
 	const char *extentName = "getattr_request";
 
-	boost::split(fields, inRow, boost::is_any_of(" "));
+	stringstream tokenizer(inRow);
+	string num;
+	while (tokenizer >> num)
+		fields.push_back(num);
 
-	if (fields.size() >= 14) {
+	if (fields.size() >= 13) {
 		string &timestamp = fields[0];
 		string &fh = fields[9];
-		string &rpc_xid = fields[13];
-		string path_name = (fields.size() >= 18) ? fields[17] : ",";
+		string &rpc_xid = fields[12];
+		string path_name = (fields.size() >= 16) ? fields[15] : ",";
 		
 		string file_handle = fh.substr(3, fh.length());
 
@@ -320,24 +339,28 @@ bool processGetAttrReply(const string &inRow, string &outRow)
 	uint32_t field_offset = 14;
 	int file_type = 0;
 
-	boost::split(fields, inRow, boost::is_any_of(" "));
+	stringstream tokenizer(inRow);
+	string num;
+	while (tokenizer >> num)
+		fields.push_back(num);
 
 	if (string::npos != inRow.find(" Regular File ")) {
-		field_offset = 15;
+		field_offset = 14;
 		file_type = 1;
 	}
 	else if (string::npos != inRow.find(" Directory ")) {
-		field_offset = 14;
+		field_offset = 13;
 		file_type = 2;
 	}
 
-	if (fields.size() >= 15) {
+	if (fields.size() >= field_offset + 6) {
 		string &timestamp = fields[0];
 		string &raw_mode = fields[field_offset];
 		string raw_uid = fields[field_offset+1];
 		string raw_gid = fields[field_offset+2];
-		string &rpc_xid = fields[field_offset+6];
-		string path_name = (fields.size() >= (field_offset + 11)) ? fields[field_offset+10] : ",";
+		string &rpc_xid = fields[field_offset+5];
+		
+		string path_name = (fields.size() >= (field_offset + 9)) ? fields[field_offset+8] : ",";
 
 		string mode = raw_mode.substr(5, raw_mode.length());
 		string uid = raw_uid.substr(4, raw_uid.length());
@@ -366,17 +389,20 @@ bool processLookupRequest(const string &inRow, string &outRow)
 	vector<string> diropargs;
 	const char *extentName = "lookup_request";
 
-	boost::split(fields, inRow, boost::is_any_of(" "));
+	stringstream tokenizer(inRow);
+	string num;
+	while (tokenizer >> num)
+		fields.push_back(num);
 
-	if (fields.size() >= 10) {
+	if (fields.size() >= 13) {
 		boost::split(diropargs, fields[9], boost::is_any_of("/"));
 		string &dh = diropargs[0];
 		string dir_handle = dh.substr(3, dh.length());
 		string &file_name = diropargs[1];
 
 		string &timestamp = fields[0];
-		string &rpc_xid = fields[13];
-		string path_name = (fields.size() >= 18) ? fields[17] : ",";
+		string &rpc_xid = fields[12];
+		string path_name = (fields.size() >= 16) ? fields[15] : ",";
 
 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
 			(((uint64_t)1)<<32));
@@ -400,11 +426,14 @@ bool processLookupReply(const string &inRow, string &outRow)
 	vector<string> fields;
 	const char *extentName = "lookup_reply";
 
-	boost::split(fields, inRow, boost::is_any_of(" "));
+	stringstream tokenizer(inRow);
+	string num;
+	while (tokenizer >> num)
+		fields.push_back(num);
 
-	if (fields.size() >= 17) {
+	if (fields.size() >= 16) {
 		string &timestamp = fields[0];
-		string &rpc_xid = fields[16];
+		string &rpc_xid = fields[15];
 
 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
 			(((uint64_t)1)<<32));
@@ -413,17 +442,16 @@ bool processLookupReply(const string &inRow, string &outRow)
 		
 		if (string::npos != inRow.find("Error:")) {
 			string &error_field = fields[12];
-			string path_name = (fields.size() >= 21) ? fields[20] : ",";
+			string path_name = (fields.size() >= 19) ? fields[18] : ",";
 			
 			string error = error_field.substr(6, error_field.length());
 
 			formattedRow << extentName << "," << tfracs_timestamp << ","
 				<< rpc_xid << "," << error << "," << path_name;
 
-		}
-		else if (string::npos != inRow.find("FH:")) {
+		} else if (string::npos != inRow.find("FH:")) {
 			string &fh = fields[12];
-			string path_name1 = (fields.size() >= 21) ? fields[20] : ",";
+			string path_name1 = (fields.size() >= 19) ? fields[18] : ",";
 			//string &path_name2 = (fields.size() >= 25) ? fields[24] : "";
 			
 			string file_handle = fh.substr(3, fh.length());
@@ -454,9 +482,12 @@ bool processCreateRequest(const string &inRow, string &outRow)
 	const char *extentName = "create_request";
 	int mode = 0;
 
-	boost::split(fields, inRow, boost::is_any_of(" "));
+	stringstream tokenizer(inRow);
+	string num;
+	while (tokenizer >> num)
+		fields.push_back(num);
 
-	if (fields.size() >= 15) {
+	if (fields.size() >= 14) {
 		if (string::npos != inRow.find(" Mode:UNCHECKED ")) {
 			mode = 0;
 			boost::split(diropargs, fields[9], boost::is_any_of("/"));
@@ -465,8 +496,8 @@ bool processCreateRequest(const string &inRow, string &outRow)
 			string &file_name = diropargs[1];
 
 			string &timestamp = fields[0];
-			string &rpc_xid = fields[14];
-			string path_name = (fields.size() >= 19) ? fields[18] : ",";
+			string &rpc_xid = fields[13];
+			string path_name = (fields.size() >= 17) ? fields[16] : ",";
 
 			uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
 				(((uint64_t)1)<<32));
@@ -496,13 +527,17 @@ bool processCreateReply(const string &inRow, string &outRow)
 	vector<string> fields;
 	const char *extentName = "create_reply";
 
-	boost::split(fields, inRow, boost::is_any_of(" "));
-
-	if (fields.size() >= 16) {
+	stringstream tokenizer(inRow);
+	string num;
+	while (tokenizer >> num)
+		fields.push_back(num);
+ 
+	if (fields.size() >= 15) {
 		string &timestamp = fields[0];
-		string &rpc_xid = fields[15];
-		string dir = (fields.size() >= 20) ? fields[19] : ",";
-		string par_dir = (fields.size() >= 24) ? fields[23] : ",";
+
+		string &rpc_xid = fields[14];
+		string dir = (fields.size() >= 18) ? fields[17] : "";
+		string par_dir = (fields.size() >= 21) ? fields[20] : ",";
 
 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
 			(((uint64_t)1)<<32));
@@ -526,17 +561,20 @@ bool processRemoveRequest(const string &inRow, string &outRow)
 	vector<string> diropargs;
 	const char *extentName = "remove_request";
 
-	boost::split(fields, inRow, boost::is_any_of(" "));
+	stringstream tokenizer(inRow);
+	string num;
+	while (tokenizer >> num)
+		fields.push_back(num);
 
-	if (fields.size() >= 14) {
+	if (fields.size() >= 13) {
 		boost::split(diropargs, fields[9], boost::is_any_of("/"));
 		string &dh = diropargs[0];
 		string dir_handle = dh.substr(3, dh.length());
 		string &file_name = diropargs[1];
 
 		string &timestamp = fields[0];
-		string &rpc_xid = fields[13];
-		string path_name = (fields.size() >= 18) ? fields[17] : ",";
+		string &rpc_xid = fields[12];
+		string path_name = (fields.size() >= 16) ? fields[15] : ",";
 
 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
 			(((uint64_t)1)<<32));
@@ -560,12 +598,15 @@ bool processRemoveReply(const string &inRow, string &outRow)
 	vector<string> fields;
 	const char *extentName = "remove_reply";
 
-	boost::split(fields, inRow, boost::is_any_of(" "));
+	stringstream tokenizer(inRow);
+	string num;
+	while (tokenizer >> num)
+		fields.push_back(num);
 
-	if (fields.size() >= 16) {
+	if (fields.size() >= 15) {
 		string &timestamp = fields[0];
-		string &rpc_xid = fields[15];
-		string path_name = (fields.size() >= 20) ? fields[19] : ",";
+		string &rpc_xid = fields[14];
+		string path_name = (fields.size() >= 18) ? fields[17] : ",";
 
 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
 			(((uint64_t)1)<<32));
@@ -588,13 +629,16 @@ bool processCommitRequest(const string &inRow, string &outRow)
 	vector<string> fields;
 	const char *extentName = "commit_request";
 
-	boost::split(fields, inRow, boost::is_any_of(" "));
+	stringstream tokenizer(inRow);
+	string num;
+	while (tokenizer >> num)
+		fields.push_back(num);
 
-	if (fields.size() >= 14) {
+	if (fields.size() >= 13) {
 		string &timestamp = fields[0];
 		string &fh = fields[9];
-		string &rpc_xid = fields[13];
-		string path_name = (fields.size() >= 18) ? fields[17] : ",";
+		string &rpc_xid = fields[12];
+		string path_name = (fields.size() >= 16) ? fields[15] : ",";
 
 		string file_handle = fh.substr(3, fh.length());
 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
@@ -618,12 +662,15 @@ bool processCommitReply(const string &inRow, string &outRow)
 	vector<string> fields;
 	const char *extentName = "commit_reply";
 
-	boost::split(fields, inRow, boost::is_any_of(" "));
+	stringstream tokenizer(inRow);
+	string num;
+	while (tokenizer >> num)
+		fields.push_back(num);
 
-	if (fields.size() >= 16) {
+	if (fields.size() >= 15) {
 		string &timestamp = fields[0];
-		string &rpc_xid = fields[15];
-		string path_name = (fields.size() >= 20) ? fields[19] : ",";
+		string &rpc_xid = fields[14];
+		string path_name = (fields.size() >= 18) ? fields[17] : ",";
 
 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
 			(((uint64_t)1)<<32));
@@ -646,13 +693,16 @@ bool processPathconfRequest(const string &inRow, string &outRow)
 	vector<string> fields;
 	const char *extentName = "pathconf_request";
 
-	boost::split(fields, inRow, boost::is_any_of(" "));
+	stringstream tokenizer(inRow);
+	string num;
+	while (tokenizer >> num)
+		fields.push_back(num);
 
-	if (fields.size() >= 14) {
+	if (fields.size() >= 13) {
 		string &timestamp = fields[0];
 		string &fh = fields[9];
-		string &rpc_xid = fields[13];
-		string path_name = (fields.size() >= 18) ? fields[17] : ",";
+		string &rpc_xid = fields[12];
+		string path_name = (fields.size() >= 16) ? fields[15] : ",";
 
 		string file_handle = fh.substr(3, fh.length());
 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
@@ -676,12 +726,15 @@ bool processPathconfReply(const string &inRow, string &outRow)
 	vector<string> fields;
 	const char *extentName = "pathconf_reply";
 
-	boost::split(fields, inRow, boost::is_any_of(" "));
+	stringstream tokenizer(inRow);
+	string num;
+	while (tokenizer >> num)
+		fields.push_back(num);
 
-	if (fields.size() >= 16) {
+	if (fields.size() >= 15) {
 		string &timestamp = fields[0];
-		string &rpc_xid = fields[15];
-		string path_name = (fields.size() >= 20) ? fields[19] : ",";
+		string &rpc_xid = fields[14];
+		string path_name = (fields.size() >= 18) ? fields[17] : ",";
 		
 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
 			(((uint64_t)1)<<32));
@@ -704,13 +757,16 @@ bool processFsinfoRequest(const string &inRow, string &outRow)
 	vector<string> fields;
 	const char *extentName = "fsinfo_request";
 
-	boost::split(fields, inRow, boost::is_any_of(" "));
-
-	if (fields.size() >= 14) {
+	stringstream tokenizer(inRow);
+	string num;
+	while (tokenizer >> num)
+		fields.push_back(num);
+	
+	if (fields.size() >= 13) {
 		string &timestamp = fields[0];
 		string &fh = fields[9];
-		string &rpc_xid = fields[13];
-		string path_name = (fields.size() >= 18) ? fields[17] : ",";
+		string &rpc_xid = fields[12];
+		string path_name = (fields.size() >= 16) ? fields[15] : ",";
 		
 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
 			(((uint64_t)1)<<32));
@@ -734,12 +790,15 @@ bool processFsinfoReply(const string &inRow, string &outRow)
 	vector<string> fields;
 	const char *extentName = "fsinfo_reply";
 
-	boost::split(fields, inRow, boost::is_any_of(" "));
+	stringstream tokenizer(inRow);
+	string num;
+	while (tokenizer >> num)
+		fields.push_back(num);
 
-	if (fields.size() >= 16) {
+	if (fields.size() >= 15) {
 		string &timestamp = fields[0];
-		string &rpc_xid = fields[15];
-		string path_name = (fields.size() >= 20) ? fields[19] : ",";
+		string &rpc_xid = fields[14];
+		string path_name = (fields.size() >= 18) ? fields[17] : ",";
 		
 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
 			(((uint64_t)1)<<32));
@@ -762,13 +821,16 @@ bool processReadRequest(const string &inRow, string &outRow)
 	vector<string> fields;
 	const char *extentName = "read_request";
 
-	boost::split(fields, inRow, boost::is_any_of(" "));
+	stringstream tokenizer(inRow);
+	string num;
+	while (tokenizer >> num)
+		fields.push_back(num);
 
-	if (fields.size() >= 16) {
+	if (fields.size() >= 15) {
 		string &timestamp = fields[0];
 		string &fh = fields[9];
-		string &rpc_xid = fields[15];
-		string path_name = (fields.size() >= 20) ? fields[19] : ",";
+		string &rpc_xid = fields[14];
+		string path_name = (fields.size() >= 18) ? fields[17] : ",";
 
 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
 			(((uint64_t)1)<<32));
@@ -795,12 +857,15 @@ bool processReadReply(const string &inRow, string &outRow)
 	vector<string> fields;
 	const char *extentName = "read_reply";
 
-	boost::split(fields, inRow, boost::is_any_of(" "));
+	stringstream tokenizer(inRow);
+	string num;
+	while (tokenizer >> num)
+		fields.push_back(num);
 
-	if (fields.size() >= 17) {
+	if (fields.size() >= 16) {
 		string &timestamp = fields[0];
-		string &rpc_xid = fields[16];
-		string path_name = (fields.size() >= 21) ? fields[20] : ",";
+		string &rpc_xid = fields[15];
+		string path_name = (fields.size() >= 19) ? fields[18] : ",";
 		
 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
 			(((uint64_t)1)<<32));
@@ -824,16 +889,19 @@ bool processWriteRequest(const string &inRow, string &outRow)
 	vector<string> fields;
 	const char *extentName = "write_request";
 
-	boost::split(fields, inRow, boost::is_any_of(" "));
+	stringstream tokenizer(inRow);
+	string num;
+	while (tokenizer >> num)
+		fields.push_back(num);
 
-	if (fields.size() >= 17) {
+	if (fields.size() >= 16) {
 		string &timestamp = fields[0];
 		string &fh = fields[9];
 		int unstable = (fields[12] ==  "UNSTABLE") ? 1 : 0;
 		int data_sync = (fields[12] == "DATA_SYNC") ? 1 : 0;
 		int file_sync = (fields[12] == "FILE_SYNC") ? 1 : 0;
-		string &rpc_xid = fields[16];
-		string path_name = (fields.size() >= 21) ? fields[20] : ",";
+		string &rpc_xid = fields[15];
+		string path_name = (fields.size() >= 19) ? fields[18] : ",";
 
 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
 			(((uint64_t)1)<<32));
@@ -861,15 +929,19 @@ bool processWriteReply(const string &inRow, string &outRow)
 	vector<string> fields;
 	const char *extentName = "write_reply";
 
-	boost::split(fields, inRow, boost::is_any_of(" "));
+	stringstream tokenizer(inRow);
+	string num;
+	while (tokenizer >> num)
+		fields.push_back(num);
 
-	if (fields.size() >= 18) {
+	
+	if (fields.size() >= 17) {
 		string &timestamp = fields[0];
 		int unstable = (fields[13] ==  "UNSTABLE") ? 1 : 0;
 		int data_sync = (fields[13] == "DATA_SYNC") ? 1 : 0;
 		int file_sync = (fields[13] == "FILE_SYNC") ? 1 : 0;
-		string &rpc_xid = fields[17];
-		string path_name = (fields.size() >= 22) ? fields[21] : ",";
+		string &rpc_xid = fields[16];
+		string path_name = (fields.size() >= 20) ? fields[19] : ",";
 
 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
 			(((uint64_t)1)<<32));
@@ -890,8 +962,8 @@ bool processWriteReply(const string &inRow, string &outRow)
 
 bool processRow(const string &inRow, string &outRow, bool &write_outRow)
 {
-	boost::regex CALLEXPR(".*NFS\\s[0-9]+\\sV3\\s[A-Z]+\\sCall.*");
-	boost::regex REPLYEXPR(".*NFS\\s[0-9]+\\sV3\\s[A-Z]+\\sReply.*");
+	boost::regex CALLEXPR(".*NFS[\\s]+[0-9]+[\\s]+V3[\\s]+[A-Z]+[\\s]+Call.*");
+	boost::regex REPLYEXPR(".*NFS[\\s]+[0-9]+[\\s]+V3[\\s]+[A-Z]+[\\s]+Reply.*");
 	bool ret = true;
 	bool (*processRequest)(const string &inRow, string &outRow) = NULL;
 	bool (*processReply) (const string &inRow, string &outRow) = NULL;
