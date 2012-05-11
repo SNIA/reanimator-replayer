@@ -67,7 +67,7 @@ bool processMkdirRequest(const string &inRow, string &outRow)
 		stringstream rpc_xid;
 		rpc_xid << std::hex << fields[12];
 		rpc_xid >> xid;
-		
+
 		string path_name = (fields.size() >= 16) ? fields[15] : ",";
 
 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
@@ -75,7 +75,7 @@ bool processMkdirRequest(const string &inRow, string &outRow)
 
 		stringstream formattedRow;
 		formattedRow << extentName << "," << tfracs_timestamp << ","
-			<< xid << "," << dir_handle << "," << file_name 
+			<< xid << "," << dir_handle << "," << file_name
 			<< "," << path_name;
 
 		outRow = formattedRow.str();
@@ -99,16 +99,16 @@ bool processMkdirReply(const string &inRow, string &outRow)
 		fields.push_back(num);
 
 
- 	if (fields.size() >= 15) {
- 		string &timestamp = fields[0];
+	if (fields.size() >= 15) {
+		string &timestamp = fields[0];
 		stringstream rpc_xid;
 		rpc_xid << std::hex << fields[14];
 		rpc_xid >> xid;
- 		string dir = (fields.size() >= 18) ? fields[17] : "";
- 		string par_dir = (fields.size() >= 21) ? fields[20] : ",";
- 
- 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
- 			(((uint64_t)1)<<32));
+		string dir = (fields.size() >= 18) ? fields[17] : "";
+		string par_dir = (fields.size() >= 21) ? fields[20] : ",";
+
+		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
+			(((uint64_t)1)<<32));
 
 		stringstream formattedRow;
 		formattedRow << extentName << "," << tfracs_timestamp << ","
@@ -165,7 +165,7 @@ bool processAccessRequest(const string &inRow, string &outRow)
 		rpc_xid << std::hex << fields[field_offset+3];
 		rpc_xid >> xid;
 		string path_name = (fields.size() >= (field_offset + 7)) ? fields[field_offset+6] : ",";
-		
+
 		string file_handle = fh.substr(3, fh.length()-4);
 
 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
@@ -173,8 +173,8 @@ bool processAccessRequest(const string &inRow, string &outRow)
 
 		stringstream formattedRow;
 		formattedRow << extentName << "," << tfracs_timestamp << ","
-			<< xid << "," << file_handle << "," << read << 
-			lookup << modify << extend << del << execute << "," 
+			<< xid << "," << file_handle << "," << read <<
+			lookup << modify << extend << del << execute << ","
 			<< path_name;
 
 		outRow = formattedRow.str();
@@ -199,13 +199,13 @@ bool processAccessReply(const string &inRow, string &outRow)
 	stringstream tokenizer(inRow);
 	string num;
 	unsigned int xid;
-	
+
 	while (tokenizer >> num)
 		fields.push_back(num);
 
 	if (fields.size() >= 14) {
 		string &timestamp = fields[0];
-		
+
 		if (string::npos != inRow.find("Allowed") && string::npos != inRow.find("Denied")){
 			for(int i=14; i<=19; i++){
 				if (string::npos != fields[i].find("RD"))
@@ -289,7 +289,7 @@ bool processAccessReply(const string &inRow, string &outRow)
 				}
 			}
 		}
-		
+
 		stringstream rpc_xid;
 		rpc_xid << std::hex << fields[field_offset + 3];
 		rpc_xid >> xid;
@@ -300,10 +300,10 @@ bool processAccessReply(const string &inRow, string &outRow)
 
 		stringstream formattedRow;
 		formattedRow << extentName << "," << tfracs_timestamp << ","
-			<< xid << "," << alw_read << alw_lookup << 
-			alw_modify << alw_extend << alw_del << alw_execute 
-			<< "," << dny_read << dny_lookup << dny_modify << 
-			dny_extend << dny_del << dny_execute << "," << 
+			<< xid << "," << alw_read << alw_lookup <<
+			alw_modify << alw_extend << alw_del << alw_execute
+			<< "," << dny_read << dny_lookup << dny_modify <<
+			dny_extend << dny_del << dny_execute << "," <<
 			path_name;
 
 		outRow = formattedRow.str();
@@ -323,7 +323,7 @@ bool processGetAttrRequest(const string &inRow, string &outRow)
 	stringstream tokenizer(inRow);
 	string num;
 	unsigned int xid;
-	
+
 	while (tokenizer >> num)
 		fields.push_back(num);
 
@@ -334,7 +334,7 @@ bool processGetAttrRequest(const string &inRow, string &outRow)
 		rpc_xid << std::hex << fields[12];
 		rpc_xid >> xid;
 		string path_name = (fields.size() >= 16) ? fields[15] : ",";
-		
+
 		string file_handle = fh.substr(3, fh.length());
 
 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
@@ -383,26 +383,26 @@ bool processGetAttrReply(const string &inRow, string &outRow)
 		stringstream rpc_xid;
 		rpc_xid << std::hex << fields[field_offset+5];
 		rpc_xid >> xid;
-		
+
 		string path_name = (fields.size() >= (field_offset + 9)) ? fields[field_offset+8] : ",";
 
 		string mode = raw_mode.substr(5, raw_mode.length());
 		string uid = raw_uid.substr(4, raw_uid.length());
 		string gid = raw_gid.substr(4, raw_gid.length());
-		
+
 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
 			(((uint64_t)1)<<32));
 
 		stringstream formattedRow;
 		formattedRow << extentName << "," << tfracs_timestamp << ","
-			<< xid << "," << file_type << "," << mode << "," 
+			<< xid << "," << file_type << "," << mode << ","
 			<< uid << "," << gid << "," << path_name;
 
 		outRow = formattedRow.str();
 	} else {
 		clog << "NFS: Malformed record: '" << inRow <<"\n";
 		return false;
-	}	
+	}
 	return ret;
 }
 
@@ -435,14 +435,14 @@ bool processLookupRequest(const string &inRow, string &outRow)
 
 		stringstream formattedRow;
 		formattedRow << extentName << "," << tfracs_timestamp << ","
-			<< xid << "," << dir_handle << "," << file_name 
+			<< xid << "," << dir_handle << "," << file_name
 			<< "," << path_name;
 
 		outRow = formattedRow.str();
 	} else {
 		clog << "NFS: Malformed record: '" << inRow <<"\n";
 		return false;
-	}	
+	}
 	return ret;
 }
 
@@ -452,7 +452,7 @@ bool processLookupReply(const string &inRow, string &outRow)
 	vector<string> fields;
 	const char *extentName = "lookup_reply";
 	unsigned int xid;
-	
+
 	stringstream tokenizer(inRow);
 	string num;
 	while (tokenizer >> num)
@@ -469,11 +469,11 @@ bool processLookupReply(const string &inRow, string &outRow)
 			(((uint64_t)1)<<32));
 
 		stringstream formattedRow;
-		
+
 		if (string::npos != inRow.find("Error:")) {
 			string &error_field = fields[12];
 			string path_name = (fields.size() >= 19) ? fields[18] : ",";
-			
+
 			string error = error_field.substr(6, error_field.length());
 
 			formattedRow << extentName << "," << tfracs_timestamp << ","
@@ -483,19 +483,19 @@ bool processLookupReply(const string &inRow, string &outRow)
 			string &fh = fields[12];
 			string path_name1 = (fields.size() >= 19) ? fields[18] : ",";
 			//string &path_name2 = (fields.size() >= 25) ?  //fields[24] : ",";
-			
+
 			string file_handle = fh.substr(3, fh.length());
 
 			/*formattedRow << extentName << "," << tfracs_timestamp << ","
-				<< rpc_xid << "," << file_handle << "," << 
+				<< rpc_xid << "," << file_handle << "," <<
 				path_name1 << "*" << path_name2;*/
-			
+
 			formattedRow << extentName << "," << tfracs_timestamp << ","
-				<< xid << "," << file_handle << "," << 
+				<< xid << "," << file_handle << "," <<
 				path_name1;
 
 		}
-		
+
 		outRow = formattedRow.str();
 	} else {
 		clog << "NFS: Malformed record: '" << inRow <<"\n";
@@ -537,7 +537,7 @@ bool processCreateRequest(const string &inRow, string &outRow)
 
 			stringstream formattedRow;
 			formattedRow << extentName << "," << tfracs_timestamp << ","
-				<< xid << "," << dir_handle << "," << file_name 
+				<< xid << "," << dir_handle << "," << file_name
 				<< "," << mode << "," << path_name;
 
 			outRow = formattedRow.str();
@@ -560,19 +560,19 @@ bool processCreateReply(const string &inRow, string &outRow)
 	vector<string> fields;
 	const char *extentName = "create_reply";
 	unsigned int xid;
-	
+
 	stringstream tokenizer(inRow);
 	string num;
 	while (tokenizer >> num)
 		fields.push_back(num);
 
- 	if (fields.size() >= 15) {
- 		string &timestamp = fields[0];
+	if (fields.size() >= 15) {
+		string &timestamp = fields[0];
 		stringstream rpc_xid;
 		rpc_xid << std::hex << fields[14];
 		rpc_xid >> xid;
- 		string dir = (fields.size() >= 18) ? fields[17] : "";
- 		string par_dir = (fields.size() >= 21) ? fields[20] : ",";
+		string dir = (fields.size() >= 18) ? fields[17] : "";
+		string par_dir = (fields.size() >= 21) ? fields[20] : ",";
 
 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
 			(((uint64_t)1)<<32));
@@ -585,7 +585,7 @@ bool processCreateReply(const string &inRow, string &outRow)
 	} else {
 		clog << "NFS: Malformed record: '" << inRow <<"\n";
 		return false;
-	}	
+	}
 	return ret;
 }
 
@@ -619,7 +619,7 @@ bool processRemoveRequest(const string &inRow, string &outRow)
 
 		stringstream formattedRow;
 		formattedRow << extentName << "," << tfracs_timestamp << ","
-			<< xid << "," << dir_handle << "," << file_name 
+			<< xid << "," << dir_handle << "," << file_name
 			<< "," << path_name;
 
 		outRow = formattedRow.str();
@@ -636,7 +636,7 @@ bool processRemoveReply(const string &inRow, string &outRow)
 	vector<string> fields;
 	const char *extentName = "remove_reply";
 	unsigned int xid;
-	
+
 	stringstream tokenizer(inRow);
 	string num;
 	while (tokenizer >> num)
@@ -670,7 +670,7 @@ bool processCommitRequest(const string &inRow, string &outRow)
 	vector<string> fields;
 	const char *extentName = "commit_request";
 	unsigned int xid;
-	
+
 	stringstream tokenizer(inRow);
 	string num;
 	while (tokenizer >> num)
@@ -706,7 +706,7 @@ bool processCommitReply(const string &inRow, string &outRow)
 	vector<string> fields;
 	const char *extentName = "commit_reply";
 	unsigned int xid;
-	
+
 	stringstream tokenizer(inRow);
 	string num;
 	while (tokenizer >> num)
@@ -730,7 +730,7 @@ bool processCommitReply(const string &inRow, string &outRow)
 	} else {
 		clog << "NFS: Malformed record: '" << inRow <<"\n";
 		return false;
-	}	
+	}
 	return ret;
 }
 
@@ -740,7 +740,7 @@ bool processPathconfRequest(const string &inRow, string &outRow)
 	vector<string> fields;
 	const char *extentName = "pathconf_request";
 	unsigned int xid;
-	
+
 	stringstream tokenizer(inRow);
 	string num;
 	while (tokenizer >> num)
@@ -776,7 +776,7 @@ bool processPathconfReply(const string &inRow, string &outRow)
 	vector<string> fields;
 	const char *extentName = "pathconf_reply";
 	unsigned int xid;
-	
+
 	stringstream tokenizer(inRow);
 	string num;
 	while (tokenizer >> num)
@@ -788,7 +788,7 @@ bool processPathconfReply(const string &inRow, string &outRow)
 		rpc_xid << std::hex << fields[14];
 		rpc_xid >> xid;
 		string path_name = (fields.size() >= 18) ? fields[17] : ",";
-		
+
 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
 			(((uint64_t)1)<<32));
 
@@ -810,12 +810,12 @@ bool processFsinfoRequest(const string &inRow, string &outRow)
 	vector<string> fields;
 	const char *extentName = "fsinfo_request";
 	unsigned int xid;
-	
+
 	stringstream tokenizer(inRow);
 	string num;
 	while (tokenizer >> num)
 		fields.push_back(num);
-	
+
 	if (fields.size() >= 13) {
 		string &timestamp = fields[0];
 		string &fh = fields[9];
@@ -823,7 +823,7 @@ bool processFsinfoRequest(const string &inRow, string &outRow)
 		rpc_xid << std::hex << fields[12];
 		rpc_xid >> xid;
 		string path_name = (fields.size() >= 16) ? fields[15] : ",";
-		
+
 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
 			(((uint64_t)1)<<32));
 		string file_handle = fh.substr(3, fh.length());
@@ -846,7 +846,7 @@ bool processFsinfoReply(const string &inRow, string &outRow)
 	vector<string> fields;
 	const char *extentName = "fsinfo_reply";
 	unsigned int xid;
-	
+
 	stringstream tokenizer(inRow);
 	string num;
 	while (tokenizer >> num)
@@ -858,7 +858,7 @@ bool processFsinfoReply(const string &inRow, string &outRow)
 		rpc_xid << std::hex << fields[14];
 		rpc_xid >> xid;
 		string path_name = (fields.size() >= 18) ? fields[17] : ",";
-		
+
 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
 			(((uint64_t)1)<<32));
 
@@ -880,7 +880,7 @@ bool processReadRequest(const string &inRow, string &outRow)
 	vector<string> fields;
 	const char *extentName = "read_request";
 	unsigned int xid;
-	
+
 	stringstream tokenizer(inRow);
 	string num;
 	while (tokenizer >> num)
@@ -902,7 +902,7 @@ bool processReadRequest(const string &inRow, string &outRow)
 
 		stringstream formattedRow;
 		formattedRow << extentName << "," << tfracs_timestamp << ","
-			<< xid << "," << file_handle << "," << offset << "," 
+			<< xid << "," << file_handle << "," << offset << ","
 			<< length << "," << path_name;
 
 		outRow = formattedRow.str();
@@ -919,7 +919,7 @@ bool processReadReply(const string &inRow, string &outRow)
 	vector<string> fields;
 	const char *extentName = "read_reply";
 	unsigned int xid;
-	
+
 	stringstream tokenizer(inRow);
 	string num;
 	while (tokenizer >> num)
@@ -931,7 +931,7 @@ bool processReadReply(const string &inRow, string &outRow)
 		rpc_xid << std::hex << fields[15];
 		rpc_xid >> xid;
 		string path_name = (fields.size() >= 19) ? fields[18] : ",";
-		
+
 		uint64_t tfracs_timestamp = (uint64_t)(atof(timestamp.c_str()) *
 			(((uint64_t)1)<<32));
 		uint64_t length = (uint64_t)atoll(fields[12].substr(4, fields[12].length()).c_str());
@@ -954,7 +954,7 @@ bool processWriteRequest(const string &inRow, string &outRow)
 	vector<string> fields;
 	const char *extentName = "write_request";
 	unsigned int xid;
-	
+
 	stringstream tokenizer(inRow);
 	string num;
 	while (tokenizer >> num)
@@ -979,8 +979,8 @@ bool processWriteRequest(const string &inRow, string &outRow)
 
 		stringstream formattedRow;
 		formattedRow << extentName << "," << tfracs_timestamp << ","
-			<< xid << "," <<file_handle << "," << offset << "," 
-			<< length << "," << unstable << "," << data_sync << "," 
+			<< xid << "," <<file_handle << "," << offset << ","
+			<< length << "," << unstable << "," << data_sync << ","
 			<< file_sync << "," << path_name;
 
 		outRow = formattedRow.str();
@@ -997,13 +997,13 @@ bool processWriteReply(const string &inRow, string &outRow)
 	vector<string> fields;
 	const char *extentName = "write_reply";
 	unsigned int xid;
-	
+
 	stringstream tokenizer(inRow);
 	string num;
 	while (tokenizer >> num)
 		fields.push_back(num);
 
-	
+
 	if (fields.size() >= 17) {
 		string &timestamp = fields[0];
 		int unstable = (fields[13] ==  "UNSTABLE") ? 1 : 0;
@@ -1038,7 +1038,7 @@ bool processRow(const string &inRow, string &outRow, bool &write_outRow)
 	bool ret = true;
 	bool (*processRequest)(const string &inRow, string &outRow) = NULL;
 	bool (*processReply) (const string &inRow, string &outRow) = NULL;
-	
+
 	outRow = "";
 
 	if (string::npos != inRow.find(";")) {
@@ -1081,9 +1081,9 @@ bool processRow(const string &inRow, string &outRow, bool &write_outRow)
 		} else {
 			clog << "NFS: Skipping record: '" << inRow <<"\n";
 			rowsSkipped ++;
-		}	
+		}
 
-		if (NULL != processRequest) { 
+		if (NULL != processRequest) {
 			if(!processRequest(inRow, outRow)) {
 				clog << "NFS: Malformed record: '" << inRow <<"\n";
 				rowsMalformed++;
@@ -1131,7 +1131,7 @@ bool processRow(const string &inRow, string &outRow, bool &write_outRow)
 			rowsSkipped++;
 		}
 
-		if (NULL != processReply) { 
+		if (NULL != processReply) {
 			if(!processReply(inRow, outRow)) {
 				clog << "NFS: Malformed record: '" << inRow <<"\n";
 				rowsMalformed++;
@@ -1162,7 +1162,7 @@ int main(int argc, char *argv[])
 	int rowNum;
 	int ret = EXIT_SUCCESS;
 	bool write_outRow = false;
-	
+
 	if (argc < 3) {
 		showUsage(argv[0]);
 		return EXIT_FAILURE;
@@ -1200,7 +1200,7 @@ int main(int argc, char *argv[])
 	}
 	clog << rowsProcessed << " row(s) processed." << "\n";
 	clog << rowsSkipped << " row(s) skipped." << "\n";
-	clog << rowsMalformed << " row(s) malformed." << "\n"; 
+	clog << rowsMalformed << " row(s) malformed." << "\n";
 
 cleanup:
 	if (inFile.is_open()) {

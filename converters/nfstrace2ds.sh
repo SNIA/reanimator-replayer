@@ -14,7 +14,7 @@
 #
 # nfstrace2ds.sh converts NFS traces in PCAP format to DataSeries format.
 # The sequence of operations performed by this script is the following:
-# 1. Uses nfsparse to generate the CSV file from the trace captured using 
+# 1. Uses nfsparse to generate the CSV file from the trace captured using
 #    tcpdump.  Please use the below command for running tshark
 #
 # 2. Use csv2ds-extra to convert CSV to Dataseries format.
