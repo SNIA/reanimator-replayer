@@ -1,32 +1,33 @@
+DS_INCLUDE_DIR = /root/build/opt-centos-6.2-x86_64/include
+DS_LIBRARY_DIR = /root/build/opt-centos-6.2-x86_64/lib
+LIBXML_INCLUDE_DIR = /usr/include/libxml2/
 
-# ----- Make Constants (used by the default build rules in make) -----
+OPTFLAGS = -O0 -std=c++0x
 
-OPTFLAGS = -O0 -Wall -Wconversion -Werror -std=c++0x
-#CXXFLAGS = -g -Wall -Wextra -pedantic -lDataSeries -I/usr/include/libxml2/ $(OPTFLAGS)
-CXXFLAGS = -g -lDataSeries -lboost_regex -I/usr/include/libxml2/ -I/usr/local/boost_1_46_1 $(OPTFLAGS)
+#-Wall -Wconversion
+
+CXXFLAGS = -g $(OPTFLAGS) -lDataSeries -lboost_regex -I$(DS_INCLUDE_DIR) -I$(LIBXML_INCLUDE_DIR) -L$(DS_LIBRARY_DIR)
 CXX      = g++
 
-# ----- Handy Constants (used in this file) -----
-
 TARGETS = csv2ds-extra pre-processor nfsparse
-CSV2DS-EXTRA_OBJECTS = FieldSpace.o csv2ds-extra.o
-PRE-PROCESSOR_OBJECTS = pre-processor.o
+CSV2DS_EXTRA_OBJECTS = FieldSpace.o csv2ds-extra.o
 NFSPARSE_OBJECTS = nfsparse.o
+PREPROCESSOR_OBJECTS = pre-processor.o
 
-# ----- Make Rules -----
+all: $(TARGETS)
 
-all:    $(TARGETS)
+csv2ds-extra: $(CSV2DS_EXTRA_OBJECTS)
+	$(CXX) $(CXXFLAGS) -o csv2ds-extra $(CSV2DS_EXTRA_OBJECTS)
 
-csv2ds-extra:    $(CSV2DS-EXTRA_OBJECTS)
-		$(CXX) $(CXXFLAGS) -o csv2ds-extra $(CSV2DS-EXTRA_OBJECTS)
-pre-processor: $(PRE-PROCESSOR_OBJECTS)
-				$(CXX) $(CXXFLAGS) -o pre-processor $(PRE-PROCESSOR_OBJECTS)
-nfsparse:	$(NFSPARSE_OBJECTS)
-		$(CXX) $(CXXFLAGS) -o nfsparse $(NFSPARSE_OBJECTS)
+pre-processor: $(PREPROCESSOR_OBJECTS)
+	$(CXX) $(CXXFLAGS) -o pre-processor $(PREPROCESSOR_OBJECTS)
+
+nfsparse: $(NFSPARSE_OBJECTS)
+	$(CXX) $(CXXFLAGS) -o nfsparse $(NFSPARSE_OBJECTS)
+
 clean:
-		rm -f $(TARGETS) $(CSV2DS-EXTRA_OBJECTS) $(PRE-PROCESSOR_OBJECTS)
+		rm -f $(TARGETS) $(CSV2DS_EXTRA_OBJECTS) $(PREPROCESSOR_OBJECTS) $(NFSPARSE_OBJECTS)
 
-# ----- Dependencies (as produced by g++ -MM *.cpp) ----- 
 csv2ds-extra.o: csv2ds-extra.cpp FieldSpace.hpp
 FieldSpace.o: FieldSpace.cpp FieldSpace.hpp
 pre-processor.o: pre-processor.cpp
