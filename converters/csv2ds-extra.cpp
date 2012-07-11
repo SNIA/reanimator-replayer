@@ -198,8 +198,6 @@ public:
 	{
 		vector<string> split_data;
 		boost::split(split_data, record, boost::is_any_of(","));
-		if (split_data.back() == "")
-			split_data.pop_back();
 
 		if (split_data.size() < 2 or specs_[split_data[0]].size() != split_data.size() - 1) {
 			cerr << record << ": Invalid record! Number of fields do not match specification string." << endl;
