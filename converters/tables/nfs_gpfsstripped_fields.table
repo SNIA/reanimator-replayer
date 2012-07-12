@@ -10,5 +10,3 @@ read_request	file_handle	0	variable32
 read_request	offset	0	int64
 read_request	length	0	int64
 read_request	full_pathname	1	variable32
-read_reply	length	0	int64
-read_reply	full_pathname	1	variable32

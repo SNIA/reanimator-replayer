@@ -17,27 +17,28 @@
 # collecting facility.
 #
 # The sequence of operations performed by this script is the following:
-# 1. 
+# 1. Calls nfsgpfsstripped2csv.awk script to converts the trace
+#    produced by GPFS's mmtrace to convert it to a CSV file.
 #
 # 2. Use csv2ds-extra to convert CSV to Dataseries format.
 #    Specification of the fields in the input CSV file and the mapping
 #    between CSV fields to Dataseries fields are provided by
-#    specstrings/nfstrace.spec and tables/nfs_fields.table
+#    specstrings/nfstrace-gpfsstripped.spec and tables/nfs_gpfsstripped_fields.table
 #    files, in order.
 #
-# Usage: nfstrace2ds.sh <pcap_file> <outputfile>
+# Usage: nfsgpfsstripped2ds.sh <pcap_file> <outputfile>
 #
 
 if [ $# -ne 2 ]; then
-	echo "Usage: $0 <tshark_capture_file> <outputfile> "
+	echo "Usage: $0 <gpfs_trace_file> <outputfile>"
 	exit 1
 fi
 
 INPUTFILE=$1
 OUTPUTFILE=$2
 
-TABLEFILE=./tables/nfs_gpfsstripped_fields.table
-SPECSTRINGFILE=./specstrings/nfstrace-gpfsstripped.spec
+TABLEFILE="./tables/nfs_gpfsstripped_fields.table"
+SPECSTRINGFILE="./specstrings/nfstrace-gpfsstripped.spec"
 
 if [ ! -e csv2ds-extra ]; then
 	echo "csv2ds-extra binary is not found. Maybe make it?"
@@ -70,7 +71,7 @@ echo "Converting trace to CSV..."
 TEMPFILE=`mktemp`
 echo "Using temporary file $TEMPFILE"
 
-awk -f nfsgpfsstripped2csv.awk < "$INPUTFILE" > "$TEMPFILE"
+awk --non-decimal-data -f nfsgpfsstripped2csv.awk < "$INPUTFILE" > "$TEMPFILE"
 
 echo "Converting to DataSeries..."
 ./csv2ds-extra -q $OUTPUTFILE $TABLEFILE $SPECSTRINGFILE $TEMPFILE
