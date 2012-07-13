@@ -20,33 +20,33 @@ endif
 
 CC = gcc
 CFLAGS = -g -Wall 
-TARGETS = fun_with_sqlite load_client_1 iterate_client_1
+TARGETS = fun_with_sqlite load_client iterate_client_1
 
-.PHONEY : all
-all : $(TARGETS)
+.PHONEY: all
+all: $(TARGETS)
 
-fun_with_sqlite : fun_with_sqlite.c
+fun_with_sqlite: fun_with_sqlite.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c -o fun_with_sqlite.o fun_with_sqlite.c
 	$(CC) $(CFLAGS) $(LIBS) fun_with_sqlite.o -o fun_with_sqlite
 
-feature_matrix_utils.o : feature_matrix.h feature_matrix_utils.h \
+feature_matrix.o: feature_matrix.h feature_matrix_utils.h feature_matrix.c
+	$(CC) $(CFLAGS) $(INCLUDES) -c -o feature_matrix.o feature_matrix.c
+
+feature_matrix_utils.o: feature_matrix.h feature_matrix_utils.h \
 		feature_matrix_utils.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c -o feature_matrix_utils.o \
 		feature_matrix_utils.c
 
-feature_matrix_iterator.o : feature_matrix.h feature_matrix_utils.h \
+feature_matrix_iterator.o: feature_matrix.h feature_matrix_utils.h \
 		feature_matrix_iterator.h feature_matrix_iterator.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c -o feature_matrix_iterator.o \
 		feature_matrix_iterator.c
 
-feature_matrix.o : feature_matrix.h feature_matrix_utils.h feature_matrix.c
-	$(CC) $(CFLAGS) $(INCLUDES) -c -o feature_matrix.o feature_matrix.c
-
-load_client_1 : feature_matrix.o feature_matrix_utils.o \
-		feature_matrix_iterator.o load_client_1.c
-	$(CC) $(CFLAGS) $(INCLUDES) -c -o load_client_1.o load_client_1.c
-	$(CC) $(CFLAGS) load_client_1.o feature_matrix.o feature_matrix_utils.o \
-		feature_matrix_iterator.o $(LIBS) -o load_client_1
+load_client: feature_matrix.o feature_matrix_utils.o \
+		feature_matrix_iterator.o load_client.c
+	$(CC) $(CFLAGS) $(INCLUDES) -c -o load_client.o load_client.c
+	$(CC) $(CFLAGS) load_client.o feature_matrix.o feature_matrix_utils.o \
+		feature_matrix_iterator.o $(LIBS) -o load_client
 
 iterate_client_1 : feature_matrix.h feature_matrix.o feature_matrix_iterator.o \
 	feature_matrix_utils.o iterate_client_1.c
@@ -54,6 +54,6 @@ iterate_client_1 : feature_matrix.h feature_matrix.o feature_matrix_iterator.o \
 	$(CC) $(CFLAGS) iterate_client_1.o feature_matrix.o feature_matrix_utils.o \
 		feature_matrix_iterator.o $(LIBS) -o iterate_client_1
 
-.PHONEY : clean
-clean :
+.PHONEY: clean
+clean:
 	rm -f $(TARGETS) *.o
