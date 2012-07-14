@@ -28,14 +28,14 @@
 #define OPERATION_READ ((int8_t) 0)
 #define OPERATION_WRITE ((int8_t) 1)
 
-void show_usage(const char *pgmname)
+static void show_usage(const char *pgmname)
 {
 	fprintf(stdout, "Usage: %s <database file> <matrix name>\n",
 			pgmname);
 	fprintf(stdout, "Example: %s ./some.db fin1\n", pgmname);
 }
 
-int check_matrix(t2mfm *fmh)
+static int check_matrix(t2mfm *fmh)
 {
 	int rc;
 	t2mfm_vec dim_meta_vec;
@@ -72,28 +72,7 @@ cleanup:
 	return rc;
 }
 
-int set_timerange(t2mfm_itr *fmitrh, int range)
-{
-	int rc;
-	t2mfm_dim_data start_time, end_time;
-
-	assert(fmitrh);
-	assert(range > 0);
-
-	/* Find the max time */
-	rc = t2mfm_get_stat(fmitrh->fmh, 0, T2MFM_STAT_MAX, &end_time);
-	T2MFM_HANDLE_ITR_RC(fmitrh, rc, cleanup);
-
-	start_time.REAL = end_time.REAL - range; /* Go back @range seconds */
-
-	rc = t2mfm_add_filter(fmitrh, 0, start_time, end_time);
-	T2MFM_HANDLE_ITR_RC(fmitrh, rc, cleanup);
-
-cleanup:
-	return rc;
-}
-
-int select_op(t2mfm_itr *fmitrh, int8_t op)
+static int select_op(t2mfm_itr *fmitrh, int8_t op)
 {
 	int rc;
 	t2mfm_dim_data start, end;
@@ -110,7 +89,7 @@ cleanup:
 	return rc;
 }
 
-int add_projections(t2mfm_itr *fmitrh)
+static int add_projections_iosize(t2mfm_itr *fmitrh)
 {
 	int rc;
 	int dims_to_project[] = {0, 1};
@@ -120,7 +99,7 @@ int add_projections(t2mfm_itr *fmitrh)
 
 	/* Project dimensions */
 	for (i = 0; i < sizeof(dims_to_project) / sizeof(int); i++) {
-		rc = t2mfm_add_projection(fmitrh, i);
+		rc = t2mfm_add_projection(fmitrh, dims_to_project[i]);
 		T2MFM_HANDLE_ITR_RC(fmitrh, rc, cleanup);
 	}
 
@@ -128,7 +107,45 @@ cleanup:
 	return rc;
 }
 
-int add_ordering(t2mfm_itr *fmitrh)
+static int add_projections_offset(t2mfm_itr *fmitrh)
+{
+	int rc;
+	int dims_to_project[] = {0, 2};
+	int i;
+
+	assert(fmitrh);
+
+	/* Project dimensions */
+	for (i = 0; i < sizeof(dims_to_project) / sizeof(int); i++) {
+		rc = t2mfm_add_projection(fmitrh, dims_to_project[i]);
+		T2MFM_HANDLE_ITR_RC(fmitrh, rc, cleanup);
+	}
+
+cleanup:
+	return rc;
+}
+
+
+static int add_projections_op(t2mfm_itr *fmitrh)
+{
+	int rc;
+	int dims_to_project[] = {1, 2};
+	int i;
+
+	assert(fmitrh);
+
+	/* Project dimensions */
+	for (i = 0; i < sizeof(dims_to_project) / sizeof(int); i++) {
+		rc = t2mfm_add_projection(fmitrh, dims_to_project[i]);
+		T2MFM_HANDLE_ITR_RC(fmitrh, rc, cleanup);
+	}
+
+cleanup:
+	return rc;
+}
+
+
+static int add_ordering_iosize(t2mfm_itr *fmitrh)
 {
 	int rc;
 
@@ -141,7 +158,20 @@ out:
 	return rc;
 }
 
-int print_histogram(t2mfm_itr *fmitrh, FILE *p_file)
+static int add_ordering_offset(t2mfm_itr *fmitrh)
+{
+	int rc;
+
+	assert(fmitrh);
+
+	rc = t2mfm_set_itr_order(fmitrh, 1, T2MFM_ASC);
+	T2MFM_HANDLE_ITR_RC(fmitrh, rc, out);
+
+out:
+	return rc;
+}
+
+static int print_histogram(t2mfm_itr *fmitrh, FILE *p_file)
 {
 	int rc;
 	t2mfm_vec dim_data_vec;
@@ -169,13 +199,199 @@ cleanup:
 	return rc;
 }
 
+static int read_write_ratio(t2mfm *fmh)
+{
+	t2mfm_itr *fmitrh = NULL;
+	int rc;
+
+	/* Allocate a new iterator */
+	rc = t2mfm_itr_alloc(fmh, &fmitrh);
+	T2MFM_HANDLE_RC(fmh, rc, free_itr);
+
+	/* Project all dimensions except operations */
+	rc = add_projections_op(fmitrh);
+	if (rc)
+		goto free_itr;
+
+	/* Iterate over operations and print the result */
+	fprintf(stdout, "Read/write ratio:\n");
+	rc = print_histogram(fmitrh, stdout);
+
+free_itr:
+	t2mfm_itr_free(fmitrh);
+
+	return rc;
+}
+
+static int iosize_distribution(t2mfm *fmh)
+{
+	t2mfm_itr *fmitrh = NULL;
+	int rc;
+
+	/* Allocate a new iterator */
+	rc = t2mfm_itr_alloc(fmh, &fmitrh);
+	T2MFM_HANDLE_RC(fmh, rc, free_itr);
+
+	/* Project all dimensions except iosize */
+	rc = add_projections_iosize(fmitrh);
+	if (rc)
+		goto free_itr;
+
+	/* Order by iosize */
+	rc = add_ordering_iosize(fmitrh);
+	if (rc)
+		goto free_itr;
+
+	/* Iterate over all iosizes and print the result */
+	fprintf(stdout, "I/O size distribution:\n");
+	rc = print_histogram(fmitrh, stdout);
+
+free_itr:
+	t2mfm_itr_free(fmitrh);
+
+	return rc;
+}
+
+static int read_iosize_distribution(t2mfm *fmh)
+{
+	t2mfm_itr *fmitrh = NULL;
+	int rc;
+
+	/* Allocate a new iterator */
+	rc = t2mfm_itr_alloc(fmh, &fmitrh);
+	T2MFM_HANDLE_RC(fmh, rc, free_itr);
+
+	rc = select_op(fmitrh, OPERATION_READ);
+	if (rc)
+		goto free_itr;
+
+	/* Project all dimensions except iosize */
+	rc = add_projections_iosize(fmitrh);
+	if (rc)
+		goto free_itr;
+
+	/* Order by iosize */
+	rc = add_ordering_iosize(fmitrh);
+	if (rc)
+		goto free_itr;
+
+	/* Iterate over all iosizes and print the result */
+	fprintf(stdout, "READ I/O size distribution:\n");
+	rc = print_histogram(fmitrh, stdout);
+
+free_itr:
+	t2mfm_itr_free(fmitrh);
+
+	return rc;
+}
+
+static int write_iosize_distribution(t2mfm *fmh)
+{
+	t2mfm_itr *fmitrh = NULL;
+	int rc;
+
+	/* Allocate a new iterator */
+	rc = t2mfm_itr_alloc(fmh, &fmitrh);
+	T2MFM_HANDLE_RC(fmh, rc, free_itr);
+
+	rc = select_op(fmitrh, OPERATION_WRITE);
+	if (rc)
+		goto free_itr;
+
+	/* Project all dimensions except iosize */
+	rc = add_projections_iosize(fmitrh);
+	if (rc)
+		goto free_itr;
+
+	/* Order by iosize */
+	rc = add_ordering_iosize(fmitrh);
+	if (rc)
+		goto free_itr;
+
+	/* Iterate over all iosizes and print the result */
+	fprintf(stdout, "WRITE I/O size distribution:\n");
+	rc = print_histogram(fmitrh, stdout);
+
+free_itr:
+	t2mfm_itr_free(fmitrh);
+
+	return rc;
+}
+
+static int read_offset_distribution(t2mfm *fmh)
+{
+	t2mfm_itr *fmitrh = NULL;
+	int rc;
+
+	/* Allocate a new iterator */
+	rc = t2mfm_itr_alloc(fmh, &fmitrh);
+	T2MFM_HANDLE_RC(fmh, rc, free_itr);
+
+	rc = select_op(fmitrh, OPERATION_READ);
+	if (rc)
+		goto free_itr;
+
+	/* Project all dimensions except offset */
+	rc = add_projections_offset(fmitrh);
+	if (rc)
+		goto free_itr;
+
+	/* Order by offset */
+	rc = add_ordering_offset(fmitrh);
+	if (rc)
+		goto free_itr;
+
+	/* Iterate over all iosizes and print the result */
+	fprintf(stdout, "READ offset distribution:\n");
+	rc = print_histogram(fmitrh, stdout);
+
+free_itr:
+	t2mfm_itr_free(fmitrh);
+
+	return rc;
+}
+
+static int write_offset_distribution(t2mfm *fmh)
+{
+	t2mfm_itr *fmitrh = NULL;
+	int rc;
+
+	/* Allocate a new iterator */
+	rc = t2mfm_itr_alloc(fmh, &fmitrh);
+	T2MFM_HANDLE_RC(fmh, rc, free_itr);
+
+	rc = select_op(fmitrh, OPERATION_WRITE);
+	if (rc)
+		goto free_itr;
+
+	/* Project all dimensions except offset */
+	rc = add_projections_offset(fmitrh);
+	if (rc)
+		goto free_itr;
+
+	/* Order by offset */
+	rc = add_ordering_offset(fmitrh);
+	if (rc)
+		goto free_itr;
+
+	/* Iterate over all offsets and print the result */
+	fprintf(stdout, "WRITE offset distribution:\n");
+	rc = print_histogram(fmitrh, stdout);
+
+free_itr:
+	t2mfm_itr_free(fmitrh);
+
+	return rc;
+}
+
+
+
 int main(int argc, char *argv[])
 {
 	int rc;
 	char *backing_store_file;
 	char *matrix_name;
 	t2mfm *fmh = NULL;
-	t2mfm_itr *fmitrh = NULL;
 
 	if (argc < 3) {
 		show_usage(argv[0]);
@@ -195,34 +411,28 @@ int main(int argc, char *argv[])
 	if (rc)
 		goto close_matrix;
 
-	/* Allocate a new iterator */
-	rc = t2mfm_itr_alloc(fmh, &fmitrh);
-	T2MFM_HANDLE_RC(fmh, rc, free_itr);
+	/* read/write ratio */
+	rc = read_write_ratio(fmh);
+	fprintf(stdout, "\n");
 
-	rc = select_op(fmitrh, OPERATION_READ);
-	if (rc)
-		goto free_itr;
+	/* iosize distributio */
+	rc = iosize_distribution(fmh);
+	fprintf(stdout, "\n");
 
-	/* Project all dimensions except iosize */
-	rc = add_projections(fmitrh);
-	if (rc)
-		goto free_itr;
+	/* read iosize distribution */
+	rc = read_iosize_distribution(fmh);
+	fprintf(stdout, "\n");
 
-	/* Order by iosize */
-	rc = add_ordering(fmitrh);
-	if (rc)
-		goto free_itr;
+	/* write iosize distribution */
+	rc = write_iosize_distribution(fmh);
+	fprintf(stdout, "\n");
 
-	/* Iterate over all iosizes and print the result */
-	rc = print_histogram(fmitrh, stdout);
-	if (rc)
-		goto free_itr;
+	/* read offset distribution */
+	rc = read_offset_distribution(fmh);
+	fprintf(stdout, "\n");
 
-	/* All is well */
-	rc = EXIT_SUCCESS;
-
-free_itr:
-	t2mfm_itr_free(fmitrh);
+	/* write offset distribution */
+	rc = write_offset_distribution(fmh);
 
 close_matrix:
 	t2mfm_close(fmh);

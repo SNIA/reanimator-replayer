@@ -50,7 +50,7 @@ static int insert_data(t2mfm *fmh, const t2mfm_vec *p_dim_data_vec, const char *
 	op = *opcode == 'r' || *opcode == 'R' ? OPERATION_READ : OPERATION_WRITE;
 
 	T2MFM_SET_DIM_DATA(*p_dim_data_vec, 0, INT1, (int8_t)op);
-	#define OFFSET_GRANULARITY (1024 * 1024 * 1024)
+	#define OFFSET_GRANULARITY (1024 * 1024)
 	T2MFM_SET_DIM_DATA(*p_dim_data_vec, 1, INT8, atoi(LBA) * SECTOR_SIZE / OFFSET_GRANULARITY);
 	#undef OFFSET_GRANULARITY
 	T2MFM_SET_DIM_DATA(*p_dim_data_vec, 2, INT8, atol(size));
