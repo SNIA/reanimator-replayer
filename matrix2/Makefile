@@ -20,7 +20,7 @@ endif
 
 CC = gcc
 CFLAGS = -g -Wall 
-TARGETS = fun_with_sqlite load_client iterate_client_1
+TARGETS = fun_with_sqlite load_client iterate_client
 
 .PHONEY: all
 all: $(TARGETS)
@@ -48,11 +48,11 @@ load_client: feature_matrix.o feature_matrix_utils.o \
 	$(CC) $(CFLAGS) load_client.o feature_matrix.o feature_matrix_utils.o \
 		feature_matrix_iterator.o $(LIBS) -o load_client
 
-iterate_client_1 : feature_matrix.h feature_matrix.o feature_matrix_iterator.o \
-	feature_matrix_utils.o iterate_client_1.c
-	$(CC) $(CFLAGS) $(INCLUDES) -c -o iterate_client_1.o iterate_client_1.c
-	$(CC) $(CFLAGS) iterate_client_1.o feature_matrix.o feature_matrix_utils.o \
-		feature_matrix_iterator.o $(LIBS) -o iterate_client_1
+iterate_client: feature_matrix.h feature_matrix.o feature_matrix_iterator.o \
+			feature_matrix_utils.o iterate_client.c
+	$(CC) $(CFLAGS) $(INCLUDES) -c -o iterate_client.o iterate_client.c
+	$(CC) $(CFLAGS) iterate_client.o feature_matrix.o feature_matrix_utils.o \
+		feature_matrix_iterator.o $(LIBS) -o iterate_client
 
 .PHONEY: clean
 clean:
