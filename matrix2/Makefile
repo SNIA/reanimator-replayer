@@ -27,7 +27,7 @@ CFLAGS = -g -Wall
 CXX = g++
 CXXFLAGS = -g -Wall
 
-TARGETS = fun_with_sqlite load_client iterate_client dsMultiExtentTypeRead
+TARGETS = fun_with_sqlite load_client iterate_client dsMultiExtentTypeRead dsLoadMatrix
 
 .PHONEY: all
 all: $(TARGETS)

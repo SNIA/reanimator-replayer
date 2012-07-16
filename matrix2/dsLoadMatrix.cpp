@@ -194,12 +194,12 @@ int main(int argc, char *argv[])
 		/* We ran out of read extents */	
 		if (!current_extent_read && current_extent_write) {
 			if (current_series_write.morerecords()) {
-			insert_data(&dim_data_vec, 1, offset_read.val(), length_read.val());
-			std::cout << "write_request,"
-				  << time_called_write.val() << ","
-				  << fhandle_write.stringval() << ","
-				  << offset_write.val() << ","
-				  << length_write.val() << ",,,,\n";
+				insert_data(&dim_data_vec, 1, offset_write.val(), length_write.val());
+				std::cout << "write_request,"
+				 	  << time_called_write.val() << ","
+					  << fhandle_write.stringval() << ","
+					  << offset_write.val() << ","
+					  << length_write.val() << ",,,,\n";
 
 				++current_series_write;
 			} else  {
@@ -231,7 +231,7 @@ int main(int argc, char *argv[])
 
 		/* We have records of both type: reads and writes */	
 		if (time_called_write.val() <= time_called_read.val()) {
-			insert_data(&dim_data_vec, 1, offset_read.val(), length_read.val());
+			insert_data(&dim_data_vec, 1, offset_write.val(), length_write.val());
 			std::cout << "write_request,"
 				  << time_called_write.val() << ","
 				  << fhandle_write.stringval() << ","
