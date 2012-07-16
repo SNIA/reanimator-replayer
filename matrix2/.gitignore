@@ -1,3 +1,5 @@
+dsMultiExtentTypeRead
+dsMultiExtentTypeRead.o
 feature_matrix.o
 feature_matrix_iterator.o
 feature_matrix_utils.o

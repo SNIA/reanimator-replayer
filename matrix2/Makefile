@@ -17,10 +17,17 @@ else
 	INCLUDES = -I $(SQLITE_INCLUDE_DIR)
 endif
 
+DS_INCLUDE_DIR = /root/build/opt-centos-6.2-x86_64/include/
+DS_LIB_DIR = /root/build/opt-centos-6.2-x86_64/lib/
+LIBXML_INCLUDE_DIR = /usr/include/libxml2/
 
 CC = gcc
 CFLAGS = -g -Wall 
-TARGETS = fun_with_sqlite load_client iterate_client
+
+CXX = g++
+CXXFLAGS = -g -Wall
+
+TARGETS = fun_with_sqlite load_client iterate_client dsMultiExtentTypeRead
 
 .PHONEY: all
 all: $(TARGETS)
@@ -53,6 +60,12 @@ iterate_client: feature_matrix.h feature_matrix.o feature_matrix_iterator.o \
 	$(CC) $(CFLAGS) $(INCLUDES) -c -o iterate_client.o iterate_client.c
 	$(CC) $(CFLAGS) iterate_client.o feature_matrix.o feature_matrix_utils.o \
 		feature_matrix_iterator.o $(LIBS) -o iterate_client
+
+dsMultiExtentTypeRead: dsMultiExtentTypeRead.o
+	$(CXX) -L $(DS_LIB_DIR) -lDataSeries dsMultiExtentTypeRead.o -o dsMultiExtentTypeRead
+
+dsMultiExtentTypeRead.o: dsMultiExtentTypeRead.cpp
+	$(CXX) -I $(DS_INCLUDE_DIR) -I $(LIBXML_INCLUDE_DIR) dsMultiExtentTypeRead.cpp -c  -o dsMultiExtentTypeRead.o
 
 .PHONEY: clean
 clean:
