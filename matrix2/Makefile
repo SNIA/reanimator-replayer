@@ -67,6 +67,12 @@ dsMultiExtentTypeRead: dsMultiExtentTypeRead.o
 dsMultiExtentTypeRead.o: dsMultiExtentTypeRead.cpp
 	$(CXX) -I $(DS_INCLUDE_DIR) -I $(LIBXML_INCLUDE_DIR) dsMultiExtentTypeRead.cpp -c  -o dsMultiExtentTypeRead.o
 
+dsLoadMatrix: dsLoadMatrix.o
+	$(CXX) -L $(DS_LIB_DIR) $(LIBS) -lDataSeries dsLoadMatrix.o feature_matrix.o feature_matrix_utils.o feature_matrix_iterator.o -o dsLoadMatrix
+	
+dsLoadMatrix.o: dsLoadMatrix.cpp
+	 $(CXX) -I $(DS_INCLUDE_DIR) -I $(LIBXML_INCLUDE_DIR) $(INCLUDES) -c dsLoadMatrix.cpp -o dsLoadMatrix.o
+
 .PHONEY: clean
 clean:
 	rm -f $(TARGETS) *.o
