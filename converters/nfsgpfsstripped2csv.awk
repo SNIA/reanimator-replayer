@@ -29,7 +29,7 @@ $1 ==  "----------" {
 }
 
 /TRACE_VNOP: READ:/ {
-	print "read_request", seconds_to_reltfracs($1), $8, $14, $16, ""
+	print "read_request", seconds_to_reltfracs($1), $8, $14 + 0, $16, ""
 }
 
 /TRACE_VNOP: WRITE:/ {
