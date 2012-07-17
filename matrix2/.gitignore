@@ -1,3 +1,5 @@
+dsLoadMatrix
+dsLoadMatrix.o
 dsMultiExtentTypeRead
 dsMultiExtentTypeRead.o
 feature_matrix.o
