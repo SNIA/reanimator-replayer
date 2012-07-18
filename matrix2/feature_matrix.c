@@ -243,6 +243,14 @@ static void populate_metadata(t2mfm *fmh)
 			goto cleanup;
 		}
 
+		fmh->sqlite_rc = sqlite3_clear_bindings(stmt);
+		if (fmh->sqlite_rc != SQLITE_OK) {
+			set_errmsg(fmh, "internal error: populate_metadata: sqlite clear bindings "
+					"failed");
+			fmh->rc = T2MFM_SQLITE_ERROR;
+			goto cleanup;
+		}
+
 		fmh->sqlite_rc = sqlite3_reset(stmt);
 		if (fmh->sqlite_rc != SQLITE_OK) {
 			set_errmsg(fmh, "internal error: populate_metadata: sqlite reset "
@@ -378,6 +386,13 @@ static void bind_dim_parameters(t2mfm *fmh, stmt_type stmt_type)
 	default:
 		assert(0 && "Illegal statement type");
 		break;
+	}
+
+	fmh->sqlite_rc = sqlite3_clear_bindings(stmt);
+	if (fmh->sqlite_rc != SQLITE_OK) {
+		set_errmsg(fmh, "clearing failed");
+		fmh->rc = T2MFM_SQLITE_ERROR;
+		return;
 	}
 
 	fmh->sqlite_rc = sqlite3_reset(stmt);
