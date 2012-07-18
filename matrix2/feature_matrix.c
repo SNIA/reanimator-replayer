@@ -327,6 +327,8 @@ static void create_indexes(t2mfm *fmh)
 {
 	int i;
 	t2mfm_vec *dim_vec;
+	char sqlbuf[4096];
+	int pos = 0;
 
 	assert(fmh);
 
@@ -334,17 +336,32 @@ static void create_indexes(t2mfm *fmh)
 	for (i = 0; i < dim_vec->n_elements; i++) {
 		t2mfm_dim_meta *dim_meta = dim_vec->pp_data[i];
 		if (dim_meta->is_indexed) {
-			char sqlbuf[4096];
-			snprintf(sqlbuf, sizeof(sqlbuf), "create index if not exists"
-					" idx_%s_%s on %s(%s);", fmh->matrix_name, dim_meta->name,
-					fmh->matrix_name, dim_meta->name);
-			fmh->sqlite_rc = sqlite3_exec(fmh->db, sqlbuf, NULL, NULL, NULL);
-			if (fmh->sqlite_rc != SQLITE_OK) {
-				set_errmsg(fmh, "error creating index");
-				fmh->rc = T2MFM_SQLITE_ERROR;
-				break;
-			}
+
+			if (!i) {
+				pos = snprintf(sqlbuf, sizeof(sqlbuf),
+					"create index if not exists"
+					" idx_%s on %s", fmh->matrix_name,
+					fmh->matrix_name);
+				pos += snprintf(sqlbuf + pos,
+					sizeof(sqlbuf) - pos,
+					"(%s", dim_meta->name);
+			} else
+				pos += snprintf(sqlbuf + pos,
+					sizeof(sqlbuf) - pos,
+					",%s", dim_meta->name);
 		}
+	}
+
+	/* none of the dimensions were marked for indexing */
+	if (!pos)
+		return;
+
+	pos += snprintf(sqlbuf + pos, sizeof(sqlbuf), ");");
+
+	fmh->sqlite_rc = sqlite3_exec(fmh->db, sqlbuf, NULL, NULL, NULL);
+	if (fmh->sqlite_rc != SQLITE_OK) {
+		set_errmsg(fmh, "error creating index");
+		fmh->rc = T2MFM_SQLITE_ERROR;
 	}
 }
 
