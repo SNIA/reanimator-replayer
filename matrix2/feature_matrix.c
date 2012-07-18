@@ -602,6 +602,29 @@ static void get_update_stmt(t2mfm *fmh, char *sqlbuf, size_t sqlbuf_size)
 	return;
 }
 
+static int disable_sync_and_journal(t2mfm *fmh)
+{
+	int ret = T2MFM_OK;
+
+	fmh->sqlite_rc = sqlite3_exec(fmh->db,
+				"PRAGMA synchronous = OFF;",
+				NULL, NULL, NULL);
+	if (fmh->sqlite_rc != SQLITE_OK) {
+		set_errmsg(fmh, "disabling synchronous mode failed");
+		ret = T2MFM_SQLITE_ERROR;
+	}
+
+	fmh->sqlite_rc = sqlite3_exec(fmh->db,
+			"PRAGMA journal_mode = OFF",
+			NULL, NULL, NULL);
+	if (fmh->sqlite_rc != SQLITE_OK) {
+		set_errmsg(fmh, "disabling journal failed");
+		ret = T2MFM_SQLITE_ERROR;
+	}
+
+	return ret;
+}
+
 int t2mfm_open(const char *backing_store_uri, const char *matrix_name,
 		t2mfm_open_mode open_mode, t2mfm **p_fmh)
 {
@@ -646,6 +669,10 @@ int t2mfm_open(const char *backing_store_uri, const char *matrix_name,
 		(*p_fmh)->rc = T2MFM_SQLITE_ERROR;
 		goto cleanup;
 	}
+
+	(*p_fmh)->rc = disable_sync_and_journal(*p_fmh);
+	if ((*p_fmh)->rc != T2MFM_OK)
+		goto cleanup;
 
 	table_exists = check_table_exists(*p_fmh, (*p_fmh)->matrix_name);
 	switch ((*p_fmh)->open_mode) {
