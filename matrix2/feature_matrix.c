@@ -599,11 +599,11 @@ int t2mfm_open(const char *backing_store_uri, const char *matrix_name,
 
 	switch ((*p_fmh)->open_mode) {
 	case T2MFM_OPEN_CREATE:
-		sqlite_open_flags = SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE |
-			SQLITE_OPEN_URI;
+		sqlite_open_flags = SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE;
+			
 		break;
 	case T2MFM_OPEN_ITERATE:
-		sqlite_open_flags = SQLITE_OPEN_READONLY | SQLITE_OPEN_URI;
+		sqlite_open_flags = SQLITE_OPEN_READONLY;
 		break;
 	}
 
@@ -905,7 +905,7 @@ void t2mfm_insert_end(t2mfm *fmh)
 	}
 
 	fmh->sqlite_rc = sqlite3_open_v2(fmh->backing_store_uri, &fmh->db,
-			SQLITE_OPEN_READONLY | SQLITE_OPEN_URI, NULL);
+			SQLITE_OPEN_READONLY, NULL);
 	if (fmh->sqlite_rc != SQLITE_OK) {
 		fmh->db = NULL;
 		set_errmsg(fmh, "opening a read only connection failed");
