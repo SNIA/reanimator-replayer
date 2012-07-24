@@ -74,11 +74,11 @@ static int add_dimensions()
 	/* Declare new dimensions, statically initializing their meta-data */
 	t2mfm_dim_meta opcode = {0, "procedure",
 			"procedures: 0 - read, 1 - write", T2MFM_INT1,
-			T2MFM_FALSE};
+			T2MFM_TRUE};
 	t2mfm_dim_meta offset = {1, "offset", "offset in bytes", T2MFM_INT8,
-			T2MFM_FALSE};
+			T2MFM_TRUE};
 	t2mfm_dim_meta length = {2, "length", "length in bytes", T2MFM_INT8,
-			T2MFM_FALSE};
+			T2MFM_TRUE};
 
 	assert(fmh);
 
@@ -175,11 +175,13 @@ int main(int argc, char *argv[])
 		if (!current_extent_write && current_extent_read) {
 			if (current_series_read.morerecords()) {
 				insert_data(&dim_data_vec, 0, offset_read.val(), length_read.val());
+				/*
 				std::cout << "read_request,"
 					  << time_called_read.val() << ","
 					  << fhandle_read.stringval() << ","
 					  << offset_read.val() << ","
 					  << length_read.val() << ",\n";
+				*/
 
 				++current_series_read;
 			} else {
@@ -195,11 +197,13 @@ int main(int argc, char *argv[])
 		if (!current_extent_read && current_extent_write) {
 			if (current_series_write.morerecords()) {
 				insert_data(&dim_data_vec, 1, offset_write.val(), length_write.val());
+				/*
 				std::cout << "write_request,"
 				 	  << time_called_write.val() << ","
 					  << fhandle_write.stringval() << ","
 					  << offset_write.val() << ","
 					  << length_write.val() << ",,,,\n";
+				*/
 
 				++current_series_write;
 			} else  {
@@ -232,19 +236,23 @@ int main(int argc, char *argv[])
 		/* We have records of both type: reads and writes */	
 		if (time_called_write.val() <= time_called_read.val()) {
 			insert_data(&dim_data_vec, 1, offset_write.val(), length_write.val());
+			/*
 			std::cout << "write_request,"
 				  << time_called_write.val() << ","
 				  << fhandle_write.stringval() << ","
 				  << offset_write.val() << ","
 				  << length_write.val() << ",,,,\n";
+			*/
 			++current_series_write;
 		} else {
 			insert_data(&dim_data_vec, 0, offset_read.val(), length_read.val());
+			/*
 			std::cout << "read_request,"
 				  << time_called_read.val() << ","
 				  << fhandle_read.stringval() << ","
 				  << offset_read.val() << ","
 				  << length_read.val() << ",\n";
+			*/
 			++current_series_read;
 		}
 	}
