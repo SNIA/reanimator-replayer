@@ -75,9 +75,9 @@ static int add_dimensions()
 	t2mfm_dim_meta opcode = {0, "procedure",
 			"procedures: 0 - read, 1 - write", T2MFM_INT1,
 			T2MFM_TRUE};
-	t2mfm_dim_meta offset = {1, "offset", "offset in bytes", T2MFM_INT8,
+	t2mfm_dim_meta offset = {1, "offset", "offset, 1MB granularity", T2MFM_INT8,
 			T2MFM_TRUE};
-	t2mfm_dim_meta length = {2, "length", "length in bytes", T2MFM_INT8,
+	t2mfm_dim_meta length = {2, "length", "length 4KB granularity", T2MFM_INT8,
 			T2MFM_TRUE};
 
 	assert(fmh);
