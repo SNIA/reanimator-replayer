@@ -47,10 +47,33 @@ static int insert_data(const t2mfm_vec *p_dim_data_vec,
 		uint8_t procedure, uint64_t offset, uint64_t length)
 {
 	int rc;
-	int op;
 
 	assert(fmh);
 	assert(p_dim_data_vec && (p_dim_data_vec->n_elements == 3));
+
+	/* Implement feature functions here */
+
+	/*
+	 *  0: read
+	 *  1: write
+	 */
+	procedure = procedure;
+	 
+	/*
+	 *  0: < 1MB
+	 *  1: 1MB <= N < 2MB
+	 *  2: 2MB <= N < 3MB
+	 */
+	offset = offset / (1024 * 1024);
+
+	/*
+ 	 * 0 -> L < 4KB
+ 	 * 1 -> 4KB <= L < 8KB
+ 	 *  .....
+ 	 */
+	length = length / 4096;
+
+	/*----------------------------------*/
 
 	T2MFM_SET_DIM_DATA(*p_dim_data_vec, 0, INT1, procedure);
 	T2MFM_SET_DIM_DATA(*p_dim_data_vec, 1, INT8, offset);
