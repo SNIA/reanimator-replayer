@@ -6,7 +6,7 @@ OPTFLAGS = -O0 -std=c++0x
 
 #-Wall -Wconversion
 
-CXXFLAGS = -g $(OPTFLAGS) -lDataSeries -lboost_regex -I$(DS_INCLUDE_DIR) -I$(LIBXML_INCLUDE_DIR) -L$(DS_LIBRARY_DIR)
+CXXFLAGS = -g $(OPTFLAGS) -lLintel -lDataSeries -lboost_regex -I$(DS_INCLUDE_DIR) -I$(LIBXML_INCLUDE_DIR) -L$(DS_LIBRARY_DIR)
 CXX      = g++
 
 TARGETS = csv2ds-extra pre-processor nfsparse
@@ -17,13 +17,13 @@ PREPROCESSOR_OBJECTS = pre-processor.o
 all: $(TARGETS)
 
 csv2ds-extra: $(CSV2DS_EXTRA_OBJECTS)
-	$(CXX) $(CXXFLAGS) -o csv2ds-extra $(CSV2DS_EXTRA_OBJECTS)
+	$(CXX) -o csv2ds-extra $(CSV2DS_EXTRA_OBJECTS) $(CXXFLAGS)
 
 pre-processor: $(PREPROCESSOR_OBJECTS)
-	$(CXX) $(CXXFLAGS) -o pre-processor $(PREPROCESSOR_OBJECTS)
+	$(CXX) -o pre-processor $(PREPROCESSOR_OBJECTS) $(CXXFLAGS)
 
 nfsparse: $(NFSPARSE_OBJECTS)
-	$(CXX) $(CXXFLAGS) -o nfsparse $(NFSPARSE_OBJECTS)
+	$(CXX) -o nfsparse $(NFSPARSE_OBJECTS) $(CXXFLAGS)
 
 clean:
 		rm -f $(TARGETS) $(CSV2DS_EXTRA_OBJECTS) $(PREPROCESSOR_OBJECTS) $(NFSPARSE_OBJECTS)
