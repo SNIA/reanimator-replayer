@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2015 Leixiang Wu
 # Copyright (c) 2011 Jack Ma
 # Copyright (c) 2011 Vasily Tarasov
 # Copyright (c) 2011 Santhosh Kumar Koundinya
@@ -13,10 +14,12 @@
 # published by the Free Software Foundation.
 #
 
-INCLUDES = -I/usr/include/libxml2/
-LIBS = -lDataSeries -laio
-CXXFLAGS = -O2 -g -Wall -Werror -std=c++0x -D_GNU_SOURCE -D_LARGEFILE_SOURCE \
-			-D_FILE_OFFSET_BITS=64 $(INCLUDES) $(LIBS)
+CPPFLAGS = -I$(HOME)/build/include -I/usr/include/libxml2/
+LDFLAGS =  -lboost_program_options -laio -lDataSeries \
+           -L$(HOME)/build/lib
+OPTFLAGS = -O2 -g -std=c++0x
+CXXFLAGS = $(OPTFLAGS) -D_GNU_SOURCE -D_LARGEFILE_SOURCE \
+	   -D_FILE_OFFSET_BITS=64 $(LDFLAGS) $(CPPFLAGS)
 CXX = g++
 
 TARGETS = dsblkreplay
@@ -25,17 +28,17 @@ REPLAY_OBJECTS = ReplayStats.o ReplayModule.o Commander.o
 all: $(TARGETS)
 
 dsblkreplay: $(REPLAY_OBJECTS)
-	$(CXX) $(CXXFLAGS) $(LIBS) -o dsblkreplay $(REPLAY_OBJECTS)
+	$(CXX) -o $@ $(REPLAY_OBJECTS) $(CXXFLAGS) 
 
 # the lines below are obtained using `g++ -MM`
 Commander.o: Commander.cpp Commander.hpp ReplayStats.hpp
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o Commander.o Commander.cpp
+	$(CXX) -c -o Commander.o Commander.cpp $(CXXFLAGS)
 
 ReplayModule.o: ReplayModule.cpp Commander.hpp ReplayStats.hpp
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o ReplayModule.o ReplayModule.cpp
+	$(CXX) -c -o ReplayModule.o ReplayModule.cpp $(CXXFLAGS) 
 
 ReplayStats.o: ReplayStats.hpp ReplayStats.cpp
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o ReplayStats.o ReplayStats.cpp
+	$(CXX) -c -o ReplayStats.o ReplayStats.cpp $(CXXFLAGS)
 
 clean:
 	rm -f $(TARGETS) $(REPLAY_OBJECTS)
