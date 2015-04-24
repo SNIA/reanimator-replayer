@@ -1,0 +1,55 @@
+- In sync mode/async we skip requests that were not executed in time.  This must
+  be tweakable.
+- Block offsets are in blocks, but I/O size is not. Should be resolved somehow.
+- Perform opt handling properly
+- compilation on 64bit machine fails
+- configuration_data.push_back((uint64_t)atof(iter->c_str())); float->uint64_t
+  conversion? And back again?
+- if ((offset.val() + request_size.val()) > BUFFER_SIZE) { - should be request
+  size
+- playFlag is set as a result of side effect
+- Time during which to play the trace, should be implemented in a better way,
+  without processed_ flag
+- read(), write() should be compared
+	a) to the return in the trace (if different - what do we do?)
+	b) to the size submitted
+- Should return values match?
+- Should we use O_DIRECT to pre-read the trace? This can eliminate cache
+  pollution.
+
+
+---
+1) Unknown options handling:
+
+dsblkreplay -a
+terminate called after throwing an instance of
+'boost::exception_detail::clone_impl<boost::exception_detail::error_info_injector<boost::program_options::unknown_option>
+>'
+  what():  unknown option -a
+
+2) -async, -sync are outdated
+
+3) device_id -> device name (variable and help)
+
+4) Help message shourd clearly separate mandatory and not-mandatory options
+
+5) Check that putting Hidden options is necessary. May be it is enought
+to put it in positional parameters only.
+
+6) Rename input-files to trace-files
+
+7) Do we need multiple trace files?
+
+8) Put argument handling in a separate function
+
+9) Remove unnceccary initialiasations in main()
+
+10) Space between new Stats and the next line
+
+11) Config file to a separate function
+
+12) cleanup of commander should not happen in completeProcessing()
+
+13) Remove not needed {} in single-statement if statements
+
+14) Should the transformation compuation be done in the outside module?..
