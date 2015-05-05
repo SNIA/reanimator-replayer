@@ -14,4 +14,4 @@ syscall-simple-read: $(SYSCALL_SIMPLE_READ_OBJECTS)
 %.o: %.cpp
 	$(CXX) -c -o $@ $?
 clean:
-	rm -f $(TARGETS) $(SYSCALL_SIMPLE_READ_OBJECTS)
+	rm -f $(TARGETS) $(SYSCALL_SIMPLE_READ_OBJECTS) *~
