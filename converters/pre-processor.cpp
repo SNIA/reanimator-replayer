@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2015-2016 Leixiang Wu
  * Copyright (c) 2011-2012 Santhosh Kumar Koundinya
  * Copyright (c) 2011-2012 Jack Ma
  * Copyright (c) 2011-2012 Vasily Tarasov
@@ -13,19 +14,19 @@
  * published by the Free Software Foundation.
  *
  *
- * pre-processor converts various units in different block trace formats
+ * pre-processor converts various units in different block/system call trace formats
  * to the units defined by the SNIA standard. E.g., time is converted to Tfracs,
  * offset and I/O size to bytes, etc.
  *
  * This tool is usually invoked by a trace-specific convertor (e.g.,
- * blktrace2ds) after some preliminary conversion is already done. The reason
- * why unit conversion is performed in a separate tool (but not in the shell) is
- * speed.
+ * blktrace2ds, systrace2ds) after some preliminary conversion is 
+ * already done. The reason why unit conversion is performed in a
+ * separate tool (but not in the shell) is speed.
  *
  * The tool produces a new CSV file that is then fed to a csv2ds-extra tool.
  *
  * Usage: pre-processor <trace_type> <input_file> <output_file>
- * 	  Recognized trace_types: spc, blk, vss, mps
+ * 	  Recognized trace_types: spc, blk, vss, mps, sys
  *
  */
 
@@ -90,6 +91,74 @@ bool spcProcessRow(const string &inRow, string &outRow)
 
 	outRow = formattedRow.str();
 
+	return true;
+}
+
+bool sysProcessRow(const string &inRow, string &outRow)
+{
+	vector<string> fields;
+	// Check to see if it reaches end of trace file.
+	if (inRow.find("exited") != string::npos)
+	  return true;
+
+	// Split return information and system call information.
+	boost::split(fields, inRow, boost::is_any_of("="), boost::token_compress_on);
+
+	// Check to make sure the trace record is valid.
+	if (fields.size() < 2) {
+		clog << "SYS: Malformed record: '" << inRow << "'. Too few columns.\n";
+		return false;
+	}
+
+	/* The input expected by csv2ds-extra is <extent name>, <fields>.
+	 *
+	 * The input fields are ordered as follows.
+	 * relative_timestamp syscall(args) = return_val
+	 * Example: 0.000061 close(3)                  = 0
+	 *
+	 * Consult the SPC Trace format specification document and 
+	 * strace man page for more details.
+	 *
+	 */
+	
+	// Get system call information and return information
+	string sys_call_info = fields[0];
+	string ret_info = fields[1];
+	// Eliminate white spaces
+	boost::trim(sys_call_info);
+	boost::trim(ret_info);
+	
+	// Split system call arguments and name
+       	boost::split(fields, sys_call_info, boost::is_any_of("()"));
+	if (fields.size() < 2) {
+		clog << "SYS: Malformed record: '" << sys_call_info << "'. Too few columns.\n";
+		return false;
+	}
+	
+	// Get system call arguments and name
+	sys_call_info = fields[0];
+	string sys_call_args = fields[1];
+	
+	// Split system call name and time stamp
+	boost::split(fields, sys_call_info, boost::is_any_of(" \t"), boost::token_compress_on);
+	string sys_call_name = fields[1];
+	
+	/* DataSeries expects the time in Tfracs. One tfrac is 1/(2^32) of a
+	 * second */
+	uint64_t rel_timestamp = (uint64_t)(atof(fields[0].c_str()) *
+					(((uint64_t)1)<<32));
+	// Make sure timestamp is valid.
+	if (rel_timestamp < 0) {
+		clog << "SYS: Malformed relative timestamp: '" << fields[0] << "'. Timestamp less than 0.\n";
+		return false;
+	}
+	
+	// Formatting output to csv2ds-extra
+	stringstream formattedRow;
+	formattedRow << sys_call_name << "," << "(" << sys_call_args << ")" << "," 
+		     << ret_info << "," << rel_timestamp;
+
+	outRow = formattedRow.str();
 	return true;
 }
 
@@ -255,6 +324,8 @@ int main(int argc, char *argv[])
 		processRow = vssProcessRow;
 	else if (!strcmp("mps", traceType))
 		processRow = mpsProcessRow;
+	else if (!strcmp("sys", traceType))
+	        processRow = sysProcessRow;
 	else {
 		cerr << "Unsupported trace type '" << traceType << "'.\n";
 		showUsage(argv[0]);
