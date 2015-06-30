@@ -106,8 +106,8 @@ bool sysProcessRow(const string &inRow, string &outRow)
 
 	// Check to make sure the trace record is valid.
 	if (fields.size() < 2) {
-		clog << "SYS: Malformed record: '" << inRow << "'. Too few columns.\n";
-		return false;
+	  clog << "SYS: Malformed record: '" << inRow << "'. Too few columns.\n";
+	  return false;
 	}
 
 	/* The input expected by csv2ds-extra is <extent name>, <fields>.
@@ -131,8 +131,8 @@ bool sysProcessRow(const string &inRow, string &outRow)
 	// Split system call arguments and name
        	boost::split(fields, sys_call_info, boost::is_any_of("()"));
 	if (fields.size() < 2) {
-		clog << "SYS: Malformed record: '" << sys_call_info << "'. Too few columns.\n";
-		return false;
+	  clog << "SYS: Malformed record: '" << sys_call_info << "'. Too few columns.\n";
+	  return false;
 	}
 	
 	// Get system call arguments and name
@@ -146,18 +146,18 @@ bool sysProcessRow(const string &inRow, string &outRow)
 	/* DataSeries expects the time in Tfracs. One tfrac is 1/(2^32) of a
 	 * second */
 	uint64_t rel_timestamp = (uint64_t)(atof(fields[0].c_str()) *
-					(((uint64_t)1)<<32));
+					    (((uint64_t)1)<<32));
 	// Make sure timestamp is valid.
 	if (rel_timestamp < 0) {
-		clog << "SYS: Malformed relative timestamp: '" << fields[0] << "'. Timestamp less than 0.\n";
-		return false;
+	  clog << "SYS: Malformed relative timestamp: '" << fields[0] << "'.";
+	  clog << "Timestamp less than 0.\n";
+	  return false;
 	}
 	
-	// Formatting output to csv2ds-extra
+       	// Formatting output to csv2ds-extra
 	stringstream formattedRow;
-	formattedRow << sys_call_name << "," << "(" << sys_call_args << ")" << "," 
-		     << ret_info << "," << rel_timestamp;
-
+	formattedRow << sys_call_name << "," << rel_timestamp << "," 
+		     << ret_info << "," << sys_call_args;
 	outRow = formattedRow.str();
 	return true;
 }
