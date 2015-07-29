@@ -138,6 +138,7 @@ open	flag_write_only	0	bool
 open	flag_read_and_write	0	bool
 open	flag_append	0	bool
 open	flag_async	0	bool
+open	flag_close_on_exec	0	bool
 open	flag_create	0	bool
 open	flag_direct	0	bool
 open	flag_directory	0	bool
