@@ -154,7 +154,6 @@ bool sysProcessRow(const string &inRow, string &outRow)
 			return false;
 		}
 		sys_call_args.replace(last_arg_pos + 1, string::npos, field);
-		std::cout << sys_call_args << endl;
 	}
 	
 	/* DataSeries expects the time in Tfracs. One tfrac is 1/(2^32) of a
