@@ -21,7 +21,8 @@
 #    specstrings/blktrace.spec and tables/snia_block_fields.table
 #    files, in order.
 #
-# ./strace2ds.sh <outputfile> <spec_string_file> <inputfiles...>
+# Usage: strace2ds.sh <outputfile> <strace_base_file>
+#
 
 TABLEFILE=tables/snia_syscall_fields.table
 OUTPUTFILE=$1
