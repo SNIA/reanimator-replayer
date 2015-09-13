@@ -14,9 +14,12 @@
  * published by the Free Software Foundation.
  *
  *
- * pre-processor converts various units in different block/system call trace formats
+ * pre-processor converts various units in different block trace formats
  * to the units defined by the SNIA standard. E.g., time is converted to Tfracs,
  * offset and I/O size to bytes, etc.
+ *
+ * pre-processor converts system call trace formats
+ * to CSV format.
  *
  * This tool is usually invoked by a trace-specific convertor (e.g.,
  * blktrace2ds, systrace2ds) after some preliminary conversion is 
@@ -126,10 +129,9 @@ bool sysProcessRow(const string &inRow, string &outRow)
 	
 	// Get system call information and return information
 	string sys_call_info = fields[0];
-	//string ret_info = fields[1];
+
 	// Eliminate white spaces
 	boost::trim(sys_call_info);
-	//boost::trim(ret_info);
 	
 	// Split system call arguments and name
 	size_t split_index = sys_call_info.find_first_of("(");
@@ -155,19 +157,8 @@ bool sysProcessRow(const string &inRow, string &outRow)
 		}
 		sys_call_args.replace(last_arg_pos + 1, string::npos, field);
 	}
-	
-	/* DataSeries expects the time in Tfracs. One tfrac is 1/(2^32) of a
-	 * second */
-	uint64_t rel_timestamp = (uint64_t)(atof(fields[0].c_str()) *
-					    (((uint64_t)1)<<32));
-	// Make sure timestamp is valid.
-	if (rel_timestamp < 0) {
-	  clog << "SYS: Malformed relative timestamp: '" << fields[0] << "'.";
-	  clog << "Timestamp less than 0.\n";
-	  return false;
-	}
-	
-       	// Formatting output to csv2ds-extra
+
+    // Formatting output to csv2ds-extra
 	stringstream formattedRow;
 	formattedRow << sys_call_name << "," << sys_call_args;
 	outRow = formattedRow.str();
@@ -417,7 +408,7 @@ int main(int argc, char *argv[])
 	else if (!strcmp("mps", traceType))
 		processRow = mpsProcessRow;
 	else if (!strcmp("sys", traceType))
-	        processRow = sysProcessRow;
+		processRow = sysProcessRow;
 	else {
 		cerr << "Unsupported trace type '" << traceType << "'.\n";
 		showUsage(argv[0]);
