@@ -12,8 +12,7 @@
 #
 # strace2ds.sh converts traces in strace format to Dataseries format.
 # The sequence of operations performed by this script is the following:
-# 1. Run pre-processor that performs unit conversion and convert raw strace CVS
-#	 to CVS appropriate format
+# 1. Run pre-processor that converts raw strace CVS to CVS appropriate format
 #    (doing this in C++, not in bash, increases the speed drastically)
 # 2. Use csv2ds-extra to convert CSV to Dataseries format.
 #    Specification of the fields in the input CSV file and the mapping
@@ -74,4 +73,4 @@ echo "Converting to DataSeries..."
 ./csv2ds-extra -q $OUTPUTFILE $TABLEFILE $SPECSTRINGFILE $TEMPFILE
 
 echo "Removing temporary file" $TEMPFILE
-rm -f $TEMPFILE
+#rm -f $TEMPFILE
