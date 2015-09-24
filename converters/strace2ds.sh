@@ -73,4 +73,4 @@ echo "Converting to DataSeries..."
 ./csv2ds-extra -q $OUTPUTFILE $TABLEFILE $SPECSTRINGFILE $TEMPFILE
 
 echo "Removing temporary file" $TEMPFILE
-#rm -f $TEMPFILE
+rm -f $TEMPFILE
