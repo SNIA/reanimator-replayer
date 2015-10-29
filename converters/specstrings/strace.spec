@@ -1,3 +1,4 @@
+Common(time_called);
 read(descriptor,data_read,bytes_requested);
 write(descriptor,data_written,bytes_requested);
 close(descriptor);
