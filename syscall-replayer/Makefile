@@ -16,7 +16,7 @@ OPTFLAGS = -g -O2 -Wall
 CPPFLAGS = -I$(HOME)/build/include -I/usr/include/libxml2/
 
 LDFLAGS =  -lboost_program_options -laio -lDataSeries \
-           -L$(HOME)/build/lib
+		   -lLintel -L$(HOME)/build/lib
 
 CXXFLAGS = $(OPTFLAGS) -D_GNU_SOURCE -D_LARGEFILE_SOURCE \
 		   -D_FILE_OFFSET_BITS=64 $(LDFLAGS) $(CPPFLAGS)
