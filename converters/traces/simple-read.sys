@@ -1,19 +1,15 @@
-     0.000000 open("/build/lib/tls/x86_64/libstdc++.so.6", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
-     0.000060 open("/build/lib/tls/libstdc++.so.6", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
-     0.000022 open("/build/lib/x86_64/libstdc++.so.6", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
-     0.000020 open("/build/lib/libstdc++.so.6", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
-     0.000019 open("/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3
-     0.000029 close(3)                  = 0
-     0.000030 open("/usr/lib/x86_64-linux-gnu/libstdc++.so.6", O_RDONLY|O_CLOEXEC) = 3
-     0.000082 close(3)                  = 0
-     0.000035 open("/lib/x86_64-linux-gnu/libc.so.6", O_RDONLY|O_CLOEXEC) = 3
-     0.000079 close(3)                  = 0
-     0.000029 open("/lib/x86_64-linux-gnu/libm.so.6", O_RDONLY|O_CLOEXEC) = 3
-     0.000074 close(3)                  = 0
-     0.000029 open("/lib/x86_64-linux-gnu/libgcc_s.so.1", O_RDONLY|O_CLOEXEC) = 3
-     0.000058 close(3)                  = 0
-     0.009702 open("sample-read-input.txt", O_RDONLY) = 3
-     0.000069 read(3, "Welcome to FSL.\nHope you make a lot of friends in here.\n", 4096) = 56
-     0.001044 read(3, "", 4096)         = 0
-     0.000189 close(3)                  = 0
-     0.000199 +++ exited with 0 +++
+1445365793.730751 open("/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3
+1445365793.730841 close(3)              = 0
+1445365793.730869 open("/usr/lib/x86_64-linux-gnu/libstdc++.so.6", O_RDONLY|O_CLOEXEC) = 3
+1445365793.731122 close(3)              = 0
+1445365793.731216 open("/lib/x86_64-linux-gnu/libc.so.6", O_RDONLY|O_CLOEXEC) = 3
+1445365793.731388 close(3)              = 0
+1445365793.731451 open("/lib/x86_64-linux-gnu/libm.so.6", O_RDONLY|O_CLOEXEC) = 3
+1445365793.731571 close(3)              = 0
+1445365793.731601 open("/lib/x86_64-linux-gnu/libgcc_s.so.1", O_RDONLY|O_CLOEXEC) = 3
+1445365793.731690 close(3)              = 0
+1445365793.732528 open("sample-read-input.txt", O_RDONLY) = 3
+1445365793.732559 read(3, "Welcome to FSL.\nHope you make a lot of friends in here.\n", 4096) = 56
+1445365793.733242 read(3, "", 4096)     = 0
+1445365793.733283 close(3)              = 0
+1445365793.733410 +++ exited with 0 +++
