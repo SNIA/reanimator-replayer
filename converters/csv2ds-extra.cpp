@@ -221,6 +221,8 @@ public:
 			string fieldname = specs_[extentname][i];
 			string fieldvalue = *field;
 			field++;
+			// Eliminate leading and trailing spaces
+			boost::trim(fieldvalue);
 			fieldvaluemap[fieldname] = fieldvalue;
 		}
 
