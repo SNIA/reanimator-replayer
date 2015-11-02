@@ -45,13 +45,13 @@
 
 class SystemCallTraceReplayModule : public RowAnalysisModule {
 	protected:
+		bool verbose_;
 		DoubleField time_called_;
-		bool verbose;
 	public:
-		SystemCallTraceReplayModule(DataSeriesModule &source) : 
+		SystemCallTraceReplayModule(DataSeriesModule &source, bool verboseFlag) : 
 			RowAnalysisModule(source),
+			verbose_(verboseFlag),
 			time_called_(series, "time_called") {
-				verbose = false;
 		}
 
 		double time_called() {
@@ -250,12 +250,11 @@ class OpenSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 			std::cout << "mode_W_others: " << mode_W_others.val() << std::endl;
 			std::cout << "mode_X_others: " << mode_X_others.val() << std::endl;
 			*/
-
 		}
 
 	public:
-		OpenSystemCallTraceReplayModule(DataSeriesModule &source) : 
-			SystemCallTraceReplayModule(source),
+		OpenSystemCallTraceReplayModule(DataSeriesModule &source, bool verboseFlag) : 
+			SystemCallTraceReplayModule(source, verboseFlag),
 			given_pathname(series, "given_pathname"),
 			flag_read_only(series, "flag_read_only"),
 			flag_write_only(series, "flag_write_only"),
@@ -301,7 +300,7 @@ class OpenSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 			uint32_t flags = getOpenFlags();
 			mode_t mode = getOpenMode();
 
-			if (verbose) {
+			if (verbose_) {
 				std::cout.precision(25);
 				std::cout << "time called:" << std::fixed << time_called() << std::endl;
 				std::cout << "pathname:" << pathname << std::endl;
@@ -330,8 +329,8 @@ class CloseSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 		Int32Field descriptor_;
 
 	public:
-		CloseSystemCallTraceReplayModule(DataSeriesModule &source) : 
-			SystemCallTraceReplayModule(source),
+		CloseSystemCallTraceReplayModule(DataSeriesModule &source, bool verboseFlag) : 
+			SystemCallTraceReplayModule(source, verboseFlag),
 			descriptor_(series, "descriptor"){
 		}
 
@@ -345,7 +344,7 @@ class CloseSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 		 * for every system call operation in the trace file 
 		 * being processed */
 		void processRow() {
-			if (verbose) {
+			if (verbose_) {
 				std::cout.precision(25);
 				std::cout << "time called:" << std::fixed << time_called() << std::endl;
 				std::cout << "descriptor:" << descriptor_.val() << std::endl;
@@ -373,8 +372,8 @@ class ReadSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 		Variable32Field data_read_;
 		Int64Field bytes_requested_;
 	public:
-		ReadSystemCallTraceReplayModule(DataSeriesModule &source) : 
-			SystemCallTraceReplayModule(source),
+		ReadSystemCallTraceReplayModule(DataSeriesModule &source, bool verboseFlag) : 
+			SystemCallTraceReplayModule(source, verboseFlag),
 			descriptor_(series, "descriptor"), 
 			data_read_(series, "data_read", Field::flag_nullable), 
 			bytes_requested_(series, "bytes_requested") {
@@ -390,7 +389,7 @@ class ReadSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 		 * for every system call operation in the trace file 
 		 * being processed */
 		void processRow() {
-			if (verbose) {
+			if (verbose_) {
 				std::cout.precision(25);
 				std::cout << "time called:" << std::fixed << time_called() << std::endl;
 				std::cout << "descriptor:" << descriptor_.val() << std::endl;
@@ -401,7 +400,7 @@ class ReadSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 			if (ret == -1) {
 				perror("read");
 			} else {
-				std::cout << "read is executed successfully!";
+				std::cout << "read is executed successfully!" << std::endl;
 			}
 		}
 
@@ -419,8 +418,8 @@ class WriteSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 		Variable32Field data_write_;
 		Int64Field bytes_requested_;
 	public:
-		WriteSystemCallTraceReplayModule(DataSeriesModule &source) : 
-			SystemCallTraceReplayModule(source),
+		WriteSystemCallTraceReplayModule(DataSeriesModule &source, bool verboseFlag) : 
+			SystemCallTraceReplayModule(source, verboseFlag),
 			descriptor_(series, "descriptor"), 
 			data_write_(series, "data_write", Field::flag_nullable), 
 			bytes_requested_(series, "bytes_requested") {
@@ -436,7 +435,7 @@ class WriteSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 		 * for every system call operation in the trace file 
 		 * being processed */
 		void processRow() {
-			if (verbose) {
+			if (verbose_) {
 				std::cout.precision(25);
 				std::cout << "time called:" << std::fixed << time_called() << std::endl;
 				std::cout << "descriptor:" << descriptor_.val() << std::endl;
@@ -459,13 +458,85 @@ class WriteSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 };
 
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) {	
+	namespace po = boost::program_options;
+
+	int ret = EXIT_SUCCESS;
+	bool verbose = false;
 	bool finished_replaying = false;
+	std::vector<std::string> input_files;
+
+	// Declare a group of options that will be 
+	// allowed only on command line
+	po::options_description generic("Generic options");
+	generic.add_options()
+	    ("version,V", "print version of system call replayer")
+    	("help,h", "produce help message")
+    ;
+
+    // Declare a group of options that will be 
+	// allowed both on command line and in
+	// config file
+	po::options_description config("Configuration");
+	config.add_options()
+    	("verbose,v", "system calls replay in verbose mode")
+    ;
+
+	// Hidden options, will be allowed both on command line and
+	// in config file, but will not be shown to the user.
+	po::options_description hidden("Hidden options");
+	hidden.add_options()
+    	("input-files,I", po::value<std::vector<std::string> >(),"input files")
+    ;
+
+    po::options_description cmdline_options;
+	cmdline_options.add(generic).add(config).add(hidden);
+
 	/*
-	 * This reads all extents of open system call
+	po::options_description config_file_options;
+	config_file_options.add(config).add(hidden);
+	*/
+
+	po::options_description visible("Allowed options");
+	visible.add(generic).add(config);
+
+	po::positional_options_description p;
+	p.add("input-files", -1);
+
+	po::variables_map vm;
+	po::store(po::command_line_parser(argc, argv).
+			  options(cmdline_options).positional(p).run(), vm);
+	po::notify(vm);
+
+	if (vm.count("help")) {
+		std::cerr << visible << "\n";
+		return ret;
+		//goto cleanup;
+	}
+
+	if (vm.count("version")) {
+		std::cerr << "sysreplayer version 1.0" << "\n";
+		return ret;
+		//goto cleanup;
+	}
+
+	if (vm.count("verbose")) {
+		verbose = true;
+	}
+
+	if (vm.count("input-files")) {
+		input_files = vm["input-files"].as<std::vector<std::string> >();
+	} else {
+		std::cout << "No dataseries input files.\n";
+		ret = EXIT_FAILURE;
+		return ret;
+		//goto cleanup;
+	}
+
+	/*
+	 * This reads all extents of system call
 	 * operations from a set of DataSeries files.
 	 */
-	
 	const std::string kExtentTypePrefix = "IOTTAFSL::Trace::Syscall::";
 
 	std::vector<std::string> system_calls;
@@ -481,9 +552,12 @@ int main(int argc, char *argv[]) {
 		type_index_modules.push_back(type_index_module);
 	}
 
-	for (int i = 1; i < argc; i++) {
+	/* Specify to read dataseries input files */
+	for (std::vector<std::string>::iterator iter = input_files.begin();
+				      iter != input_files.end();
+				      iter++) {
 		for (unsigned int j = 0; j < type_index_modules.size(); j++) {
-			type_index_modules[j]->addSource(argv[i]);
+			type_index_modules[j]->addSource(*iter);
 		}
 	}
 
@@ -494,11 +568,14 @@ int main(int argc, char *argv[]) {
 	}
 
 	/* Parallel decompress and stats, 64MiB buffer */
-	OpenSystemCallTraceReplayModule *open_replayer = new OpenSystemCallTraceReplayModule(*prefetch_buffer_modules[0]);
-	CloseSystemCallTraceReplayModule *close_replayer = new CloseSystemCallTraceReplayModule(*prefetch_buffer_modules[1]);
-	ReadSystemCallTraceReplayModule *read_replayer = new ReadSystemCallTraceReplayModule(*prefetch_buffer_modules[2]);
-	WriteSystemCallTraceReplayModule *write_replayer = new WriteSystemCallTraceReplayModule(*prefetch_buffer_modules[3]);
-
+	OpenSystemCallTraceReplayModule *open_replayer = new OpenSystemCallTraceReplayModule(*prefetch_buffer_modules[0], 
+																						 verbose);
+	CloseSystemCallTraceReplayModule *close_replayer = new CloseSystemCallTraceReplayModule(*prefetch_buffer_modules[1], 
+																						 verbose);
+	ReadSystemCallTraceReplayModule *read_replayer = new ReadSystemCallTraceReplayModule(*prefetch_buffer_modules[2],
+																						 verbose);
+	WriteSystemCallTraceReplayModule *write_replayer = new WriteSystemCallTraceReplayModule(*prefetch_buffer_modules[3],
+																						 verbose);
 	std::vector<SystemCallTraceReplayModule *> system_call_trace_replay_modules;
 	system_call_trace_replay_modules.push_back(open_replayer);
 	system_call_trace_replay_modules.push_back(close_replayer);
@@ -531,6 +608,7 @@ int main(int argc, char *argv[]) {
 			}
 		}
 
-	}	
-	//while (replayer->getSharedExtent());
+	}
+
+	return ret;
 }
