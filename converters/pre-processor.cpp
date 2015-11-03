@@ -99,12 +99,26 @@ bool spcProcessRow(const string &inRow, string &outRow)
 
 bool sysProcessRow(const string &inRow, string &outRow)
 {
-	vector<string> fields;
 	// Check to see if it reaches end of trace file.
 	if (inRow.find("exited") != string::npos)
-	  return true;
+		return true;
 
-	// Split return information and system call information.
+	/* The input expected by csv2ds-extra is <extent name>, <fields>.
+	*
+	* The input fields are ordered as follows.
+	* relative_timestamp syscall(args) = return_val
+	* Example: 0.000061 close(3)                  = 0
+	*
+	* Consult the SPC Trace format specification document and 
+	* strace man page for more details.
+	*
+	*/
+
+	/* Split return information and system call information.
+	 * The input fields are ordered as follows.
+	 * relative_timestamp syscall(args) = return_val
+	 */
+	vector<string> fields;
 	boost::algorithm::split_regex(fields, inRow, boost::regex( " *= " ));
 
 	// Check to make sure the trace record is valid.
@@ -113,29 +127,19 @@ bool sysProcessRow(const string &inRow, string &outRow)
 	  return false;
 	}
 
-	/* The input expected by csv2ds-extra is <extent name>, <fields>.
-	 *
-	 * The input fields are ordered as follows.
-	 * relative_timestamp syscall(args) = return_val
-	 * Example: 0.000061 close(3)                  = 0
-	 *
-	 * Consult the SPC Trace format specification document and 
-	 * strace man page for more details.
-	 *
-	 */
-	
 	// Get system call information and return information
 	string sys_call_info = fields[0];
-	//string ret_info = fields[1];
-	// Eliminate white spaces
+	string ret_info = fields[1];
+
+	// Eliminate leading and trailing spaces
 	boost::trim(sys_call_info);
-	//boost::trim(ret_info);
+	boost::trim(ret_info);
 	
 	// Split system call arguments and name
 	size_t split_index = sys_call_info.find_first_of("(");
 	if (split_index == std::string::npos) {
-	  clog << "SYS: Malformed record: '" << sys_call_info << "'. ( is missing.\n";
-	  return false;
+		clog << "SYS: Malformed record: '" << sys_call_info << "'. ( is missing.\n";
+	  	return false;
 	}
 	// Get system call time and name
 	string sys_call_time_and_name = sys_call_info.substr(0, split_index);
@@ -157,8 +161,9 @@ bool sysProcessRow(const string &inRow, string &outRow)
 		sys_call_args.replace(last_arg_pos + 1, string::npos, field);
 	}
 	
-	/* DataSeries expects the time in Tfracs. One tfrac is 1/(2^32) of a
-	 * second */
+	/* Right now we don't need to worry about this. So comment it out.
+	 * DataSeries expects the time in Tfracs. One tfrac is 1/(2^32) of a
+	 * second 
 	uint64_t rel_timestamp = (uint64_t)(atof(fields[0].c_str()) *
 					    (((uint64_t)1)<<32));
 	// Make sure timestamp is valid.
@@ -167,10 +172,11 @@ bool sysProcessRow(const string &inRow, string &outRow)
 	  clog << "Timestamp less than 0.\n";
 	  return false;
 	}
+	*/
 	
     // Formatting output to csv2ds-extra
 	stringstream formattedRow;
-	formattedRow << sys_call_name << "," << time_called << "," <<sys_call_args;
+	formattedRow << sys_call_name << "," << time_called << "," << ret_info  << "," <<sys_call_args;
 	outRow = formattedRow.str();
 	return true;
 }

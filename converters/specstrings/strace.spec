@@ -1,4 +1,4 @@
-Common(time_called);
+Common(time_called,return_value);
 read(descriptor,data_read,bytes_requested);
 write(descriptor,data_written,bytes_requested);
 close(descriptor);
