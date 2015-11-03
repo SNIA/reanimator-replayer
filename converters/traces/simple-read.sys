@@ -12,4 +12,3 @@
 1445365793.732559 read(3, "Welcome to FSL.\nHope you make a lot of friends in here.\n", 4096) = 56
 1445365793.733242 read(3, "", 4096)     = 0
 1445365793.733283 close(3)              = 0
-1445365793.733410 +++ exited with 0 +++
