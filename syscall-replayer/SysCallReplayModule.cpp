@@ -48,14 +48,14 @@ class SystemCallTraceReplayModule : public RowAnalysisModule {
 		bool verbose_;
 		bool compare_retval_;
 		DoubleField time_called_;
-		Int32Field return_value_;
+		Int64Field return_value_;
 	public:
 		SystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag, bool compare_retval_flag) : 
 			RowAnalysisModule(source),
 			verbose_(verbose_flag),
 			compare_retval_(compare_retval_flag),
 			time_called_(series, "time_called"),
-			return_value_(series, "return_value") {
+			return_value_(series, "return_value", Field::flag_nullable) {
 		}
 
 		double time_called() {
@@ -93,6 +93,12 @@ class SystemCallTraceReplayModule : public RowAnalysisModule {
 	        ++processed_rows;
 	        processRow();
 	    	++series;
+		}
+
+		void compare_retval(int ret_val) {
+			if (compare_retval_ == true && return_value_.val() != ret_val) {
+				abort();
+			}
 		}
 };
 
@@ -313,6 +319,8 @@ class OpenSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 			}
 			
 			int ret = open(pathname, flags, mode);
+			compare_retval(ret);
+
 			if (ret == -1) {
 				perror(pathname);
 			} else {
@@ -355,6 +363,8 @@ class CloseSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 			}
 			
 			int ret = close(descriptor_.val());
+			compare_retval(ret);
+
 			if (ret == -1) {
 				perror("close");
 			} else {
@@ -402,6 +412,7 @@ class ReadSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 			}
 			char buffer[bytes_requested_.val()];
 			int ret = read(descriptor_.val(), buffer, bytes_requested_.val());
+			compare_retval(ret);
 
 			if (verify_ == true) {
 				if (memcmp(data_read_.val(),buffer,ret) != 0){
@@ -462,6 +473,7 @@ class WriteSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 			}
 			char buffer[bytes_requested_.val()];
 			int ret = write(descriptor_.val(), buffer, bytes_requested_.val());
+			compare_retval(ret);
 			
 			if (ret == -1) {
 				perror("write");
