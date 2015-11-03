@@ -368,12 +368,14 @@ class CloseSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 class ReadSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 	private:
 		/* DataSeries Read System Call Trace Fields */
+		bool verify_;
 		Int32Field descriptor_;
 		Variable32Field data_read_;
 		Int64Field bytes_requested_;
 	public:
-		ReadSystemCallTraceReplayModule(DataSeriesModule &source, bool verboseFlag) : 
+		ReadSystemCallTraceReplayModule(DataSeriesModule &source, bool verboseFlag, bool verifyFlag) : 
 			SystemCallTraceReplayModule(source, verboseFlag),
+			verify_(verifyFlag),
 			descriptor_(series, "descriptor"), 
 			data_read_(series, "data_read", Field::flag_nullable), 
 			bytes_requested_(series, "bytes_requested") {
@@ -390,12 +392,24 @@ class ReadSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 		 * being processed */
 		void processRow() {
 			if (verbose_) {
-				std::cout.precision(25);
+				std::cout.precision(23);
 				std::cout << "time called:" << std::fixed << time_called() << std::endl;
 				std::cout << "descriptor:" << descriptor_.val() << std::endl;
 			}
 			char buffer[bytes_requested_.val()];
 			int ret = read(descriptor_.val(), buffer, bytes_requested_.val());
+
+			if (verify_ == true) {
+				if (memcmp(data_read_.val(),buffer,ret) != 0){
+					// data aren't same
+					std::cerr << "Verification of data in read failed.\n";
+					abort();
+				} else {
+					if (verbose_) {
+						std::cout << "Verification of data in read success.\n";
+					}
+				}
+			}
 
 			if (ret == -1) {
 				perror("read");
@@ -414,12 +428,14 @@ class ReadSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 class WriteSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 	private:
 		/* DataSeries Write System Call Trace Fields */
+		bool verify_;
 		Int32Field descriptor_;
 		Variable32Field data_write_;
 		Int64Field bytes_requested_;
 	public:
-		WriteSystemCallTraceReplayModule(DataSeriesModule &source, bool verboseFlag) : 
+		WriteSystemCallTraceReplayModule(DataSeriesModule &source, bool verboseFlag, bool verifyFlag) : 
 			SystemCallTraceReplayModule(source, verboseFlag),
+			verify_(verifyFlag),
 			descriptor_(series, "descriptor"), 
 			data_write_(series, "data_write", Field::flag_nullable), 
 			bytes_requested_(series, "bytes_requested") {
@@ -463,6 +479,7 @@ int main(int argc, char *argv[]) {
 
 	int ret = EXIT_SUCCESS;
 	bool verbose = false;
+	bool verify = false;
 	bool finished_replaying = false;
 	std::vector<std::string> input_files;
 
@@ -480,6 +497,7 @@ int main(int argc, char *argv[]) {
 	po::options_description config("Configuration");
 	config.add_options()
     	("verbose,v", "system calls replay in verbose mode")
+    	("verify", "replay verifies that the data being written/read is exactly what was used originally")
     ;
 
 	// Hidden options, will be allowed both on command line and
@@ -518,6 +536,10 @@ int main(int argc, char *argv[]) {
 		std::cerr << "sysreplayer version 1.0" << "\n";
 		return ret;
 		//goto cleanup;
+	}
+
+	if (vm.count("verify")) {
+		verify = true;
 	}
 
 	if (vm.count("verbose")) {
@@ -573,9 +595,11 @@ int main(int argc, char *argv[]) {
 	CloseSystemCallTraceReplayModule *close_replayer = new CloseSystemCallTraceReplayModule(*prefetch_buffer_modules[1], 
 																						 verbose);
 	ReadSystemCallTraceReplayModule *read_replayer = new ReadSystemCallTraceReplayModule(*prefetch_buffer_modules[2],
-																						 verbose);
+																						 verbose,
+																						 verify);
 	WriteSystemCallTraceReplayModule *write_replayer = new WriteSystemCallTraceReplayModule(*prefetch_buffer_modules[3],
-																						 verbose);
+																						 verbose,
+																						 verify);
 	std::vector<SystemCallTraceReplayModule *> system_call_trace_replay_modules;
 	system_call_trace_replay_modules.push_back(open_replayer);
 	system_call_trace_replay_modules.push_back(close_replayer);
