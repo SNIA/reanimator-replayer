@@ -46,12 +46,16 @@
 class SystemCallTraceReplayModule : public RowAnalysisModule {
 	protected:
 		bool verbose_;
+		bool compare_retval_;
 		DoubleField time_called_;
+		Int32Field return_value_;
 	public:
-		SystemCallTraceReplayModule(DataSeriesModule &source, bool verboseFlag) : 
+		SystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag, bool compare_retval_flag) : 
 			RowAnalysisModule(source),
-			verbose_(verboseFlag),
-			time_called_(series, "time_called") {
+			verbose_(verbose_flag),
+			compare_retval_(compare_retval_flag),
+			time_called_(series, "time_called"),
+			return_value_(series, "return_value") {
 		}
 
 		double time_called() {
@@ -253,8 +257,8 @@ class OpenSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 		}
 
 	public:
-		OpenSystemCallTraceReplayModule(DataSeriesModule &source, bool verboseFlag) : 
-			SystemCallTraceReplayModule(source, verboseFlag),
+		OpenSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag, bool compare_retval_flag) : 
+			SystemCallTraceReplayModule(source, verbose_flag, compare_retval_flag),
 			given_pathname(series, "given_pathname"),
 			flag_read_only(series, "flag_read_only"),
 			flag_write_only(series, "flag_write_only"),
@@ -329,8 +333,8 @@ class CloseSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 		Int32Field descriptor_;
 
 	public:
-		CloseSystemCallTraceReplayModule(DataSeriesModule &source, bool verboseFlag) : 
-			SystemCallTraceReplayModule(source, verboseFlag),
+		CloseSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag, bool compare_retval_flag) : 
+			SystemCallTraceReplayModule(source, verbose_flag, compare_retval_flag),
 			descriptor_(series, "descriptor"){
 		}
 
@@ -373,9 +377,9 @@ class ReadSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 		Variable32Field data_read_;
 		Int64Field bytes_requested_;
 	public:
-		ReadSystemCallTraceReplayModule(DataSeriesModule &source, bool verboseFlag, bool verifyFlag) : 
-			SystemCallTraceReplayModule(source, verboseFlag),
-			verify_(verifyFlag),
+		ReadSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag, bool verify_flag, bool compare_retval_flag) : 
+			SystemCallTraceReplayModule(source, verbose_flag, compare_retval_flag),
+			verify_(verify_flag),
 			descriptor_(series, "descriptor"), 
 			data_read_(series, "data_read", Field::flag_nullable), 
 			bytes_requested_(series, "bytes_requested") {
@@ -433,9 +437,9 @@ class WriteSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 		Variable32Field data_write_;
 		Int64Field bytes_requested_;
 	public:
-		WriteSystemCallTraceReplayModule(DataSeriesModule &source, bool verboseFlag, bool verifyFlag) : 
-			SystemCallTraceReplayModule(source, verboseFlag),
-			verify_(verifyFlag),
+		WriteSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag, bool verify_flag, bool compare_retval_flag) : 
+			SystemCallTraceReplayModule(source, verbose_flag, compare_retval_flag),
+			verify_(verify_flag),
 			descriptor_(series, "descriptor"), 
 			data_write_(series, "data_write", Field::flag_nullable), 
 			bytes_requested_(series, "bytes_requested") {
@@ -480,7 +484,9 @@ int main(int argc, char *argv[]) {
 	int ret = EXIT_SUCCESS;
 	bool verbose = false;
 	bool verify = false;
-	bool finished_replaying = false;
+	bool finished_replaying = false;	
+	bool compare_retval = false;
+
 	std::vector<std::string> input_files;
 
 	// Declare a group of options that will be 
@@ -489,7 +495,7 @@ int main(int argc, char *argv[]) {
 	generic.add_options()
 	    ("version,V", "print version of system call replayer")
     	("help,h", "produce help message")
-    ;
+   	;
 
     // Declare a group of options that will be 
 	// allowed both on command line and in
@@ -498,6 +504,7 @@ int main(int argc, char *argv[]) {
 	config.add_options()
     	("verbose,v", "system calls replay in verbose mode")
     	("verify", "replay verifies that the data being written/read is exactly what was used originally")
+    	("return", "replay compares return values of replayed system calls to return values captured by strace")
     ;
 
 	// Hidden options, will be allowed both on command line and
@@ -536,6 +543,10 @@ int main(int argc, char *argv[]) {
 		std::cerr << "sysreplayer version 1.0" << "\n";
 		return ret;
 		//goto cleanup;
+	}
+
+	if (vm.count("return")) {
+		compare_retval = true;
 	}
 
 	if (vm.count("verify")) {
@@ -591,15 +602,19 @@ int main(int argc, char *argv[]) {
 
 	/* Parallel decompress and stats, 64MiB buffer */
 	OpenSystemCallTraceReplayModule *open_replayer = new OpenSystemCallTraceReplayModule(*prefetch_buffer_modules[0], 
-																						 verbose);
+																						 verbose,
+																						 compare_retval);
 	CloseSystemCallTraceReplayModule *close_replayer = new CloseSystemCallTraceReplayModule(*prefetch_buffer_modules[1], 
-																						 verbose);
+																						 verbose,
+																						 compare_retval);
 	ReadSystemCallTraceReplayModule *read_replayer = new ReadSystemCallTraceReplayModule(*prefetch_buffer_modules[2],
 																						 verbose,
-																						 verify);
+																						 verify,
+																						 compare_retval);
 	WriteSystemCallTraceReplayModule *write_replayer = new WriteSystemCallTraceReplayModule(*prefetch_buffer_modules[3],
 																						 verbose,
-																						 verify);
+																						 verify,
+																						 compare_retval);
 	std::vector<SystemCallTraceReplayModule *> system_call_trace_replay_modules;
 	system_call_trace_replay_modules.push_back(open_replayer);
 	system_call_trace_replay_modules.push_back(close_replayer);
