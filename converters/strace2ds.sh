@@ -49,7 +49,7 @@ if [ ! -e $SPECSTRINGFILE ]; then
 fi
 
 if [ -z "$OUTPUTFILE" ]; then
-        echo "You must the output file name as a first argument!"
+        echo "You must provide the output file name as a first argument!"
         exit 1
 fi
 
