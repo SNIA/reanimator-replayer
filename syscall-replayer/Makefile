@@ -22,9 +22,9 @@ CXXFLAGS = $(OPTFLAGS) -D_GNU_SOURCE -D_LARGEFILE_SOURCE \
 		   -D_FILE_OFFSET_BITS=64 $(LDFLAGS) $(CPPFLAGS)
 CXX      = g++
 
-TARGETS = syscall-simple-read syscall-replayer
+TARGETS = syscall-simple-program syscall-replayer
 
-SYSCALL_SIMPLE_READ_OBJECTS = syscall-simple-read.o
+SYSCALL_SIMPLE_READ_OBJECTS = syscall-simple-program.o
 
 SYSCALL_REPLAY_MODULE_OBJECTS = SysCallReplayModule.o
 
