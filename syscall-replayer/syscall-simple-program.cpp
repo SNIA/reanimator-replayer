@@ -23,7 +23,7 @@ int main(int argc, char *argv[]){
 
   // open the input and output file
   int infd = open(argv[1], O_RDONLY);
-  int outfd = open(argv[2], O_WRONLY);
+  int outfd = open(argv[2], O_WRONLY|O_CREAT, S_IRWXU);
   if (infd < -1){
     perror(argv[1]);
     return 1;
