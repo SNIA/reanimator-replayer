@@ -151,7 +151,7 @@ open	flag_no_blocking_mode	0	bool
 open	flag_no_delay	0	bool
 open	flag_synchronous	0	bool
 open	flag_truncate	0	bool
-open	mode_value	1	bool
+open	mode_value	1	int32
 open	mode_R_user	0	bool
 open	mode_W_user	0	bool
 open	mode_X_user	0	bool
