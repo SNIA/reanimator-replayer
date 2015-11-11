@@ -96,6 +96,9 @@ public:
   }
 
   void compare_retval(int ret_val) {
+    std::cout << "rev_val" << ret_val << std::endl;
+    std::cout << "argument rev_val" << return_value_.val() << std::endl;
+
     if (compare_retval_ == true && return_value_.val() != ret_val) {
       abort();
     }
@@ -444,15 +447,22 @@ class WriteSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 private:
   /* DataSeries Write System Call Trace Fields */
   bool verify_;
+  bool write_random_data_;
   Int32Field descriptor_;
-  Variable32Field data_write_;
+  Variable32Field data_written_;
   Int64Field bytes_requested_;
+  std::ifstream random_file_;
 public:
-  WriteSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag, bool verify_flag, bool compare_retval_flag) : 
+  WriteSystemCallTraceReplayModule(DataSeriesModule &source,
+				   bool verbose_flag,
+				   bool verify_flag,
+				   bool compare_retval_flag, 
+				   bool write_random_data_flag) : 
     SystemCallTraceReplayModule(source, verbose_flag, compare_retval_flag),
     verify_(verify_flag),
+    write_random_data_(write_random_data_flag),
     descriptor_(series, "descriptor"), 
-    data_write_(series, "data_write", Field::flag_nullable), 
+    data_written_(series, "data_written", Field::flag_nullable), 
     bytes_requested_(series, "bytes_requested") {
   }
   
@@ -460,25 +470,47 @@ public:
    * before the first operation is replayed. */
   void prepareForProcessing() {
     std::cout << "-----Write System Call Replayer starts to replay...-----" << std::endl;
+    if (write_random_data_) {
+      random_file_.open("/dev/urandom");
+      if (!random_file_.is_open()) {
+	std::cerr << "Unable to open file '/dev/urandom/'.\n";
+	exit(EXIT_FAILURE);
+      }
+    }
   }
 
   /* This function will be called by RowAnalysisModule once
    * for every system call operation in the trace file 
    * being processed */
   void processRow() {
+    size_t nbytes = (size_t)bytes_requested_.val();
+    char *buffer = (char *)data_written_.val();
     if (verbose_) {
+      std::cout << "write:";
       std::cout.precision(25);
-      std::cout << "time called:" << std::fixed << time_called() << std::endl;
-      std::cout << "descriptor:" << descriptor_.val() << std::endl;
+      std::cout << "time called(" << std::fixed << time_called() << "),";
+      std::cout << "descriptor(" << descriptor_.val() << "),";
+      std::cout << "data(" << buffer << "),";
+      std::cout << "nbytes(" << nbytes << ")" << std::endl;
     }
-    char buffer[bytes_requested_.val()];
-    int ret = write(descriptor_.val(), buffer, bytes_requested_.val());
+    
+    if (write_random_data_){
+      buffer = new char[nbytes];
+      random_file_.read(buffer, nbytes);
+    }
+
+    int ret = write(descriptor_.val(), buffer, nbytes);
+    std::cout << "return value " << ret << std::endl;
     compare_retval(ret);
-			
+    
+    if (write_random_data_){
+      delete[] buffer;
+    }
+    
     if (ret == -1) {
       perror("write");
     } else {
-      std::cout << "write is successfully with content: " << buffer;
+      std::cout << "write is successfully replayed\n";
     }
   }
 
@@ -486,6 +518,9 @@ public:
    * system operations are being replayed.*/
   void completeProcessing() {
     std::cout << "-----Write System Call Replayer finished replaying...-----" << std::endl;
+    if (write_random_data_) {
+      random_file_.close();
+    } 
   }
 };
 
@@ -498,6 +533,7 @@ int main(int argc, char *argv[]) {
   bool verify = false;
   bool finished_replaying = false;	
   bool compare_retval = false;
+  bool write_random_data = false;
 
   std::vector<std::string> input_files;
 
@@ -515,8 +551,9 @@ int main(int argc, char *argv[]) {
   po::options_description config("Configuration");
   config.add_options()
     ("verbose,v", "system calls replay in verbose mode")
-    ("verify", "replay verifies that the data being written/read is exactly what was used originally")
-    ("return", "replay compares return values of replayed system calls to return values captured by strace")
+    ("verify", "verifies that the data being written/read is exactly what was used originally")
+    ("return", "compares return values of replayed system calls to return values captured by strace")
+    ("random", "write random data in write system call")
     ;
 
   // Hidden options, will be allowed both on command line and
@@ -550,7 +587,7 @@ int main(int argc, char *argv[]) {
     return ret;
     //goto cleanup;
   }
-
+  
   if (vm.count("version")) {
     std::cerr << "sysreplayer version 1.0" << "\n";
     return ret;
@@ -567,6 +604,10 @@ int main(int argc, char *argv[]) {
 
   if (vm.count("verbose")) {
     verbose = true;
+  }
+
+  if (vm.count("random")){
+    write_random_data = true;
   }
 
   if (vm.count("input-files")) {
@@ -626,7 +667,8 @@ int main(int argc, char *argv[]) {
   WriteSystemCallTraceReplayModule *write_replayer = new WriteSystemCallTraceReplayModule(*prefetch_buffer_modules[3],
 											  verbose,
 											  verify,
-											  compare_retval);
+											  compare_retval,
+											  write_random_data);
   std::vector<SystemCallTraceReplayModule *> system_call_trace_replay_modules;
   system_call_trace_replay_modules.push_back(open_replayer);
   system_call_trace_replay_modules.push_back(close_replayer);
