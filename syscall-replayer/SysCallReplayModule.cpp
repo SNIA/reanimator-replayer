@@ -96,8 +96,10 @@ public:
   }
 
   void compare_retval(int ret_val) {
-    std::cout << "rev_val" << ret_val << std::endl;
-    std::cout << "argument rev_val" << return_value_.val() << std::endl;
+    if (verbose_){
+      std::cout << "Captured return value" << ret_val << ", " << std::endl;
+      std::cout << "Replayed return value" << return_value_.val() << std::endl;
+    }
 
     if (compare_retval_ == true && return_value_.val() != ret_val) {
       abort();
@@ -107,15 +109,7 @@ public:
 
 struct LessThanByTimeCalled {
   bool operator()(SystemCallTraceReplayModule* m1, SystemCallTraceReplayModule* m2) const {
-    std::cout.precision(32);
-    /*
-      std::cout<< "compared!!!" << std::endl;
-
-      std::cout << "m1 time called:" << std::fixed << m1->time_called() << std::endl;
-      std::cout << "m2 time called:" << std::fixed << m2->time_called() << std::endl;
-    */
-
-    // min heap
+    // min heap uses this to sort the tree.
     if (m1->time_called() >= m2->time_called())
       return true;
     else 
@@ -128,7 +122,7 @@ class OpenSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 
 private:
   /* DataSeries Open System Call Trace Fields */
-  Variable32Field	given_pathname;
+  Variable32Field given_pathname;
   BoolField flag_read_only;
   BoolField flag_write_only;
   BoolField flag_read_and_write;
@@ -448,6 +442,7 @@ private:
   /* DataSeries Write System Call Trace Fields */
   bool verify_;
   bool write_random_data_;
+  bool write_zeros_;
   Int32Field descriptor_;
   Variable32Field data_written_;
   Int64Field bytes_requested_;
@@ -457,10 +452,12 @@ public:
 				   bool verbose_flag,
 				   bool verify_flag,
 				   bool compare_retval_flag, 
-				   bool write_random_data_flag) : 
+				   bool write_random_data_flag,
+				   bool write_zeros_flag) : 
     SystemCallTraceReplayModule(source, verbose_flag, compare_retval_flag),
     verify_(verify_flag),
     write_random_data_(write_random_data_flag),
+    write_zeros_(write_zeros_flag),
     descriptor_(series, "descriptor"), 
     data_written_(series, "data_written", Field::flag_nullable), 
     bytes_requested_(series, "bytes_requested") {
@@ -494,13 +491,17 @@ public:
       std::cout << "nbytes(" << nbytes << ")" << std::endl;
     }
     
-    if (write_random_data_){
+    if (write_random_data_) {
       buffer = new char[nbytes];
       random_file_.read(buffer, nbytes);
     }
 
+    if (write_zeros_) {
+      buffer = new char[nbytes];
+      memset(buffer, 0, nbytes);
+    }
+    
     int ret = write(descriptor_.val(), buffer, nbytes);
-    std::cout << "return value " << ret << std::endl;
     compare_retval(ret);
     
     if (write_random_data_){
@@ -534,6 +535,7 @@ int main(int argc, char *argv[]) {
   bool finished_replaying = false;	
   bool compare_retval = false;
   bool write_random_data = false;
+  bool write_zeros = false;
 
   std::vector<std::string> input_files;
 
@@ -554,6 +556,7 @@ int main(int argc, char *argv[]) {
     ("verify", "verifies that the data being written/read is exactly what was used originally")
     ("return", "compares return values of replayed system calls to return values captured by strace")
     ("random", "write random data in write system call")
+    ("zeros", "write zeros in write system call")
     ;
 
   // Hidden options, will be allowed both on command line and
@@ -606,10 +609,19 @@ int main(int argc, char *argv[]) {
     verbose = true;
   }
 
-  if (vm.count("random")){
+  if (vm.count("random")) {
     write_random_data = true;
   }
 
+  if (vm.count("zeros")) {
+    write_zeros = true;
+  }
+
+  if (write_zeros == true && write_random_data == true) {
+    std::cerr << "You can only allow to specify one write option." << std::endl;
+    return EXIT_FAILURE;
+  }
+  
   if (vm.count("input-files")) {
     input_files = vm["input-files"].as<std::vector<std::string> >();
   } else {
@@ -668,7 +680,8 @@ int main(int argc, char *argv[]) {
 											  verbose,
 											  verify,
 											  compare_retval,
-											  write_random_data);
+											  write_random_data,
+											  write_zeros);
   std::vector<SystemCallTraceReplayModule *> system_call_trace_replay_modules;
   system_call_trace_replay_modules.push_back(open_replayer);
   system_call_trace_replay_modules.push_back(close_replayer);
