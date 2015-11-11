@@ -1,0 +1,10 @@
+1447206039.907885 open("sample-read-input.txt", O_RDONLY) = 3
+1447206039.907920 open("output.txt", O_WRONLY|O_CREAT, 0700) = 4
+1447206039.907952 read(3, "Welcome to FSL.\nHope you make a lot of friends in here.\n", 4096) = 56
+1447206039.907979 write(4, "Welcome to FSL.\nHope you make a lot of friends in here.\n", 56) = 56
+1447206039.908053 write(1, "Welcome to FSL.\n", 16) = 16
+1447206039.908148 write(1, "Hope you make a lot of friends in here.\n", 40) = 40
+1447206039.908233 read(3, "", 4096)     = 0
+1447206039.908257 write(4, "", 0)       = 0
+1447206039.908280 close(3)              = 0
+1447206039.908306 close(4)              = 0
