@@ -441,8 +441,7 @@ class WriteSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 private:
   /* DataSeries Write System Call Trace Fields */
   bool verify_;
-  bool write_random_data_;
-  bool write_zeros_;
+  std::string pattern_data_;
   Int32Field descriptor_;
   Variable32Field data_written_;
   Int64Field bytes_requested_;
@@ -452,12 +451,10 @@ public:
 				   bool verbose_flag,
 				   bool verify_flag,
 				   bool compare_retval_flag, 
-				   bool write_random_data_flag,
-				   bool write_zeros_flag) : 
+				   std::string pattern_data) : 
     SystemCallTraceReplayModule(source, verbose_flag, compare_retval_flag),
     verify_(verify_flag),
-    write_random_data_(write_random_data_flag),
-    write_zeros_(write_zeros_flag),
+    pattern_data_(pattern_data),
     descriptor_(series, "descriptor"), 
     data_written_(series, "data_written", Field::flag_nullable), 
     bytes_requested_(series, "bytes_requested") {
@@ -467,7 +464,7 @@ public:
    * before the first operation is replayed. */
   void prepareForProcessing() {
     std::cout << "-----Write System Call Replayer starts to replay...-----" << std::endl;
-    if (write_random_data_) {
+    if (pattern_data_ == "random") {
       random_file_.open("/dev/urandom");
       if (!random_file_.is_open()) {
 	std::cerr << "Unable to open file '/dev/urandom/'.\n";
@@ -491,20 +488,25 @@ public:
       std::cout << "nbytes(" << nbytes << ")" << std::endl;
     }
     
-    if (write_random_data_) {
+    if (!pattern_data_.empty()){
       buffer = new char[nbytes];
-      random_file_.read(buffer, nbytes);
+      if (pattern_data_ == "random") {
+	random_file_.read(buffer, nbytes);
+      } else {
+	int pattern_hex;
+	std::stringstream pattern_stream;
+	pattern_stream << std::hex << pattern_data_;
+	pattern_stream >> pattern_hex;
+	memset(buffer, pattern_hex, nbytes);
+	std::cout << "hex:" << pattern_hex << std::endl;
+	std::cout << "buffer:" << buffer << std::endl;
+      }
     }
-
-    if (write_zeros_) {
-      buffer = new char[nbytes];
-      memset(buffer, 0, nbytes);
-    }
-    
+        
     int ret = write(descriptor_.val(), buffer, nbytes);
     compare_retval(ret);
     
-    if (write_random_data_ || write_zeros_){
+    if (!pattern_data_.empty()){
       delete[] buffer;
     }
     
@@ -519,7 +521,7 @@ public:
    * system operations are being replayed.*/
   void completeProcessing() {
     std::cout << "-----Write System Call Replayer finished replaying...-----" << std::endl;
-    if (write_random_data_) {
+    if (pattern_data_ == "random") {
       random_file_.close();
     } 
   }
@@ -534,8 +536,7 @@ int main(int argc, char *argv[]) {
   bool verify = false;
   bool finished_replaying = false;	
   bool compare_retval = false;
-  bool write_random_data = false;
-  bool write_zeros = false;
+  std::string pattern_data = "";
 
   std::vector<std::string> input_files;
 
@@ -555,8 +556,7 @@ int main(int argc, char *argv[]) {
     ("verbose,v", "system calls replay in verbose mode")
     ("verify", "verifies that the data being written/read is exactly what was used originally")
     ("return", "compares return values of replayed system calls to return values captured by strace")
-    ("random", "write random data in write system call")
-    ("zeros", "write zeros in write system call")
+    ("pattern,p", po::value<std::string>(), "write repeated pattern data in write system call")
     ;
 
   // Hidden options, will be allowed both on command line and
@@ -608,18 +608,9 @@ int main(int argc, char *argv[]) {
   if (vm.count("verbose")) {
     verbose = true;
   }
-
-  if (vm.count("random")) {
-    write_random_data = true;
-  }
-
-  if (vm.count("zeros")) {
-    write_zeros = true;
-  }
-
-  if (write_zeros == true && write_random_data == true) {
-    std::cerr << "You can only allow to specify one write option." << std::endl;
-    return EXIT_FAILURE;
+  
+  if (vm.count("pattern")){
+    pattern_data = vm["pattern"].as<std::string>();
   }
   
   if (vm.count("input-files")) {
@@ -680,8 +671,7 @@ int main(int argc, char *argv[]) {
 											  verbose,
 											  verify,
 											  compare_retval,
-											  write_random_data,
-											  write_zeros);
+											  pattern_data);
   std::vector<SystemCallTraceReplayModule *> system_call_trace_replay_modules;
   system_call_trace_replay_modules.push_back(open_replayer);
   system_call_trace_replay_modules.push_back(close_replayer);
