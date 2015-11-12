@@ -37,9 +37,11 @@
 #include <cstdint>
 #include <cstring>
 #include <vector>
+#include <unordered_map>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/regex.hpp>
 #include <boost/regex.hpp> 
+#include <boost/tokenizer.hpp>
 
 #define OPERATION_READ		0
 #define OPERATION_WRITE		1
@@ -50,7 +52,7 @@
 #define NANO_MULTIPLIER 	(MICRO_MULTIPLIER * 1000ULL)
 
 using namespace std;
-bool sysProcessOpen(const string &flags_arg, string &field);
+bool sysProcessOpen(const vector<string> &arguments, string &field);
 
 bool spcProcessRow(const string &inRow, string &outRow)
 {
@@ -101,8 +103,8 @@ bool sysProcessRow(const string &inRow, string &outRow)
 {
 	// Check to see if it reaches end of trace file.
 	if (inRow.find("exited") != string::npos)
-		return true;
-
+	  return true;
+	
 	/* The input expected by csv2ds-extra is <extent name>, <fields>.
 	*
 	* The input fields are ordered as follows.
@@ -126,7 +128,7 @@ bool sysProcessRow(const string &inRow, string &outRow)
 	  clog << "SYS: Malformed record: '" << inRow << "'. Too few columns.\n";
 	  return false;
 	}
-
+	
 	// Get system call information and return information
 	string sys_call_info = fields[0];
 	string ret_info = fields[1];
@@ -136,29 +138,40 @@ bool sysProcessRow(const string &inRow, string &outRow)
 	boost::trim(ret_info);
 	
 	// Split system call arguments and name
-	size_t split_index = sys_call_info.find_first_of("(");
-	if (split_index == std::string::npos) {
-		clog << "SYS: Malformed record: '" << sys_call_info << "'. ( is missing.\n";
-	  	return false;
+	size_t left_paren_index = sys_call_info.find_first_of("(");
+	size_t right_paren_index = sys_call_info.find_first_of(")");
+	if (left_paren_index == std::string::npos || right_paren_index == std::string::npos) {
+	  clog << "SYS: Malformed record: '" << sys_call_info << "'. ( or ) is missing.\n";
+	  return false;
 	}
+	
 	// Get system call time and name
-	string sys_call_time_and_name = sys_call_info.substr(0, split_index);
+	string sys_call_time_and_name = sys_call_info.substr(0, left_paren_index);
 	// Get system call arguments
 	// We don't want "(" and ")"
-	string sys_call_args = sys_call_info.substr(split_index + 1, sys_call_info.length() - split_index - 2);
-	
+	string sys_call_args = sys_call_info.substr(left_paren_index + 1, right_paren_index - left_paren_index - 1);
+		
 	// Split system call name and time stamp
 	boost::split(fields, sys_call_time_and_name, boost::is_any_of(" \t"), boost::token_compress_on);
 	string time_called = fields[0];
 	string sys_call_name = fields[1];
 	
-	if (sys_call_name.compare("open") == 0) {
-  		size_t last_arg_pos = sys_call_args.find_last_of(",");
-  		string field;
-		if (sysProcessOpen(sys_call_args.substr(last_arg_pos + 2), field) == false) {
-			return false;
-		}
-		sys_call_args.replace(last_arg_pos + 1, string::npos, field);
+	if (sys_call_name == "open") {
+	  boost::tokenizer<boost::escaped_list_separator<char> > args_tokenizer(sys_call_args);
+	  std::vector<string> arguments;
+	  arguments.assign(args_tokenizer.begin(), args_tokenizer.end());
+	  if (arguments.size() < 2) {
+	    clog << "SYS: Malformed record: '" << sys_call_info << "'. ( is missing.\n";
+	    return false;
+	  } 
+	  //else if (arguments.size() == 2){
+	  //  sys_call_name = "open2";
+	  //} else if (arguments.size() == 3){
+	  //  sys_call_name = "open3";
+	  //}
+	  if (sysProcessOpen(arguments, sys_call_args) == false) {
+	    return false;
+	  }
 	}
 	
 	/* Right now we don't need to worry about this. So comment it out.
@@ -171,94 +184,121 @@ bool sysProcessRow(const string &inRow, string &outRow)
 	  clog << "SYS: Malformed relative timestamp: '" << fields[0] << "'.";
 	  clog << "Timestamp less than 0.\n";
 	  return false;
-	}
+	  }
 	*/
 	
-    // Formatting output to csv2ds-extra
+	// Formatting output to csv2ds-extra
 	stringstream formattedRow;
 	formattedRow << sys_call_name << "," << time_called << "," << ret_info  << "," <<sys_call_args;
 	outRow = formattedRow.str();
 	return true;
 }
 
-bool sysProcessOpen(const string &flags_arg, string &field) {
+bool sysProcessOpen(const vector<string> &arguments, string &csv_sys_call_args) {
+  string path_name = arguments[0];
+  string flags_arg = arguments[1];  
+  // Eliminate leading and trailing spaces
+  boost::trim_if(flags_arg, boost::is_any_of(" "));
 
-	vector<string> flags;
-	boost::split(flags, flags_arg, boost::is_any_of("|"), boost::token_compress_on);
-	
-	bool flag_read_only = false;
-	bool flag_write_only = false;
-	bool flag_read_and_write = false;
-	bool flag_append = false;
-	bool flag_async = false;
-	bool flag_create = false;
-	bool flag_direct = false;
-	bool flag_directory = false;
-	bool flag_exclusive = false;
-	bool flag_largefile = false;
-	bool flag_no_access_time = false;
-	bool flag_no_controlling_terminal = false;
-	bool flag_no_follow = false;
-	bool flag_no_blocking_mode = false;
-	bool flag_no_delay = false;
-	bool flag_synchronous = false;
-	bool flag_truncate = false;
-	bool flag_close_on_exec = false;
-	
-	for (string flag : flags) {
-		if (flag.compare("O_RDONLY") == 0) {
-			flag_read_only = true;
-		} else if (flag.compare("O_WRONLY") == 0) {
-			flag_write_only = true;
-		} else if (flag.compare("O_RDWR") == 0) {
-			flag_read_and_write = true;
-		} else if (flag.compare("O_APPEND") == 0) {
-			flag_append = true;
-		} else if (flag.compare("O_ASYNC") == 0) {
-			flag_async = true;
-		} else if (flag.compare("O_CREAT") == 0) {
-			flag_create = true;
-		} else if (flag.compare("O_DIRECT") == 0) {
-			flag_direct = true;
-		} else if (flag.compare("O_DIRECTORY") == 0) {
-			flag_directory = true;
-		} else if (flag.compare("O_EXCL") == 0) {
-			flag_exclusive = true;
-		} else if (flag.compare("O_LARGEFILE") == 0) {
-			flag_largefile = true;
-		} else if (flag.compare("O_NOATIME") == 0) {
-			flag_no_access_time = true;
-		} else if (flag.compare("O_NOCTTY") == 0) {
-			flag_no_controlling_terminal = true;
-		} else if (flag.compare("O_NOFOLLOW") == 0) {
-			flag_no_follow = true;
-		} else if (flag.compare("O_NONBLOCK") == 0) {
-			flag_no_blocking_mode = true;
-		} else if (flag.compare("O_NDELAY") == 0) {
-			flag_no_delay = true;
-		} else if (flag.compare("O_SYNC") == 0) {
-			flag_synchronous = true;
-		} else if (flag.compare("O_TRUNC") == 0) {
-			flag_truncate = true;
-		} else if (flag.compare("O_CLOEXEC") == 0){
-			flag_close_on_exec = true;
-		} else {
-			clog << "SYS: Malformed open system call: '" << flags_arg << "'." << endl;
-			clog << "Unknown flag: '" << flag << "'.\n";
-			return false;
-		}
-	}
-	
-	// Formatting flags.
-	stringstream formattedField;
-	formattedField << flag_read_only << "," << flag_write_only << "," << flag_read_and_write << "," 
-		<< flag_append << "," << flag_async << "," << flag_create << ","
-		<< flag_direct << "," << flag_directory << "," << flag_exclusive << ","
-		<< flag_largefile << "," << flag_no_access_time << "," << flag_no_controlling_terminal << "," 
-		<< flag_no_follow << "," << flag_no_blocking_mode << "," << flag_no_delay << "," 
-		<< flag_synchronous << "," << flag_truncate << "," << flag_close_on_exec;
-	field = formattedField.str();
-	return true;
+  vector<string> flags;
+  boost::split(flags, flags_arg, boost::is_any_of("|"), boost::token_compress_on);
+  
+  std::unordered_map<string, bool> flag_map;
+
+  vector<int> flags_args;
+  for (int i = 0; i < 18; i++){
+    flags_args.push_back(0);
+  }
+  
+  bool flag_read_only = false;
+  bool flag_write_only = false;
+  bool flag_read_and_write = false;
+  bool flag_append = false;
+  bool flag_async = false;
+  bool flag_create = false;
+  bool flag_direct = false;
+  bool flag_directory = false;
+  bool flag_exclusive = false;
+  bool flag_largefile = false;
+  bool flag_no_access_time = false;
+  bool flag_no_controlling_terminal = false;
+  bool flag_no_follow = false;
+  bool flag_no_blocking_mode = false;
+  bool flag_no_delay = false;
+  bool flag_synchronous = false;
+  bool flag_truncate = false;
+  bool flag_close_on_exec = false;
+
+  flag_map["O_RDONLY"] = 0;
+  flag_map["O_WRONLY"] = 0;
+  flag_map["O_RDWR"] = 0;
+  flag_map["O_APPEND"] = 0;
+  flag_map["O_ASYNC"] = 0;
+  flag_map["O_CREAT"] = 0;
+  flag_map["O_DIRECT"] = 0;
+  flag_map["O_DIRECTORY"] = 0;
+  flag_map["O_EXCL"] = 0;
+  flag_map["O_LARGEFILE"] = 0;
+
+  for (string flag : flags) {
+    if (flag.compare("O_RDONLY") == 0) {
+      flag_read_only = true;
+    } else if (flag.compare("O_WRONLY") == 0) {
+      flag_write_only = true;
+    } else if (flag.compare("O_RDWR") == 0) {
+      flag_read_and_write = true;
+    } else if (flag.compare("O_APPEND") == 0) {
+      flag_append = true;
+    } else if (flag.compare("O_ASYNC") == 0) {
+      flag_async = true;
+    } else if (flag.compare("O_CREAT") == 0) {
+      flag_create = true;
+    } else if (flag.compare("O_DIRECT") == 0) {
+      flag_direct = true;
+    } else if (flag.compare("O_DIRECTORY") == 0) {
+      flag_directory = true;
+    } else if (flag.compare("O_EXCL") == 0) {
+      flag_exclusive = true;
+    } else if (flag.compare("O_LARGEFILE") == 0) {
+      flag_largefile = true;
+    } else if (flag.compare("O_NOATIME") == 0) {
+      flag_no_access_time = true;
+    } else if (flag.compare("O_NOCTTY") == 0) {
+      flag_no_controlling_terminal = true;
+    } else if (flag.compare("O_NOFOLLOW") == 0) {
+      flag_no_follow = true;
+    } else if (flag.compare("O_NONBLOCK") == 0) {
+      flag_no_blocking_mode = true;
+    } else if (flag.compare("O_NDELAY") == 0) {
+      flag_no_delay = true;
+    } else if (flag.compare("O_SYNC") == 0) {
+      flag_synchronous = true;
+    } else if (flag.compare("O_TRUNC") == 0) {
+      flag_truncate = true;
+    } else if (flag.compare("O_CLOEXEC") == 0){
+      flag_close_on_exec = true;
+    } else {
+      clog << "SYS: Malformed open system call: '" << flags_arg << "'." << endl;
+      clog << "Unknown flag: '" << flag << "'.\n";
+      return false;
+    }
+  }
+  // Formatting flags.
+  stringstream csv_args_stream;
+  csv_args_stream << path_name << "," << flag_read_only << "," << flag_write_only << "," << flag_read_and_write << "," 
+		  << flag_append << "," << flag_async << "," << flag_create << ","
+		  << flag_direct << "," << flag_directory << "," << flag_exclusive << ","
+		  << flag_largefile << "," << flag_no_access_time << "," << flag_no_controlling_terminal << "," 
+		  << flag_no_follow << "," << flag_no_blocking_mode << "," << flag_no_delay << "," 
+		  << flag_synchronous << "," << flag_truncate << "," << flag_close_on_exec;
+
+  if (arguments.size() == 3) {
+
+
+  }
+
+  csv_sys_call_args = csv_args_stream.str();
+  return true;
 }
 
 bool blkProcessRow(const string &inRow, string &outRow)
