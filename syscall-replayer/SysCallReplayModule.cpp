@@ -478,17 +478,15 @@ public:
    * being processed */
   void processRow() {
     size_t nbytes = (size_t)bytes_requested_.val();
-    char *buffer = (char *)data_written_.val();
-    if (verbose_) {
-      std::cout << "write:";
-      std::cout.precision(25);
-      std::cout << "time called(" << std::fixed << time_called() << "),";
-      std::cout << "descriptor(" << descriptor_.val() << "),";
-      std::cout << "data(" << buffer << "),";
-      std::cout << "nbytes(" << nbytes << ")" << std::endl;
-    }
+    char *buffer;
     
-    if (!pattern_data_.empty()){
+    // check to see if write data was in DS and user didn't specify pattern
+    if (data_written_.isNull() && pattern_data_.empty()) {
+      // let's write zeros.
+      pattern_data_ = "0x0";
+    }
+
+    if (!pattern_data_.empty()) {
       buffer = new char[nbytes];
       if (pattern_data_ == "random") {
 	random_file_.read(buffer, nbytes);
@@ -498,9 +496,18 @@ public:
 	pattern_stream << std::hex << pattern_data_;
 	pattern_stream >> pattern_hex;
 	memset(buffer, pattern_hex, nbytes);
-	std::cout << "hex:" << pattern_hex << std::endl;
-	std::cout << "buffer:" << buffer << std::endl;
       }
+    } else {
+	buffer = (char *)data_written_.val();
+    }
+
+    if (verbose_) {
+      std::cout << "write:";
+      std::cout.precision(25);
+      std::cout << "time called(" << std::fixed << time_called() << "),";
+      std::cout << "descriptor(" << descriptor_.val() << "),";
+      std::cout << "data(" << buffer << "),";
+      std::cout << "nbytes(" << nbytes << ")" << std::endl;
     }
         
     int ret = write(descriptor_.val(), buffer, nbytes);
