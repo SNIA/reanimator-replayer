@@ -504,7 +504,7 @@ public:
     int ret = write(descriptor_.val(), buffer, nbytes);
     compare_retval(ret);
     
-    if (write_random_data_){
+    if (write_random_data_ || write_zeros_){
       delete[] buffer;
     }
     
