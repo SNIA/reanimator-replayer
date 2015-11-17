@@ -97,8 +97,8 @@ public:
 
   void compare_retval(int ret_val) {
     if (verbose_){
-      std::cout << "Captured return value" << ret_val << ", " << std::endl;
-      std::cout << "Replayed return value" << return_value_.val() << std::endl;
+      std::cout << "Captured return value: " << return_value_.val() << ", ";
+      std::cout << "Replayed return value: " << ret_val << std::endl;
     }
 
     if (compare_retval_ == true && return_value_.val() != ret_val) {
