@@ -73,6 +73,7 @@ public:
       }
       return e;
     }
+    completed = false;
     if (!prepared) {
       firstExtent(*e);
     }
