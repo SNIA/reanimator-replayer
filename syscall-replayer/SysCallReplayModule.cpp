@@ -49,13 +49,15 @@ protected:
   bool compare_retval_;
   DoubleField time_called_;
   Int64Field return_value_;
+  bool completed;
 public:
   SystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag, bool compare_retval_flag) : 
     RowAnalysisModule(source),
     verbose_(verbose_flag),
     compare_retval_(compare_retval_flag),
     time_called_(series, "time_called"),
-    return_value_(series, "return_value", Field::flag_nullable) {
+    return_value_(series, "return_value", Field::flag_nullable),
+    completed(false) {
   }
 
   double time_called() {
@@ -65,7 +67,10 @@ public:
   Extent::Ptr getSharedExtent() {
     Extent::Ptr e = source.getSharedExtent();
     if (e == NULL) {
-      completeProcessing();
+      if (!completed) {
+	completed = true;
+	completeProcessing();
+      }
       return e;
     }
     if (!prepared) {
