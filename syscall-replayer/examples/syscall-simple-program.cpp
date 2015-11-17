@@ -23,21 +23,22 @@ int main(int argc, char *argv[]){
 
   // open the input and output file
   int infd = open(argv[1], O_RDONLY);
-  int outfd = open(argv[2], O_WRONLY|O_CREAT, S_IRWXU);
+  int outfd = open(argv[2], O_WRONLY);
   if (infd < -1){
     perror(argv[1]);
     return 1;
   }
-
+  
   if (outfd < -1){
     perror(argv[2]);
     return 1;
   }
-
+    
   int page_size = getpagesize();
   char buffer[page_size];
   
   int bytes_read = read(infd, buffer, page_size);
+  
   int bytes_write = write(outfd, buffer, bytes_read);
   
   while(bytes_read > 0){
@@ -51,7 +52,6 @@ int main(int argc, char *argv[]){
   
   close(infd);
   close(outfd);
-  
   return 0;
 }
 
