@@ -40,16 +40,17 @@
 #include <getopt.h>
 #include <fcntl.h>
 
-
 #include <stdexcept>
 
 class SystemCallTraceReplayModule : public RowAnalysisModule {
 protected:
+  std::string sys_call_;
   bool verbose_;
   bool compare_retval_;
   DoubleField time_called_;
   Int64Field return_value_;
   bool completed;
+  static std::map<int, int> fd_map;
 public:
   SystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag, bool compare_retval_flag) : 
     RowAnalysisModule(source),
@@ -63,7 +64,7 @@ public:
   double time_called() {
     return (double)time_called_.val();
   }
-
+  
   Extent::Ptr getSharedExtent() {
     Extent::Ptr e = source.getSharedExtent();
     if (e == NULL) {
@@ -85,7 +86,6 @@ public:
     }
     return e;
   }
-
   bool has_more_trace() {
     if (series.morerecords()) {
       return true;
@@ -94,7 +94,6 @@ public:
       return false;
     }
   }
-
   void execute() {
     ++processed_rows;
     processRow();
@@ -296,7 +295,7 @@ public:
     mode_R_others(series, "mode_R_others"),
     mode_W_others(series, "mode_W_others"),
     mode_X_others(series, "mode_X_others") {
-
+    sys_call_ = "open";
   }
 
   /* This function will be called by RowAnalysisModule once
@@ -312,19 +311,22 @@ public:
     char *pathname = (char *)given_pathname.val();
     uint32_t flags = getOpenFlags();
     mode_t mode = getOpenMode();
+    int return_value = (int)return_value_.val();
 
     if (verbose_) {
+      std::cout << "open: ";
       std::cout.precision(25);
-      std::cout << "time called:" << std::fixed << time_called() << std::endl;
-      std::cout << "pathname:" << pathname << std::endl;
-      std::cout << "flags:" << flags << std::endl;
-      std::cout << "mode:" << mode << std::endl;
+      std::cout << "time called(" << std::fixed << time_called() << "), ";
+      std::cout << "pathname(" << pathname << "), ";
+      std::cout << "flags(" << flags << "), ";
+      std::cout << "mode(" << mode << ")\n";
     }
 			
-    int ret = open(pathname, flags, mode);
-    compare_retval(ret);
+    int replay_ret = open(pathname, flags, mode);
+    compare_retval(replay_ret);
+    fd_map[return_value] = replay_ret;
 
-    if (ret == -1) {
+    if (replay_ret == -1) {
       perror(pathname);
     } else {
       std::cout << given_pathname.val() << " is successfully opened..." << std::endl;
@@ -347,6 +349,7 @@ public:
   CloseSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag, bool compare_retval_flag) : 
     SystemCallTraceReplayModule(source, verbose_flag, compare_retval_flag),
     descriptor_(series, "descriptor"){
+    sys_call_ = "close";
   }
 
   /* This function will be called by RowAnalysisModule once
@@ -359,13 +362,16 @@ public:
    * for every system call operation in the trace file 
    * being processed */
   void processRow() {
+    int fd = fd_map[descriptor_.val()];
     if (verbose_) {
+      std::cout << "close: ";
       std::cout.precision(25);
-      std::cout << "time called:" << std::fixed << time_called() << std::endl;
-      std::cout << "descriptor:" << descriptor_.val() << std::endl;
+      std::cout << "time called(" << std::fixed << time_called() << "), ";
+      std::cout << "descriptor(" << descriptor_.val() << ")\n";
     }
-			
-    int ret = close(descriptor_.val());
+	
+    int ret = close(fd);
+    fd_map.erase(descriptor_.val());
     compare_retval(ret);
 
     if (ret == -1) {
@@ -396,6 +402,7 @@ public:
     descriptor_(series, "descriptor"), 
     data_read_(series, "data_read", Field::flag_nullable), 
     bytes_requested_(series, "bytes_requested") {
+    sys_call_ = "read";
   }
 
   /* This function will be called by RowAnalysisModule once
@@ -408,13 +415,18 @@ public:
    * for every system call operation in the trace file 
    * being processed */
   void processRow() {
+    int fd = fd_map[descriptor_.val()];
+    int nbytes = bytes_requested_.val();
     if (verbose_) {
-      std::cout.precision(23);
-      std::cout << "time called:" << std::fixed << time_called() << std::endl;
-      std::cout << "descriptor:" << descriptor_.val() << std::endl;
+      std::cout << sys_call_ << ": ";
+      std::cout.precision(23);      
+      std::cout << "time called(" << std::fixed << time_called() << "), ";
+      std::cout << "descriptor:" << descriptor_.val() << "), ";
+      std::cout << "data read(" << data_read_.val() << "), ";
+      std::cout << "size(" << descriptor_.val() << ")\n";
     }
     char buffer[bytes_requested_.val()];
-    int ret = read(descriptor_.val(), buffer, bytes_requested_.val());
+    int ret = read(fd, buffer, nbytes);
     compare_retval(ret);
 
     if (verify_ == true) {
@@ -464,6 +476,7 @@ public:
     descriptor_(series, "descriptor"), 
     data_written_(series, "data_written", Field::flag_nullable), 
     bytes_requested_(series, "bytes_requested") {
+    sys_call_ = "write";
   }
   
   /* This function will be called by RowAnalysisModule once
@@ -484,6 +497,7 @@ public:
    * being processed */
   void processRow() {
     size_t nbytes = (size_t)bytes_requested_.val();
+    int fd = fd_map[descriptor_.val()];
     char *buffer;
     
     // check to see if write data was in DS and user didn't specify pattern
@@ -508,15 +522,15 @@ public:
     }
 
     if (verbose_) {
-      std::cout << "write:";
+      std::cout << sys_call_ << ": ";
       std::cout.precision(25);
       std::cout << "time called(" << std::fixed << time_called() << "),";
       std::cout << "descriptor(" << descriptor_.val() << "),";
       std::cout << "data(" << buffer << "),";
       std::cout << "nbytes(" << nbytes << ")" << std::endl;
     }
-        
-    int ret = write(descriptor_.val(), buffer, nbytes);
+
+    int ret = write(fd, buffer, nbytes);
     compare_retval(ret);
     
     if (!pattern_data_.empty()){
@@ -540,17 +554,17 @@ public:
   }
 };
 
+// define the static fd_map in SystemCallTraceReplayModule
+std::map<int, int> SystemCallTraceReplayModule::fd_map;
 
-int main(int argc, char *argv[]) {	
+int main(int argc, char *argv[]) {
   namespace po = boost::program_options;
 
   int ret = EXIT_SUCCESS;
   bool verbose = false;
   bool verify = false;
-  bool finished_replaying = false;	
   bool compare_retval = false;
   std::string pattern_data = "";
-
   std::vector<std::string> input_files;
 
   // Declare a group of options that will be 
@@ -601,13 +615,11 @@ int main(int argc, char *argv[]) {
   if (vm.count("help")) {
     std::cerr << visible << "\n";
     return ret;
-    //goto cleanup;
   }
   
   if (vm.count("version")) {
     std::cerr << "sysreplayer version 1.0" << "\n";
     return ret;
-    //goto cleanup;
   }
 
   if (vm.count("return")) {
@@ -632,7 +644,6 @@ int main(int argc, char *argv[]) {
     std::cout << "No dataseries input files.\n";
     ret = EXIT_FAILURE;
     return ret;
-    //goto cleanup;
   }
 
   /*
@@ -665,11 +676,11 @@ int main(int argc, char *argv[]) {
 
   std::vector<PrefetchBufferModule *> prefetch_buffer_modules;
   for (unsigned int i = 0; i < type_index_modules.size(); ++i) {
+    /* Parallel decompress and replay, 64MiB buffer */
     PrefetchBufferModule *module = new PrefetchBufferModule(*(type_index_modules[i]), 64 * 1024 * 1024);
     prefetch_buffer_modules.push_back(module);
   }
 
-  /* Parallel decompress and stats, 64MiB buffer */
   OpenSystemCallTraceReplayModule *open_replayer = new OpenSystemCallTraceReplayModule(*prefetch_buffer_modules[0],
 										       verbose,
 										       compare_retval);
@@ -685,38 +696,38 @@ int main(int argc, char *argv[]) {
 											  verify,
 											  compare_retval,
 											  pattern_data);
+
   std::vector<SystemCallTraceReplayModule *> system_call_trace_replay_modules;
   system_call_trace_replay_modules.push_back(open_replayer);
   system_call_trace_replay_modules.push_back(close_replayer);
   system_call_trace_replay_modules.push_back(read_replayer);
   system_call_trace_replay_modules.push_back(write_replayer);
-  
+
+  // Define a min heap that stores each module. The heap is ordered by time_called field.
+  std::priority_queue<SystemCallTraceReplayModule*, std::vector<SystemCallTraceReplayModule*>, LessThanByTimeCalled> replayers_heap;
   SystemCallTraceReplayModule *execute_replayer = NULL;
 
-  std::priority_queue<SystemCallTraceReplayModule*, std::vector<SystemCallTraceReplayModule*>, LessThanByTimeCalled> sorted_replayers;
-	
-  while (!finished_replaying) {
-    for (unsigned int i = 0; i < system_call_trace_replay_modules.size(); ++i) {
-      SystemCallTraceReplayModule *module = system_call_trace_replay_modules[i];
-      if (module->getSharedExtent()) {
-	sorted_replayers.push(module);
-      }
+  // Add all the modules to min heap if the module has extents
+  for (unsigned int i = 0; i < system_call_trace_replay_modules.size(); ++i) {
+    SystemCallTraceReplayModule *module = system_call_trace_replay_modules[i];
+    // getSharedExtent() == NULL means that there are no extents in the module.
+    if (module->getSharedExtent()) {
+      replayers_heap.push(module);
     }
-
-    if (sorted_replayers.empty()) {
-      finished_replaying = true;
-      break;
+  }
+  
+  // Process all the records in the dataseries
+  while(!replayers_heap.empty()) {
+    // Get a module that has min time_called
+    execute_replayer = replayers_heap.top();
+    replayers_heap.pop();
+    // Replay the operation that has min time_called
+    execute_replayer->execute();
+    // Check to see if all the extents in the module are processed
+    if (execute_replayer->has_more_trace() || execute_replayer->getSharedExtent() != NULL){
+      // No, there are more extents, so we add it to min_heap
+      replayers_heap.push(execute_replayer);
     }
-
-    while(!sorted_replayers.empty()) {
-      execute_replayer = sorted_replayers.top();
-      sorted_replayers.pop();
-      execute_replayer->execute();
-      if (execute_replayer->has_more_trace()){
-	sorted_replayers.push(execute_replayer);
-      }
-    }
-
   }
 
   return ret;
