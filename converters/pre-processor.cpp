@@ -140,7 +140,7 @@ bool sysProcessRow(const string &inRow, string &outRow)
     
   // Split system call arguments and name
   size_t left_paren_index = sys_call_info.find_first_of("(");
-  size_t right_paren_index = sys_call_info.find_first_of(")");
+  size_t right_paren_index = sys_call_info.find_last_of(")");
   if (left_paren_index == std::string::npos || right_paren_index == std::string::npos) {
     clog << "SYS: Malformed record: '" << sys_call_info << "'. ( or ) is missing.\n";
     return false;

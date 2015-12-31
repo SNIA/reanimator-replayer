@@ -165,17 +165,19 @@ private:
   BoolField mode_W_others;
   BoolField mode_X_others;
 
-  uint32_t getOpenFlags() {
-    int sum = flag_read_only.val() + flag_write_only.val() + flag_read_and_write.val();
-    if (sum != 0) {
-      // FIXME!!!!! ERROR
+  int getFlags() {
+    int access_mode_sum = flag_read_only.val() + flag_write_only.val() + flag_read_and_write.val();
+    if (access_mode_sum != 1) {
+      // Error since it is only allowed to set one of three access modes: O_RDONLY, O_WRONLY, or O_RDWR 
+      std::cerr << "Error: Multiple access modes are set (Only one access mode O_RDONLY, O_WRONLY, or O_RDWR can be set)." << std::endl;
+      return -1;
     }
-    uint32_t flags = O_RDONLY;
+    int flags = O_RDONLY;
     if (flag_read_only.val() == 1) {
       flags = O_RDONLY;
     } else if (flag_write_only.val() == 1) {
       flags = O_WRONLY;
-    } else if (flag_write_only.val() == 1) {
+    } else if (flag_read_and_write.val() == 1) {
       flags = O_RDWR;
     }
     if (flag_append.val() == 1) {
@@ -226,7 +228,7 @@ private:
     return flags;
   }
 
-  mode_t getOpenMode() {
+  mode_t getMode() {
     mode_t mode = 0;
     if (mode_R_user.val() == 1) {
       mode |= S_IRUSR;
@@ -254,12 +256,7 @@ private:
     }
     if (mode_X_others.val() == 1) {
       mode |= S_IXOTH;
-    }
-			
-    if (mode == 0 && O_CREAT == 0) {
-      // FIX ME!!!!!! ERROR
-    }
-    return mode;
+    }	    
     /*
       std::cout << "mode_R_user: " << mode_R_user.val() << std::endl;
       std::cout << "mode_W_user: " << mode_W_user.val() << std::endl;
@@ -271,6 +268,7 @@ private:
       std::cout << "mode_W_others: " << mode_W_others.val() << std::endl;
       std::cout << "mode_X_others: " << mode_X_others.val() << std::endl;
     */
+    return mode;
   }
 
 public:
@@ -318,8 +316,12 @@ public:
    * being processed */
   void processRow() {
     char *pathname = (char *)given_pathname.val();
-    uint32_t flags = getOpenFlags();
-    mode_t mode = getOpenMode();
+    int flags = getFlags();
+    if (flags == -1) {
+      std::cout << given_pathname.val() << " is NOT successfully opened." << std::endl;
+      return;
+    }
+    mode_t mode = getMode();
     int return_value = (int)return_value_.val();
 
     if (verbose_) {
@@ -338,7 +340,9 @@ public:
     if (replay_ret == -1) {
       perror(pathname);
     } else {
-      std::cout << given_pathname.val() << " is successfully opened..." << std::endl;
+      if (verbose_) {
+	std::cout << given_pathname.val() << " is successfully opened..." << std::endl;
+      }
     }
   }
 
@@ -386,7 +390,9 @@ public:
     if (ret == -1) {
       perror("close");
     } else {
-      std::cout << "fd " << descriptor_.val() << " is successfully closed..." << std::endl;
+      if (verbose_) {
+	std::cout << "fd " << descriptor_.val() << " is successfully closed..." << std::endl;
+      }
     }
   }
 
@@ -442,15 +448,16 @@ public:
       if (memcmp(data_read_.val(),buffer,ret) != 0){
         // data aren't same
         std::cerr << "Verification of data in read failed.\n";
-        if (warn_level_ == WARN_MODE ) {
+        if (warn_level_ != DEFAULT_MODE) {
           std::cout << "time called:" << std::fixed << time_called() << std::endl;
           std::cout << "Captured read data is different from replayed read data" << std::endl;
           std::cout << "Captured read data: " << data_read_.val() << ", ";
           std::cout << "Replayed read data: " << buffer << std::endl;
-        }else if (warn_level_ == ABORT_MODE ) {
-          abort();
-        }
-      }else {
+	  if (warn_level_ == ABORT_MODE ) {
+	    abort();
+	  }
+	}
+      } else {
         if (verbose_) {
           std::cout << "Verification of data in read success.\n";
         }
@@ -460,7 +467,9 @@ public:
     if (ret == -1) {
       perror("read");
     } else {
-      std::cout << "read is executed successfully!" << std::endl;
+      if (verbose_) {
+	std::cout << "read is executed successfully!" << std::endl;
+      }
     }
   }
 
@@ -556,7 +565,9 @@ public:
     if (ret == -1) {
       perror("write");
     } else {
-      std::cout << "write is successfully replayed\n";
+      if (verbose_) {
+	std::cout << "write is successfully replayed\n";
+      }
     }
   }
 
