@@ -42,20 +42,24 @@
 
 #include <stdexcept>
 
+#define DEFAULT_MODE 0
+#define WARN_MODE    1
+#define ABORT_MODE   2
+
 class SystemCallTraceReplayModule : public RowAnalysisModule {
 protected:
   std::string sys_call_;
   bool verbose_;
-  bool compare_retval_;
+  int  warn_level_;
   DoubleField time_called_;
   Int64Field return_value_;
   bool completed;
   static std::map<int, int> fd_map;
 public:
-  SystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag, bool compare_retval_flag) : 
+  SystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag, int warn_level_flag) : 
     RowAnalysisModule(source),
     verbose_(verbose_flag),
-    compare_retval_(compare_retval_flag),
+    warn_level_(warn_level_flag),
     time_called_(series, "time_called"),
     return_value_(series, "return_value", Field::flag_nullable),
     completed(false) {
@@ -106,7 +110,12 @@ public:
       std::cout << "Replayed return value: " << ret_val << std::endl;
     }
 
-    if (compare_retval_ == true && return_value_.val() != ret_val) {
+    if (warn_level_ == WARN_MODE && return_value_.val() != ret_val) {
+      std::cout << "time called:" << std::fixed << time_called() << std::endl;
+      std::cout << "Captured return value is different from replayed return value" << std::endl;
+      std::cout << "Captured return value: " << return_value_.val() << ", ";
+      std::cout << "Replayed return value: " << ret_val << std::endl;
+    }else if (warn_level_ == ABORT_MODE && return_value_.val() != ret_val) {
       abort();
     }
   }
@@ -265,8 +274,8 @@ private:
   }
 
 public:
-  OpenSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag, bool compare_retval_flag) : 
-    SystemCallTraceReplayModule(source, verbose_flag, compare_retval_flag),
+  OpenSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag, int warn_level_flag) : 
+    SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
     given_pathname(series, "given_pathname"),
     flag_read_only(series, "flag_read_only"),
     flag_write_only(series, "flag_write_only"),
@@ -346,8 +355,8 @@ private:
   Int32Field descriptor_;
 
 public:
-  CloseSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag, bool compare_retval_flag) : 
-    SystemCallTraceReplayModule(source, verbose_flag, compare_retval_flag),
+  CloseSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag, int warn_level_flag) : 
+    SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
     descriptor_(series, "descriptor"){
     sys_call_ = "close";
   }
@@ -396,8 +405,8 @@ private:
   Variable32Field data_read_;
   Int64Field bytes_requested_;
 public:
-  ReadSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag, bool verify_flag, bool compare_retval_flag) : 
-    SystemCallTraceReplayModule(source, verbose_flag, compare_retval_flag),
+  ReadSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag, bool verify_flag, int warn_level_flag) : 
+    SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
     verify_(verify_flag),
     descriptor_(series, "descriptor"), 
     data_read_(series, "data_read", Field::flag_nullable), 
@@ -431,16 +440,23 @@ public:
 
     if (verify_ == true) {
       if (memcmp(data_read_.val(),buffer,ret) != 0){
-	// data aren't same
-	std::cerr << "Verification of data in read failed.\n";
-	abort();
-      } else {
-	if (verbose_) {
-	  std::cout << "Verification of data in read success.\n";
-	}
+        // data aren't same
+        std::cerr << "Verification of data in read failed.\n";
+        if (warn_level_ == WARN_MODE ) {
+          std::cout << "time called:" << std::fixed << time_called() << std::endl;
+          std::cout << "Captured read data is different from replayed read data" << std::endl;
+          std::cout << "Captured read data: " << data_read_.val() << ", ";
+          std::cout << "Replayed read data: " << buffer << std::endl;
+        }else if (warn_level_ == ABORT_MODE ) {
+          abort();
+        }
+      }else {
+        if (verbose_) {
+          std::cout << "Verification of data in read success.\n";
+        }
       }
     }
-
+    
     if (ret == -1) {
       perror("read");
     } else {
@@ -468,14 +484,14 @@ public:
   WriteSystemCallTraceReplayModule(DataSeriesModule &source,
 				   bool verbose_flag,
 				   bool verify_flag,
-				   bool compare_retval_flag, 
+ 				   int warn_level_flag,
 				   std::string pattern_data) : 
-    SystemCallTraceReplayModule(source, verbose_flag, compare_retval_flag),
+    SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
     verify_(verify_flag),
     pattern_data_(pattern_data),
     descriptor_(series, "descriptor"), 
     data_written_(series, "data_written", Field::flag_nullable), 
-    bytes_requested_(series, "bytes_requested") {
+    bytes_requested_(series, "bytes_requested"){
     sys_call_ = "write";
   }
   
@@ -563,7 +579,7 @@ int main(int argc, char *argv[]) {
   int ret = EXIT_SUCCESS;
   bool verbose = false;
   bool verify = false;
-  bool compare_retval = false;
+  int warn_level = DEFAULT_MODE;
   std::string pattern_data = "";
   std::vector<std::string> input_files;
 
@@ -582,7 +598,7 @@ int main(int argc, char *argv[]) {
   config.add_options()
     ("verbose,v", "system calls replay in verbose mode")
     ("verify", "verifies that the data being written/read is exactly what was used originally")
-    ("return", "compares return values of replayed system calls to return values captured by strace")
+    ("warn,w", po::value<int>(), "system call replays in warn mode")
     ("pattern,p", po::value<std::string>(), "write repeated pattern data in write system call")
     ;
 
@@ -622,8 +638,11 @@ int main(int argc, char *argv[]) {
     return ret;
   }
 
-  if (vm.count("return")) {
-    compare_retval = true;
+  if (vm.count("warn")){
+    warn_level = vm["warn"].as<int>();
+    if(warn_level > ABORT_MODE){
+      std::cout << "Wrong value for warn option" << std::endl;  
+      return EXIT_FAILURE;}
   }
 
   if (vm.count("verify")) {
@@ -683,18 +702,18 @@ int main(int argc, char *argv[]) {
 
   OpenSystemCallTraceReplayModule *open_replayer = new OpenSystemCallTraceReplayModule(*prefetch_buffer_modules[0],
 										       verbose,
-										       compare_retval);
+										       warn_level);
   CloseSystemCallTraceReplayModule *close_replayer = new CloseSystemCallTraceReplayModule(*prefetch_buffer_modules[1],
 											  verbose,
-											  compare_retval);
+											  warn_level);
   ReadSystemCallTraceReplayModule *read_replayer = new ReadSystemCallTraceReplayModule(*prefetch_buffer_modules[2],
 										       verbose,
 										       verify,
-										       compare_retval);
+										       warn_level);
   WriteSystemCallTraceReplayModule *write_replayer = new WriteSystemCallTraceReplayModule(*prefetch_buffer_modules[3],
 											  verbose,
 											  verify,
-											  compare_retval,
+											  warn_level,
 											  pattern_data);
 
   std::vector<SystemCallTraceReplayModule *> system_call_trace_replay_modules;
