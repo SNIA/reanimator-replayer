@@ -57,8 +57,10 @@ int OpenSystemCallTraceReplayModule::getFlags() {
   int access_mode_sum = flag_read_only.val() + flag_write_only.val() + flag_read_and_write.val();
   // Test to see if multiple access flags are set.
   if (access_mode_sum != 1) {
-    // Error since it is only allowed to set one of 
-    // three access modes: O_RDONLY, O_WRONLY, or O_RDWR 
+    /*
+     * Error since it is only allowed to set one of 
+     * three access modes: O_RDONLY, O_WRONLY, or O_RDWR
+     */
     std::cerr << "Error: Multiple access modes are set" 
 	      << "(Only one access mode O_RDONLY, O_WRONLY, or O_RDWR can be set)."
 	      << std::endl;
@@ -123,8 +125,10 @@ int OpenSystemCallTraceReplayModule::getFlags() {
 
 mode_t OpenSystemCallTraceReplayModule::getMode() {
   mode_t mode = 0;
-  // Find what modes were in the trace file
-  // and bitwise-or them
+  /* 
+   * Find what modes were in the trace file
+   * and bitwise-or them
+   */
   if (mode_R_user.val() == 1) {
     mode |= S_IRUSR;
   }

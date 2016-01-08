@@ -55,17 +55,21 @@ int main(int argc, char *argv[]) {
   std::string pattern_data = "";
   std::vector<std::string> input_files;
   
-  // Declare a group of options that will be 
-  // allowed only on command line
+  /*
+   * Declare a group of options that will be 
+   * allowed only on command line
+   */
   po::options_description generic("Generic options");
   generic.add_options()
     ("version,V", "print version of system call replayer")
     ("help,h", "produce help message")
     ;
 
-  // Declare a group of options that will be 
-  // allowed both on command line and in
-  // config file
+  /* 
+   * Declare a group of options that will be 
+   * allowed both on command line and in
+   * config file
+   */
   po::options_description config("Configuration");
   config.add_options()
     ("verbose,v", "system calls replay in verbose mode")
@@ -74,8 +78,10 @@ int main(int argc, char *argv[]) {
     ("pattern,p", po::value<std::string>(), "write repeated pattern data in write system call")
     ;
 
-  // Hidden options, will be allowed both on command line and
-  // in config file, but will not be shown to the user.
+  /*
+   * Hidden options, will be allowed both on command line and
+   * in config file, but will not be shown to the user.
+   */
   po::options_description hidden("Hidden options");
   hidden.add_options()
     ("input-files,I", po::value<std::vector<std::string> >(),"input files")

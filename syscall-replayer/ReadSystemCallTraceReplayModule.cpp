@@ -50,10 +50,9 @@ void ReadSystemCallTraceReplayModule::processRow() {
   compare_retval(ret);
 
   if (verify_ == true) {
-    // Verify read data and data in the trace file are
-    // same
+    // Verify read data and data in the trace file are same
     if (memcmp(data_read_.val(),buffer,ret) != 0){
-      // data aren't same                                                                                            
+      // Data aren't same
       std::cerr << "Verification of data in read failed.\n";
       if (warn_level_ != DEFAULT_MODE) {
 	std::cout << "time called:" << std::fixed << time_called() << std::endl;

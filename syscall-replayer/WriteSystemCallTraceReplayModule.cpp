@@ -48,9 +48,9 @@ void WriteSystemCallTraceReplayModule::processRow() {
   int fd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
   char *buffer;
 
-  // Check to see if write data was in DS and user didn't specify pattern                                           
+  // Check to see if write data was in DS and user didn't specify pattern                
   if (data_written_.isNull() && pattern_data_.empty()) {
-    // Let's write zeros.                                                                                           
+    // Let's write zeros.
     pattern_data_ = "0x0";
   }
 
