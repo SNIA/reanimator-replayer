@@ -11,12 +11,11 @@
  *
  * SystemCallTraceReplayer is a program that is designed for user to 
  * replay system calls in DataSeries. It currently supports replaying
- * open, close, read, and write and has various options to modify the
+ * open, close, read, write, and lseek and has various options to modify the
  * behavior of this program.
  *
  * USAGE
  * ./system-call-replayer <-vwp> <input files>
- * 
  */
 
 #include <queue>
@@ -31,6 +30,7 @@
 #include "CloseSystemCallTraceReplayModule.hpp"
 #include "ReadSystemCallTraceReplayModule.hpp"
 #include "WriteSystemCallTraceReplayModule.hpp"
+#include "LSeekSystemCallTraceReplayModule.hpp"
 
 // min heap uses this to sort elements in the tree.
 struct CompareByTimeCalled {
@@ -42,19 +42,18 @@ struct CompareByTimeCalled {
   }
 };
 
-// define the static fd_map_ in SystemCallTraceReplayModule
-std::map<int, int> SystemCallTraceReplayModule::fd_map_;
-
-int main(int argc, char *argv[]) {
+/*
+ * This function declares a group of options that will
+ * be allowed for the replayer, store options in a 
+ * variable map and return it.
+ * @param argc: number of arguments on the command line.
+ * @param argv: arguments on the command line.
+ * @return: vm - a variable map that contains all the options
+ *               found on the command line.
+ */
+boost::program_options::variables_map get_options(int argc, 
+						  char *argv[]) {
   namespace po = boost::program_options;
-  
-  int ret = EXIT_SUCCESS;
-  bool verbose = false;
-  bool verify = false;
-  int warn_level = DEFAULT_MODE;
-  std::string pattern_data = "";
-  std::vector<std::string> input_files;
-  
   /*
    * Declare a group of options that will be 
    * allowed only on command line
@@ -64,7 +63,7 @@ int main(int argc, char *argv[]) {
     ("version,V", "print version of system call replayer")
     ("help,h", "produce help message")
     ;
-
+  
   /* 
    * Declare a group of options that will be 
    * allowed both on command line and in
@@ -86,67 +85,105 @@ int main(int argc, char *argv[]) {
   hidden.add_options()
     ("input-files,I", po::value<std::vector<std::string> >(),"input files")
     ;
-
+  
   po::options_description cmdline_options;
   cmdline_options.add(generic).add(config).add(hidden);
-
+  
   /*
     po::options_description config_file_options;
     config_file_options.add(config).add(hidden);
   */
-
+  
   po::options_description visible("Allowed options");
   visible.add(generic).add(config);
-
+  
   po::positional_options_description p;
   p.add("input-files", -1);
-
+  
   po::variables_map vm;
   po::store(po::command_line_parser(argc, argv).
 	    options(cmdline_options).positional(p).run(), vm);
   po::notify(vm);
 
   if (vm.count("help")) {
-    std::cerr << visible << "\n";
-    return ret;
+    std::cerr << visible << std::endl;
+    exit(EXIT_SUCCESS);
+  }
+
+  return vm;
+}
+
+/*
+ * process_options function calls get_options() to get
+ * a variable map that contains all the options. Then this
+ * function uses the variable map to define options that
+ * are passed as function arguments.
+ *
+ * @param argc: number of arguments on the command line.
+ * @param argv: arguments on the command line.
+ * @param verbose: whether the replayer replays in verbose mode
+ * @param verify: whether to verify data read that is from replaying 
+ *                is same as data in read sys call in the trace file.
+ * @param warn_level: replaying warning level
+ * @param input_files: DataSeries files that contain system call
+ *                     traces
+ */
+void process_options(int argc, char *argv[],
+		     bool &verbose, bool &verify,
+		     int &warn_level, std::string &pattern_data,
+		     std::vector<std::string> &input_files) {
+  boost::program_options::variables_map options_vm = get_options(argc, argv);
+  
+  if (options_vm.count("version")) {
+    std::cerr << "sysreplayer version 1.0" << std::endl;
+    exit(EXIT_SUCCESS);
+  }
+
+  if (options_vm.count("warn")){
+    warn_level = options_vm["warn"].as<int>();
+    if(warn_level > ABORT_MODE){
+      std::cerr << "Wrong value for warn option" << std::endl;  
+      exit(EXIT_FAILURE);
+    }
   }
   
-  if (vm.count("version")) {
-    std::cerr << "sysreplayer version 1.0" << "\n";
-    return ret;
-  }
-
-  if (vm.count("warn")){
-    warn_level = vm["warn"].as<int>();
-    if(warn_level > ABORT_MODE){
-      std::cout << "Wrong value for warn option" << std::endl;  
-      return EXIT_FAILURE;}
-  }
-
-  if (vm.count("verify")) {
+  if (options_vm.count("verify")) {
     verify = true;
   }
-
-  if (vm.count("verbose")) {
+  
+  if (options_vm.count("verbose")) {
     verbose = true;
   }
   
-  if (vm.count("pattern")){
-    pattern_data = vm["pattern"].as<std::string>();
+  if (options_vm.count("pattern")){
+    pattern_data = options_vm["pattern"].as<std::string>();
   }
   
-  if (vm.count("input-files")) {
-    input_files = vm["input-files"].as<std::vector<std::string> >();
+  if (options_vm.count("input-files")) {
+    input_files = options_vm["input-files"].as<std::vector<std::string> >();
   } else {
     std::cout << "No dataseries input files.\n";
-    ret = EXIT_FAILURE;
-    return ret;
+    exit(EXIT_FAILURE);
   }
+}
 
-  /*
-   * This reads all extents of system call
-   * operations from a set of DataSeries files.
-   */
+// Define the static fd_map_ in SystemCallTraceReplayModule
+std::map<int, int> SystemCallTraceReplayModule::fd_map_;
+
+int main(int argc, char *argv[]) {
+  int ret = EXIT_SUCCESS;
+  bool verbose = false;
+  bool verify = false;
+  int warn_level = DEFAULT_MODE;
+  std::string pattern_data = "";
+  std::vector<std::string> input_files;
+
+  // Process options found on the command line.
+  process_options(argc, argv, verbose, 
+		  verify, warn_level, pattern_data,
+		  input_files);
+  
+  // This is the prefix extent type of all system calls. 
   const std::string kExtentTypePrefix = "IOTTAFSL::Trace::Syscall::";
 
   std::vector<std::string> system_calls;
@@ -154,6 +191,7 @@ int main(int argc, char *argv[]) {
   system_calls.push_back("close");
   system_calls.push_back("read");
   system_calls.push_back("write");
+  system_calls.push_back("lseek");
   
   std::vector<TypeIndexModule *> type_index_modules;
 
@@ -173,35 +211,41 @@ int main(int argc, char *argv[]) {
 
   std::vector<PrefetchBufferModule *> prefetch_buffer_modules;
   for (unsigned int i = 0; i < type_index_modules.size(); ++i) {
-    /* Parallel decompress and replay, 64MiB buffer */
-    PrefetchBufferModule *module = new PrefetchBufferModule(*(type_index_modules[i]), 64 * 1024 * 1024);
+    /* Parallel decompress and replay, 8MiB buffer */
+    PrefetchBufferModule *module = new PrefetchBufferModule(*(type_index_modules[i]), 8 * 1024 * 1024);
     prefetch_buffer_modules.push_back(module);
   }
 
-  OpenSystemCallTraceReplayModule *open_replayer = new OpenSystemCallTraceReplayModule(*prefetch_buffer_modules[0],
+  OpenSystemCallTraceReplayModule *open_module = new OpenSystemCallTraceReplayModule(*prefetch_buffer_modules[0],
 										       verbose,
 										       warn_level);
-  CloseSystemCallTraceReplayModule *close_replayer = new CloseSystemCallTraceReplayModule(*prefetch_buffer_modules[1],
+  CloseSystemCallTraceReplayModule *close_module = new CloseSystemCallTraceReplayModule(*prefetch_buffer_modules[1],
 											  verbose,
 											  warn_level);
-  ReadSystemCallTraceReplayModule *read_replayer = new ReadSystemCallTraceReplayModule(*prefetch_buffer_modules[2],
+  ReadSystemCallTraceReplayModule *read_module = new ReadSystemCallTraceReplayModule(*prefetch_buffer_modules[2],
 										       verbose,
 										       verify,
 										       warn_level);
-  WriteSystemCallTraceReplayModule *write_replayer = new WriteSystemCallTraceReplayModule(*prefetch_buffer_modules[3],
+  WriteSystemCallTraceReplayModule *write_module = new WriteSystemCallTraceReplayModule(*prefetch_buffer_modules[3],
 											  verbose,
 											  verify,
 											  warn_level,
 											  pattern_data);
-
+  LSeekSystemCallTraceReplayModule *lseek_module = new LSeekSystemCallTraceReplayModule(*prefetch_buffer_modules[4],
+											verbose,
+											warn_level);
+  
   std::vector<SystemCallTraceReplayModule *> system_call_trace_replay_modules;
-  system_call_trace_replay_modules.push_back(open_replayer);
-  system_call_trace_replay_modules.push_back(close_replayer);
-  system_call_trace_replay_modules.push_back(read_replayer);
-  system_call_trace_replay_modules.push_back(write_replayer);
+  system_call_trace_replay_modules.push_back(open_module);
+  system_call_trace_replay_modules.push_back(close_module);
+  system_call_trace_replay_modules.push_back(read_module);
+  system_call_trace_replay_modules.push_back(write_module);
+  system_call_trace_replay_modules.push_back(lseek_module);
 
   // Define a min heap that stores each module. The heap is ordered by time_called field.
-  std::priority_queue<SystemCallTraceReplayModule*, std::vector<SystemCallTraceReplayModule*>, CompareByTimeCalled> replayers_heap;
+  std::priority_queue<SystemCallTraceReplayModule*, 
+		      std::vector<SystemCallTraceReplayModule*>, 
+		      CompareByTimeCalled> replayers_heap;
   SystemCallTraceReplayModule *execute_replayer = NULL;
 
   // Add all the modules to min heap if the module has extents
