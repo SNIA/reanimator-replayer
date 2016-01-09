@@ -73,9 +73,9 @@ void WriteSystemCallTraceReplayModule::processRow() {
   if (verbose_) {
     std::cout << sys_call_ << ": ";
     std::cout.precision(25);
-    std::cout << "time called(" << std::fixed << time_called() << "),";
-    std::cout << "descriptor(" << descriptor_.val() << "),";
-    std::cout << "data(" << buffer << "),";
+    std::cout << "time called(" << std::fixed << time_called() << "), ";
+    std::cout << "descriptor(" << descriptor_.val() << "), ";
+    std::cout << "data(" << buffer << "), ";
     std::cout << "nbytes(" << nbytes << ")" << std::endl;
   }
 

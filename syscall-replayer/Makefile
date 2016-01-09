@@ -32,7 +32,8 @@ TARGETS = system-call-replayer
 
 SYSTEM_CALL_REPLAY_MODULE_OBJECTS = SystemCallTraceReplayer.o SystemCallTraceReplayModule.o \
 				    OpenSystemCallTraceReplayModule.o CloseSystemCallTraceReplayModule.o \
-				    ReadSystemCallTraceReplayModule.o WriteSystemCallTraceReplayModule.o
+				    ReadSystemCallTraceReplayModule.o WriteSystemCallTraceReplayModule.o \
+				    LSeekSystemCallTraceReplayModule.o
 
 all: $(TARGETS)
 

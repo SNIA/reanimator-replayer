@@ -43,7 +43,7 @@ void ReadSystemCallTraceReplayModule::processRow() {
     std::cout << "time called(" << std::fixed << time_called() << "), ";
     std::cout << "descriptor:" << descriptor_.val() << "), ";
     std::cout << "data read(" << data_read_.val() << "), ";
-    std::cout << "size(" << descriptor_.val() << ")\n";
+    std::cout << "size(" << bytes_requested_.val() << ")\n";
   }
   char buffer[bytes_requested_.val()];
   int ret = read(fd, buffer, nbytes);
