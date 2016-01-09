@@ -20,42 +20,42 @@
 #    specstrings/blktrace.spec and tables/snia_block_fields.table
 #    files, in order.
 #
-# Usage: strace2ds.sh <outputfile> <strace_base_file>
+# Usage: strace2ds.sh <strace_file> <output_file>
 #
 
 TABLEFILE=tables/snia_syscall_fields.table
-OUTPUTFILE=$1
-INPUTFILE=$2
+INPUTFILE=$1
+OUTPUTFILE=$2
 SPECSTRINGFILE=specstrings/strace.spec
 
 if [ ! -e csv2ds-extra ]; then
-	echo "csv2ds-extra binary is not found. Maybe make it?"
-	exit 1
+    echo "csv2ds-extra binary is not found. Maybe make it?"
+    exit 1
 fi
 
 if [ ! -e pre-processor ]; then
-	echo "pre-processor binary is not found. Maybe make it?"
-	exit 1
+    echo "pre-processor binary is not found. Maybe make it?"
+    exit 1
 fi
 
 if [ ! -e $TABLEFILE ]; then
-	echo "blocktrace table file is not found! Please put it in $TABLEFILE"
-	exit 1
+    echo "blocktrace table file is not found! Please put it in $TABLEFILE"
+    exit 1
 fi
 
 if [ ! -e $SPECSTRINGFILE ]; then
-	echo "specification string for spctrace is not found! Please put it in $SPECSTRINGFILE"
-	exit 1
-fi
-
-if [ -z "$OUTPUTFILE" ]; then
-        echo "You must provide the output file name as a first argument!"
-        exit 1
+    echo "specification string for spctrace is not found! Please put it in $SPECSTRINGFILE"
+    exit 1
 fi
 
 if [ -z "$INPUTFILE" ]; then
-        echo "You must provide input files!"
-        exit 1
+    echo "You must provide input files!"
+    exit 1
+fi
+
+if [ -z "$OUTPUTFILE" ]; then
+    echo "You must provide the output file name as the second argument!"
+    exit 1
 fi
 
 TEMPFILE=`mktemp`
@@ -65,8 +65,8 @@ echo "Parsing spectrace..."
 ./pre-processor sys $INPUTFILE $TEMPFILE
 
 if [ $? -ne 0 ]; then
-        rm -f $TEMPFILE
-        exit $?
+    rm -f $TEMPFILE
+    exit $?
 fi
 
 echo "Converting to DataSeries..."

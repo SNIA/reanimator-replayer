@@ -54,7 +54,8 @@
 
 using namespace std;
 bool sysProcessOpen(string &sys_call_csv_args);
-bool sysProcessMode(string mode_arg, vector<string> &mode_vector);
+bool sysProcessMode(string &mode_arg, vector<string> &mode_vector);
+bool sysProcessLSeek(string &sys_call_csv_args);
 
 bool spcProcessRow(const string &inRow, string &outRow)
 {
@@ -107,7 +108,8 @@ bool sysProcessRow(const string &inRow, string &outRow)
   if (inRow.find("exited") != string::npos)
     return true;
   
-  /* The input expected by csv2ds-extra is <extent name>, <fields>.
+  /*
+   * The input expected by csv2ds-extra is <extent name>, <fields>.
    *
    * The input fields are ordered as follows.
    * relative_timestamp syscall(args) = return_val
@@ -115,25 +117,26 @@ bool sysProcessRow(const string &inRow, string &outRow)
    *
    * Consult the SPC Trace format specification document and 
    * strace man page for more details.
-   *
    */
   
-  /* Split return information and system call information.
+  /* 
+   * Split return information and system call information.
    * The input fields are ordered as follows.
    * relative_timestamp syscall(args) = return_val
    */
-  vector<string> fields;
-  boost::algorithm::split_regex(fields, inRow, boost::regex( " *= " ));
-  
+  std::string splitter = " = ";
+  size_t found = inRow.rfind(splitter);
   // Check to make sure the trace record is valid.
-  if (fields.size() < 2) {
-    clog << "SYS: Malformed record: '" << inRow << "'. Too few columns.\n";
+  if (found == std::string::npos) {
+    clog << "SYS: Malformed record: '" << inRow << "'. = is missing.\n";
     return false;
   }
   
   // Get system call information and return information
-  string sys_call_info = fields[0];
-  int ret_val = std::stoi(fields[1]);
+  string sys_call_info = inRow.substr(0, found);
+  string ret_info = inRow.substr(found + splitter.size());
+  // We will just get return value and ignore rest.
+  int ret_val = std::stoi(ret_info);
   
   // Eliminate leading and trailing spaces
   boost::trim(sys_call_info);
@@ -148,17 +151,26 @@ bool sysProcessRow(const string &inRow, string &outRow)
   
   // Get system call time and name
   string sys_call_time_and_name = sys_call_info.substr(0, left_paren_index);
-  // Get system call arguments
-  // We don't want "(" and ")"
-  string sys_call_csv_args = sys_call_info.substr(left_paren_index + 1, right_paren_index - left_paren_index - 1);
-  
+  /* 
+   * Get system call arguments
+   * We don't want "(" and ")"
+   */
+  string sys_call_csv_args = sys_call_info.substr(left_paren_index + 1, 
+						  right_paren_index - left_paren_index - 1);
+
   // Split system call name and time stamp
+  std::vector<string> fields;
   boost::split(fields, sys_call_time_and_name, boost::is_any_of(" \t"), boost::token_compress_on);
   string time_called = fields[0];
   string sys_call_name = fields[1];
   
+  // Process open and lseek differently
   if (sys_call_name == "open") {
     if (sysProcessOpen(sys_call_csv_args) == false) {
+      return false;
+    }
+  } else if (sys_call_name == "lseek") {
+    if (sysProcessLSeek(sys_call_csv_args) == false) {
       return false;
     }
   }
@@ -184,20 +196,25 @@ bool sysProcessRow(const string &inRow, string &outRow)
 }
 
 bool sysProcessOpen(string &sys_call_csv_args) {
+  // Parse csv traced open arguments
   boost::tokenizer<boost::escaped_list_separator<char> > args_tokenizer(sys_call_csv_args);
   std::vector<string> sys_call_args;
+  // Store csv arguments into a vector
   sys_call_args.assign(args_tokenizer.begin(), args_tokenizer.end());
+  // Make sure open trace has more than 1 argument.
   if (sys_call_args.size() < 2) {
     clog << "SYS: Malformed record: '" << sys_call_csv_args << "'. Too few arguments.\n";
     return false;
   }
   
+  // Get each argument and store it in a variable
   string path_name = sys_call_args[0];
   string flags_arg = sys_call_args[1];
   // Eliminate leading and trailing spaces
-  boost::trim_if(flags_arg, boost::is_any_of(" "));
+  boost::trim(flags_arg);
 
   vector<string> flags;
+  // Split the flags argument into a vector.
   boost::split(flags, flags_arg, boost::is_any_of("|"), boost::token_compress_on);
   
   //std::unordered_map<string, bool> flag_map;
@@ -222,14 +239,14 @@ bool sysProcessOpen(string &sys_call_csv_args) {
   flag_map["O_TRUNC"] = 0;
   */
 
-  /* The csv ouput expected by csv2ds-extra is flag_read_only,flag_write_only,flag_read_and_write,flag_append,..
+  /* 
+   * The csv ouput expected by csv2ds-extra is flag_read_only,flag_write_only,flag_read_and_write,flag_append,..
    *
    * The vector is ordered as follows:
    * flag_read_only,flag_write_only,flag_read_and_write,flag_append,..
    * Example: 0,0,1,0,1,...
    *
    * Consult the SPC Trace format specification document for more details.
-   *
    */
   std::vector<string> flag_vector(18,"0");
   
@@ -312,51 +329,56 @@ bool sysProcessOpen(string &sys_call_csv_args) {
    */
   
   std::vector<string> mode_vector(9,"0");
+  // Check to see if modes are set in this open sys call.
   if (sys_call_args.size() == 3) {
     string mode_arg = sys_call_args[2];
     // Eliminate leading and trailing spaces
-    boost::trim_if(mode_arg, boost::is_any_of(" "));
+    boost::trim(mode_arg);
+    // Get modes and store them into mode_vector
     if (sysProcessMode(mode_arg, mode_vector) == false) {
       clog << "SYS: Malformed open system call: '" << sys_call_csv_args << "'." << std::endl;
       return false;
     }
   }
   
-  // Formatting flags.
+  // Formatting open trace arguments.
   stringstream csv_args_stream;
-    
+  
   csv_args_stream << path_name << "," << boost::algorithm::join(flag_vector, ",") << "," 
 		  << boost::algorithm::join(mode_vector, ",");
   sys_call_csv_args = csv_args_stream.str();
   return true;
 }
 
-bool sysProcessMode(string mode_arg, vector<string> &mode_vector) {
+bool sysProcessMode(string &mode_arg, vector<string> &mode_vector) {
   for (int i = 3; i > 0; i--) {
-    // others_permission -> mode_arg.at(mode_arg.length()-1);
-    // group_permission -> mode_arg.at(mode_arg.length()-2);
-    // user_permission -> mode_arg.at(mode_arg.length()-3);
+    /*
+     * others_permission -> mode_arg.at(mode_arg.length()-1);
+     * group_permission -> mode_arg.at(mode_arg.length()-2);
+     * user_permission -> mode_arg.at(mode_arg.length()-3);
+     */
     char c_permission = mode_arg.at(mode_arg.length() - i);
     if (isdigit(c_permission)) {
-      // mode_vector[0] -> user read permission
-      // mode_vector[1] -> user write permission
-      // mode_vector[2] -> user execute permission
-      // mode_vector[3] -> group read permission
-      // ...
-      
-      // owner_start_index = 0 for user, 3 for group, 6 for others
+      /*
+       * mode_vector[0] -> user read permission
+       * mode_vector[1] -> user write permission
+       * mode_vector[2] -> user execute permission
+       * mode_vector[3] -> group read permission
+       * ...
+       * owner_start_index = 0 for user, 3 for group, 6 for others
+       */
       int start_index = 0;
       switch(i) {
       case 3:
-	// user
+	// User
 	start_index = 0;
 	break;
       case 2:
-	// group
+	// Group
 	start_index = 3;
 	break;
       case 1:
-	// others
+	// Others
 	start_index = 6;
 	break;
       }
@@ -422,6 +444,41 @@ bool sysProcessMode(string mode_arg, vector<string> &mode_vector) {
     }
   }
   
+  return true;
+}
+
+bool sysProcessLSeek(string &sys_call_csv_args) {
+  // Parse csv traced open arguments.
+  boost::tokenizer<boost::escaped_list_separator<char> > args_tokenizer(sys_call_csv_args);
+  std::vector<string> sys_call_args;
+  // Store arguments into a sys_call_args vector.
+  sys_call_args.assign(args_tokenizer.begin(), args_tokenizer.end());
+  // Make sure this traced lseek sys call has three arguments.
+  if (sys_call_args.size() != 3) {
+    clog << "SYS: Malformed record: '" << sys_call_csv_args << "'. Too few arguments.\n";
+    return false;
+  }
+  
+  // Get arguments and store each one into a variable.
+  string descriptor = sys_call_args[0];
+  string offset = sys_call_args[1];
+  string whence_str = sys_call_args[2];
+  // Eliminate leading or trailing space characters
+  boost::algorithm::trim(whence_str);
+  int whence = -1;
+  // Determine whence
+  if (whence_str == "SEEK_SET") {
+    whence = 0;
+  } else if (whence_str == "SEEK_CUR") {
+    whence = 1;
+  } else if (whence_str == "SEEK_END") {
+    whence = 2;
+  }
+  // Formatting lseek args.
+  stringstream csv_args_stream;
+  
+  csv_args_stream << descriptor << "," << offset << "," << whence;
+  sys_call_csv_args = csv_args_stream.str();
   return true;
 }
 
