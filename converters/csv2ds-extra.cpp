@@ -219,8 +219,6 @@ public:
 		for (size_t i = 0; i != specs_[extentname].size(); i++) {
 			string fieldname = specs_[extentname][i];
 			string fieldvalue = fields[i+1];
-			// Eliminate leading and trailing spaces
-			boost::trim_if(fieldvalue,boost::is_any_of(" "));
 			fieldvaluemap[fieldname] = fieldvalue;
 		}
 
