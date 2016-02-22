@@ -1,8 +1,5 @@
-#DS_INCLUDE_DIR = /root/build/opt-centos-6.2-x86_64/include
-#DS_LIBRARY_DIR = /root/build/opt-centos-6.2-x86_64/lib
-
-DS_INCLUDE_DIR = $(HOME)/build/include
-DS_LIBRARY_DIR = $(HOME)/build/lib
+DS_INCLUDE_DIR = /root/build/opt-centos-6.2-x86_64/include
+DS_LIBRARY_DIR = /root/build/opt-centos-6.2-x86_64/lib
 LIBXML_INCLUDE_DIR = /usr/include/libxml2/
 
 OPTFLAGS = -O0 -std=c++0x

@@ -18,7 +18,6 @@
 #include <iostream>
 #include <fstream>
 #include <boost/algorithm/string.hpp>
-#include <boost/tokenizer.hpp>
 
 #include <DataSeries/ExtentType.hpp>
 #include <DataSeries/DataSeriesFile.hpp>
@@ -27,7 +26,6 @@
 #include "FieldSpace.hpp"
 
 using namespace std;
-
 /* map<fieldname, pair<nullable, ExtentType> */
 typedef map<string, pair<bool, ExtentType::fieldType> > config_table_entry_type;
 /* map<extentname, config_table_entry_type> */
@@ -196,29 +194,29 @@ public:
 	}
 	
 	/* Register the record and field values in string format into fields */
-	void updateRecord(string &record, bool quietmode) {
-		boost::tokenizer<boost::escaped_list_separator<char> > split_data(record);
-		std::vector<string> fields;
-		fields.assign(split_data.begin(),split_data.end());
-		//boost::tokenizer<boost::escaped_list_separator<char> >::iterator field = split_data.begin();
-		/* First place is the extentname, other fields are values */
-		string extentname = fields[0];
-		if (fields.size() < 2 or specs_[extentname].size() != fields.size() - 1) {
+	void updateRecord(string &record, bool quietmode)
+	{
+		vector<string> split_data;
+		boost::split(split_data, record, boost::is_any_of(","));
+
+		if (split_data.size() < 2 or specs_[split_data[0]].size() != split_data.size() - 1) {
 			cerr << record << ": Invalid record! Number of fields do not match specification string." << endl;
 			exit(1);
 		}
-		
+
+		/* First place is the extentname, other fields are values */
+		string extentname = split_data[0];
 		OutputModuleSpace[extentname]->newRecord();
 
 		/* Create a map from fieldnames to fieldvalue. 
-		   Iterate through every possible fields (via table_). 
-		   If the field is in the map, then set value of the
-		   field. Otherwise set it to null 
-		*/
+			Iterate through every possible fields (via table_). 
+			If the field is in the map, then set value of the
+			field. Otherwise set it to null */
+			
 		map<string,string> fieldvaluemap;
 		for (size_t i = 0; i != specs_[extentname].size(); i++) {
 			string fieldname = specs_[extentname][i];
-			string fieldvalue = fields[i+1];
+			string fieldvalue = split_data[i + 1];
 			fieldvaluemap[fieldname] = fieldvalue;
 		}
 

@@ -1,5 +1,4 @@
 /*
- * Copyright (c) 2015-2016 Leixiang Wu
  * Copyright (c) 2011-2012 Santhosh Kumar Koundinya
  * Copyright (c) 2011-2012 Jack Ma
  * Copyright (c) 2011-2012 Vasily Tarasov
@@ -14,19 +13,19 @@
  * published by the Free Software Foundation.
  *
  *
- * pre-processor converts various units in different block/system call trace formats
+ * pre-processor converts various units in different block trace formats
  * to the units defined by the SNIA standard. E.g., time is converted to Tfracs,
  * offset and I/O size to bytes, etc.
  *
  * This tool is usually invoked by a trace-specific convertor (e.g.,
- * blktrace2ds, systrace2ds) after some preliminary conversion is 
- * already done. The reason why unit conversion is performed in a
- * separate tool (but not in the shell) is speed.
+ * blktrace2ds) after some preliminary conversion is already done. The reason
+ * why unit conversion is performed in a separate tool (but not in the shell) is
+ * speed.
  *
  * The tool produces a new CSV file that is then fed to a csv2ds-extra tool.
  *
  * Usage: pre-processor <trace_type> <input_file> <output_file>
- * 	  Recognized trace_types: spc, blk, vss, mps, sys
+ * 	  Recognized trace_types: spc, blk, vss, mps
  *
  */
 
@@ -37,12 +36,7 @@
 #include <cstdint>
 #include <cstring>
 #include <vector>
-#include <unordered_map>
 #include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/regex.hpp>
-#include <boost/algorithm/string/join.hpp>
-#include <boost/regex.hpp> 
-#include <boost/tokenizer.hpp>
 
 #define OPERATION_READ		0
 #define OPERATION_WRITE		1
@@ -53,9 +47,6 @@
 #define NANO_MULTIPLIER 	(MICRO_MULTIPLIER * 1000ULL)
 
 using namespace std;
-bool sysProcessOpen(string &sys_call_csv_args);
-bool sysProcessMode(string &mode_arg, vector<string> &mode_vector);
-bool sysProcessLSeek(string &sys_call_csv_args);
 
 bool spcProcessRow(const string &inRow, string &outRow)
 {
@@ -100,386 +91,6 @@ bool spcProcessRow(const string &inRow, string &outRow)
 	outRow = formattedRow.str();
 
 	return true;
-}
-
-bool sysProcessRow(const string &inRow, string &outRow)
-{
-  // Check to see if it reaches end of trace file.
-  if (inRow.find("exited") != string::npos)
-    return true;
-  
-  /*
-   * The input expected by csv2ds-extra is <extent name>, <fields>.
-   *
-   * The input fields are ordered as follows.
-   * relative_timestamp syscall(args) = return_val
-   * Example: 0.000061 close(3)                  = 0
-   *
-   * Consult the SPC Trace format specification document and 
-   * strace man page for more details.
-   */
-  
-  /* 
-   * Split return information and system call information.
-   * The input fields are ordered as follows.
-   * relative_timestamp syscall(args) = return_val
-   */
-  std::string splitter = " = ";
-  size_t found = inRow.rfind(splitter);
-  // Check to make sure the trace record is valid.
-  if (found == std::string::npos) {
-    clog << "SYS: Malformed record: '" << inRow << "'. = is missing.\n";
-    return false;
-  }
-  
-  // Get system call information and return information
-  string sys_call_info = inRow.substr(0, found);
-  string ret_info = inRow.substr(found + splitter.size());
-  // We will just get return value and ignore rest.
-  int ret_val = std::stoi(ret_info);
-  
-  // Eliminate leading and trailing spaces
-  boost::trim(sys_call_info);
-    
-  // Split system call arguments and name
-  size_t left_paren_index = sys_call_info.find_first_of("(");
-  size_t right_paren_index = sys_call_info.find_last_of(")");
-  if (left_paren_index == std::string::npos || right_paren_index == std::string::npos) {
-    clog << "SYS: Malformed record: '" << sys_call_info << "'. ( or ) is missing.\n";
-    return false;
-  }
-  
-  // Get system call time and name
-  string sys_call_time_and_name = sys_call_info.substr(0, left_paren_index);
-  /* 
-   * Get system call arguments
-   * We don't want "(" and ")"
-   */
-  string sys_call_csv_args = sys_call_info.substr(left_paren_index + 1, 
-						  right_paren_index - left_paren_index - 1);
-
-  // Split system call name and time stamp
-  std::vector<string> fields;
-  boost::split(fields, sys_call_time_and_name, boost::is_any_of(" \t"), boost::token_compress_on);
-  string time_called = fields[0];
-  string sys_call_name = fields[1];
-  
-  // Process open and lseek differently
-  if (sys_call_name == "open") {
-    if (sysProcessOpen(sys_call_csv_args) == false) {
-      return false;
-    }
-  } else if (sys_call_name == "lseek") {
-    if (sysProcessLSeek(sys_call_csv_args) == false) {
-      return false;
-    }
-  }
-  
-  /* Right now we don't need to worry about this. So comment it out.
-   * DataSeries expects the time in Tfracs. One tfrac is 1/(2^32) of a
-   * second 
-   uint64_t rel_timestamp = (uint64_t)(atof(fields[0].c_str()) *
-   (((uint64_t)1)<<32));
-   // Make sure timestamp is valid.
-   if (rel_timestamp < 0) {
-   clog << "SYS: Malformed relative timestamp: '" << fields[0] << "'.";
-   clog << "Timestamp less than 0.\n";
-   return false;
-   }
-  */
-  
-  // Formatting output to csv2ds-extra
-  stringstream formattedRow;
-  formattedRow << sys_call_name << "," << time_called << "," << ret_val << "," <<sys_call_csv_args;
-  outRow = formattedRow.str();
-  return true;
-}
-
-bool sysProcessOpen(string &sys_call_csv_args) {
-  // Parse csv traced open arguments
-  boost::tokenizer<boost::escaped_list_separator<char> > args_tokenizer(sys_call_csv_args);
-  std::vector<string> sys_call_args;
-  // Store csv arguments into a vector
-  sys_call_args.assign(args_tokenizer.begin(), args_tokenizer.end());
-  // Make sure open trace has more than 1 argument.
-  if (sys_call_args.size() < 2) {
-    clog << "SYS: Malformed record: '" << sys_call_csv_args << "'. Too few arguments.\n";
-    return false;
-  }
-  
-  // Get each argument and store it in a variable
-  string path_name = sys_call_args[0];
-  string flags_arg = sys_call_args[1];
-  // Eliminate leading and trailing spaces
-  boost::trim(flags_arg);
-
-  vector<string> flags;
-  // Split the flags argument into a vector.
-  boost::split(flags, flags_arg, boost::is_any_of("|"), boost::token_compress_on);
-  
-  //std::unordered_map<string, bool> flag_map;
-  /*
-  flag_map["O_RDONLY"] = 0;
-  flag_map["O_WRONLY"] = 0;
-  flag_map["O_RDWR"] = 0;
-  flag_map["O_APPEND"] = 0;
-  flag_map["O_ASYNC"] = 0;
-  flag_map["O_CLOEXEC"] = 0;
-  flag_map["O_CREAT"] = 0;
-  flag_map["O_DIRECT"] = 0;
-  flag_map["O_DIRECTORY"] = 0;
-  flag_map["O_EXCL"] = 0;
-  flag_map["O_LARGEFILE"] = 0;
-  flag_map["O_NOATIME"] = 0;
-  flag_map["O_NOCTTY"] = 0;
-  flag_map["O_NOFOLLOW"] = 0;
-  flag_map["O_NONBLOCK"] = 0;
-  flag_map["O_NDELAY"] = 0;
-  flag_map["O_SYNC"] = 0;
-  flag_map["O_TRUNC"] = 0;
-  */
-
-  /* 
-   * The csv ouput expected by csv2ds-extra is flag_read_only,flag_write_only,flag_read_and_write,flag_append,..
-   *
-   * The vector is ordered as follows:
-   * flag_read_only,flag_write_only,flag_read_and_write,flag_append,..
-   * Example: 0,0,1,0,1,...
-   *
-   * Consult the SPC Trace format specification document for more details.
-   */
-  std::vector<string> flag_vector(18,"0");
-  
-  for (string flag : flags) {
-    if (flag.compare("O_RDONLY") == 0) {
-      flag_vector[0] = "1";
-      //flag_map["O_RDONLY"] = 1;
-    } else if (flag.compare("O_WRONLY") == 0) {
-      flag_vector[1] = "1";
-      //flag_map["O_WRONLY"] = 1;
-    } else if (flag.compare("O_RDWR") == 0) {
-      flag_vector[2] = "1";
-      //flag_map["O_RDWR"] = 1;
-    } else if (flag.compare("O_APPEND") == 0) {
-      flag_vector[3] = "1";
-      //flag_map["O_APPEND"] = 1;
-    } else if (flag.compare("O_ASYNC") == 0) {
-      flag_vector[4] = "1";
-      //flag_map["O_ASYNC"] = 1;
-    } else if (flag == "O_CLOEXEC") {
-      flag_vector[5] = "1";
-      //flag_map["O_CLOEXEC"] = 1;
-    } else if (flag.compare("O_CREAT") == 0) {
-      flag_vector[6] = "1";
-      //flag_map["O_CREAT"] = 1;
-    } else if (flag.compare("O_DIRECT") == 0) {
-      flag_vector[7] = "1";
-      //flag_map["O_DIRECT"] = 1;
-    } else if (flag.compare("O_DIRECTORY") == 0) {
-      flag_vector[8] = "1";
-      //flag_map["O_DIRECTORY"] = 1;
-    } else if (flag.compare("O_EXCL") == 0) {
-      flag_vector[9] = "1";
-      //flag_map["O_EXCL"] = 1;
-    } else if (flag.compare("O_LARGEFILE") == 0) {
-      flag_vector[10] = "1";
-      //flag_map["O_LARGEFILE"] = 1;
-    } else if (flag.compare("O_NOATIME") == 0) {
-      flag_vector[11] = "1";
-      //flag_map["O_NOATIME"] = 1;
-    } else if (flag.compare("O_NOCTTY") == 0) {
-      flag_vector[12] = "1";
-      //flag_map["O_NOCTTY"] = 1;
-    } else if (flag.compare("O_NOFOLLOW") == 0) {
-      flag_vector[13] = "1";
-      //flag_map["O_NOFOLLOW"] = 1;
-    } else if (flag.compare("O_NONBLOCK") == 0) {
-      flag_vector[14] = "1";
-      //flag_map["O_NONBLOCK"] = 1;
-    } else if (flag.compare("O_NDELAY") == 0) {
-      flag_vector[15] = "1";
-      //flag_map["O_NDELAY"] = 1;
-    } else if (flag.compare("O_SYNC") == 0) {
-      flag_vector[16] = "1";
-      //flag_map["O_SYNC"] = 1;
-    } else if (flag.compare("O_TRUNC") == 0) {
-      flag_vector[17] = "1";
-      //flag_map["O_TRUNC"] = 1;
-    } else {
-      clog << "SYS: Malformed open system call: '" << flags_arg << "'." << std::endl;
-      clog << "Unknown flag: '" << flag << "'.\n";
-      return false;
-    }
-  }
-  
-  /* The format of mode is expected to be xxxx. 
-   * Example: 0777,0666,0700
-   * Rightmost digit represents others permission
-   * Second of rightmost digit represents group permission
-   * Second of leftmost digit represents user permission
-   *
-   * Consult the Open man page for more details.
-   *
-   * The vector is represented as follows:
-   * mode_R_user, mode_W_user, ...
-   * Example: 0,0,...
-   *
-   * Consult the SPC Trace format specification document for more details.
-   *
-   */
-  
-  std::vector<string> mode_vector(9,"0");
-  // Check to see if modes are set in this open sys call.
-  if (sys_call_args.size() == 3) {
-    string mode_arg = sys_call_args[2];
-    // Eliminate leading and trailing spaces
-    boost::trim(mode_arg);
-    // Get modes and store them into mode_vector
-    if (sysProcessMode(mode_arg, mode_vector) == false) {
-      clog << "SYS: Malformed open system call: '" << sys_call_csv_args << "'." << std::endl;
-      return false;
-    }
-  }
-  
-  // Formatting open trace arguments.
-  stringstream csv_args_stream;
-  
-  csv_args_stream << path_name << "," << boost::algorithm::join(flag_vector, ",") << "," 
-		  << boost::algorithm::join(mode_vector, ",");
-  sys_call_csv_args = csv_args_stream.str();
-  return true;
-}
-
-bool sysProcessMode(string &mode_arg, vector<string> &mode_vector) {
-  for (int i = 3; i > 0; i--) {
-    /*
-     * others_permission -> mode_arg.at(mode_arg.length()-1);
-     * group_permission -> mode_arg.at(mode_arg.length()-2);
-     * user_permission -> mode_arg.at(mode_arg.length()-3);
-     */
-    char c_permission = mode_arg.at(mode_arg.length() - i);
-    if (isdigit(c_permission)) {
-      /*
-       * mode_vector[0] -> user read permission
-       * mode_vector[1] -> user write permission
-       * mode_vector[2] -> user execute permission
-       * mode_vector[3] -> group read permission
-       * ...
-       * owner_start_index = 0 for user, 3 for group, 6 for others
-       */
-      int start_index = 0;
-      switch(i) {
-      case 3:
-	// User
-	start_index = 0;
-	break;
-      case 2:
-	// Group
-	start_index = 3;
-	break;
-      case 1:
-	// Others
-	start_index = 6;
-	break;
-      }
-      
-      int permission = c_permission - '0';
-      switch(permission) {
-      case 0:
-	// no permission
-	mode_vector[0 + start_index] = "0";
-	mode_vector[1 + start_index] = "0";
-	mode_vector[2 + start_index] = "0";
-	break;
-      case 1:
-	// execute permission
-	mode_vector[0 + start_index] = "0";
-	mode_vector[1 + start_index] = "0";
-	mode_vector[2 + start_index] = "1";
-	break;
-      case 2:
-	// write permission
-	mode_vector[0 + start_index] = "0";
-	mode_vector[1 + start_index] = "1";
-	mode_vector[2 + start_index] = "0";
-	break;
-      case 3:
-	// execute and write permission
-	mode_vector[0 + start_index] = "0";
-	mode_vector[1 + start_index] = "1";
-	mode_vector[2 + start_index] = "1";
-	break;
-      case 4:
-	// read permission
-	mode_vector[0 + start_index] = "1";
-	mode_vector[1 + start_index] = "0";
-	mode_vector[2 + start_index] = "0";
-	break;
-      case 5:
-	// read and execute permission
-	mode_vector[0 + start_index] = "1";
-	mode_vector[1 + start_index] = "0";
-	mode_vector[2 + start_index] = "1";
-	break;
-      case 6:
-	// read and write permission
-	mode_vector[0 + start_index] = "1";
-	mode_vector[1 + start_index] = "1";
-	mode_vector[2 + start_index] = "0";
-	break;
-      case 7:
-	// read, write, and execute permission
-	mode_vector[0 + start_index] = "1";
-	mode_vector[1 + start_index] = "1";
-	mode_vector[2 + start_index] = "1";
-	break;
-      default:
-	// error, unknown permission
-	clog << "Unknown permission: '" << permission << "'.\n";
-	return false;	
-      }
-    } else {
-      clog << "Unknown permission: '" << c_permission << "'.\n";
-      return false;
-    }
-  }
-  
-  return true;
-}
-
-bool sysProcessLSeek(string &sys_call_csv_args) {
-  // Parse csv traced open arguments.
-  boost::tokenizer<boost::escaped_list_separator<char> > args_tokenizer(sys_call_csv_args);
-  std::vector<string> sys_call_args;
-  // Store arguments into a sys_call_args vector.
-  sys_call_args.assign(args_tokenizer.begin(), args_tokenizer.end());
-  // Make sure this traced lseek sys call has three arguments.
-  if (sys_call_args.size() != 3) {
-    clog << "SYS: Malformed record: '" << sys_call_csv_args << "'. Too few arguments.\n";
-    return false;
-  }
-  
-  // Get arguments and store each one into a variable.
-  string descriptor = sys_call_args[0];
-  string offset = sys_call_args[1];
-  string whence_str = sys_call_args[2];
-  // Eliminate leading or trailing space characters
-  boost::algorithm::trim(whence_str);
-  int whence = -1;
-  // Determine whence
-  if (whence_str == "SEEK_SET") {
-    whence = 0;
-  } else if (whence_str == "SEEK_CUR") {
-    whence = 1;
-  } else if (whence_str == "SEEK_END") {
-    whence = 2;
-  }
-  // Formatting lseek args.
-  stringstream csv_args_stream;
-  
-  csv_args_stream << descriptor << "," << offset << "," << whence;
-  sys_call_csv_args = csv_args_stream.str();
-  return true;
 }
 
 bool blkProcessRow(const string &inRow, string &outRow)
@@ -609,7 +220,7 @@ bool mpsProcessRow(const string &inRow, string &outRow)
 
 void showUsage(const char *pgmname)
 {
-	cerr << "Usage:   " << pgmname << " <blk | spc | vss | mps | sys> <input file> "
+	cerr << "Usage:   " << pgmname << " <blk | spc | vss | mps> <input file> "
 			"<output file>\n";
 	cerr << "Example: " << pgmname << " spc /foo/bar /foo/baz\n";
 }
@@ -644,8 +255,6 @@ int main(int argc, char *argv[])
 		processRow = vssProcessRow;
 	else if (!strcmp("mps", traceType))
 		processRow = mpsProcessRow;
-	else if (!strcmp("sys", traceType))
-	        processRow = sysProcessRow;
 	else {
 		cerr << "Unsupported trace type '" << traceType << "'.\n";
 		showUsage(argv[0]);

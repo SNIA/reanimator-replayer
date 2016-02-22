@@ -41,7 +41,7 @@ do
 	if [ $callname == "Common" ]; then
 		commonparms=$parms
 	else
-		echo "<ExtentType name=\"IOTTAFSL::Trace::Syscall::$callname\" namespace=\"iotta.snia.org.fsl.cs.sunysb.edu\" version=\"1.00\">" > xml/$callname.xml
+		echo "<ExtentType name=\"IOTTAFSL:Trace:Syscall:$callname\" namespace=\"iotta.snia.org.fsl.cs.sunysb.edu\" version=\"1.00\">" > xml/$callname.xml
 		for parm in $commonparms $parms
 		do
 			line=`grep -P "^$callname\t$parm\t" < $1`
