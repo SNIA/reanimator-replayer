@@ -177,11 +177,12 @@ void OpenSystemCallTraceReplayModule::prepareForProcessing() {
 }
 
 void OpenSystemCallTraceReplayModule::processRow() {
-  char *pathname = (char *)given_pathname.val();
+  std::string path_str = given_pathname.stringval();
+  const char *pathname = path_str.c_str();
   int flags = getFlags();
   // Check to see if this operation has a valid flag.
   if (flags == -1) {
-    std::cout << given_pathname.val() << " is NOT successfully opened." << std::endl;
+    std::cout << path_str << " is NOT successfully opened." << std::endl;
     return;
   }
   mode_t mode = getMode();
@@ -206,7 +207,7 @@ void OpenSystemCallTraceReplayModule::processRow() {
     perror(pathname);
   } else {
     if (verbose_) {
-      std::cout << given_pathname.val() << " is successfully opened..." << std::endl;
+      std::cout << path_str << " is successfully opened..." << std::endl;
     }
   }
 }
