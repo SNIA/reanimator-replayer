@@ -49,9 +49,12 @@ if [ ! -e $SPECSTRINGFILE ]; then
 fi
 
 if [ ! -e $XML_DIR ]; then
-    ./generate.sh $TABLEFILE
-    echo "Extents XML directory is not found! Please generate them"
-    exit 1
+    echo "XML directory is missing. Using generate-xml script to generate XML files..."
+    ./generate-xml.sh $TABLEFILE
+    if [ $? -ne 0 ]; then
+	echo "generate-xml.sh failed to generate. Please generate them on your own."
+	exit 1
+    fi
 fi
 
 if [ -z "$INPUTFILE" ]; then
