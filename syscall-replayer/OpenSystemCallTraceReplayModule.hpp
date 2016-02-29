@@ -32,56 +32,9 @@
 class OpenSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 private:
   /* Open System Call Trace Fields in Dataseries file */
-  Variable32Field given_pathname;
-  BoolField flag_read_only;
-  BoolField flag_write_only;
-  BoolField flag_read_and_write;
-  BoolField flag_append;
-  BoolField flag_async;
-  BoolField flag_close_on_exec;
-  BoolField flag_create;
-  BoolField flag_direct;
-  BoolField flag_directory;
-  BoolField flag_exclusive;
-  BoolField flag_largefile;
-  BoolField flag_no_access_time;
-  BoolField flag_no_controlling_terminal;
-  BoolField flag_no_follow;
-  BoolField flag_no_blocking_mode;
-  BoolField flag_no_delay;
-  BoolField flag_synchronous;
-  BoolField flag_truncate;
-  BoolField mode_R_user;
-  BoolField mode_W_user;
-  BoolField mode_X_user;
-  BoolField mode_R_group;
-  BoolField mode_W_group;
-  BoolField mode_X_group;
-  BoolField mode_R_others;
-  BoolField mode_W_others;
-  BoolField mode_X_others;
-
-  /*
-   * This function finds what flags were set in current
-   * open system call that ExtentSeries is pointing to and
-   * return a bitwise-or'd number that can be directly used in 
-   * open system call
-   * 
-   * @return: a flag number of current open system call that 
-   *          is about to replay
-   */
-  int getFlags();
-  
-  /*
-   * This function finds what modes were set in current open 
-   * system call that ExtenSeries is pointing and
-   * return a bitwise-or'd number that can be directly used in 
-   * open system call
-   * 
-   * @return: a mode number of current open system call that 
-   *          is about to replay
-   */
-  mode_t getMode();
+  Variable32Field given_pathname_;
+  Int32Field open_value_;
+  Int32Field mode_value_;
 
   /*
    * This function will prepare things before replaying any 
