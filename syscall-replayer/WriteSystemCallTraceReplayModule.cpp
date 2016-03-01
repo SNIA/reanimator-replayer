@@ -35,15 +35,15 @@ WriteSystemCallTraceReplayModule::WriteSystemCallTraceReplayModule(DataSeriesMod
  * using rand().*/
 char *WriteSystemCallTraceReplayModule::random_fill_buffer(char *buffer, size_t nbytes) {
   size_t size = sizeof(size_t);
-  size_t remaining = nbytes%size;
+  size_t remaining = nbytes % size;
   size_t bytes = nbytes - remaining;
-  size_t i,num;
+  size_t i, num;
   srand(time(0));
   num = rand();
-  memcpy(buffer,&num,remaining);
-  for(i=remaining; i<bytes; i+=size){
+  memcpy(buffer, &num, remaining);
+  for (i = remaining; i < bytes; i+=size) {
     num = rand();
-    memcpy(buffer+i,&num,size);
+    memcpy(buffer+i, &num, size);
   }
   return buffer;
 }
@@ -65,10 +65,8 @@ void WriteSystemCallTraceReplayModule::prepareForProcessing() {
 void WriteSystemCallTraceReplayModule::processRow() {
   size_t nbytes = bytes_requested_.val();
   int fd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
-  // Buffer that we will pass it to write sys call
-  const char *data_buffer;
-  // Buffer that holds data we will fill in
-  char *temp_buffer = NULL;
+  char *data_buffer;
+  
   // Check to see if write data was in DS and user didn't specify pattern
   if (data_written_.isNull() && pattern_data_.empty()) {
     // Let's write zeros.
@@ -77,25 +75,22 @@ void WriteSystemCallTraceReplayModule::processRow() {
   
   // Check to see if user wants to use pattern
   if (!pattern_data_.empty()) {
-    temp_buffer = new char[nbytes];
+    data_buffer = new char[nbytes];
     if (pattern_data_ == "random") {
 #ifdef DEV_URANDOM
-      random_file_.read(temp_buffer, nbytes);
+      random_file_.read(data_buffer, nbytes);
 #else
-      temp_buffer = random_fill_buffer(temp_buffer, nbytes);
+      data_buffer = random_fill_buffer(data_buffer, nbytes);
 #endif
     } else {
       int pattern_hex;
       std::stringstream pattern_stream;
       pattern_stream << std::hex << pattern_data_;
       pattern_stream >> pattern_hex;
-      memset(temp_buffer, pattern_hex, nbytes);
+      memset(data_buffer, pattern_hex, nbytes);
     }
-    // temp_buffer holds data that we want to write, simply assign
-    data_buffer = temp_buffer;
   } else {
-    std::string data_written = data_written_.stringval();
-    data_buffer = data_written.c_str();
+    data_buffer = (char *)data_written_.val();
   }
   
   if (verbose_) {
@@ -111,8 +106,8 @@ void WriteSystemCallTraceReplayModule::processRow() {
   compare_retval(ret);
   
   // Free the buffer
-  if (!pattern_data_.empty() && temp_buffer != NULL){
-    delete[] temp_buffer;
+  if (!pattern_data_.empty()){
+    delete[] data_buffer;
   }
   
   if (ret == -1) {

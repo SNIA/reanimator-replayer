@@ -1,3 +1,4 @@
+Note: there are many more system calls. However, SNIA document only lists the following 38 system calls. We may support more system calls if we expand our replayer to support all of the following.
 The POSIX system calls considered applicable to I/O tracing:
 1. read - support
 2. write - support

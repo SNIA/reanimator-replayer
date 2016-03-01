@@ -46,16 +46,16 @@ public:
   
   void addField(const std::string &syscallName, const std::string &fieldName,
 		void* fieldObj, ExtentType::fieldType fieldType);
-  
+
   template <typename FType>
   void doSetNull(std::string &syscallName, std::string &fieldName);
   
-  template <typename FType, typename EType>
-  void doSet(std::string &syscallName, std::string &fieldName, void* val);
-  
   template <typename FType>
   void doSet(string &syscallName, string &fieldName, std::string &str);
-  
+
+  template <typename FType, typename EType>
+  void doSet(std::string &syscallName, std::string &fieldName, void* val);
+
   template <typename FType, typename EType>
   EType doGet(std::string &syscallName, std::string &fieldName);
   

@@ -32,8 +32,7 @@ void OpenSystemCallTraceReplayModule::prepareForProcessing() {
 }
 
 void OpenSystemCallTraceReplayModule::processRow() {
-  std::string path_str = given_pathname_.stringval();
-  const char *pathname = path_str.c_str();
+  const char *pathname = (char *)given_pathname_.val();
   int flags = open_value_.val();
   mode_t mode = mode_value_.val();
   int return_value = (int)return_value_.val();
@@ -57,7 +56,7 @@ void OpenSystemCallTraceReplayModule::processRow() {
     perror(pathname);
   } else {
     if (verbose_) {
-      std::cout << path_str << " is successfully opened..." << std::endl;
+      std::cout << pathname << " is successfully opened..." << std::endl;
     }
   }
 }

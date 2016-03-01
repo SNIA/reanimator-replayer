@@ -72,6 +72,11 @@ void FieldSpace::doSetNull(string &syscallName, string &fieldName) {
   ((FType*)(fieldSpace[syscallName][fieldName].first))->setNull();
 }
 
+template <typename FType>
+void FieldSpace::doSet(string &syscallName, string &fieldName, std::string &str) {
+  ((FType*)(fieldSpace[syscallName][fieldName].first))->set(str.c_str(), str.size()+1);
+}
+
 template <typename FType, typename EType>
 void FieldSpace::doSet(string &syscallName, string &fieldName, void* val) {
   ((FType*)(fieldSpace[syscallName][fieldName].first))->set(*(EType*)val);
@@ -137,7 +142,7 @@ void FieldSpace::setField(string &syscallName, string &fieldName, string &val) {
     doSet<DoubleField,double>(syscallName, fieldName, buffer);
     break;
   case ExtentType::ft_variable32:
-    doSet<Variable32Field,string>(syscallName, fieldName, &val);
+    doSet<Variable32Field>(syscallName, fieldName, val);
     break;
   default:
     stringstream msg;

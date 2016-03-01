@@ -35,7 +35,6 @@ void ReadSystemCallTraceReplayModule::prepareForProcessing() {
 
 void ReadSystemCallTraceReplayModule::processRow() {
   // Get replaying file descriptor.
-  std::string data_read = data_read_.stringval();
   int fd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
   int nbytes = bytes_requested_.val();
   if (verbose_) {
@@ -43,7 +42,7 @@ void ReadSystemCallTraceReplayModule::processRow() {
     std::cout.precision(23);
     std::cout << "time called(" << std::fixed << time_called() << "), ";
     std::cout << "descriptor:" << fd << "), ";
-    std::cout << "data read(" << data_read << "), ";
+    std::cout << "data read(" << data_read_.val() << "), ";
     std::cout << "size(" << nbytes << ")\n";
   }
   char buffer[nbytes];
@@ -52,13 +51,13 @@ void ReadSystemCallTraceReplayModule::processRow() {
 
   if (verify_ == true) {
     // Verify read data and data in the trace file are same
-    if (memcmp(data_read.c_str(), buffer, ret) != 0){
+    if (memcmp(data_read_.val(), buffer, ret) != 0){
       // Data aren't same
       std::cerr << "Verification of data in read failed.\n";
       if (warn_level_ != DEFAULT_MODE) {
 	std::cout << "time called:" << std::fixed << time_called() << std::endl;
 	std::cout << "Captured read data is different from replayed read data" << std::endl;
-	std::cout << "Captured read data: " << data_read << ", ";
+	std::cout << "Captured read data: " << data_read_.val() << ", ";
 	std::cout << "Replayed read data: " << buffer << std::endl;
 	if (warn_level_ == ABORT_MODE ) {
 	  abort();
