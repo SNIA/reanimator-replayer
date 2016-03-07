@@ -97,7 +97,7 @@ bool process_row(const std::string &in_row, std::string &out_row) {
     return false;
   }
   std::string ret_info = in_row.substr(found + splitter.size());
-  // A vector to store all return information - return value and errno
+  // A vector to store all return information - errno and return value
   std::vector<std::string> ret_info_fields;
   if (process_ret_info(ret_info, ret_info_fields) == false) {
     return false;
@@ -149,8 +149,6 @@ bool process_ret_info(const std::string &ret_info,
     std::cerr << "'" << ret_info << "' has too few return info.\n";
     return false;
   }
-  // Store return value in 1st position
-  ret_info_fields.push_back(ret_fields[0]);
   // Check to see if there is an errno
   if (ret_fields.size() > 1) {
     // Store errno num in 2nd position if there is an errno
@@ -160,6 +158,8 @@ bool process_ret_info(const std::string &ret_info,
     // Store 0 as the errno num which means that there is no errno
     ret_info_fields.push_back("0");
   }
+  // Store return value in 2nd position
+  ret_info_fields.push_back(ret_fields[0]);
   return true;
 }
 
