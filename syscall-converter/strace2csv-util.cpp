@@ -64,10 +64,6 @@ bool process_lseek_args(std::string &sys_call_csv_args);
  * strace man page for more details about the format.
  */
 bool process_row(const std::string &in_row, std::string &out_row) {
-  // Check to see if it reaches end of trace file.
-  if (in_row.find("exited") != std::string::npos)
-    return true;
-  
   /* 
    * Split return information and system call information.
    * The input fields are ordered as follows.
@@ -77,8 +73,18 @@ bool process_row(const std::string &in_row, std::string &out_row) {
   size_t found = in_row.rfind(splitter);
   // Check to make sure the sys call trace record is valid.
   if (found == std::string::npos) {
-    std::cerr << "SYS: Malformed record: '" << in_row << "'. = is missing.\n";
-    return false;
+    /*
+     * Check to see if it reaches the last line of trace file.
+     * It looks like 'time_called +++ exited with 1 +++'
+     */
+    if (in_row.find(" +++ exited with ") != std::string::npos) {
+      // Set output row to an empty string - append nothing to CSV output file.
+      out_row = "";
+      return true;
+    } else {
+      std::cerr << "SYS: Malformed record: '" << in_row << "'. = is missing.\n";
+      return false;
+    }
   }
   
   // Get system call information and return information
@@ -115,7 +121,7 @@ bool process_row(const std::string &in_row, std::string &out_row) {
   */
 
   // Now, combine all fields into a CSV string
-  out_row = boost::algorithm::join(sys_call_fields, ",");
+  out_row = boost::algorithm::join(sys_call_fields, ",") + "\n";
   return true;
 }
 

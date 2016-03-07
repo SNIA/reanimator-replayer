@@ -87,7 +87,7 @@ int main(int argc, char *argv[]) {
       std::cerr << "The error record is at row " << row_num << ".\n";
       exit(EXIT_FAILURE);
     } 
-    out_file << out_row << "\n";
+    out_file << out_row;
   }
  cleanup:
   if (in_file.is_open()) {
