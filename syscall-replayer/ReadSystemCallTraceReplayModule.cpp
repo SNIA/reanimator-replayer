@@ -97,7 +97,6 @@ void PReadSystemCallTraceReplayModule::prepareForProcessing() {
 }
 
 void PReadSystemCallTraceReplayModule::processRow() {
-  std::string data_pread = data_read_.stringval();
   // Get replaying file descriptor.
   int fd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
   int nbytes = bytes_requested_.val();
@@ -106,7 +105,7 @@ void PReadSystemCallTraceReplayModule::processRow() {
     std::cout.precision(23);
     std::cout << "time called(" << std::fixed << time_called() << "), ";
     std::cout << "descriptor:" << fd << "), ";
-    std::cout << "data read(" << data_pread << "), ";
+    std::cout << "data read(" << data_read_.val() << "), ";
     std::cout << "size(" << nbytes << ")\n";
   }
   char buffer[nbytes];
@@ -116,13 +115,13 @@ void PReadSystemCallTraceReplayModule::processRow() {
 
   if (verify_ == true) {
     // Verify read data and data in the trace file are same
-    if (memcmp(data_pread.c_str(),buffer,ret) != 0) {
+    if (memcmp(data_read_.val(), buffer, ret) != 0) {
       // Data aren't same
       std::cerr << "Verification of data in pread failed.\n";
       if (warn_level_ != DEFAULT_MODE) {
 	std::cout << "time called:" << std::fixed << time_called() << std::endl;
 	std::cout << "Captured pread data is different from replayed pread data" << std::endl;
-	std::cout << "Captured pread data: " << data_pread << ", ";
+	std::cout << "Captured pread data: " << data_read_.val() << ", ";
 	std::cout << "Replayed pread data: " << buffer << std::endl;
 	if (warn_level_ == ABORT_MODE ) {
 	  abort();
