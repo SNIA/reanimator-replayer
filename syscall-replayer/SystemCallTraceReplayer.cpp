@@ -192,6 +192,7 @@ int main(int argc, char *argv[]) {
   system_calls.push_back("read");
   system_calls.push_back("write");
   system_calls.push_back("lseek");
+  system_calls.push_back("pread");
   
   std::vector<TypeIndexModule *> type_index_modules;
 
@@ -234,13 +235,18 @@ int main(int argc, char *argv[]) {
   LSeekSystemCallTraceReplayModule *lseek_module = new LSeekSystemCallTraceReplayModule(*prefetch_buffer_modules[4],
 											verbose,
 											warn_level);
-  
+  PReadSystemCallTraceReplayModule *pread_module = new PReadSystemCallTraceReplayModule(*prefetch_buffer_modules[5],
+										       verbose,
+										       verify,
+										       warn_level);
+   
   std::vector<SystemCallTraceReplayModule *> system_call_trace_replay_modules;
   system_call_trace_replay_modules.push_back(open_module);
   system_call_trace_replay_modules.push_back(close_module);
   system_call_trace_replay_modules.push_back(read_module);
   system_call_trace_replay_modules.push_back(write_module);
   system_call_trace_replay_modules.push_back(lseek_module);
+  system_call_trace_replay_modules.push_back(pread_module);
 
   // Define a min heap that stores each module. The heap is ordered by time_called field.
   std::priority_queue<SystemCallTraceReplayModule*, 
