@@ -26,6 +26,7 @@
 #include <vector>
 #include <sstream>
 #include <string>
+#include <regex>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -77,12 +78,14 @@ bool process_row(const std::string &in_row, std::string &out_row) {
      * Check to see if it reaches the last line of trace file.
      * It looks like 'time_called +++ exited with 1 +++'
      */
-    if (in_row.find(" +++ exited with ") != std::string::npos) {
+    std::regex last_line_regex(".*+++ exited with .* +++$");
+
+    if (std::regex_match(in_row, last_line_regex)) {
       // Set output row to an empty string - append nothing to CSV output file.
       out_row = "";
       return true;
     } else {
-      std::cerr << "SYS: Malformed record: '" << in_row << "'. = is missing.\n";
+      std::cerr << "Malformed record: '" << in_row << "'. = is missing.\n";
       return false;
     }
   }
