@@ -32,6 +32,11 @@ private:
   Int32Field descriptor_;
   Int64Field offset_;
   ByteField whence_;
+
+  /*
+   * Print lseek sys call field values in a nice format
+   */
+  void print_specific_fields();
   
   /*
    * This function will prepare things before replaying any

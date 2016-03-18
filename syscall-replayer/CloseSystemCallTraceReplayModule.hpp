@@ -31,6 +31,11 @@ private:
   Int32Field descriptor_;
 
   /*
+   * Print close sys call field values in a nice format
+   */
+  void print_specific_fields();
+
+  /*
    * This function will prepare things before replaying any
    * close system call. Right now it displays a starting
    * message.

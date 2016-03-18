@@ -34,6 +34,11 @@ private:
   Int32Field descriptor_;
   Variable32Field data_read_;
   Int64Field bytes_requested_;
+
+  /*
+   * Print read sys call field values in a nice format
+   */
+  void print_specific_fields();
   
   /*
    * This function will prepare things before replaying any

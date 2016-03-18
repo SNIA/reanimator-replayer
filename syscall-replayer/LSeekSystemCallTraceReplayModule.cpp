@@ -24,7 +24,13 @@ LSeekSystemCallTraceReplayModule::LSeekSystemCallTraceReplayModule(DataSeriesMod
   descriptor_(series, "descriptor"),
   offset_(series, "offset"),
   whence_(series, "whence") {
-  sys_call_ = "lseek";
+  sys_call_name_ = "lseek";
+}
+
+void LSeekSystemCallTraceReplayModule::print_specific_fields() {
+  std::cout << "descriptor(" << descriptor_.val() << "), ";
+  std::cout << "offset(" << offset_.val() << "), ";
+  std::cout << "whence(" << whence_.val() << ")";
 }
 
 void LSeekSystemCallTraceReplayModule::prepareForProcessing() {
@@ -36,25 +42,9 @@ void LSeekSystemCallTraceReplayModule::processRow() {
   int fd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
   long offset = offset_.val();
   uint8_t whence = whence_.val();
-  if (verbose_) {
-    std::cout << sys_call_ << ": ";
-    std::cout.precision(23);
-    std::cout << "time called(" << std::fixed << time_called() << "), ";
-    std::cout << "descriptor(" << fd << "), ";
-    std::cout << "offset(" << offset << "), ";
-    std::cout << "whence(" << (int)whence << ")." << std::endl;
-  }
-  // Replay
-  int ret = lseek(fd, offset, whence);
-  compare_retval(ret);
 
-  if (ret == -1) {
-    perror("lseek");
-  } else {
-    if (verbose_) {
-      std::cout << "lseek was executed successfully!" << std::endl;
-    }
-  }
+  // Replay
+  replayed_ret_val_ = lseek(fd, offset, whence);
 }
 
 void LSeekSystemCallTraceReplayModule::completeProcessing() {

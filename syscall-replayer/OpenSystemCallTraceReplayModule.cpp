@@ -24,7 +24,13 @@ OpenSystemCallTraceReplayModule::OpenSystemCallTraceReplayModule(DataSeriesModul
   given_pathname_(series, "given_pathname"),
   open_value_(series, "open_value", Field::flag_nullable),
   mode_value_(series, "mode_value", Field::flag_nullable) {
-  sys_call_ = "open";
+  sys_call_name_ = "open";
+}
+
+void OpenSystemCallTraceReplayModule::print_specific_fields() {
+  std::cout << "pathname(" << given_pathname_.val() << "), ";
+  std::cout << "flags(" << open_value_.val() << "), ";
+  std::cout << "mode(" << mode_value_.val() << ")";
 }
 
 void OpenSystemCallTraceReplayModule::prepareForProcessing() {
@@ -36,29 +42,11 @@ void OpenSystemCallTraceReplayModule::processRow() {
   int flags = open_value_.val();
   mode_t mode = mode_value_.val();
   int return_value = (int)return_value_.val();
-
-  if (verbose_) {
-    std::cout << "open: ";
-    std::cout.precision(25);
-    std::cout << "time called(" << std::fixed << time_called() << "), ";
-    std::cout << "pathname(" << pathname << "), ";
-    std::cout << "flags(" << flags << "), ";
-    std::cout << "mode(" << mode << ")\n";
-  }
   
   // replay the open system call
-  int replay_ret = open(pathname, flags, mode);
-  compare_retval(replay_ret);
+  replayed_ret_val_ = open(pathname, flags, mode);
   // Add a mapping from fd in trace file to actual replayed fd
-  SystemCallTraceReplayModule::fd_map_[return_value] = replay_ret;
-
-  if (replay_ret == -1) {
-    perror(pathname);
-  } else {
-    if (verbose_) {
-      std::cout << pathname << " is successfully opened..." << std::endl;
-    }
-  }
+  SystemCallTraceReplayModule::fd_map_[return_value] = replayed_ret_val_;
 }
 
 void OpenSystemCallTraceReplayModule::completeProcessing() {

@@ -31,11 +31,16 @@ private:
   bool verify_;
   std::string pattern_data_;
   std::ifstream random_file_;
-  /* Open System Call Trace Fields in Dataseries file */
+  /* Write System Call Trace Fields in Dataseries file */
   Int32Field descriptor_;
   Variable32Field data_written_;
   Int64Field bytes_requested_;
-  
+
+  /*
+   * Print write sys call field values in a nice format
+   */
+  void print_specific_fields();
+
   /*
    * This function will prepare things before replaying any
    * write system call. Right now it displays a starting 

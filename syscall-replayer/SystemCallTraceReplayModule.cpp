@@ -24,18 +24,44 @@ SystemCallTraceReplayModule::SystemCallTraceReplayModule(DataSeriesModule &sourc
   verbose_(verbose_flag),
   warn_level_(warn_level_flag),
   time_called_(series, "time_called"),
+  errno_number_(series, "errno_number", Field::flag_nullable),
   return_value_(series, "return_value", Field::flag_nullable),
-  completed_(false) {
+  completed_(false),
+  replayed_ret_val_(0) {
 }
-  
+
+bool SystemCallTraceReplayModule::verbose_mode() const {
+  return verbose_;
+}
+
+bool SystemCallTraceReplayModule::default_mode() const {
+  return warn_level_ == DEFAULT_MODE;
+}
+
+bool SystemCallTraceReplayModule::warn_mode() const {
+  return warn_level_ == WARN_MODE;
+}
+
+bool SystemCallTraceReplayModule::abort_mode() const {
+  return warn_level_ == ABORT_MODE;
+}
+
 double SystemCallTraceReplayModule::time_called() const {
   return (double)time_called_.val();
+}
+
+int SystemCallTraceReplayModule::errno_number() const {
+  return (int)errno_number_.val();
+}
+
+int SystemCallTraceReplayModule::return_value() const {
+  return (int)return_value_.val();
 }
 
 Extent::Ptr SystemCallTraceReplayModule::getSharedExtent() {
   Extent::Ptr e = source.getSharedExtent();
   if (e == NULL) {
-    if (!completed_) {
+    if (!completed_ && prepared) {
       completed_ = true;
       completeProcessing();
     }
@@ -66,22 +92,52 @@ bool SystemCallTraceReplayModule::cur_extent_has_more_record() {
 void SystemCallTraceReplayModule::execute() {
   ++processed_rows;
   processRow();
+  after_sys_call();
   ++series;
 }
 
-void SystemCallTraceReplayModule::compare_retval(int ret_val) {
-  if (verbose_){
-    std::cout << "Captured return value: " << return_value_.val() << ", ";
-    std::cout << "Replayed return value: " << ret_val << std::endl;
+void SystemCallTraceReplayModule::after_sys_call() {
+  compare_retval_and_errno();
+  if (verbose_mode()) {
+    std::cout << "System call '" << sys_call_name_ << "' was executed with following arguments:" << std::endl;
+    print_sys_call_fields();
   }
-  
-  if (warn_level_ != DEFAULT_MODE && return_value_.val() != ret_val) {
-    std::cout << "time called:" << std::fixed << time_called() << std::endl;
-    std::cout << "Captured return value is different from replayed return value" << std::endl;
-    std::cout << "Captured return value: " << return_value_.val() << ", ";
-    std::cout << "Replayed return value: " << ret_val << std::endl;
-    if (warn_level_ == ABORT_MODE) {
+}
+
+void SystemCallTraceReplayModule::print_sys_call_fields() {
+  print_common_fields();
+  std::cout << ", ";
+  print_specific_fields();
+  std::cout << std::endl;
+}
+
+void SystemCallTraceReplayModule::print_common_fields() {
+  std::cout << sys_call_name_ << ": ";
+  std::cout.precision(25);
+  std::cout << "time called(" << std::fixed << time_called() << "), ";
+  std::cout << "errno(" << errno_number() << "), ";
+  std::cout << "return value(" << return_value() << "), ";
+  std::cout << "replayed return value(" << replayed_ret_val_ << ")";
+}
+
+void SystemCallTraceReplayModule::compare_retval_and_errno() {
+  if (default_mode()) {
+    return;
+  }
+
+  if (return_value() != replayed_ret_val_) {
+    print_sys_call_fields();
+    std::cout << "Warning: Return values are different.";
+    if (abort_mode()) {
       abort();
+    }
+  } else if (replayed_ret_val_ == -1) {
+    if (errno != errno_number()) {
+      print_sys_call_fields();
+      std::cout << "Warning: Errno numbers are different.";
+      if (abort_mode()) {
+	abort();
+      }
     }
   }
 }

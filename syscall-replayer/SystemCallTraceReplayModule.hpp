@@ -29,6 +29,7 @@
 
 #include <string>
 #include <map>
+#include <errno.h>
 
 #define DEFAULT_MODE 0
 #define WARN_MODE    1
@@ -36,19 +37,38 @@
 
 class SystemCallTraceReplayModule : public RowAnalysisModule {
 protected:
-  std::string sys_call_;
+  std::string sys_call_name_;
   bool verbose_;
   int  warn_level_;
   DoubleField time_called_;
+  Int32Field errno_number_;
   Int64Field return_value_;
   bool completed_;
+  int replayed_ret_val_;
+  /*
+   * Print common and specific sys call field values in a nice format
+   */
+  void print_sys_call_fields();
 
-  /* 
+  /*
+   * Print common sys call field values in a nice format
+   */
+  void print_common_fields();
+
+  /*
+   * Print specific sys call field values in a nice format
+   *
+   * Note: child class should implement this function if it wants
+   * print_sys_call_fields to print out specific sys call fields values.
+   */
+  virtual void print_specific_fields() = 0;
+
+  /*
    * Compare return value of an operation in trace file and replayed operation
    * 
-   * @param ret_val: return value of replayed operation
+   * @param replayed_ret_val: return value of replayed operation
    */
-  void compare_retval(int ret_val);
+  void compare_retval_and_errno();
 
   /*
    * This function will be called before replaying any corresponding 
@@ -66,6 +86,16 @@ protected:
    * a specific system call
    */
   virtual void processRow() = 0;
+
+  /*
+   * after_sys_call is called by execute() function.
+   * This function gets called after a system call is replayed.
+   * Currently, it prints system call fields if the replayer
+   * is running in verbose mode.
+   * Note: You can override this function to do things that
+   * you want to do after replaying a system call.
+   */
+  virtual void after_sys_call();
   
   /* 
    * This function will be called after all system call 
@@ -93,13 +123,57 @@ public:
   SystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag, int warn_level_flag);
   
   /*
+   * Determine whether or not to replay in verbose mode
+   *
+   * @return: true if it is in verbose mode, false otherwise
+   */
+  bool verbose_mode() const;
+
+  /*
+   * Determine whether or not to replay in default mode
+   *
+   * @return: true if it is in default mode, false otherwise
+   */
+  bool default_mode() const;
+
+  /*
+   * Determine whether or not to replay in warn mode
+   *
+   * @return: true if it is in warn mode, false otherwise
+   */
+  bool warn_mode() const;
+
+  /*
+   * Determine whether or not to replay in abort mode
+   *
+   * @return: true if it is in abort mode, false otherwise
+   */
+  bool abort_mode() const;
+
+  /*
    * Get the execution time of current system call record
    *
    * @return: corresponding time_called field of a record that
    *          extent series is pointing to.
    */
   double time_called() const;
-  
+
+  /*
+   * Get the errno number of current system call record
+   *
+   * @return: corresponding errno number field of a record that
+   *          extent series is pointing to.
+   */
+  int errno_number() const;
+
+  /*
+   * Get the return value of current system call record (not replayed ret value)
+   *
+   * @return: corresponding return value field of a record that
+   *          extent series is pointing to.
+   */
+  int return_value() const;
+
   /*
    * This function overwrite getSharedExtent() in RowAnalysisModule.
    * It will find a extent test to see if current extent

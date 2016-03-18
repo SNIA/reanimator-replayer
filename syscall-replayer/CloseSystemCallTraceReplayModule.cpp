@@ -22,7 +22,11 @@ CloseSystemCallTraceReplayModule::CloseSystemCallTraceReplayModule(DataSeriesMod
 								   int warn_level_flag):
   SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
   descriptor_(series, "descriptor") {
-  sys_call_ = "close";
+  sys_call_name_ = "close";
+}
+
+void CloseSystemCallTraceReplayModule::print_specific_fields() {
+  std::cout << "descriptor(" << descriptor_.val() << ")";
 }
 
 void CloseSystemCallTraceReplayModule::prepareForProcessing() {
@@ -32,24 +36,9 @@ void CloseSystemCallTraceReplayModule::prepareForProcessing() {
 void CloseSystemCallTraceReplayModule::processRow() {
   // Get actual file descriptor
   int fd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
-  if (verbose_) {
-    std::cout << "close: ";
-    std::cout.precision(25);
-    std::cout << "time called(" << std::fixed << time_called() << "), ";
-    std::cout << "descriptor(" << descriptor_.val() << ")\n";
-  }
   
-  int ret = close(fd);
+  replayed_ret_val_ = close(fd);
   SystemCallTraceReplayModule::fd_map_.erase(descriptor_.val());
-  compare_retval(ret);
-  
-  if (ret == -1) {
-    perror("close");
-  } else {
-    if (verbose_) {
-      std::cout << "fd " << descriptor_.val() << " is successfully closed..." << std::endl;
-    }
-  }
 }
 
 void CloseSystemCallTraceReplayModule::completeProcessing() {

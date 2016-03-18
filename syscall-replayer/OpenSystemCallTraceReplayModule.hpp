@@ -37,6 +37,11 @@ private:
   Int32Field mode_value_;
 
   /*
+   * Print open sys call field values in a nice format
+   */
+  void print_specific_fields();
+
+  /*
    * This function will prepare things before replaying any 
    * open system call. Right now it displays a starting 
    * message.

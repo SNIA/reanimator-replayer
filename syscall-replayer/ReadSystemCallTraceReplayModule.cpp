@@ -26,7 +26,13 @@ ReadSystemCallTraceReplayModule::ReadSystemCallTraceReplayModule(DataSeriesModul
   descriptor_(series, "descriptor"),
   data_read_(series, "data_read", Field::flag_nullable),
   bytes_requested_(series, "bytes_requested") {
-  sys_call_ = "read";
+  sys_call_name_ = "read";
+}
+
+void ReadSystemCallTraceReplayModule::print_specific_fields() {
+  std::cout << "descriptor:" << descriptor_.val() << "), ";
+  std::cout << "data read(" << data_read_.val() << "), ";
+  std::cout << "bytes requested(" << bytes_requested_.val() << ")";
 }
 
 void ReadSystemCallTraceReplayModule::prepareForProcessing() {
@@ -37,44 +43,27 @@ void ReadSystemCallTraceReplayModule::processRow() {
   // Get replaying file descriptor.
   int fd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
   int nbytes = bytes_requested_.val();
-  if (verbose_) {
-    std::cout << sys_call_ << ": ";
-    std::cout.precision(23);
-    std::cout << "time called(" << std::fixed << time_called() << "), ";
-    std::cout << "descriptor:" << fd << "), ";
-    std::cout << "data read(" << data_read_.val() << "), ";
-    std::cout << "size(" << nbytes << ")\n";
-  }
   char buffer[nbytes];
-  int ret = read(fd, buffer, nbytes);
-  compare_retval(ret);
+  replayed_ret_val_ = read(fd, buffer, nbytes);
 
   if (verify_ == true) {
     // Verify read data and data in the trace file are same
-    if (memcmp(data_read_.val(), buffer, ret) != 0){
+    if (memcmp(data_read_.val(), buffer, replayed_ret_val_) != 0){
       // Data aren't same
       std::cerr << "Verification of data in read failed.\n";
-      if (warn_level_ != DEFAULT_MODE) {
+      if (!default_mode()) {
 	std::cout << "time called:" << std::fixed << time_called() << std::endl;
 	std::cout << "Captured read data is different from replayed read data" << std::endl;
 	std::cout << "Captured read data: " << data_read_.val() << ", ";
 	std::cout << "Replayed read data: " << buffer << std::endl;
-	if (warn_level_ == ABORT_MODE ) {
+	if (abort_mode()) {
 	  abort();
 	}
       }
     } else {
-      if (verbose_) {
+      if (verbose_mode()) {
 	std::cout << "Verification of data in read success.\n";
       }
-    }
-  }
-
-  if (ret == -1) {
-    perror("read");
-  } else {
-    if (verbose_) {
-      std::cout << "read is executed successfully!" << std::endl;
     }
   }
 }
