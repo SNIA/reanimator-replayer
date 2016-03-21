@@ -28,7 +28,7 @@
 #include "SystemCallTraceReplayModule.hpp"
 
 class ReadSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-private:
+protected:
   bool verify_;
   /* Read System Call Trace Fields in Dataseries file */
   Int32Field descriptor_;
@@ -62,6 +62,38 @@ private:
 
 public:
   ReadSystemCallTraceReplayModule(DataSeriesModule &source, 
+				  bool verbose_flag, 
+				  bool verify_flag, 
+				  int warn_level_flag);
+};
+
+class PReadSystemCallTraceReplayModule : public ReadSystemCallTraceReplayModule {
+private:
+  /* PRead System Call Trace Fields in Dataseries file */
+  Int64Field offset_;
+  
+  /*
+   * This function will prepare things before replaying any
+   * pread system call. Right now it displays a starting
+   * message.
+   */
+  void prepareForProcessing();
+
+  /*
+   * This function will gather arguments in the trace file 
+   * and then replay an pread system call with those arguments.
+   */
+  void processRow();
+
+  /*
+   * This function will do things that have be done 
+   * after finishing replaying all pread system calls.
+   * Now, it only displays an ending message.
+   */
+  void completeProcessing();
+
+public:
+  PReadSystemCallTraceReplayModule(DataSeriesModule &source, 
 				  bool verbose_flag, 
 				  bool verify_flag, 
 				  int warn_level_flag);
