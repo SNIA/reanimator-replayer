@@ -15,7 +15,7 @@
 # USAGE
 # make clear - clear all the temp files and object files
 # make - compile source files that are out-dated
-#
+# make test - test the replayer to see if it is working
 
 OPTFLAGS = -g -O2 -Wall
 
@@ -33,15 +33,23 @@ TARGETS = system-call-replayer
 SYSTEM_CALL_REPLAY_MODULE_OBJECTS = SystemCallTraceReplayer.o SystemCallTraceReplayModule.o \
 				    OpenSystemCallTraceReplayModule.o CloseSystemCallTraceReplayModule.o \
 				    ReadSystemCallTraceReplayModule.o WriteSystemCallTraceReplayModule.o \
-				    LSeekSystemCallTraceReplayModule.o
+				    LSeekSystemCallTraceReplayModule.o TruncateSystemCallTraceReplayModule.o \
+				    AccessSystemCallTraceReplayModule.o UnlinkSystemCallTraceReplayModule.o
+# Modify following variables if the path of your replayer is different.
+SYS_CALL_REPLAYER_DIR=$(HOME)/trace2model/syscall-replayer
+SYS_CALL_REPLAYER_TEST_DIR=$(SYS_CALL_REPLAYER_DIR)/replayer-tests
 
 all: $(TARGETS)
 
 $(TARGETS): $(SYSTEM_CALL_REPLAY_MODULE_OBJECTS)
-	$(CXX) -o $@ $(SYSTEM_CALL_REPLAY_MODULE_OBJECTS) $(CXXFLAGS)
+	$(CXX) -o $@ $^ $(CXXFLAGS)
 
-%.o: %.cpp
-	$(CXX) -c -o $@ $? $(CXXFLAGS)
+%.o: %.cpp %.hpp SystemCallTraceReplayModule.hpp
+	$(CXX) -c -o $@ $< $(CXXFLAGS)
+
+test: $(TARGETS)
+	$(MAKE) -C $(SYS_CALL_REPLAYER_TEST_DIR) test
+.PHONY: test
 
 clean:
 	rm -f $(TARGETS) $(SYSTEM_CALL_REPLAY_MODULE_OBJECTS) *~ \#*\#

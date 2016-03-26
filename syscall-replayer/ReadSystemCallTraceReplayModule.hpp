@@ -73,6 +73,11 @@ private:
   Int64Field offset_;
   
   /*
+   * Print pread sys call field values in a nice format
+   */
+  void print_specific_fields();
+
+  /*
    * This function will prepare things before replaying any
    * pread system call. Right now it displays a starting
    * message.

@@ -26,15 +26,16 @@ INPUTFILE=$1
 OUTPUTFILE=$2
 SPECSTRINGFILE=specstrings/strace.spec
 XML_DIR=./xml/
+CSV_CONVERTER=strace2csv
+DS_CONVERTER=csv2ds
 
-make
-if [ ! -e csv2ds ]; then
-    echo "csv2ds binary is not found. Maybe make it?"
+if [ ! -e $CSV_CONVERTER ]; then
+    echo "$CSV_CONVERTER binary is not found. Maybe make it?"
     exit 1
 fi
 
-if [ ! -e strace2csv ]; then
-    echo "strace2csv binary is not found. Maybe make it?"
+if [ ! -e $DS_CONVERTER ]; then
+    echo "$DS_CONVERTER binary is not found. Maybe make it?"
     exit 1
 fi
 
@@ -72,19 +73,27 @@ touch $TEMPFILE
 echo "Using temporary file" $TEMPFILE
 
 echo "Converting strace to CSV..."
-./strace2csv $INPUTFILE $TEMPFILE
+./$CSV_CONVERTER $INPUTFILE $TEMPFILE
 
 if [ $? -ne 0 ]; then
     rm -f $TEMPFILE
-    exit $?
+    exit 1
 fi
 
 echo "Converting strace to CSV - Done"
 
 echo "Converting CSV to DataSeries..."
-./csv2ds -q $OUTPUTFILE $TABLEFILE $SPECSTRINGFILE $XML_DIR $TEMPFILE
+./$DS_CONVERTER -q $OUTPUTFILE $TABLEFILE $SPECSTRINGFILE $XML_DIR $TEMPFILE
+
+CSV2DS_RESULT=$?
 
 echo "Removing temporary file" $TEMPFILE
 rm -f $TEMPFILE
 
-echo "Converting CSV to DataSeries - Done"
+if test $CSV2DS_RESULT != 0
+then
+    echo "Failed to convert CSV to DataSeries"
+    exit 1
+else
+    echo "Converting CSV to DataSeries - Done"
+fi

@@ -72,13 +72,18 @@ void ReadSystemCallTraceReplayModule::completeProcessing() {
   std::cout << "-----Read System Call Replayer finished replaying...-----" << std::endl;
 }
 
-PReadSystemCallTraceReplayModule::PReadSystemCallTraceReplayModule(DataSeriesModule &source, 
-								 bool verbose_flag, 
-								 bool verify_flag, 
+PReadSystemCallTraceReplayModule::PReadSystemCallTraceReplayModule(DataSeriesModule &source,
+								 bool verbose_flag,
+								 bool verify_flag,
 								 int warn_level_flag):
   ReadSystemCallTraceReplayModule(source, verbose_flag, verify_flag, warn_level_flag),
   offset_(series, "offset") {
-  sys_call_ = "pread";
+  sys_call_name_ = "pread";
+}
+
+void PReadSystemCallTraceReplayModule::print_specific_fields() {
+  ReadSystemCallTraceReplayModule::print_specific_fields();
+  std::cout << "offset(" << offset_.val() << ")";
 }
 
 void PReadSystemCallTraceReplayModule::prepareForProcessing() {
@@ -89,18 +94,9 @@ void PReadSystemCallTraceReplayModule::processRow() {
   // Get replaying file descriptor.
   int fd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
   int nbytes = bytes_requested_.val();
-  if (verbose_) {
-    std::cout << sys_call_ << ": ";
-    std::cout.precision(23);
-    std::cout << "time called(" << std::fixed << time_called() << "), ";
-    std::cout << "descriptor:" << fd << "), ";
-    std::cout << "data read(" << data_read_.val() << "), ";
-    std::cout << "size(" << nbytes << ")\n";
-  }
   char buffer[nbytes];
   int offset = offset_.val();
   int ret = pread(fd, buffer, nbytes, offset);
-  compare_retval(ret);
 
   if (verify_ == true) {
     // Verify read data and data in the trace file are same
@@ -120,14 +116,6 @@ void PReadSystemCallTraceReplayModule::processRow() {
       if (verbose_) {
 	std::cout << "Verification of data in pread success.\n";
       }
-    }
-  }
-
-  if (ret == -1) {
-    perror("pread");
-  } else {
-    if (verbose_) {
-      std::cout << "pread is executed successfully!" << std::endl;
     }
   }
 }
