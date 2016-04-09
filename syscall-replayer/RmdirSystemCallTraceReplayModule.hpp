@@ -10,53 +10,55 @@
  * published by the Free Software Foundation.
  *
  * This header file provides members and functions in order to replay
- * close a specific system call.
+ * rmdir a specific system call.
  *
- * CloseSystemCallTraceReplayerModule is a class/module that
- * has members and functions of replaying close system call.
+ * RmdirSystemCallTraceReplayerModule is a class/module that
+ * has members and functions of replaying rmdir system call.
  *
  * INITIALIZATION AND USAGE
  * A main program could initialize this class with a dataseries file
  * and call execute() function until all extents are processed.
  *
  */
-#ifndef CLOSE_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
-#define CLOSE_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
+#ifndef RMDIR_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
+#define RMDIR_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 
 #include "SystemCallTraceReplayModule.hpp"
 
-class CloseSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
+#include <unistd.h>
+
+class RmdirSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 private:
-  /* DataSeries Close System Call Trace Fields */
-  Int32Field descriptor_;
+  /* DataSeries Rmdir System Call Trace Fields */
+  Variable32Field given_pathname_;
 
   /*
-   * Print close sys call field values in a nice format
+   * Print rmdir sys call field values in a nice format
    */
   void print_specific_fields();
 
   /*
    * This function will prepare things before replaying any
-   * close system call. Right now it displays a starting
+   * rmdir system call. Right now it displays a starting
    * message.
    */
   void prepareForProcessing();
 
   /*
    * This function will gather arguments in the trace file
-   * and replay an close system call with those arguments
+   * and replay an rmdir system call with those arguments
    */
   void processRow();
-  
-  /* 
+
+  /*
    * This function will do things that have be done
-   * after finishing replaying all close system calls.
+   * after finishing replaying all rmdir system calls.
    * Now, it only displays an ending message.
    */
   void completeProcessing();
 
 public:
-  CloseSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag, int warn_level_flag);
+  RmdirSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag, int warn_level_flag);
 };
 
-#endif /* CLOSE_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */
+#endif /* RMDIR_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

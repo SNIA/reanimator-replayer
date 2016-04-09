@@ -12,7 +12,7 @@
  * This file implements all the functions in the CloseSystemCallTraceReplayModule
  * header file.
  *
- * Read OpenSystemCallTraceReplayModule.hpp for more information about this class.
+ * Read CloseSystemCallTraceReplayModule.hpp for more information about this class.
  */
 
 #include "CloseSystemCallTraceReplayModule.hpp"
