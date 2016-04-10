@@ -34,7 +34,10 @@ SYSTEM_CALL_REPLAY_MODULE_OBJECTS = SystemCallTraceReplayer.o SystemCallTraceRep
 				    OpenSystemCallTraceReplayModule.o CloseSystemCallTraceReplayModule.o \
 				    ReadSystemCallTraceReplayModule.o WriteSystemCallTraceReplayModule.o \
 				    LSeekSystemCallTraceReplayModule.o TruncateSystemCallTraceReplayModule.o \
-				    AccessSystemCallTraceReplayModule.o UnlinkSystemCallTraceReplayModule.o
+				    AccessSystemCallTraceReplayModule.o UnlinkSystemCallTraceReplayModule.o \
+				    RmdirSystemCallTraceReplayModule.o LinkSystemCallTraceReplayModule.o \
+				    CreatSystemCallTraceReplayModule.o ChdirSystemCallTraceReplayModule.o \
+				    SymlinkSystemCallTraceReplayModule.o
 # Modify following variables if the path of your replayer is different.
 SYS_CALL_REPLAYER_DIR=$(HOME)/trace2model/syscall-replayer
 SYS_CALL_REPLAYER_TEST_DIR=$(SYS_CALL_REPLAYER_DIR)/replayer-tests
@@ -48,7 +51,7 @@ $(TARGETS): $(SYSTEM_CALL_REPLAY_MODULE_OBJECTS)
 	$(CXX) -c -o $@ $< $(CXXFLAGS)
 
 test: $(TARGETS)
-	$(MAKE) -C $(SYS_CALL_REPLAYER_TEST_DIR) test
+	$(MAKE) -C $(SYS_CALL_REPLAYER_TEST_DIR)
 .PHONY: test
 
 clean:
