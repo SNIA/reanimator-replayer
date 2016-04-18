@@ -127,14 +127,14 @@ void SystemCallTraceReplayModule::compare_retval_and_errno() {
 
   if (return_value() != replayed_ret_val_) {
     print_sys_call_fields();
-    std::cout << "Warning: Return values are different.";
+    std::cout << "Warning: Return values are different.\n";
     if (abort_mode()) {
       abort();
     }
   } else if (replayed_ret_val_ == -1) {
     if (errno != errno_number()) {
       print_sys_call_fields();
-      std::cout << "Warning: Errno numbers are different.";
+      std::cout << "Warning: Errno numbers are different.\n";
       if (abort_mode()) {
 	abort();
       }

@@ -20,10 +20,10 @@ CXXFLAGS = $(OPTFLAGS) $(LDFLAGS) $(CPPFLAGS)
 
 CXX = g++
 
-TEST_PROGS = open-test-prog
-DEFAULT_TESTS = test-default-open
-WARN_TESTS = test-warn-open
-ABORT_TESTS = test-abort-open
+TEST_PROGS = open-test-prog close-test-prog
+DEFAULT_TESTS = test-default-open test-default-close
+WARN_TESTS = test-warn-open test-warn-close
+ABORT_TESTS = test-abort-open test-abort-close
 
 all-tests: all-tests-default
 .PHONY: all-tests
