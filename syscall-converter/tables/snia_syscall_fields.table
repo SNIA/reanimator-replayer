@@ -152,6 +152,9 @@ open	flag_no_delay	0	bool
 open	flag_synchronous	0	bool
 open	flag_truncate	0	bool
 open	mode_value	1	int32
+open	mode_uid	0	bool
+open	mode_gid	0	bool
+open	mode_sticky_bit	0	bool
 open	mode_R_user	0	bool
 open	mode_W_user	0	bool
 open	mode_X_user	0	bool
@@ -219,6 +222,9 @@ chdir	full_pathname	1	variable32
 mkdir	given_pathname	0	variable32
 mkdir	full_pathname	1	variable32
 mkdir	mode_value	1	int32
+mkdir	mode_uid	0	bool
+mkdir	mode_gid	0	bool
+mkdir	mode_sticky_bit	0	bool
 mkdir	mode_R_user	0	bool
 mkdir	mode_W_user	0	bool
 mkdir	mode_X_user	0	bool
@@ -233,6 +239,9 @@ rmdir	full_pathname	1	variable32
 creat	given_pathname	0	variable32
 creat	full_pathname	1	variable32
 creat	mode_value	1	int32
+creat	mode_uid	0	bool
+creat	mode_gid	0	bool
+creat	mode_sticky_bit	0	bool
 creat	mode_R_user	0	bool
 creat	mode_W_user	0	bool
 creat	mode_X_user	0	bool
@@ -285,8 +294,11 @@ utimes	access_time	0	int64
 utimes	mod_time	0	int64
 mknod	given_pathname	0	variable32
 mknod	full_pathname	1	variable32
-mknod	mode	0	int32
+mknod	mode_value	0	int32
 mknod	type	0	byte
+mknod	mode_uid	0	bool
+mknod	mode_gid	0	bool
+mknod	mode_sticky_bit	0	bool
 mknod	mode_R_user	0	bool
 mknod	mode_W_user	0	bool
 mknod	mode_X_user	0	bool

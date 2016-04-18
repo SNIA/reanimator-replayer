@@ -343,9 +343,9 @@ bool process_open_args(std::string &sys_call_csv_args) {
   /* 
    * The vector is represented as follows:
    * mode_R_user,mode_W_user,...
-   * Example: 777,1,1,...
+   * Example: 0777,1,1,...
    */
-  std::vector<std::string> mode_vector(9,"0");
+  std::vector<std::string> mode_vector(12,"0");
   // Assume this is two arguments open sys call
   std::string mode_arg = "0";
   // Check to see if modes are set in this open sys call.
@@ -521,11 +521,12 @@ bool process_open_flags(const std::string &flags_arg,
  */
 bool process_mode(const std::string &mode_arg,
 		       std::vector<std::string> &mode_vector) {
-  for (int i = 3; i > 0; i--) {
+  for (int i = 4; i > 0; i--) {
     /*
      * others_permission -> mode_arg.at(mode_arg.length()-1);
      * group_permission -> mode_arg.at(mode_arg.length()-2);
      * user_permission -> mode_arg.at(mode_arg.length()-3);
+     * set_permission -> mode_arg.at(mode_arg.length()-4);
      */
     char c_permission = mode_arg.at(mode_arg.length() - i);
     if (isdigit(c_permission)) {
@@ -535,24 +536,28 @@ bool process_mode(const std::string &mode_arg,
        * mode_vector[2] -> user execute permission
        * mode_vector[3] -> group read permission
        * ...
-       * owner_start_index = 0 for user, 3 for group, 6 for others
+       * owner_start_index = 0 for set-user-ID, 3 user, 6 for group, 9 for others
        */
       int start_index = 0;
       switch(i) {
+      case 4:
+	// set-user-id
+	start_index = 0;
+	break;
       case 3:
 	// User
-	start_index = 0;
+	start_index = 3;
 	break;
       case 2:
 	// Group
-	start_index = 3;
+	start_index = 6;
 	break;
       case 1:
 	// Others
-	start_index = 6;
+	start_index = 9;
 	break;
       }
-      
+
       int permission = c_permission - '0';
       switch(permission) {
       case 0:
