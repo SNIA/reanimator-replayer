@@ -29,10 +29,14 @@ echo "Run system call replayer test $SYS_CALL_NAME in $REPLAY_MODE mode"
 # system call that user wants to test and some system calls that are needed.
 # Ex: close. Since a file needs to be opened first before being closed. Therefore,
 # we have to capture both open and close if user wants to test close.
-SYS_CALLS=$SYS_CALL_NAME
+# Note: SYS_CALL_NAME is the system call that we want to test,
+# SYS_CALLS are system calls that we are going to capture in strace.
 case "$SYS_CALL_NAME" in
     "close")
 	SYS_CALLS=open,close
+	;;
+    *)
+	SYS_CALLS=$SYS_CALL_NAME
 	;;
 esac
 
