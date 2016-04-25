@@ -138,8 +138,9 @@ bool process_row(const std::string &in_row, std::string &out_row) {
  *                      information is stored.
  * @param ret_fields: vector object where the return fields
  *                    are going to be stored.
- *                    position 0: return value
- *                    position 1: errno num
+ *                    position 0: errno num
+ *                    position 1: return value
+ *                    position 2: unique id
  * @return: true if ret info is parsed succesfully, false otherwise.
  */
 bool process_ret_info(const std::string &ret_info,
@@ -163,6 +164,9 @@ bool process_ret_info(const std::string &ret_info,
   }
   // Store return value in 2nd position
   ret_info_fields.push_back(ret_fields[0]);
+  // This variable is defined in strace2csv.cpp
+  extern int64_t row_num;
+  ret_info_fields.push_back(std::to_string(row_num));
   return true;
 }
 

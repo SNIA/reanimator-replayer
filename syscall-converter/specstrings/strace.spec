@@ -1,5 +1,5 @@
 # This spec string is for strace
-Common(time_called,errno_number,return_value);
+Common(time_called,errno_number,return_value,unique_id);
 read(descriptor,data_read,bytes_requested);
 write(descriptor,data_written,bytes_requested);
 close(descriptor);

@@ -1,4 +1,4 @@
-Common	time_called	0	double
+Common	time_called	1	double
 Common	time_returned	1	int64
 Common	time_recorded	1	int64
 Common	executing_pid	1	int32
@@ -8,7 +8,7 @@ Common	executing_uid	1	int32
 Common	errno_number	1	int32
 Common	errno_string	1	variable32
 Common	return_value	1	int64
-Common	UniqueID	0	int64
+Common	unique_id	0	int64
 read	descriptor	0	int32
 read	buffer_ptr	1	int64
 read	bytes_requested	0	int64
