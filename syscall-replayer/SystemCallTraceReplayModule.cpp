@@ -23,9 +23,10 @@ SystemCallTraceReplayModule::SystemCallTraceReplayModule(DataSeriesModule &sourc
   RowAnalysisModule(source),
   verbose_(verbose_flag),
   warn_level_(warn_level_flag),
-  time_called_(series, "time_called"),
+  time_called_(series, "time_called", Field::flag_nullable),
   errno_number_(series, "errno_number", Field::flag_nullable),
   return_value_(series, "return_value", Field::flag_nullable),
+  unique_id_(series, "unique_id"),
   completed_(false),
   replayed_ret_val_(0) {
 }
@@ -56,6 +57,10 @@ int SystemCallTraceReplayModule::errno_number() const {
 
 int SystemCallTraceReplayModule::return_value() const {
   return (int)return_value_.val();
+}
+
+int64_t SystemCallTraceReplayModule::unique_id() const {
+  return (int64_t)unique_id_.val();
 }
 
 Extent::Ptr SystemCallTraceReplayModule::getSharedExtent() {
@@ -117,7 +122,8 @@ void SystemCallTraceReplayModule::print_common_fields() {
   std::cout << "time called(" << std::fixed << time_called() << "), ";
   std::cout << "errno(" << errno_number() << "), ";
   std::cout << "return value(" << return_value() << "), ";
-  std::cout << "replayed return value(" << replayed_ret_val_ << ")";
+  std::cout << "replayed return value(" << replayed_ret_val_ << "), ";
+  std::cout << "unique id(" << unique_id_.val() << ")";
 }
 
 void SystemCallTraceReplayModule::compare_retval_and_errno() {

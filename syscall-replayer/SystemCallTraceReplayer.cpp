@@ -32,13 +32,13 @@
 #include "WriteSystemCallTraceReplayModule.hpp"
 #include "LSeekSystemCallTraceReplayModule.hpp"
 
-// min heap uses this to sort elements in the tree.
-struct CompareByTimeCalled {
+/*
+ * min heap uses this function to sort elements in the tree.
+ * The sorting key is unique id.
+ */
+struct CompareByUniqueID {
   bool operator()(SystemCallTraceReplayModule* m1, SystemCallTraceReplayModule* m2) const {
-    if (m1->time_called() >= m2->time_called())
-      return true;
-    else 
-      return false;
+    return (m1->unique_id() >= m2->unique_id());
   }
 };
 
@@ -248,10 +248,10 @@ int main(int argc, char *argv[]) {
   system_call_trace_replay_modules.push_back(lseek_module);
   system_call_trace_replay_modules.push_back(pread_module);
 
-  // Define a min heap that stores each module. The heap is ordered by time_called field.
+  // Define a min heap that stores each module. The heap is ordered by unique_id field.
   std::priority_queue<SystemCallTraceReplayModule*, 
 		      std::vector<SystemCallTraceReplayModule*>, 
-		      CompareByTimeCalled> replayers_heap;
+		      CompareByUniqueID> replayers_heap;
   SystemCallTraceReplayModule *execute_replayer = NULL;
 
   // Add all the modules to min heap if the module has extents
@@ -265,10 +265,10 @@ int main(int argc, char *argv[]) {
   
   // Process all the records in the dataseries
   while(!replayers_heap.empty()) {
-    // Get a module that has min time_called
+    // Get a module that has min unique_id
     execute_replayer = replayers_heap.top();
     replayers_heap.pop();
-    // Replay the operation that has min time_called
+    // Replay the operation that has min unique_id
     execute_replayer->execute();
     // Check to see if all the extents in the module are processed
     if (execute_replayer->cur_extent_has_more_record() || 

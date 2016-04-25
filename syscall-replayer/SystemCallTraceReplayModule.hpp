@@ -43,6 +43,7 @@ protected:
   DoubleField time_called_;
   Int32Field errno_number_;
   Int64Field return_value_;
+  Int64Field unique_id_;
   bool completed_;
   int replayed_ret_val_;
   /*
@@ -173,6 +174,14 @@ public:
    *          extent series is pointing to.
    */
   int return_value() const;
+
+  /*
+   * Get the unique id of current system call record
+   *
+   * @return: corresponding unique id field of a record that
+   *          extent series is pointing to.
+   */
+  int64_t unique_id() const;
 
   /*
    * This function overwrite getSharedExtent() in RowAnalysisModule.
