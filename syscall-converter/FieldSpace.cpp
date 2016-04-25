@@ -23,7 +23,7 @@ FieldSpace::FieldSpace() {
 }
 
 void FieldSpace::addFields(const string &syscallName, ExtentSeries &series) {
-  const ExtentType * extenttype = series.getType();
+  const ExtentType::Ptr extenttype = series.getTypePtr();
   for (uint32_t i = 0; i < extenttype->getNFields(); i++) {
     const string &fieldName = extenttype->getFieldName(i);
     bool nullable = extenttype->getNullable(fieldName);
