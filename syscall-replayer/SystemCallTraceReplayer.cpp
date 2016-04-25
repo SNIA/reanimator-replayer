@@ -31,6 +31,14 @@
 #include "ReadSystemCallTraceReplayModule.hpp"
 #include "WriteSystemCallTraceReplayModule.hpp"
 #include "LSeekSystemCallTraceReplayModule.hpp"
+#include "AccessSystemCallTraceReplayModule.hpp"
+#include "ChdirSystemCallTraceReplayModule.hpp"
+#include "TruncateSystemCallTraceReplayModule.hpp"
+#include "CreatSystemCallTraceReplayModule.hpp"
+#include "LinkSystemCallTraceReplayModule.hpp"
+#include "UnlinkSystemCallTraceReplayModule.hpp"
+#include "SymlinkSystemCallTraceReplayModule.hpp"
+#include "RmdirSystemCallTraceReplayModule.hpp"
 
 /*
  * min heap uses this function to sort elements in the tree.
@@ -186,6 +194,9 @@ int main(int argc, char *argv[]) {
   // This is the prefix extent type of all system calls. 
   const std::string kExtentTypePrefix = "IOTTAFSL::Trace::Syscall::";
 
+  /*
+   * This vector contains the list of system calls that need replaying modules.
+   */
   std::vector<std::string> system_calls;
   system_calls.push_back("open");
   system_calls.push_back("close");
@@ -193,7 +204,15 @@ int main(int argc, char *argv[]) {
   system_calls.push_back("write");
   system_calls.push_back("lseek");
   system_calls.push_back("pread");
-  
+  system_calls.push_back("access");
+  system_calls.push_back("chdir");
+  system_calls.push_back("truncate");
+  system_calls.push_back("creat");
+  system_calls.push_back("link");
+  system_calls.push_back("unlink");
+  system_calls.push_back("symlink");
+  system_calls.push_back("rmdir");
+
   std::vector<TypeIndexModule *> type_index_modules;
 
   for (unsigned int i = 0; i < system_calls.size(); i++) {
@@ -217,6 +236,11 @@ int main(int argc, char *argv[]) {
     prefetch_buffer_modules.push_back(module);
   }
 
+  /*
+   * Create a replaying module for each system call.
+   * Remeber to modify here to create a replaying module when supporting a new system call.
+   * IMPORTANT: each entry in prefetch_buffer_modules corresponds to its own module.
+   */
   OpenSystemCallTraceReplayModule *open_module = new OpenSystemCallTraceReplayModule(*prefetch_buffer_modules[0],
 										       verbose,
 										       warn_level);
@@ -239,7 +263,35 @@ int main(int argc, char *argv[]) {
 										       verbose,
 										       verify,
 										       warn_level);
-   
+  AccessSystemCallTraceReplayModule *access_module = new AccessSystemCallTraceReplayModule(*prefetch_buffer_modules[6],
+											   verbose,
+											   warn_level);
+  ChdirSystemCallTraceReplayModule *chdir_module = new ChdirSystemCallTraceReplayModule(*prefetch_buffer_modules[7],
+											verbose,
+											warn_level);
+  TruncateSystemCallTraceReplayModule *truncate_module = new TruncateSystemCallTraceReplayModule(*prefetch_buffer_modules[8],
+												 verbose,
+												 warn_level);
+  CreatSystemCallTraceReplayModule *creat_module = new CreatSystemCallTraceReplayModule(*prefetch_buffer_modules[9],
+											verbose,
+											warn_level);
+  LinkSystemCallTraceReplayModule *link_module = new LinkSystemCallTraceReplayModule(*prefetch_buffer_modules[10],
+										     verbose,
+										     warn_level);
+  UnlinkSystemCallTraceReplayModule *unlink_module = new UnlinkSystemCallTraceReplayModule(*prefetch_buffer_modules[11],
+											   verbose,
+											   warn_level);
+  SymlinkSystemCallTraceReplayModule *symlink_module = new SymlinkSystemCallTraceReplayModule(*prefetch_buffer_modules[12],
+											      verbose,
+											      warn_level);
+  RmdirSystemCallTraceReplayModule *rmdir_module = new RmdirSystemCallTraceReplayModule(*prefetch_buffer_modules[13],
+											verbose,
+											warn_level);
+  /*
+   * This vector is going to used to load replaying modules.
+   * Therefore, add replaying modules into this vector in here.
+   * Remeber to modify here when supporting a new system call.
+   */
   std::vector<SystemCallTraceReplayModule *> system_call_trace_replay_modules;
   system_call_trace_replay_modules.push_back(open_module);
   system_call_trace_replay_modules.push_back(close_module);
@@ -247,6 +299,20 @@ int main(int argc, char *argv[]) {
   system_call_trace_replay_modules.push_back(write_module);
   system_call_trace_replay_modules.push_back(lseek_module);
   system_call_trace_replay_modules.push_back(pread_module);
+  system_call_trace_replay_modules.push_back(access_module);
+  system_call_trace_replay_modules.push_back(chdir_module);
+  system_call_trace_replay_modules.push_back(truncate_module);
+  system_call_trace_replay_modules.push_back(creat_module);
+  system_call_trace_replay_modules.push_back(link_module);
+  system_call_trace_replay_modules.push_back(unlink_module);
+  system_call_trace_replay_modules.push_back(symlink_module);
+  system_call_trace_replay_modules.push_back(rmdir_module);
+
+  // Double check to make sure all replaying modules are loaded.
+  if (system_call_trace_replay_modules.size() != system_calls.size()) {
+    std::cerr << "The number of loaded replaying modules is not same as the number of supported system calls\n";
+    abort();
+  }
 
   // Define a min heap that stores each module. The heap is ordered by unique_id field.
   std::priority_queue<SystemCallTraceReplayModule*, 
