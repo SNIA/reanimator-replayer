@@ -39,6 +39,8 @@
 #include "UnlinkSystemCallTraceReplayModule.hpp"
 #include "SymlinkSystemCallTraceReplayModule.hpp"
 #include "RmdirSystemCallTraceReplayModule.hpp"
+#include "MkdirSystemCallTraceReplayModule.hpp"
+#include "StatSystemCallTraceReplayModule.hpp"
 
 /*
  * min heap uses this function to sort elements in the tree.
@@ -212,6 +214,8 @@ int main(int argc, char *argv[]) {
   system_calls.push_back("unlink");
   system_calls.push_back("symlink");
   system_calls.push_back("rmdir");
+  system_calls.push_back("mkdir");
+  system_calls.push_back("stat");
 
   std::vector<TypeIndexModule *> type_index_modules;
 
@@ -287,6 +291,14 @@ int main(int argc, char *argv[]) {
   RmdirSystemCallTraceReplayModule *rmdir_module = new RmdirSystemCallTraceReplayModule(*prefetch_buffer_modules[13],
 											verbose,
 											warn_level);
+  MkdirSystemCallTraceReplayModule *mkdir_module = new MkdirSystemCallTraceReplayModule(*prefetch_buffer_modules[14],
+											verbose,
+											warn_level);
+  StatSystemCallTraceReplayModule *stat_module = new StatSystemCallTraceReplayModule(*prefetch_buffer_modules[15],
+										       verbose,
+										       verify,
+										       warn_level);
+ 
   /*
    * This vector is going to used to load replaying modules.
    * Therefore, add replaying modules into this vector in here.
@@ -307,6 +319,8 @@ int main(int argc, char *argv[]) {
   system_call_trace_replay_modules.push_back(unlink_module);
   system_call_trace_replay_modules.push_back(symlink_module);
   system_call_trace_replay_modules.push_back(rmdir_module);
+  system_call_trace_replay_modules.push_back(mkdir_module);
+  system_call_trace_replay_modules.push_back(stat_module);
 
   // Double check to make sure all replaying modules are loaded.
   if (system_call_trace_replay_modules.size() != system_calls.size()) {
