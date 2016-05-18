@@ -1,0 +1,21 @@
+<ExtentType name="IOTTAFSL::Trace::Syscall::access" namespace="iotta.snia.org.fsl.cs.sunysb.edu" version="1.00">
+  <field name="time_called" type="double" opt_nullable="no"/>
+  <field name="time_returned" type="int64" opt_nullable="yes"/>
+  <field name="time_recorded" type="int64" opt_nullable="yes"/>
+  <field name="executing_pid" type="int32" opt_nullable="yes"/>
+  <field name="executing_tid" type="int32" opt_nullable="yes"/>
+  <field name="executing_ppid" type="int32" opt_nullable="yes"/>
+  <field name="executing_uid" type="int32" opt_nullable="yes"/>
+  <field name="errno_number" type="int32" opt_nullable="yes"/>
+  <field name="errno_string" type="variable32" opt_nullable="yes"/>
+  <field name="return_value" type="int64" opt_nullable="yes"/>
+  <field name="UniqueID" type="int64" opt_nullable="no"/>
+  <field name="given_pathname" type="variable32" opt_nullable="no"/>
+  <field name="full_pathname" type="variable32" opt_nullable="yes"/>
+  <field name="pathname" type="variable32" opt_nullable="no"/>
+  <field name="mode_value" type="int32" opt_nullable="yes"/>
+  <field name="mode_read" type="bool" opt_nullable="no"/>
+  <field name="mode_write" type="bool" opt_nullable="no"/>
+  <field name="mode_execute" type="bool" opt_nullable="no"/>
+  <field name="mode_exist" type="bool" opt_nullable="no"/>
+</ExtentType>
