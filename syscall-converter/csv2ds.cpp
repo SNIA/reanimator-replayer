@@ -198,8 +198,8 @@ public:
 	myExtentXMLDescription += str + "\n";
       
       /* Register the ExtentXMLDescription */
-      const ExtentType &myExtentType =
-	extentTypeLibrary.registerTypeR(myExtentXMLDescription);
+      const ExtentType::Ptr myExtentType =
+	extentTypeLibrary.registerTypePtr(myExtentXMLDescription);
       
       /* Create ExtentSeries, OutPutModule, and fields */
       ExtentSeries *myExtentSeries = new ExtentSeries();
