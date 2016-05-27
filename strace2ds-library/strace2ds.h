@@ -32,27 +32,29 @@
 extern "C" {
 #endif
 
-typedef struct DataSeriesModule DataSeriesModule;
+typedef struct DataSeriesOutputModule DataSeriesOutputModule;
 
 /*
  * Create DataSeries
  * return NULL if failed
  */
-DataSeriesModule *create_ds_module(const char *output_file, const char *table_file_name,
-				   const char *xml_dir_path);
+DataSeriesOutputModule *create_ds_module(const char *output_file, const char *table_file_name,
+					 const char *xml_dir_path);
 
 /*
  * Write a record into the DataSeries output file
  * return NULL if failed
  */
-void *write_ds_record(DataSeriesModule *ds_module, const char *extent_name,
-		      int fd);
-  
+void *write_ds_record(DataSeriesOutputModule *ds_module, const char *extent_name,
+			long *args);
+
 /*
  * Free the module and flush all the records
  */
-void *destroy_ds_module(DataSeriesModule *ds_module);
+void *destroy_ds_module(DataSeriesOutputModule *ds_module);
 
 #ifdef __cplusplus
 }
 #endif
+
+#endif //STRACE2DS_H
