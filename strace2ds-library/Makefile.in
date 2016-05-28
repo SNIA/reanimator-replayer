@@ -15,6 +15,7 @@
 @SET_MAKE@
 
 
+
 VPATH = @srcdir@
 am__is_gnu_make = test -n '$(MAKEFILE_LIST)' && test -n '$(MAKELEVEL)'
 am__make_running_with_option = \
@@ -83,8 +84,9 @@ subdir = .
 DIST_COMMON = INSTALL NEWS README AUTHORS ChangeLog \
 	$(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
-	$(srcdir)/config.h.in depcomp $(include_HEADERS) COPYING \
-	compile config.guess config.sub install-sh missing ltmain.sh
+	$(srcdir)/config.h.in depcomp $(include_HEADERS) \
+	$(noinst_HEADERS) COPYING compile config.guess config.sub \
+	install-sh missing ltmain.sh
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
 	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
@@ -125,7 +127,8 @@ am__uninstall_files_from_dir = { \
     || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
-am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(includedir)"
+am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(tablesdir)" \
+	"$(DESTDIR)$(xmldir)" "$(DESTDIR)$(includedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libstrace2ds_la_LIBADD =
 am_libstrace2ds_la_OBJECTS = DataSeriesOutputModule.lo strace2ds.lo
@@ -175,7 +178,8 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
-HEADERS = $(include_HEADERS)
+DATA = $(tables_DATA) $(xml_DATA)
+HEADERS = $(include_HEADERS) $(noinst_HEADERS)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) \
 	$(LISP)config.h.in
 # Read a list of newline-separated strings from the standard input,
@@ -338,6 +342,53 @@ ACLOCAL_AMFLAGS = -I m4
 lib_LTLIBRARIES = libstrace2ds.la
 libstrace2ds_la_SOURCES = DataSeriesOutputModule.cpp strace2ds.cpp
 include_HEADERS = strace2ds.h
+noinst_HEADERS = DataSeriesOutputModule.hpp
+SNIA_SYSCALL_FIELDS_TABLE_FILE = tables/snia_syscall_fields.table
+XML_FILES = \
+	xml/access.xml		\
+	xml/chdir.xml		\
+	xml/chmod.xml		\
+	xml/chown.xml		\
+	xml/close.xml		\
+	xml/creat.xml		\
+	xml/dup.xml		\
+	xml/dup2.xml		\
+	xml/execve.xml		\
+	xml/fcntl.xml		\
+	xml/fork.xml		\
+	xml/fstat.xml		\
+	xml/fsync.xml		\
+	xml/ioctl.xml		\
+	xml/link.xml		\
+	xml/lseek.xml		\
+	xml/lstat.xml		\
+	xml/mkdir.xml		\
+	xml/mknod.xml		\
+	xml/mmap.xml		\
+	xml/munmap.xml		\
+	xml/open.xml		\
+	xml/pipe.xml		\
+	xml/pread.xml		\
+	xml/pwrite.xml		\
+	xml/read.xml		\
+	xml/readlink.xml	\
+	xml/readv.xml		\
+	xml/rename.xml		\
+	xml/rmdir.xml		\
+	xml/stat.xml		\
+	xml/symlink.xml		\
+	xml/truncate.xml	\
+	xml/unlink.xml		\
+	xml/utime.xml		\
+	xml/utimes.xml		\
+	xml/write.xml		\
+	xml/writev.xml
+
+EXTRA_DIST = $(SNIA_SYSCALL_FIELDS_TABLE_FILE) $(XML_FILES) buildall
+tablesdir = $(prefix)/tables
+tables_DATA = $(SNIA_SYSCALL_FIELDS_TABLE_FILE)
+xmldir = $(prefix)/xml
+xml_DATA = $(XML_FILES)
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -469,6 +520,48 @@ clean-libtool:
 
 distclean-libtool:
 	-rm -f libtool config.lt
+install-tablesDATA: $(tables_DATA)
+	@$(NORMAL_INSTALL)
+	@list='$(tables_DATA)'; test -n "$(tablesdir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(tablesdir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(tablesdir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(tablesdir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(tablesdir)" || exit $$?; \
+	done
+
+uninstall-tablesDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(tables_DATA)'; test -n "$(tablesdir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(tablesdir)'; $(am__uninstall_files_from_dir)
+install-xmlDATA: $(xml_DATA)
+	@$(NORMAL_INSTALL)
+	@list='$(xml_DATA)'; test -n "$(xmldir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(xmldir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(xmldir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(xmldir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(xmldir)" || exit $$?; \
+	done
+
+uninstall-xmlDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(xml_DATA)'; test -n "$(xmldir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(xmldir)'; $(am__uninstall_files_from_dir)
 install-includeHEADERS: $(include_HEADERS)
 	@$(NORMAL_INSTALL)
 	@list='$(include_HEADERS)'; test -n "$(includedir)" || list=; \
@@ -715,9 +808,9 @@ distcleancheck: distclean
 	       exit 1; } >&2
 check-am: all-am
 check: check-am
-all-am: Makefile $(LTLIBRARIES) $(HEADERS) config.h
+all-am: Makefile $(LTLIBRARIES) $(DATA) $(HEADERS) config.h
 installdirs:
-	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(includedir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(tablesdir)" "$(DESTDIR)$(xmldir)" "$(DESTDIR)$(includedir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -774,7 +867,8 @@ info: info-am
 
 info-am:
 
-install-data-am: install-includeHEADERS
+install-data-am: install-includeHEADERS install-tablesDATA \
+	install-xmlDATA
 
 install-dvi: install-dvi-am
 
@@ -822,7 +916,8 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-includeHEADERS uninstall-libLTLIBRARIES
+uninstall-am: uninstall-includeHEADERS uninstall-libLTLIBRARIES \
+	uninstall-tablesDATA uninstall-xmlDATA
 
 .MAKE: all install-am install-strip
 
@@ -838,11 +933,13 @@ uninstall-am: uninstall-includeHEADERS uninstall-libLTLIBRARIES
 	install-html install-html-am install-includeHEADERS \
 	install-info install-info-am install-libLTLIBRARIES \
 	install-man install-pdf install-pdf-am install-ps \
-	install-ps-am install-strip installcheck installcheck-am \
-	installdirs maintainer-clean maintainer-clean-generic \
-	mostlyclean mostlyclean-compile mostlyclean-generic \
-	mostlyclean-libtool pdf pdf-am ps ps-am tags tags-am uninstall \
-	uninstall-am uninstall-includeHEADERS uninstall-libLTLIBRARIES
+	install-ps-am install-strip install-tablesDATA install-xmlDATA \
+	installcheck installcheck-am installdirs maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-compile \
+	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
+	tags tags-am uninstall uninstall-am uninstall-includeHEADERS \
+	uninstall-libLTLIBRARIES uninstall-tablesDATA \
+	uninstall-xmlDATA
 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
