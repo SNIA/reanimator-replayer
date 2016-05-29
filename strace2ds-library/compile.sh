@@ -1,3 +1,10 @@
-g++ -g -O0 -std=c++0x -lLintel -lDataSeries -I/home/ubuntu/build/include -I/usr/include/libxml2/ -L/home/ubuntu/build/lib   -c -o DataSeriesOutputModule.o DataSeriesOutputModule.cpp
-g++ -g -O0 -std=c++0x -lLintel -lDataSeries -I/home/ubuntu/build/include -I/usr/include/libxml2/ -L/home/ubuntu/build/lib   -c -o strace2ds.o strace2ds.cpp
-cp strace2ds.o DataSeriesOutputModule.o ~/fsl-strace
+#!/bin/bash
+#set -x
+# minimal compile script.  don't use: use buildall instead. -ezk
+
+CFLAGS="-I/usr/local/dataseries/include -I/usr/include/libxml2"
+
+g++ $CFLAGS $LDFLAGS -c -o DataSeriesOutputModule.o DataSeriesOutputModule.cpp || exit $?
+g++ $CFLAGS $LDFLAGS -c -o strace2ds.o strace2ds.cpp || exit $?
+ar rv libstrace2ds.a strace2ds.o DataSeriesOutputModule.o || exit $?
+cp -av libstrace2ds.a ~/strace2ds/lib || exit $?

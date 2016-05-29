@@ -10,18 +10,13 @@ AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE
 
 # look for DataSeries and Lintel libraries in special locations
-CFLAGS="$CFLAGS -I/usr/local/dataseries/include \
-		-I/usr/include/libxml2"
 CXXFLAGS="$CXXFLAGS -I/usr/local/dataseries/include \
 		-I/usr/include/libxml2"
-LDFLAGS="$LDFLAGS -L/usr/local/dataseries/lib"
 
 # Checks for programs.
-dnl AC_PROG_AWK
 AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_CPP
-dnl AC_PROG_RANLIB
 LT_INIT
 
 # Checks for libraries.
