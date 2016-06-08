@@ -53,6 +53,10 @@ void *write_ds_record(DataSeriesOutputModule *ds_module, const char *extent_name
  */
 void *destroy_ds_module(DataSeriesOutputModule *ds_module);
 
+/*
+ * Save the value of path_name given as an argument to system call
+ */
+void *save_path_string(DataSeriesOutputModule *ds_module, const char *path);
 #ifdef __cplusplus
 }
 #endif

@@ -26,6 +26,7 @@
  */
 
 #include "DataSeriesOutputModule.hpp"
+#include <fcntl.h>
 
 // Constructor to set up all extents and fields
 DataSeriesOutputModule::DataSeriesOutputModule(std::ifstream &table_stream,
@@ -85,6 +86,8 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args) {
    */
   if (strcmp(extent_name, "close") == 0) {
     makeCloseArgsMap(sys_call_args_map, args);
+  } else if (strcmp(extent_name, "open") == 0) {
+    makeOpenArgsMap(sys_call_args_map, args);
   }
 
   // Create a new record to write
@@ -96,7 +99,6 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args) {
        iter++) {
     std::string field_name = iter->first;
     bool nullable = iter->second.first;
-
     if (sys_call_args_map.find(field_name) != sys_call_args_map.end()) {
       void *field_value = sys_call_args_map[field_name];
       setField(extent_name, field_name, field_value);
@@ -111,7 +113,6 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args) {
       }
     }
   }
-  
   // Update record number
   record_num_++;
 }
@@ -231,9 +232,14 @@ void DataSeriesOutputModule::addField(const std::string &extent_name,
 void DataSeriesOutputModule::setField(const std::string &extent_name,
 				      const std::string &field_name,
 				      void *field_value) {
+  bool buffer;
   switch (extents_[extent_name][field_name].second) {
   case ExtentType::ft_bool:
-    doSetField<BoolField, bool>(extent_name, field_name, field_value);
+    if (field_value == 0) 
+      buffer = false;
+    else
+      buffer = true;
+    doSetField<BoolField, bool>(extent_name, field_name, &buffer);
     break;
   case ExtentType::ft_byte:
     doSetField<ByteField, ExtentType::byte>(extent_name, field_name, field_value);
@@ -249,7 +255,7 @@ void DataSeriesOutputModule::setField(const std::string &extent_name,
     break;
   case ExtentType::ft_variable32:
     ((Variable32Field *)(extents_[extent_name][field_name].first))->set((*(std::string *)field_value).c_str(),
-									(*(std::string *)field_value).size()+1);
+   									(*(std::string *)field_value).size() + 1);
     break;
   default:
     std::stringstream error_msg;
@@ -296,6 +302,293 @@ void DataSeriesOutputModule::doSetField(const std::string &extent_name,
   ((FieldType *)(extents_[extent_name][field_name].first))->set(*(ValueType *)field_value);
 }
 
+void DataSeriesOutputModule::fetch_path_string(const char *path) {
+  // Save the path string obtained from strace.
+  path_string = path;
+  
+}
+
 void DataSeriesOutputModule::makeCloseArgsMap(std::map<std::string, void *> &args_map, long *args) {
   args_map["descriptor"] = &args[0];
 }
+
+void DataSeriesOutputModule::makeOpenArgsMap(std::map<std::string, void *> &args_map, long *args) {
+  int offset = 0;
+  if (!path_string.empty()) {
+    args_map["given_pathname"] = &path_string;
+  }
+  
+  /* Setting flag values */
+  args_map["open_value"] = &args[offset + 1];
+  processOpenFlags(args_map, args[offset + 1]); 
+ 
+  /* Setting mode values 
+   * Initially set all mode bits as False
+   */
+  args_map["mode_uid"] = 0;
+  args_map["mode_gid"] = 0;
+  args_map["mode_sticky_bit"] = 0;
+  args_map["mode_R_user"] = 0;
+  args_map["mode_W_user"] = 0;
+  args_map["mode_X_user"] = 0;
+  args_map["mode_R_group"] = 0;
+  args_map["mode_W_group"] = 0;
+  args_map["mode_X_group"] = 0;
+  args_map["mode_R_others"] = 0;
+  args_map["mode_W_others"] = 0;
+  args_map["mode_X_others"] = 0;
+  
+  /*
+   * If open is called with 3 arguments, set the corresponding
+   * mode value and mode bits as True.
+   */
+  if (args[offset + 1] & O_CREAT) {
+    processMode(args_map, args, offset + 2);
+  }
+}
+
+/*
+ * This function unwraps the flag value passed as an argument to 
+ * open system call and set the corresponding flag values as True.
+ */
+void DataSeriesOutputModule::processOpenFlags(std::map<std::string, void *> &args_map, 
+					      unsigned int flag) {
+  /*
+   * First check which access mode: O_RDONLY, O_WRONLY, O_RDWR
+   * has been included in the argument flag.
+   */
+  if ((flag & 3) == 0) {
+    // O_RDONLY
+    args_map["flag_read_only"] = (void *) 1;;
+    args_map["flag_write_only"] = 0;
+    args_map["flag_read_and_write"] = 0;
+  } else if ((flag & 3) == 1) {
+    // O_WRONLY 
+    args_map["flag_write_only"] = (void *) 1;
+    args_map["flag_read_only"] = 0;
+    args_map["flag_read_and_write"] = 0;
+  } else if ((flag & 3) == 2) {
+    // O_RDWR
+    args_map["flag_read_and_write"] = (void *) 1;
+    args_map["flag_read_only"] = 0;
+    args_map["flag_write_only"] = 0;
+  }
+ 
+  /*
+   * In addition, check for more file creation and file status flags 
+   * such as O_CREAT, O_DIRECTORY, etc that has been set or not.
+   */
+  flag &= ~3;
+  if ((flag & O_APPEND) == O_APPEND) {
+    args_map["flag_append"] = (void *) 1;
+    flag &= ~O_APPEND;
+  } else
+    args_map["flag_append"] = 0;
+  if ((flag & O_ASYNC) == O_ASYNC) {
+    args_map["flag_async"] = (void *) 1;
+    flag &= ~O_ASYNC;
+  } else
+    args_map["flag_async"] = 0;
+  if ((flag & O_CLOEXEC) == O_CLOEXEC) {
+    args_map["flag_close_on_exec"] = (void *) 1;
+    flag &= ~O_CLOEXEC;
+  } else
+    args_map["flag_close_on_exec"] = 0;
+  if ((flag & O_CREAT) == O_CREAT) {
+    args_map["flag_create"] = (void *) 1;
+    flag &= ~O_CREAT;
+  } else
+    args_map["flag_create"] = 0;
+  if ((flag & O_DIRECT) == O_DIRECT) {
+    args_map["flag_direct"] = (void *) 1;
+    flag &= ~O_DIRECT;
+  } else
+    args_map["flag_direct"] = 0;
+  if ((flag & O_DIRECTORY) == O_DIRECTORY) {
+    args_map["flag_directory"] = (void *) 1;
+    flag &= ~O_DIRECTORY;
+  } else
+    args_map["flag_directory"] = 0;
+  if ((flag & O_EXCL) == O_EXCL) {
+    args_map["flag_exclusive"] = (void *) 1; 
+    flag &= ~O_EXCL;
+  } else
+    args_map["flag_exclusive"] = 0;
+  if ((flag & O_LARGEFILE) == O_LARGEFILE) {  
+    args_map["flag_largefile"] = (void *) 1;
+    flag &= ~O_LARGEFILE;
+  } else
+    args_map["flag_largefile"] = 0;
+  if ((flag & O_NOATIME) == O_NOATIME) {
+    args_map["flag_no_access_time"] = (void *) 1;
+    flag &= ~O_NOATIME;
+  } else
+    args_map["flag_no_access_time"] = 0;
+  if ((flag & O_NOCTTY) == O_NOCTTY) { 
+    args_map["flag_no_controlling_terminal"] = (void *) 1;
+    flag &= ~O_NOCTTY;
+  } else 
+    args_map["flag_no_controlling_terminal"] = 0;
+  if ((flag & O_NOFOLLOW) == O_NOFOLLOW) { 
+    args_map["flag_no_follow"] = (void *) 1;
+    flag &= ~O_NOFOLLOW;
+  } else
+    args_map["flag_no_follow"] = 0;
+  if ((flag & O_NONBLOCK) == O_NONBLOCK) {
+    args_map["flag_no_blocking_mode"] = (void *) 1;
+    flag &= ~O_NONBLOCK;
+  } else
+    args_map["flag_no_blocking_mode"] = 0;
+  if ((flag & O_NDELAY) == O_NDELAY) {
+    args_map["flag_no_delay"] = (void *) 1;
+    flag &= ~O_NDELAY;
+  } else
+    args_map["flag_no_delay"] = 0;
+  if ((flag & O_SYNC) == O_SYNC) {
+    args_map["flag_synchronous"] = (void *) 1;
+    flag &= ~O_SYNC;
+  } else
+    args_map["flag_synchronous"] = 0;
+  if ((flag & O_TRUNC) == O_TRUNC) {
+    args_map["flag_truncate"] = (void *) 1;
+    flag &= ~O_TRUNC;
+  } else
+    args_map["flag_truncate"] = 0;
+}
+
+/*
+ * This function unwraps the mode value passed as an argument to system
+ * call. 
+ */
+void DataSeriesOutputModule::processMode(std::map<std::string, void *> &args_map,
+                                         long *args, int offset) {
+  // Save the mode argument with mode_value file in map
+  args_map["mode_value"] = &args[offset];
+  
+  // Stores the mode value as octal in string
+  char *mode_arg = (char *)malloc(4);
+  sprintf(mode_arg, "%lo", args[offset]);
+
+  // If set_permissions are not set, insert "0" at zeroth position
+  std::string _mode(mode_arg);
+  if (_mode.length() < 4)
+    _mode.insert(0, "0");
+  
+  // Create a vector to store the individual mode bits
+  std::vector<bool> mode_vector(12, false);
+  for (int i = 4; i > 0; i--) {
+    /*
+     * others_permission -> _mode.at(_mode.length()-1);
+     * group_permission -> _mode.at(_mode.length()-2);
+     * user_permission -> _mode.at(_mode.length()-3);
+     * set_permission -> _mode.at(_mode.length()-4);
+     */
+    char c_permission = _mode.at(_mode.length() - i);
+    if (isdigit(c_permission)) {
+      /*
+       * mode_vector[0] -> user read permission
+       * mode_vector[1] -> user write permission
+       * mode_vector[2] -> user execute permission
+       * mode_vector[3] -> group read permission
+       * ...
+       * owner_start_index = 0 for set-user-ID, 3 user, 6 for group, 9 for others
+       */
+      int start_index = 0;
+      switch(i) {
+      case 4:
+	// set-user-id
+	start_index = 0;
+	break;
+      case 3:
+	// User
+	start_index = 3;
+	break;
+      case 2:
+	// Group
+	start_index = 6;
+	break;
+      case 1:
+	// Others
+	start_index = 9;
+	break;
+      }
+
+      int permission = c_permission - '0';
+      switch(permission) {
+      case 0:
+	// no permission
+	mode_vector[0 + start_index] = false;
+	mode_vector[1 + start_index] = false;
+	mode_vector[2 + start_index] = false;
+	break;
+      case 1:
+	// execute permission
+	mode_vector[0 + start_index] = false;
+	mode_vector[1 + start_index] = false;
+	mode_vector[2 + start_index] = true;
+	break;
+      case 2:
+	// write permission
+	mode_vector[0 + start_index] = false;
+	mode_vector[1 + start_index] = true;
+	mode_vector[2 + start_index] = false;
+	break;
+      case 3:
+	// execute and write permission
+	mode_vector[0 + start_index] = false;
+	mode_vector[1 + start_index] = true;
+	mode_vector[2 + start_index] = true;
+	break;
+      case 4:
+	// read permission
+	mode_vector[0 + start_index] = true;
+	mode_vector[1 + start_index] = false;
+	mode_vector[2 + start_index] = false;
+	break;
+      case 5:
+	// read and execute permission
+	mode_vector[0 + start_index] = true;
+	mode_vector[1 + start_index] = false;
+	mode_vector[2 + start_index] = true;
+	break;
+      case 6:
+	// read and write permission
+	mode_vector[0 + start_index] = true;
+	mode_vector[1 + start_index] = true;
+	mode_vector[2 + start_index] = false;
+	break;
+      case 7:
+	// read, write, and execute permission
+	mode_vector[0 + start_index] = true;
+	mode_vector[1 + start_index] = true;
+	mode_vector[2 + start_index] = true;
+	break;
+      default:
+	// error, unknown permission
+	std::cerr << "Unknown permission: '" << c_permission << "'.\n";
+	return;
+      }
+    } else {
+      std::cerr << "Unknown permission: '" << c_permission << "'.\n";
+      return;
+    }
+  }
+ 
+  /*
+   * Maps the individual mode bits and set the corresponding values to 
+   * True or False by taking the correspoding values from mode_vector
+   */
+  const char *mode_field_name[] = {"mode_uid", "mode_gid", "mode_sticky_bit", \
+                                   "mode_R_user", "mode_W_user", "mode_X_user", \
+                                   "mode_R_group", "mode_W_group", "mode_X_group", \
+                                   "mode_R_others", "mode_W_others", "mode_X_others"};
+  for (int i = 0; i < 12; i++) {
+   if (mode_vector[i]) 
+     // If corresponding mode bit is set as True
+     args_map[mode_field_name[i]] = (void *) 1;
+   else
+     // If corresponding mode bit is set as False
+     args_map[mode_field_name[i]] = 0;
+  }
+}
+
