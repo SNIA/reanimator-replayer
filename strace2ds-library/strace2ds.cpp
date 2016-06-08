@@ -68,7 +68,7 @@ void *destroy_ds_module(DataSeriesOutputModule *ds_module) {
 
 /*
  * Save the string value of path_name passed as an argument to
- * system calls. 
+ * system calls.
  */
 void *save_path_string(DataSeriesOutputModule *ds_module, const char *path) {
   ((DataSeriesOutputModule *)ds_module)->fetch_path_string(path);

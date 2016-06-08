@@ -99,6 +99,7 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args) {
        iter++) {
     std::string field_name = iter->first;
     bool nullable = iter->second.first;
+
     if (sys_call_args_map.find(field_name) != sys_call_args_map.end()) {
       void *field_value = sys_call_args_map[field_name];
       setField(extent_name, field_name, field_value);
@@ -113,6 +114,7 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args) {
       }
     }
   }
+
   // Update record number
   record_num_++;
 }
@@ -235,7 +237,7 @@ void DataSeriesOutputModule::setField(const std::string &extent_name,
   bool buffer;
   switch (extents_[extent_name][field_name].second) {
   case ExtentType::ft_bool:
-    if (field_value == 0) 
+    if (field_value == 0)
       buffer = false;
     else
       buffer = true;
@@ -255,7 +257,7 @@ void DataSeriesOutputModule::setField(const std::string &extent_name,
     break;
   case ExtentType::ft_variable32:
     ((Variable32Field *)(extents_[extent_name][field_name].first))->set((*(std::string *)field_value).c_str(),
-   									(*(std::string *)field_value).size() + 1);
+   								       (*(std::string *)field_value).size()+1);
     break;
   default:
     std::stringstream error_msg;
@@ -305,7 +307,6 @@ void DataSeriesOutputModule::doSetField(const std::string &extent_name,
 void DataSeriesOutputModule::fetch_path_string(const char *path) {
   // Save the path string obtained from strace.
   path_string = path;
-  
 }
 
 void DataSeriesOutputModule::makeCloseArgsMap(std::map<std::string, void *> &args_map, long *args) {
@@ -317,12 +318,12 @@ void DataSeriesOutputModule::makeOpenArgsMap(std::map<std::string, void *> &args
   if (!path_string.empty()) {
     args_map["given_pathname"] = &path_string;
   }
-  
+
   /* Setting flag values */
   args_map["open_value"] = &args[offset + 1];
-  processOpenFlags(args_map, args[offset + 1]); 
- 
-  /* Setting mode values 
+  processOpenFlags(args_map, args[offset + 1]);
+
+  /* Setting mode values
    * Initially set all mode bits as False
    */
   args_map["mode_uid"] = 0;
@@ -337,7 +338,7 @@ void DataSeriesOutputModule::makeOpenArgsMap(std::map<std::string, void *> &args
   args_map["mode_R_others"] = 0;
   args_map["mode_W_others"] = 0;
   args_map["mode_X_others"] = 0;
-  
+
   /*
    * If open is called with 3 arguments, set the corresponding
    * mode value and mode bits as True.
@@ -348,10 +349,10 @@ void DataSeriesOutputModule::makeOpenArgsMap(std::map<std::string, void *> &args
 }
 
 /*
- * This function unwraps the flag value passed as an argument to 
+ * This function unwraps the flag value passed as an argument to
  * open system call and set the corresponding flag values as True.
  */
-void DataSeriesOutputModule::processOpenFlags(std::map<std::string, void *> &args_map, 
+void DataSeriesOutputModule::processOpenFlags(std::map<std::string, void *> &args_map,
 					      unsigned int flag) {
   /*
    * First check which access mode: O_RDONLY, O_WRONLY, O_RDWR
@@ -363,7 +364,7 @@ void DataSeriesOutputModule::processOpenFlags(std::map<std::string, void *> &arg
     args_map["flag_write_only"] = 0;
     args_map["flag_read_and_write"] = 0;
   } else if ((flag & 3) == 1) {
-    // O_WRONLY 
+    // O_WRONLY
     args_map["flag_write_only"] = (void *) 1;
     args_map["flag_read_only"] = 0;
     args_map["flag_read_and_write"] = 0;
@@ -373,9 +374,9 @@ void DataSeriesOutputModule::processOpenFlags(std::map<std::string, void *> &arg
     args_map["flag_read_only"] = 0;
     args_map["flag_write_only"] = 0;
   }
- 
+
   /*
-   * In addition, check for more file creation and file status flags 
+   * In addition, check for more file creation and file status flags
    * such as O_CREAT, O_DIRECTORY, etc that has been set or not.
    */
   flag &= ~3;
@@ -410,11 +411,11 @@ void DataSeriesOutputModule::processOpenFlags(std::map<std::string, void *> &arg
   } else
     args_map["flag_directory"] = 0;
   if ((flag & O_EXCL) == O_EXCL) {
-    args_map["flag_exclusive"] = (void *) 1; 
+    args_map["flag_exclusive"] = (void *) 1;
     flag &= ~O_EXCL;
   } else
     args_map["flag_exclusive"] = 0;
-  if ((flag & O_LARGEFILE) == O_LARGEFILE) {  
+  if ((flag & O_LARGEFILE) == O_LARGEFILE) {
     args_map["flag_largefile"] = (void *) 1;
     flag &= ~O_LARGEFILE;
   } else
@@ -424,12 +425,12 @@ void DataSeriesOutputModule::processOpenFlags(std::map<std::string, void *> &arg
     flag &= ~O_NOATIME;
   } else
     args_map["flag_no_access_time"] = 0;
-  if ((flag & O_NOCTTY) == O_NOCTTY) { 
+  if ((flag & O_NOCTTY) == O_NOCTTY) {
     args_map["flag_no_controlling_terminal"] = (void *) 1;
     flag &= ~O_NOCTTY;
-  } else 
+  } else
     args_map["flag_no_controlling_terminal"] = 0;
-  if ((flag & O_NOFOLLOW) == O_NOFOLLOW) { 
+  if ((flag & O_NOFOLLOW) == O_NOFOLLOW) {
     args_map["flag_no_follow"] = (void *) 1;
     flag &= ~O_NOFOLLOW;
   } else
@@ -458,13 +459,13 @@ void DataSeriesOutputModule::processOpenFlags(std::map<std::string, void *> &arg
 
 /*
  * This function unwraps the mode value passed as an argument to system
- * call. 
+ * call.
  */
 void DataSeriesOutputModule::processMode(std::map<std::string, void *> &args_map,
                                          long *args, int offset) {
   // Save the mode argument with mode_value file in map
   args_map["mode_value"] = &args[offset];
-  
+
   // Stores the mode value as octal in string
   char *mode_arg = (char *)malloc(4);
   sprintf(mode_arg, "%lo", args[offset]);
@@ -473,7 +474,7 @@ void DataSeriesOutputModule::processMode(std::map<std::string, void *> &args_map
   std::string _mode(mode_arg);
   if (_mode.length() < 4)
     _mode.insert(0, "0");
-  
+
   // Create a vector to store the individual mode bits
   std::vector<bool> mode_vector(12, false);
   for (int i = 4; i > 0; i--) {
@@ -573,9 +574,9 @@ void DataSeriesOutputModule::processMode(std::map<std::string, void *> &args_map
       return;
     }
   }
- 
+
   /*
-   * Maps the individual mode bits and set the corresponding values to 
+   * Maps the individual mode bits and set the corresponding values to
    * True or False by taking the correspoding values from mode_vector
    */
   const char *mode_field_name[] = {"mode_uid", "mode_gid", "mode_sticky_bit", \
@@ -583,7 +584,7 @@ void DataSeriesOutputModule::processMode(std::map<std::string, void *> &args_map
                                    "mode_R_group", "mode_W_group", "mode_X_group", \
                                    "mode_R_others", "mode_W_others", "mode_X_others"};
   for (int i = 0; i < 12; i++) {
-   if (mode_vector[i]) 
+   if (mode_vector[i])
      // If corresponding mode bit is set as True
      args_map[mode_field_name[i]] = (void *) 1;
    else
@@ -591,4 +592,3 @@ void DataSeriesOutputModule::processMode(std::map<std::string, void *> &args_map
      args_map[mode_field_name[i]] = 0;
   }
 }
-
