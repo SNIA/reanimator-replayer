@@ -24,6 +24,7 @@ SystemCallTraceReplayModule::SystemCallTraceReplayModule(DataSeriesModule &sourc
   verbose_(verbose_flag),
   warn_level_(warn_level_flag),
   time_called_(series, "time_called", Field::flag_nullable),
+  executing_pid_(series, "executing_pid", Field::flag_nullable),
   errno_number_(series, "errno_number", Field::flag_nullable),
   return_value_(series, "return_value", Field::flag_nullable),
   unique_id_(series, "unique_id"),
@@ -49,6 +50,10 @@ bool SystemCallTraceReplayModule::abort_mode() const {
 
 double SystemCallTraceReplayModule::time_called() const {
   return (double)time_called_.val();
+}
+
+int SystemCallTraceReplayModule::executing_pid() const {
+  return (int)executing_pid_.val();
 }
 
 int SystemCallTraceReplayModule::errno_number() const {
@@ -120,6 +125,7 @@ void SystemCallTraceReplayModule::print_common_fields() {
   std::cout << sys_call_name_ << ": ";
   std::cout.precision(25);
   std::cout << "time called(" << std::fixed << time_called() << "), ";
+  std::cout << "executing pid(" << executing_pid() << "), ";
   std::cout << "errno(" << errno_number() << "), ";
   std::cout << "return value(" << return_value() << "), ";
   std::cout << "replayed return value(" << replayed_ret_val_ << "), ";

@@ -41,6 +41,7 @@ protected:
   bool verbose_;
   int  warn_level_;
   DoubleField time_called_;
+  Int32Field executing_pid_;
   Int32Field errno_number_;
   Int64Field return_value_;
   Int64Field unique_id_;
@@ -158,6 +159,14 @@ public:
    *          extent series is pointing to.
    */
   double time_called() const;
+
+  /*
+   * Get the process id of the current system call record
+   *
+   * @return: corresponding executing_pid field of a record that 
+   *          extent series is pointing to.
+   */
+  int executing_pid() const;
 
   /*
    * Get the errno number of current system call record
