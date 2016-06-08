@@ -62,7 +62,7 @@ public:
 			 const char *output_file);
 
   // Register the record and field values in into DS fields
-  bool writeRecord(const char *extent_name, long *args);
+  bool writeRecord(const char *extent_name, long *args, struct timeval time_called, struct timeval time_returned, int return_value, int errno_number, int executing_pid);
 
   // Destructor to delete the module
   ~DataSeriesOutputModule();

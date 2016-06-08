@@ -73,7 +73,7 @@ DataSeriesOutputModule::DataSeriesOutputModule(std::ifstream &table_stream,
 }
 
 // Register the record and field values in into DS fields 
-bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args, struct timeval time_called, struct timeval time_returned, int return_value, int errno_number, int executing_pid) {
+bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args) {
   std::map<std::string, void *> sys_call_args_map;
 
   sys_call_args_map["unique_id"] = &record_num_;
@@ -83,16 +83,6 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args, st
    * If the field is in the map, then set value of the
    * field. Otherwise set it to null.
    */
-  // Adds the two parts of the timeval structure to obtain one value for time
-  double time_called_doub = (double) time_called.tv_sec + pow(10.0, -6)*time_called.tv_usec;
-  double time_returned_doub = (double) time_returned.tv_sec + pow(10.0, -6)*time_returned.tv_usec;
-  // Adds the common field values to the map
-  sys_call_args_map["time_called"] = &time_called_doub;
-  sys_call_args_map["time_returned"] = &time_returned_doub;
-  sys_call_args_map["return_value"] = &return_value;
-  sys_call_args_map["errno_number"] = &errno_number;
-  sys_call_args_map["executing_pid"] = &executing_pid;
-
   if (strcmp(extent_name, "close") == 0) {
     makeCloseArgsMap(sys_call_args_map, args);
   }

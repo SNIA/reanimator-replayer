@@ -55,8 +55,8 @@ DataSeriesOutputModule *create_ds_module(const char *output_file, const char *ta
  * return NULL if failed
  */
 void *write_ds_record(DataSeriesOutputModule *ds_module, const char *extent_name,
-		      long *args) {
-  ((DataSeriesOutputModule *)ds_module)->writeRecord(extent_name, args);
+		      long *args, struct timeval time_called, struct timeval time_returned, int return_value, int errno_number, int executing_pid) {
+  ((DataSeriesOutputModule *)ds_module)->writeRecord(extent_name, args, time_called, time_returned, return_value, errno_number, executing_pid);
 }
 
 /*
