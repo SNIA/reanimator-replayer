@@ -472,6 +472,7 @@ void DataSeriesOutputModule::processMode(std::map<std::string, void *> &args_map
 
   // If set_permissions are not set, insert "0" at zeroth position
   std::string _mode(mode_arg);
+  free(mode_arg);
   if (_mode.length() < 4)
     _mode.insert(0, "0");
 
