@@ -257,7 +257,7 @@ void DataSeriesOutputModule::setField(const std::string &extent_name,
     break;
   case ExtentType::ft_variable32:
     ((Variable32Field *)(extents_[extent_name][field_name].first))->set((*(std::string *)field_value).c_str(),
-   								       (*(std::string *)field_value).size()+1);
+									(*(std::string *)field_value).size()+1);
     break;
   default:
     std::stringstream error_msg;
@@ -360,7 +360,7 @@ void DataSeriesOutputModule::processOpenFlags(std::map<std::string, void *> &arg
    */
   if ((flag & 3) == 0) {
     // O_RDONLY
-    args_map["flag_read_only"] = (void *) 1;;
+    args_map["flag_read_only"] = (void *) 1;
     args_map["flag_write_only"] = 0;
     args_map["flag_read_and_write"] = 0;
   } else if ((flag & 3) == 1) {
