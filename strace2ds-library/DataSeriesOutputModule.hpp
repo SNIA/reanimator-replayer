@@ -67,7 +67,7 @@ public:
   // Destructor to delete the module
   ~DataSeriesOutputModule();
 
-  // Fetch the char* path from tcp structure and store it in g
+  // Fetch the char* path from tcp structure.
   void fetch_path_string(const char *path);
 
 private:
@@ -77,6 +77,7 @@ private:
   DataSeriesSink ds_sink_;
   config_table_type config_table_;
   unsigned int record_num_;
+  /* path_string is used to save pathname of system call argument */
   std::string path_string;
 
   // Disable copy constructor
@@ -119,7 +120,7 @@ private:
   // Maps individual flag value for Open system call to its corresponding field name
   bool processOpenFlags(std::map<std::string, void *> &args_map, unsigned int flag);
 
-  // Maps individual mode bits for Mode system call to its corresponding field name
+  // Maps individual mode bits of mode argument to its corresponding field name
   bool processMode(std::map<std::string, void *> &args_map, long *args, int offset);
 
 };

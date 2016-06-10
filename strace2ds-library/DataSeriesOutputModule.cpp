@@ -318,14 +318,14 @@ void DataSeriesOutputModule::makeOpenArgsMap(std::map<std::string, void *> &args
   if (!path_string.empty()) {
     args_map["given_pathname"] = &path_string;
   } else {
-    std::cerr << "Open: Pathname is set as NULL." << std::endl;
+    std::cerr << "Open: Pathname is set as NULL!!" << std::endl;
     exit(1);
   }
 
   /* Setting flag values */
   args_map["open_value"] = &args[offset + 1];
   if (!processOpenFlags(args_map, args[offset + 1])) {
-    std::cerr << "Open: Unknown flag bits are set" << std::endl;
+    std::cerr << "Open: Unknown flag bits are set!!" << std::endl;
     exit(1);
   }
 
@@ -354,7 +354,7 @@ void DataSeriesOutputModule::makeOpenArgsMap(std::map<std::string, void *> &args
    */
   if (args[offset + 1] & O_CREAT) {
     if (!processMode(args_map, args, offset + 2)) {
-      std::cerr << "Open:: Unknown mode bits are set" << std::endl;
+      std::cerr << "Open:: Unknown mode bits are set!!" << std::endl;
       exit(1);
     }
   }
