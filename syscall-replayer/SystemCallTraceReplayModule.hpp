@@ -158,11 +158,11 @@ public:
    * Get the execution time of current system call record
    *
    * @return: corresponding time_called field of a record that
-   *          extent series is pointing to.
+   *	      extent series is pointing to.
    */
   double time_called() const;
 
-  /*																      
+  /*
    * Get the time the current system call returned according to the record	    
    *
    * @return: corresponding time_returned field of a record that
@@ -182,7 +182,7 @@ public:
    * Get the process id of the current system call record
    *
    * @return: corresponding executing_pid field of a record that 
-   *          extent series is pointing to.
+   *	      extent series is pointing to.
    */
   int executing_pid() const;
 
