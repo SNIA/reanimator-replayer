@@ -24,6 +24,8 @@ SystemCallTraceReplayModule::SystemCallTraceReplayModule(DataSeriesModule &sourc
   verbose_(verbose_flag),
   warn_level_(warn_level_flag),
   time_called_(series, "time_called", Field::flag_nullable),
+  time_returned_(series, "time_returned", Field::flag_nullable),
+  time_recorded_(series, "time_recorded", Field::flag_nullable),
   executing_pid_(series, "executing_pid", Field::flag_nullable),
   errno_number_(series, "errno_number", Field::flag_nullable),
   return_value_(series, "return_value", Field::flag_nullable),
@@ -50,6 +52,14 @@ bool SystemCallTraceReplayModule::abort_mode() const {
 
 double SystemCallTraceReplayModule::time_called() const {
   return (double)time_called_.val();
+}
+
+uint64_t SystemCallTraceReplayModule::time_returned() const {
+  return (uint64_t)time_returned_.val();
+}
+
+uint64_t SystemCallTraceReplayModule::time_recorded() const {
+  return (uint64_t)time_recorded_.val();
 }
 
 int SystemCallTraceReplayModule::executing_pid() const {
@@ -125,6 +135,8 @@ void SystemCallTraceReplayModule::print_common_fields() {
   std::cout << sys_call_name_ << ": ";
   std::cout.precision(25);
   std::cout << "time called(" << std::fixed << time_called() << "), ";
+  std::cout << "time returned(" << time_returned() << ") ";
+  std::cout << "time recorded(" << time_recorded() << ") ";
   std::cout << "executing pid(" << executing_pid() << "), ";
   std::cout << "errno(" << errno_number() << "), ";
   std::cout << "return value(" << return_value() << "), ";
