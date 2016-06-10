@@ -85,13 +85,12 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args, st
    * If the field is in the map, then set value of the
    * field. Otherwise set it to null.
    */
-  
+
   // Converts the timeval time_called to a double
   double time_called_doub = (double) time_called.tv_sec + pow(10.0, -6)*time_called.tv_usec;
-    
   // Converts the timeval time_returned to a uint64_t
   uint64_t time_returned_u64 = (uint64_t)(((double) time_returned.tv_sec + pow(10.0, -6)*time_returned.tv_usec)*(((uint64_t)1)<<32));
-    
+
   // Adds the common field values to the map
   sys_call_args_map["time_called"] = &time_called_doub;
   sys_call_args_map["time_returned"] = &time_returned_u64;
@@ -106,7 +105,7 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args, st
   }
   // Create a new record to write
   modules_[extent_name]->newRecord();
-  
+ 
   // Get the time the record was written as late as possible before we actually write the record
   gettimeofday(&time_recorded, NULL);
   // Convert the timeval time_recorded to a uint_64 and add it to the map
