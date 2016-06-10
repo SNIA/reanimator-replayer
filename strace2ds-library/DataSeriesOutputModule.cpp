@@ -483,62 +483,62 @@ void DataSeriesOutputModule::processMode(std::map<std::string, void *> &args_map
   args_map["mode_value"] = &args[offset];
 
   // Initially set the individual mode bits to False.
-	const char *mode_field_name[] = {"mode_uid", "mode_gid", "mode_sticky_bit", \
-					"mode_R_user", "mode_W_user", "mode_X_user", \
-					"mode_R_group", "mode_W_group", "mode_X_group", \
-					"mode_R_others", "mode_W_others", "mode_X_others"};
+  const char *mode_field_name[] = {"mode_uid", "mode_gid", "mode_sticky_bit", \
+				   "mode_R_user", "mode_W_user", "mode_X_user", \
+				   "mode_R_group", "mode_W_group", "mode_X_group", \
+				   "mode_R_others", "mode_W_others", "mode_X_others"};
 
-	for (int i = 0; i < 12; i++) {
-		args_map[mode_field_name[i]] = 0;
+  for (int i = 0; i < 12; i++) {
+    args_map[mode_field_name[i]] = 0;
   }
 
-	mode_t mode = args[offset];
+  mode_t mode = args[offset];
 
-	// set-user-ID bit
-	if (mode & S_ISUID)
-		args_map["mode_uid"] = (void *) 1;
+  // set-user-ID bit
+  if (mode & S_ISUID)
+    args_map["mode_uid"] = (void *) 1;
 
-	// set-group-ID bit
-	if (mode & S_ISGID)
-		args_map["mode_gid"] = (void *) 1;
+  // set-group-ID bit
+  if (mode & S_ISGID)
+    args_map["mode_gid"] = (void *) 1;
 
-	// sticky bit
-	if (mode & S_ISVTX)
-		args_map["mode_sticky_bit"] = (void *) 1;
+  // sticky bit
+  if (mode & S_ISVTX)
+    args_map["mode_sticky_bit"] = (void *) 1;
 
-	// user read permission bit
-	if (mode & S_IRUSR)
-		args_map["mode_R_user"] = (void *) 1;
+  // user read permission bit
+  if (mode & S_IRUSR)
+    args_map["mode_R_user"] = (void *) 1;
 
-	// user write permission bit
-	if (mode & S_IRUSR)
-		args_map["mode_W_user"] = (void *) 1;
+  // user write permission bit
+  if (mode & S_IRUSR)
+    args_map["mode_W_user"] = (void *) 1;
 
-	// user execute permission bit
-	if (mode & S_IRUSR)
-		args_map["mode_X_user"] = (void *) 1;
+  // user execute permission bit
+  if (mode & S_IRUSR)
+    args_map["mode_X_user"] = (void *) 1;
 
-	// group read permission bit
-	if (mode & S_IRGRP)
-		args_map["mode_R_group"] = (void *) 1;
+  // group read permission bit
+  if (mode & S_IRGRP)
+    args_map["mode_R_group"] = (void *) 1;
 
-	// group write permission bit
-	if (mode & S_IRGRP)
-		args_map["mode_W_group"] = (void *) 1;
+  // group write permission bit
+  if (mode & S_IRGRP)
+    args_map["mode_W_group"] = (void *) 1;
 
-	// group execute permission bit
-	if (mode & S_IROTH)
-		args_map["mode_X_others"] = (void *) 1;
+  // group execute permission bit
+  if (mode & S_IROTH)
+    args_map["mode_X_others"] = (void *) 1;
 
-	// others read permission bit
-	if (mode & S_IROTH)
-		args_map["mode_R_others"] = (void *) 1;
+  // others read permission bit
+  if (mode & S_IROTH)
+    args_map["mode_R_others"] = (void *) 1;
 
-	// others write permission bit
-	if (mode & S_IROTH)
-		args_map["mode_W_others"] = (void *) 1;
+  // others write permission bit
+  if (mode & S_IROTH)
+    args_map["mode_W_others"] = (void *) 1;
 
-	// others execute permission bit
-	if (mode & S_IROTH)
-		args_map["mode_X_others"] = (void *) 1;
+  // others execute permission bit
+  if (mode & S_IROTH)
+    args_map["mode_X_others"] = (void *) 1;
 }
