@@ -100,12 +100,10 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args, st
 
   if (strcmp(extent_name, "close") == 0) {
     makeCloseArgsMap(sys_call_args_map, args);
-  } else if (strcmp(extent_name, "open") == 0) {
-    makeOpenArgsMap(sys_call_args_map, args);
   }
   // Create a new record to write
   modules_[extent_name]->newRecord();
- 
+
   // Get the time the record was written as late as possible before we actually write the record
   gettimeofday(&time_recorded, NULL);
   // Convert the timeval time_recorded to a uint_64 and add it to the map
