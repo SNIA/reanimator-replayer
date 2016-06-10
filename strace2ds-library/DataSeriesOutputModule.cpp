@@ -74,8 +74,8 @@ DataSeriesOutputModule::DataSeriesOutputModule(std::ifstream &table_stream,
 }
 
 // Register the record and field values in into DS fields 
-bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args, 
-					 struct timeval time_called, struct timeval time_returned, 
+bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
+					 struct timeval time_called, struct timeval time_returned,
 					 int return_value, int errno_number, int executing_pid) {
   std::map<std::string, void *> sys_call_args_map;
   struct timeval time_recorded;
