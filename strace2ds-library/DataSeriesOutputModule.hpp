@@ -117,10 +117,10 @@ private:
   void writeCloseRecord(long *args);
 
   // Maps individual flag value for Open system call to its corresponding field name
-  void processOpenFlags(std::map<std::string, void *> &args_map, unsigned int flag);
+  bool processOpenFlags(std::map<std::string, void *> &args_map, unsigned int flag);
 
   // Maps individual mode bits for Mode system call to its corresponding field name
-  void processMode(std::map<std::string, void *> &args_map, long *args, int offset);
+  bool processMode(std::map<std::string, void *> &args_map, long *args, int offset);
 
 };
 

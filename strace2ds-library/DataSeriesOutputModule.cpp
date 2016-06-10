@@ -317,15 +317,23 @@ void DataSeriesOutputModule::makeOpenArgsMap(std::map<std::string, void *> &args
   int offset = 0;
   if (!path_string.empty()) {
     args_map["given_pathname"] = &path_string;
+  } else {
+    std::cerr << "Open: Pathname is set as NULL." << std::endl;
+    exit(1);
   }
 
   /* Setting flag values */
   args_map["open_value"] = &args[offset + 1];
-  processOpenFlags(args_map, args[offset + 1]);
+  if (!processOpenFlags(args_map, args[offset + 1])) {
+    std::cerr << "Open: Unknown flag bits are set" << std::endl;
+    exit(1);
+  }
 
   /*
-   * Setting mode values
-   * Initially set all mode bits as False
+   * The mode argument for open system call is optional.
+   * If open system call is called with only two argumnets,
+   * all the mode bits are set as False and we do not need
+   * to call processMode() function.
    */
   args_map["mode_uid"] = 0;
   args_map["mode_gid"] = 0;
@@ -341,11 +349,14 @@ void DataSeriesOutputModule::makeOpenArgsMap(std::map<std::string, void *> &args
   args_map["mode_X_others"] = 0;
 
   /*
-   * If open is called with 3 arguments, set the corresponding
+   * If only, open is called with 3 arguments, set the corresponding
    * mode value and mode bits as True.
    */
   if (args[offset + 1] & O_CREAT) {
-    processMode(args_map, args, offset + 2);
+    if (!processMode(args_map, args, offset + 2)) {
+      std::cerr << "Open:: Unknown mode bits are set" << std::endl;
+      exit(1);
+    }
   }
 }
 
@@ -353,7 +364,7 @@ void DataSeriesOutputModule::makeOpenArgsMap(std::map<std::string, void *> &args
  * This function unwraps the flag value passed as an argument to
  * open system call and set the corresponding flag values as True.
  */
-void DataSeriesOutputModule::processOpenFlags(std::map<std::string, void *> &args_map,
+bool DataSeriesOutputModule::processOpenFlags(std::map<std::string, void *> &args_map,
 						unsigned int flag) {
 
   /*
@@ -367,117 +378,131 @@ void DataSeriesOutputModule::processOpenFlags(std::map<std::string, void *> &arg
    * First check which access mode: O_RDONLY, O_WRONLY, O_RDWR
    * has been included in the argument flag.
    */
-  if ((flag & 3) == 0)
-    // O_RDONLY
+
+  if (flag & O_RDONLY) {
+  // read only permission
     args_map["flag_read_only"] = (void *) 1;
-  else if ((flag & 3) == 1)
-    // O_WRONLY
+    flag &= ~O_RDONLY;
+  } else if (flag & O_WRONLY) {
+  // write only permission
     args_map["flag_write_only"] = (void *) 1;
-  else if ((flag & 3) == 2)
-    // O_RDWR
+    flag &= ~O_WRONLY;
+  } else if (flag & O_RDWR) {
+  // read write permission
     args_map["flag_read_and_write"] = (void *) 1;
+    flag &= ~O_RDWR;
+  }
 
   /*
    * In addition, check for more file creation and file status flags
    * such as O_CREAT, O_DIRECTORY, etc that has been set or not.
    */
-  flag &= ~3;
-  if ((flag & O_APPEND) == O_APPEND) {
+  if (flag & O_APPEND) {
     args_map["flag_append"] = (void *) 1;
     flag &= ~O_APPEND;
   } else
     args_map["flag_append"] = 0;
 
-  if ((flag & O_ASYNC) == O_ASYNC) {
+  if (flag & O_ASYNC) {
     args_map["flag_async"] = (void *) 1;
     flag &= ~O_ASYNC;
   } else
     args_map["flag_async"] = 0;
 
-  if ((flag & O_CLOEXEC) == O_CLOEXEC) {
+  if (flag & O_CLOEXEC) {
     args_map["flag_close_on_exec"] = (void *) 1;
     flag &= ~O_CLOEXEC;
   } else
     args_map["flag_close_on_exec"] = 0;
 
-  if ((flag & O_CREAT) == O_CREAT) {
+  if (flag & O_CREAT) {
     args_map["flag_create"] = (void *) 1;
     flag &= ~O_CREAT;
   } else
     args_map["flag_create"] = 0;
 
-  if ((flag & O_DIRECT) == O_DIRECT) {
+  if (flag & O_DIRECT) {
     args_map["flag_direct"] = (void *) 1;
     flag &= ~O_DIRECT;
   } else
     args_map["flag_direct"] = 0;
 
-  if ((flag & O_DIRECTORY) == O_DIRECTORY) {
+  if (flag & O_DIRECTORY) {
     args_map["flag_directory"] = (void *) 1;
     flag &= ~O_DIRECTORY;
   } else
     args_map["flag_directory"] = 0;
 
-  if ((flag & O_EXCL) == O_EXCL) {
+  if (flag & O_EXCL) {
     args_map["flag_exclusive"] = (void *) 1;
     flag &= ~O_EXCL;
   } else
     args_map["flag_exclusive"] = 0;
 
-  if ((flag & O_LARGEFILE) == O_LARGEFILE) {
+  if (flag & O_LARGEFILE) {
     args_map["flag_largefile"] = (void *) 1;
     flag &= ~O_LARGEFILE;
   } else
     args_map["flag_largefile"] = 0;
 
-  if ((flag & O_NOATIME) == O_NOATIME) {
+  if (flag & O_NOATIME) {
     args_map["flag_no_access_time"] = (void *) 1;
     flag &= ~O_NOATIME;
   } else
     args_map["flag_no_access_time"] = 0;
 
-  if ((flag & O_NOCTTY) == O_NOCTTY) {
+  if (flag & O_NOCTTY) {
     args_map["flag_no_controlling_terminal"] = (void *) 1;
     flag &= ~O_NOCTTY;
   } else
     args_map["flag_no_controlling_terminal"] = 0;
 
-  if ((flag & O_NOFOLLOW) == O_NOFOLLOW) {
+  if (flag & O_NOFOLLOW) {
     args_map["flag_no_follow"] = (void *) 1;
     flag &= ~O_NOFOLLOW;
   } else
     args_map["flag_no_follow"] = 0;
 
-  if ((flag & O_NONBLOCK) == O_NONBLOCK) {
+  if (flag & O_NONBLOCK) {
     args_map["flag_no_blocking_mode"] = (void *) 1;
     flag &= ~O_NONBLOCK;
   } else
     args_map["flag_no_blocking_mode"] = 0;
 
-  if ((flag & O_NDELAY) == O_NDELAY) {
+  if (flag & O_NDELAY) {
     args_map["flag_no_delay"] = (void *) 1;
     flag &= ~O_NDELAY;
   } else
     args_map["flag_no_delay"] = 0;
 
-  if ((flag & O_SYNC) == O_SYNC) {
+  if (flag & O_SYNC) {
     args_map["flag_synchronous"] = (void *) 1;
     flag &= ~O_SYNC;
   } else
     args_map["flag_synchronous"] = 0;
 
-  if ((flag & O_TRUNC) == O_TRUNC) {
+  if (flag & O_TRUNC) {
     args_map["flag_truncate"] = (void *) 1;
     flag &= ~O_TRUNC;
   } else
     args_map["flag_truncate"] = 0;
+
+  /*
+   * Finally check if the value of flag is now zero or not.
+   * If the value of flag is not set as zero, unknown flag
+   * bit is set.
+   */
+  if (flag == 0)
+    return true;
+  else
+    return false;
 }
 
 /*
  * This function unwraps the mode value passed as an argument to system
  * call.
  */
-void DataSeriesOutputModule::processMode(std::map<std::string, void *> &args_map,
+bool DataSeriesOutputModule::processMode(std::map<std::string, void *> &args_map,
                                          long *args, int offset) {
   // Save the mode argument with mode_value file in map
   args_map["mode_value"] = &args[offset];
@@ -495,50 +520,79 @@ void DataSeriesOutputModule::processMode(std::map<std::string, void *> &args_map
   mode_t mode = args[offset];
 
   // set-user-ID bit
-  if (mode & S_ISUID)
+  if (mode & S_ISUID) {
     args_map["mode_uid"] = (void *) 1;
+    mode &= ~S_ISUID;
+  }
 
   // set-group-ID bit
-  if (mode & S_ISGID)
+  if (mode & S_ISGID) {
     args_map["mode_gid"] = (void *) 1;
+    mode &= ~S_ISGID;
+  }
 
   // sticky bit
-  if (mode & S_ISVTX)
+  if (mode & S_ISVTX) {
     args_map["mode_sticky_bit"] = (void *) 1;
+    mode &= ~S_ISVTX;
+  }
 
   // user read permission bit
-  if (mode & S_IRUSR)
+  if (mode & S_IRUSR) {
     args_map["mode_R_user"] = (void *) 1;
+    mode &= ~S_IRUSR;
+  }
 
   // user write permission bit
-  if (mode & S_IRUSR)
+  if (mode & S_IWUSR) {
     args_map["mode_W_user"] = (void *) 1;
+    mode &= ~S_IWUSR;
+  }
 
   // user execute permission bit
-  if (mode & S_IRUSR)
+  if (mode & S_IXUSR) {
     args_map["mode_X_user"] = (void *) 1;
+    mode &= ~S_IXUSR;
+  }
 
   // group read permission bit
-  if (mode & S_IRGRP)
+  if (mode & S_IRGRP) {
     args_map["mode_R_group"] = (void *) 1;
+    mode &= ~S_IRGRP;
+  }
 
   // group write permission bit
-  if (mode & S_IRGRP)
+  if (mode & S_IWGRP) {
     args_map["mode_W_group"] = (void *) 1;
+    mode &= ~S_IWGRP;
+  }
 
   // group execute permission bit
-  if (mode & S_IROTH)
+  if (mode & S_IXGRP) {
     args_map["mode_X_others"] = (void *) 1;
+    mode &= ~S_IXGRP;
+  }
 
   // others read permission bit
-  if (mode & S_IROTH)
+  if (mode & S_IROTH) {
     args_map["mode_R_others"] = (void *) 1;
+    mode &= ~S_IROTH;
+  }
 
   // others write permission bit
-  if (mode & S_IROTH)
+  if (mode & S_IWOTH) {
     args_map["mode_W_others"] = (void *) 1;
+    mode &= ~S_IWOTH;
+  }
 
   // others execute permission bit
-  if (mode & S_IROTH)
+  if (mode & S_IXOTH) {
     args_map["mode_X_others"] = (void *) 1;
+    mode &= ~S_IXOTH;
+  }
+
+  if (mode == 0)
+    return true;
+  else
+    return false;
 }
