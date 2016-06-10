@@ -67,6 +67,9 @@ public:
   // Destructor to delete the module
   ~DataSeriesOutputModule();
 
+  // Fetch the char* path from tcp structure and store it in g
+  void fetch_path_string(const char *path);
+
 private:
   OutputModuleMap modules_;
   ExtentMap extents_;
@@ -74,6 +77,7 @@ private:
   DataSeriesSink ds_sink_;
   config_table_type config_table_;
   unsigned int record_num_;
+  std::string path_string;
 
   // Disable copy constructor
   DataSeriesOutputModule(const DataSeriesOutputModule&);
@@ -104,9 +108,14 @@ private:
 		  const std::string &field_name,
 		  void* field_value);
 
+  // Maps Close Sytem Call field value pair
   void makeCloseArgsMap(std::map<std::string, void *> &args_map, long *args);
+  
+  // Maps Open System Call field value pair
+  void makeOpenArgsMap(std::map<std::string, void *> &args_map, long *args);
 
   void writeCloseRecord(long *args);
+
 };
 
 #endif // DATA_SERIES_OUTPUT_MODULE_HPP

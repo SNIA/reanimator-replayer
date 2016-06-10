@@ -55,7 +55,8 @@ DataSeriesOutputModule *create_ds_module(const char *output_file, const char *ta
  * return NULL if failed
  */
 void *write_ds_record(DataSeriesOutputModule *ds_module, const char *extent_name,
-		      long *args, struct timeval time_called, struct timeval time_returned, int return_value, int errno_number, int executing_pid) {
+		      long *args, struct timeval time_called, struct timeval time_returned, 
+		      int return_value, int errno_number, int executing_pid) {
   ((DataSeriesOutputModule *)ds_module)->writeRecord(extent_name, args, time_called, time_returned, return_value, errno_number, executing_pid);
 }
 
@@ -64,6 +65,14 @@ void *write_ds_record(DataSeriesOutputModule *ds_module, const char *extent_name
  */
 void *destroy_ds_module(DataSeriesOutputModule *ds_module) {
   delete (DataSeriesOutputModule *)ds_module;
+}
+
+/*
+ * Save the string value of path_name passed as an argument to
+ * system calls.
+ */
+void *save_path_string(DataSeriesOutputModule *ds_module, const char *path) {
+  ((DataSeriesOutputModule *)ds_module)->fetch_path_string(path);
 }
 
 #ifdef __cplusplus

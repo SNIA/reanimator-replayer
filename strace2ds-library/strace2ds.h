@@ -48,13 +48,18 @@ DataSeriesOutputModule *create_ds_module(const char *output_file, const char *ta
  * return NULL if failed
  */
 void *write_ds_record(DataSeriesOutputModule *ds_module, const char *extent_name,
-		      long *args, struct timeval time_called, struct timeval time_returned, int return_value, int errno_number, int executing_pid);
+		      long *args, struct timeval time_called, struct timeval time_returned, 
+		      int return_value, int errno_number, int executing_pid);
 
 /*
  * Free the module and flush all the records
  */
 void *destroy_ds_module(DataSeriesOutputModule *ds_module);
 
+/*
+ * Save the value of path_name given as an argument to system call
+ */
+void *save_path_string(DataSeriesOutputModule *ds_module, const char *path);
 #ifdef __cplusplus
 }
 #endif
