@@ -174,14 +174,14 @@ public:
    * Get the time the current system call record was written
    *
    * @return corresponding time_recorded field of a record that
-   *	      extent series is pointing to.
+   *	     extent series is pointing to.
    */
   uint64_t time_recorded() const;
 
   /*
    * Get the process id of the current system call record
    *
-   * @return: corresponding executing_pid field of a record that 
+   * @return: corresponding executing_pid field of a record that
    *	      extent series is pointing to.
    */
   int executing_pid() const;
