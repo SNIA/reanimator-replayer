@@ -62,7 +62,9 @@ public:
 			 const char *output_file);
 
   // Register the record and field values in into DS fields
-  bool writeRecord(const char *extent_name, long *args, struct timeval time_called, struct timeval time_returned, int return_value, int errno_number, int executing_pid);
+  bool writeRecord(const char *extent_name, long *args,
+		   struct timeval time_called, struct timeval time_returned,
+		   int return_value, int errno_number, int executing_pid);
 
   // Destructor to delete the module
   ~DataSeriesOutputModule();
@@ -110,9 +112,6 @@ private:
 
   // Maps Close Sytem Call field value pair
   void makeCloseArgsMap(std::map<std::string, void *> &args_map, long *args);
-  
-  // Maps Open System Call field value pair
-  void makeOpenArgsMap(std::map<std::string, void *> &args_map, long *args);
 
   void writeCloseRecord(long *args);
 

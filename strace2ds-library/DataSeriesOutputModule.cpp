@@ -74,7 +74,9 @@ DataSeriesOutputModule::DataSeriesOutputModule(std::ifstream &table_stream,
 }
 
 // Register the record and field values in into DS fields 
-bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args, struct timeval time_called, struct timeval time_returned, int return_value, int errno_number, int executing_pid) {
+bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args, 
+					 struct timeval time_called, struct timeval time_returned, 
+					 int return_value, int errno_number, int executing_pid) {
   std::map<std::string, void *> sys_call_args_map;
   struct timeval time_recorded;
 
@@ -89,6 +91,7 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args, st
   // Converts the timeval time_called to a double
   double time_called_doub = (double) time_called.tv_sec + pow(10.0, -6)*time_called.tv_usec;
   // Converts the timeval time_returned to a uint64_t
+  // XXX: I took the code for the conversion from the previous replayer, so I'm assuming that it works properly - Nina
   uint64_t time_returned_u64 = (uint64_t)(((double) time_returned.tv_sec + pow(10.0, -6)*time_returned.tv_usec)*(((uint64_t)1)<<32));
 
   // Adds the common field values to the map
