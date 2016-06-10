@@ -591,6 +591,11 @@ bool DataSeriesOutputModule::processMode(std::map<std::string, void *> &args_map
     mode &= ~S_IXOTH;
   }
 
+  /*
+   * Finally check if the value of mode is now zero or not.
+   * If the value of mode is not set as zero, unknown mode
+   * bit is set.
+   */
   if (mode == 0)
     return true;
   else
