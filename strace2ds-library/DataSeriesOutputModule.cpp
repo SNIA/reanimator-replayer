@@ -306,7 +306,8 @@ void DataSeriesOutputModule::doSetField(const std::string &extent_name,
 
 void DataSeriesOutputModule::fetch_path_string(const char *path) {
   // Save the path string obtained from strace.
-  path_string = path;
+  if (path != NULL)
+   path_string = std::string(path);
 }
 
 void DataSeriesOutputModule::makeCloseArgsMap(std::map<std::string, void *> &args_map, long *args) {
