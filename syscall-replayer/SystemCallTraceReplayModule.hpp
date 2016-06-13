@@ -184,7 +184,7 @@ public:
    * @return: corresponding executing_pid field of a record that
    *	       extent series is pointing to.
    */
-  int executing_pid() const;
+  uint32_t executing_pid() const;
 
   /*
    * Get the error number of current system call record
@@ -200,7 +200,7 @@ public:
    * @return: corresponding return value field of a record that
    *          extent series is pointing to.
    */
-  int return_value() const;
+  int64_t return_value() const;
 
   /*
    * Get the unique id of current system call record

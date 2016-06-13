@@ -62,7 +62,7 @@ uint64_t SystemCallTraceReplayModule::time_recorded() const {
   return (uint64_t)time_recorded_.val();
 }
 
-int SystemCallTraceReplayModule::executing_pid() const {
+uint32_t SystemCallTraceReplayModule::executing_pid() const {
   return (uint32_t)executing_pid_.val();
 }
 
@@ -70,8 +70,8 @@ int SystemCallTraceReplayModule::errno_number() const {
   return (int)errno_number_.val();
 }
 
-int SystemCallTraceReplayModule::return_value() const {
-  return (int)return_value_.val();
+int64_t SystemCallTraceReplayModule::return_value() const {
+  return (int64_t)return_value_.val();
 }
 
 int64_t SystemCallTraceReplayModule::unique_id() const {
