@@ -300,15 +300,15 @@ void DataSeriesOutputModule::doSetField(const std::string &extent_name,
   ((FieldType *)(extents_[extent_name][field_name].first))->set(*(ValueType *)field_value);
 }
 
+// Save the path string obtained from strace.
 void DataSeriesOutputModule::fetch_path_string(const char *path) {
-  // Save the path string obtained from strace.
   if (path != NULL)
    path_string = std::string(path);
 }
 
+// Initialize all non-nullable fields of given extent_name.
 void DataSeriesOutputModule::initArgsMap(std::map<std::string, void *> &args_map,
 					 const char *extent_name) {
-  // Initialize all fields of given system call.
   for (config_table_entry_type::iterator iter = config_table_[extent_name].begin();
 	iter != config_table_[extent_name].end();
 	iter++) {
@@ -361,7 +361,7 @@ void DataSeriesOutputModule::makeOpenArgsMap(std::map<std::string, void *> &args
 
 /*
  * This function process the flag and mode value passed as an argument
- * to system calls. If checks each individual flag and mode bit and
+ * to system calls. It checks each individual flag and mode bit and
  * set corresponding bits as True in the argument map.
  *
  * @param args_map: stores mapping of field name for flag and mode bit.
