@@ -91,7 +91,7 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, const long *ar
 
   // Convert time_called_timeval to a double
   double time_called = (double) time_called_timeval.tv_sec + pow(10.0, -6)*time_called_timeval.tv_usec;
-  
+
   // Convert time_returned_timeval to a uint64_t in Tfracs
   uint64_t time_returned = timeval_to_Tfrac(time_returned_timeval);
 

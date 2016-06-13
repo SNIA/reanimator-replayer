@@ -35,7 +35,6 @@
 #include <fstream>
 #include <boost/algorithm/string.hpp>
 #include <boost/tokenizer.hpp>
-#include <iomanip>
 
 #include <DataSeries/ExtentType.hpp>
 #include <DataSeries/DataSeriesFile.hpp>
@@ -110,7 +109,7 @@ private:
   template <typename FieldType, typename ValueType>
   void doSetField(const std::string &extent_name,
 		  const std::string &field_name,
-		  const void* field_value);
+		  const void *field_value);
 
   // Maps Close System Call field value pair
   void makeCloseArgsMap(std::map<std::string, const void *> &args_map, const long *args);
