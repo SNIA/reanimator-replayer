@@ -74,11 +74,11 @@ DataSeriesOutputModule::DataSeriesOutputModule(std::ifstream &table_stream,
 }
 
 // Register the record and field values in into DS fields 
-bool DataSeriesOutputModule::writeRecord(const char *extent_name, const long *args,
+bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
 					 struct timeval time_called_timeval,
 					 struct timeval time_returned_timeval,
 					 int return_value, int errno_number, int executing_pid) {
-  std::map<std::string, const void *> sys_call_args_map;
+  std::map<std::string, void *> sys_call_args_map;
   struct timeval time_recorded_timeval;
 
   sys_call_args_map["unique_id"] = &record_num_;
@@ -108,6 +108,8 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, const long *ar
     makeChdirArgsMap(sys_call_args_map, args);
   } else if (strcmp(extent_name, "mkdir") == 0) {
     makeMkdirArgsMap(sys_call_args_map, args);
+  } else if (strcmp(extent_name, "rmdir") == 0) {
+    makeRmdirArgsMap(sys_call_args_map, args);
   }
 
   // Create a new record to write
@@ -127,7 +129,7 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, const long *ar
     bool nullable = iter->second.first;
 
     if (sys_call_args_map.find(field_name) != sys_call_args_map.end()) {
-      const void *field_value = sys_call_args_map[field_name];
+      void *field_value = sys_call_args_map[field_name];
       setField(extent_name, field_name, field_value);
       continue;
     } else {
@@ -259,7 +261,7 @@ void DataSeriesOutputModule::addField(const std::string &extent_name,
  */
 void DataSeriesOutputModule::setField(const std::string &extent_name,
 				      const std::string &field_name,
-				     const void *field_value) {
+				      void *field_value) {
   bool buffer;
   switch (extents_[extent_name][field_name].second) {
   case ExtentType::ft_bool:
@@ -326,7 +328,7 @@ void DataSeriesOutputModule::setFieldNull(const std::string &extent_name,
 template <typename FieldType, typename ValueType>
 void DataSeriesOutputModule::doSetField(const std::string &extent_name,
 					const std::string &field_name,
-					const void* field_value) {
+				        void* field_value) {
   ((FieldType *)(extents_[extent_name][field_name].first))->set(*(ValueType *)field_value);
 }
 
@@ -335,21 +337,27 @@ void DataSeriesOutputModule::fetch_path_string(const char *path) {
   path_string = path;
 }
 
-void DataSeriesOutputModule::makeCloseArgsMap(std::map<std::string, const void *> &args_map, const long *args) {
+void DataSeriesOutputModule::makeCloseArgsMap(std::map<std::string, void *> &args_map, long *args) {
   args_map["descriptor"] = &args[0];
 }
 
-void DataSeriesOutputModule::makeChdirArgsMap(std::map<std::string, const void *> &args_map, const long *args) {
+void DataSeriesOutputModule::makeChdirArgsMap(std::map<std::string, void *> &args_map, long *args) {
   if (!path_string.empty()) {
     args_map["given_pathname"] = &path_string;
   }
 }
 
-void DataSeriesOutputModule::makeMkdirArgsMap(std::map<std::string, const void *> &args_map, const long *args) {
+void DataSeriesOutputModule::makeMkdirArgsMap(std::map<std::string, void *> &args_map, long *args) {
   if (!path_string.empty()) {
     args_map["given_pathname"] = &path_string;
   }
   args_map["mode_value"] = &args[1];
+}
+
+void DataSeriesOutputModule::makeRmdirArgsMap(std::map<std::string, void *> &args_map, long *args) {
+  if (!path_string.empty()) {
+    args_map["given_pathname"] = &path_string;
+  }
 }
 
 uint64_t DataSeriesOutputModule::timeval_to_Tfrac(struct timeval time) {

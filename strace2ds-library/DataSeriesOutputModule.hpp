@@ -62,7 +62,7 @@ public:
 			 const char *output_file);
 
   // Register the record and field values in into DS fields
-  bool writeRecord(const char *extent_name, const long *args,
+  bool writeRecord(const char *extent_name, long *args,
 		   struct timeval time_called_timeval,
 		   struct timeval time_returned_timeval,
 		   int return_value, int errno_number, int executing_pid);
@@ -100,7 +100,7 @@ private:
   // Set corresponding DS field to the given value
   void setField(const std::string &extent_name,
 		const std::string &field_name,
-		const void *field_value);
+		void *field_value);
 
   // Set corresponding DS field to null
   void setFieldNull(const std::string &extent_name,
@@ -109,18 +109,21 @@ private:
   template <typename FieldType, typename ValueType>
   void doSetField(const std::string &extent_name,
 		  const std::string &field_name,
-		  const void *field_value);
+		  void *field_value);
 
   // Maps Close System Call field value pair
-  void makeCloseArgsMap(std::map<std::string, const void *> &args_map, const long *args);
+  void makeCloseArgsMap(std::map<std::string, void *> &args_map, long *args);
 
   // Maps Chdir System Call field value pair
-  void makeChdirArgsMap(std::map<std::string, const void *> &args_map, const long *args);
+  void makeChdirArgsMap(std::map<std::string, void *> &args_map, long *args);
 
   // Maps Mkdir System Call field value pair
-  void makeMkdirArgsMap(std::map<std::string, const void *> &args_map, const long *args);
+  void makeMkdirArgsMap(std::map<std::string, void *> &args_map, long *args);
 
-  void writeCloseRecord(const long *args);
+  // Maps Rmdir Sytem Call field value pair
+  void makeRmdirArgsMap(std::map<std::string, void *> &args_map, long *args);
+
+  void writeCloseRecord(long *args);
 
   // Convert time from a timeval to a uint64_t stored in Tfrac units
   uint64_t timeval_to_Tfrac(struct timeval time);
