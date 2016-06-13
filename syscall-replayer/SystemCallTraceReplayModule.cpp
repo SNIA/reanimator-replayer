@@ -63,7 +63,7 @@ uint64_t SystemCallTraceReplayModule::time_recorded() const {
 }
 
 int SystemCallTraceReplayModule::executing_pid() const {
-  return (int)executing_pid_.val();
+  return (uint32_t)executing_pid_.val();
 }
 
 int SystemCallTraceReplayModule::errno_number() const {
@@ -126,21 +126,25 @@ void SystemCallTraceReplayModule::after_sys_call() {
 
 void SystemCallTraceReplayModule::print_sys_call_fields() {
   print_common_fields();
-  std::cout << ", ";
+  std::cout << ", " << std::endl;
   print_specific_fields();
   std::cout << std::endl;
 }
 
 void SystemCallTraceReplayModule::print_common_fields() {
-  std::cout << sys_call_name_ << ": ";
+  // First, converts the time values from Tfracs to seconds
+  double time_returned_val = Tfrac_to_sec(time_returned());
+  double time_recorded_val = Tfrac_to_sec(time_recorded());
+ 
+  std::cout << sys_call_name_ << ": " << std::endl;
   std::cout.precision(25);
-  std::cout << "time called(" << std::fixed << time_called() << "), ";
-  std::cout << "time returned(" << time_returned() << ") ";
-  std::cout << "time recorded(" << time_recorded() << ") ";
-  std::cout << "executing pid(" << executing_pid() << "), ";
-  std::cout << "errno(" << errno_number() << "), ";
-  std::cout << "return value(" << return_value() << "), ";
-  std::cout << "replayed return value(" << replayed_ret_val_ << "), ";
+  std::cout << "time called(" << std::fixed << time_called() << "), " << std::endl;
+  std::cout << "time returned(" << time_returned_val << "), " << std::endl;
+  std::cout << "time recorded(" << time_recorded_val << "), " << std::endl;
+  std::cout << "executing pid(" << executing_pid() << "), " << std::endl;
+  std::cout << "errno(" << errno_number() << "), " << std::endl;
+  std::cout << "return value(" << return_value() << "), " << std::endl;
+  std::cout << "replayed return value(" << replayed_ret_val_ << "), " << std::endl;
   std::cout << "unique id(" << unique_id_.val() << ")";
 }
 
@@ -164,4 +168,9 @@ void SystemCallTraceReplayModule::compare_retval_and_errno() {
       }
     }
   }
+}
+
+double SystemCallTraceReplayModule::Tfrac_to_sec(uint64_t time) {
+  double time_in_secs = (double)(time*pow(2.0, -32));
+  return time_in_secs;
 }

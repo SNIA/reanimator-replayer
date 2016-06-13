@@ -158,7 +158,7 @@ public:
    * Get the execution time of current system call record
    *
    * @return: corresponding time_called field of a record that
-   *	       extent series is pointing to.
+   *	      extent series is pointing to.
    */
   double time_called() const;
 
@@ -166,7 +166,7 @@ public:
    * Get the time the current system call returned according to the record
    *
    * @return: corresponding time_returned field of a record that
-   *	       extent series is pointing to.
+   *	      extent series is pointing to.
    */
   uint64_t time_returned() const;
 
@@ -174,22 +174,22 @@ public:
    * Get the time the current system call record was written
    *
    * @return corresponding time_recorded field of a record that
-   *	      extent series is pointing to.
+   *	     extent series is pointing to.
    */
   uint64_t time_recorded() const;
 
   /*
-   * Get the process id of the current system call record
+   * Get the process id of current system call record
    *
    * @return: corresponding executing_pid field of a record that
-   *	       extent series is pointing to.
+   *	      extent series is pointing to.
    */
   int executing_pid() const;
 
   /*
-   * Get the errno number of current system call record
+   * Get the error number of current system call record
    *
-   * @return: corresponding errno number field of a record that
+   * @return: corresponding errno_number field of a record that
    *          extent series is pointing to.
    */
   int errno_number() const;
@@ -239,6 +239,14 @@ public:
    * there are no more trace record
    */
   void execute();
+
+  /*
+   * Convert a time value stored in Tfrac units (2^32 Tfracs = 1 sec) 
+   * as a uint64_t to seconds (as a double)
+   *
+   * @return: the corresponding time value in seconds
+   */
+  double Tfrac_to_sec(uint64_t time);
 
 };
 
