@@ -158,7 +158,7 @@ public:
    * Get the execution time of current system call record
    *
    * @return: corresponding time_called field of a record that
-   *           extent series is pointing to.
+   *          extent series is pointing to.
    */
   double time_called() const;
 
