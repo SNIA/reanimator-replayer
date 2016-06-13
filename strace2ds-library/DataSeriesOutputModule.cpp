@@ -51,7 +51,7 @@ DataSeriesOutputModule::DataSeriesOutputModule(std::ifstream &table_stream,
     // Loading extent XML descriptions from outside file
     std::ifstream extent_xml_file((xml_dir + extent_name + ".xml").c_str());
     if (!extent_xml_file.is_open()) {
-      std::cout << extent_name << ": Coud not open xml file!\n";
+      std::cout << extent_name << ": Could not open xml file!\n";
       exit(1);
     }
     std::string extent_xml_description, str;
@@ -74,11 +74,12 @@ DataSeriesOutputModule::DataSeriesOutputModule(std::ifstream &table_stream,
 }
 
 // Register the record and field values in into DS fields 
-bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
-					 struct timeval time_called, struct timeval time_returned,
+bool DataSeriesOutputModule::writeRecord(const char *extent_name, const long *args,
+					 struct timeval time_called_timeval,
+					 struct timeval time_returned_timeval,
 					 int return_value, int errno_number, int executing_pid) {
-  std::map<std::string, void *> sys_call_args_map;
-  struct timeval time_recorded;
+  std::map<std::string, const void *> sys_call_args_map;
+  struct timeval time_recorded_timeval;
 
   sys_call_args_map["unique_id"] = &record_num_;
   /*
@@ -88,30 +89,35 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
    * field. Otherwise set it to null.
    */
 
-  // Converts the timeval time_called to a double
-  double time_called_doub = (double) time_called.tv_sec + pow(10.0, -6)*time_called.tv_usec;
-  // Converts the timeval time_returned to a uint64_t
-  // XXX: I took the code for the conversion from the previous replayer, so I'm assuming that it works properly - Nina
-  uint64_t time_returned_u64 = (uint64_t)(((double) time_returned.tv_sec + pow(10.0, -6)*time_returned.tv_usec)*(((uint64_t)1)<<32));
+  // Convert time_called_timeval to a double
+  double time_called = (double) time_called_timeval.tv_sec + pow(10.0, -6)*time_called_timeval.tv_usec;
+  
+  // Convert time_returned_timeval to a uint64_t in Tfracs
+  uint64_t time_returned = timeval_to_Tfrac(time_returned_timeval);
 
-  // Adds the common field values to the map
-  sys_call_args_map["time_called"] = &time_called_doub;
-  sys_call_args_map["time_returned"] = &time_returned_u64;
+  // Add the common field values to the map
+  sys_call_args_map["time_called"] = &time_called;
+  sys_call_args_map["time_returned"] = &time_returned;
   sys_call_args_map["return_value"] = &return_value;
   sys_call_args_map["errno_number"] = &errno_number;
   sys_call_args_map["executing_pid"] = &executing_pid;
 
   if (strcmp(extent_name, "close") == 0) {
     makeCloseArgsMap(sys_call_args_map, args);
+  } else if (strcmp(extent_name, "chdir") == 0) {
+    makeChdirArgsMap(sys_call_args_map, args);
+  } else if (strcmp(extent_name, "mkdir") == 0) {
+    makeMkdirArgsMap(sys_call_args_map, args);
   }
+
   // Create a new record to write
   modules_[extent_name]->newRecord();
 
   // Get the time the record was written as late as possible before we actually write the record
-  gettimeofday(&time_recorded, NULL);
-  // Convert the timeval time_recorded to a uint_64 and add it to the map
-  uint64_t time_recorded_u64 = (uint64_t)(((double) time_recorded.tv_sec + pow(10.0, -6)*time_recorded.tv_usec)*(((uint64_t)1)<<32));
-  sys_call_args_map["time_recorded"] = &time_recorded_u64;
+  gettimeofday(&time_recorded_timeval, NULL);
+  // Convert time_recorded_timeval to a uint_64 in Tfracs  and add it to the map
+  uint64_t time_recorded = timeval_to_Tfrac(time_recorded_timeval);
+  sys_call_args_map["time_recorded"] = &time_recorded;
 
   // Write values to the new record
   for (config_table_entry_type::iterator iter = config_table_[extent_name].begin();
@@ -121,7 +127,7 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
     bool nullable = iter->second.first;
 
     if (sys_call_args_map.find(field_name) != sys_call_args_map.end()) {
-      void *field_value = sys_call_args_map[field_name];
+      const void *field_value = sys_call_args_map[field_name];
       setField(extent_name, field_name, field_value);
       continue;
     } else {
@@ -253,7 +259,7 @@ void DataSeriesOutputModule::addField(const std::string &extent_name,
  */
 void DataSeriesOutputModule::setField(const std::string &extent_name,
 				      const std::string &field_name,
-				      void *field_value) {
+				     const void *field_value) {
   bool buffer;
   switch (extents_[extent_name][field_name].second) {
   case ExtentType::ft_bool:
@@ -320,7 +326,7 @@ void DataSeriesOutputModule::setFieldNull(const std::string &extent_name,
 template <typename FieldType, typename ValueType>
 void DataSeriesOutputModule::doSetField(const std::string &extent_name,
 					const std::string &field_name,
-					void* field_value) {
+					const void* field_value) {
   ((FieldType *)(extents_[extent_name][field_name].first))->set(*(ValueType *)field_value);
 }
 
@@ -329,6 +335,25 @@ void DataSeriesOutputModule::fetch_path_string(const char *path) {
   path_string = path;
 }
 
-void DataSeriesOutputModule::makeCloseArgsMap(std::map<std::string, void *> &args_map, long *args) {
+void DataSeriesOutputModule::makeCloseArgsMap(std::map<std::string, const void *> &args_map, const long *args) {
   args_map["descriptor"] = &args[0];
+}
+
+void DataSeriesOutputModule::makeChdirArgsMap(std::map<std::string, const void *> &args_map, const long *args) {
+  if (!path_string.empty()) {
+    args_map["given_pathname"] = &path_string;
+  }
+}
+
+void DataSeriesOutputModule::makeMkdirArgsMap(std::map<std::string, const void *> &args_map, const long *args) {
+  if (!path_string.empty()) {
+    args_map["given_pathname"] = &path_string;
+  }
+  args_map["mode_value"] = &args[1];
+}
+
+uint64_t DataSeriesOutputModule::timeval_to_Tfrac(struct timeval time) {
+  double time_in_seconds = (double) time.tv_sec + pow(10.0, -6)*time.tv_usec;
+  uint64_t time_in_Tfracs = (uint64_t)(time_in_seconds*(((uint64_t)1)<<32));
+  return time_in_Tfracs;
 }

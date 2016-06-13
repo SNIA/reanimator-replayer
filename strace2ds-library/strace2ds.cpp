@@ -36,7 +36,7 @@ extern "C" {
  * Create DataSeries
  * return NULL if failed
  */
-DataSeriesOutputModule *create_ds_module(const char *output_file, const char *table_file_name,
+extern DataSeriesOutputModule *create_ds_module(const char *output_file, const char *table_file_name,
 					 const char *xml_dir_path) {
   std::ifstream table_stream(table_file_name);
   std::string xml_dir(xml_dir_path);
@@ -54,16 +54,17 @@ DataSeriesOutputModule *create_ds_module(const char *output_file, const char *ta
  * Write a record into the DataSeries output file
  * return NULL if failed
  */
-void *write_ds_record(DataSeriesOutputModule *ds_module, const char *extent_name,
-		      long *args, struct timeval time_called, struct timeval time_returned,
+extern void *write_ds_record(DataSeriesOutputModule *ds_module, const char *extent_name,
+		      long *args, struct timeval time_called_timeval, struct timeval time_returned_timeval,
 		      int return_value, int errno_number, int executing_pid) {
-  ((DataSeriesOutputModule *)ds_module)->writeRecord(extent_name, args, time_called, time_returned, return_value, errno_number, executing_pid);
+  ((DataSeriesOutputModule *)ds_module)->writeRecord(extent_name, args, time_called_timeval, time_returned_timeval,
+						     return_value, errno_number, executing_pid);
 }
 
 /*
  * Free the module and flush all the records
  */
-void *destroy_ds_module(DataSeriesOutputModule *ds_module) {
+extern void *destroy_ds_module(DataSeriesOutputModule *ds_module) {
   delete (DataSeriesOutputModule *)ds_module;
 }
 
@@ -71,7 +72,7 @@ void *destroy_ds_module(DataSeriesOutputModule *ds_module) {
  * Save the string value of path_name passed as an argument to
  * system calls.
  */
-void *save_path_string(DataSeriesOutputModule *ds_module, const char *path) {
+extern void save_path_string(DataSeriesOutputModule *ds_module, const char *path) {
   ((DataSeriesOutputModule *)ds_module)->fetch_path_string(path);
 }
 
