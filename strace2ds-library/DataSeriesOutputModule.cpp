@@ -237,10 +237,7 @@ void DataSeriesOutputModule::setField(const std::string &extent_name,
   bool buffer;
   switch (extents_[extent_name][field_name].second) {
   case ExtentType::ft_bool:
-    if (field_value == 0)
-      buffer = false;
-    else
-      buffer = true;
+    buffer = (field_value != 0);
     doSetField<BoolField, bool>(extent_name, field_name, &buffer);
     break;
   case ExtentType::ft_byte:
@@ -310,12 +307,29 @@ void DataSeriesOutputModule::fetch_path_string(const char *path) {
    path_string = std::string(path);
 }
 
+void DataSeriesOutputModule::initArgsMap(std::map<std::string, void *> &args_map,
+					 const char *extent_name) {
+  // Initialize all fields of given system call.
+  for (config_table_entry_type::iterator iter = config_table_[extent_name].begin();
+	iter != config_table_[extent_name].end();
+	iter++) {
+    std::string field_name = iter->first;
+    bool nullable = iter->second.first;
+    if (!nullable && strcmp(field_name.c_str(), "unique_id") != 0)
+      args_map[field_name] = 0;
+  }
+}
+
 void DataSeriesOutputModule::makeCloseArgsMap(std::map<std::string, void *> &args_map, long *args) {
   args_map["descriptor"] = &args[0];
 }
 
 void DataSeriesOutputModule::makeOpenArgsMap(std::map<std::string, void *> &args_map, long *args) {
   int offset = 0;
+
+  // initialize all non-nullable fields.
+  initArgsMap(args_map, "open");
+
   if (!path_string.empty()) {
     args_map["given_pathname"] = &path_string;
   } else {
@@ -331,25 +345,6 @@ void DataSeriesOutputModule::makeOpenArgsMap(std::map<std::string, void *> &args
   }
 
   /*
-   * The mode argument for open system call is optional.
-   * If open system call is called with only two argumnets,
-   * all the mode bits are set as False and we do not need
-   * to call processMode() function.
-   */
-  args_map["mode_uid"] = 0;
-  args_map["mode_gid"] = 0;
-  args_map["mode_sticky_bit"] = 0;
-  args_map["mode_R_user"] = 0;
-  args_map["mode_W_user"] = 0;
-  args_map["mode_X_user"] = 0;
-  args_map["mode_R_group"] = 0;
-  args_map["mode_W_group"] = 0;
-  args_map["mode_X_group"] = 0;
-  args_map["mode_R_others"] = 0;
-  args_map["mode_W_others"] = 0;
-  args_map["mode_X_others"] = 0;
-
-  /*
    * If only, open is called with 3 arguments, set the corresponding
    * mode value and mode bits as True.
    */
@@ -362,243 +357,124 @@ void DataSeriesOutputModule::makeOpenArgsMap(std::map<std::string, void *> &args
 }
 
 /*
+ * This function process the flag and mode value passed as an argument
+ * to system calls. If checks each individual flag and mode bit and
+ * set corresponding bits as True in the argument map.
+ *
+ * @param args_map: stores mapping of field name for flag and mode bit.
+ *
+ * @param num: specifies either flag and mode argument.
+ *
+ * @param value: specifies flag or mode bit value. Ex: O_RDONLY or S_ISUID.
+ *
+ * @param filed_name: denotes the field name for individual flag or mode bit.
+ *                    Ex: "flag_read_only", "mode_R_user".
+ */
+void DataSeriesOutputModule::process_Flag_and_Mode_Args(std::map<std::string, void *> &args_map,
+					      unsigned int &num, int value,
+					      std::string field_name) {
+  if (num & value) {
+    args_map[field_name] = (void *) 1;
+    num &= ~value;
+  }
+}
+
+/*
  * This function unwraps the flag value passed as an argument to
  * open system call and set the corresponding flag values as True.
  */
 bool DataSeriesOutputModule::processOpenFlags(std::map<std::string, void *> &args_map,
-						unsigned int flag) {
+					      unsigned int open_flag) {
 
   /*
-   * Intially set all access mode bits as False.
+   * Process each individual flag bits that has been set
+   * in the argument open_flag.
    */
-  args_map["flag_read_only"] = 0;
-  args_map["flag_write_only"] = 0;
-  args_map["flag_read_and_write"] = 0;
-
-  /*
-   * First check which access mode: O_RDONLY, O_WRONLY, O_RDWR
-   * has been included in the argument flag.
-   */
-
-  if (flag & O_RDONLY) {
-  // read only permission
-    args_map["flag_read_only"] = (void *) 1;
-    flag &= ~O_RDONLY;
-  } else if (flag & O_WRONLY) {
-  // write only permission
-    args_map["flag_write_only"] = (void *) 1;
-    flag &= ~O_WRONLY;
-  } else if (flag & O_RDWR) {
-  // read write permission
-    args_map["flag_read_and_write"] = (void *) 1;
-    flag &= ~O_RDWR;
-  }
-
-  /*
-   * In addition, check for more file creation and file status flags
-   * such as O_CREAT, O_DIRECTORY, etc that has been set or not.
-   */
-  if (flag & O_APPEND) {
-    args_map["flag_append"] = (void *) 1;
-    flag &= ~O_APPEND;
-  } else
-    args_map["flag_append"] = 0;
-
-  if (flag & O_ASYNC) {
-    args_map["flag_async"] = (void *) 1;
-    flag &= ~O_ASYNC;
-  } else
-    args_map["flag_async"] = 0;
-
-  if (flag & O_CLOEXEC) {
-    args_map["flag_close_on_exec"] = (void *) 1;
-    flag &= ~O_CLOEXEC;
-  } else
-    args_map["flag_close_on_exec"] = 0;
-
-  if (flag & O_CREAT) {
-    args_map["flag_create"] = (void *) 1;
-    flag &= ~O_CREAT;
-  } else
-    args_map["flag_create"] = 0;
-
-  if (flag & O_DIRECT) {
-    args_map["flag_direct"] = (void *) 1;
-    flag &= ~O_DIRECT;
-  } else
-    args_map["flag_direct"] = 0;
-
-  if (flag & O_DIRECTORY) {
-    args_map["flag_directory"] = (void *) 1;
-    flag &= ~O_DIRECTORY;
-  } else
-    args_map["flag_directory"] = 0;
-
-  if (flag & O_EXCL) {
-    args_map["flag_exclusive"] = (void *) 1;
-    flag &= ~O_EXCL;
-  } else
-    args_map["flag_exclusive"] = 0;
-
-  if (flag & O_LARGEFILE) {
-    args_map["flag_largefile"] = (void *) 1;
-    flag &= ~O_LARGEFILE;
-  } else
-    args_map["flag_largefile"] = 0;
-
-  if (flag & O_NOATIME) {
-    args_map["flag_no_access_time"] = (void *) 1;
-    flag &= ~O_NOATIME;
-  } else
-    args_map["flag_no_access_time"] = 0;
-
-  if (flag & O_NOCTTY) {
-    args_map["flag_no_controlling_terminal"] = (void *) 1;
-    flag &= ~O_NOCTTY;
-  } else
-    args_map["flag_no_controlling_terminal"] = 0;
-
-  if (flag & O_NOFOLLOW) {
-    args_map["flag_no_follow"] = (void *) 1;
-    flag &= ~O_NOFOLLOW;
-  } else
-    args_map["flag_no_follow"] = 0;
-
-  if (flag & O_NONBLOCK) {
-    args_map["flag_no_blocking_mode"] = (void *) 1;
-    flag &= ~O_NONBLOCK;
-  } else
-    args_map["flag_no_blocking_mode"] = 0;
-
-  if (flag & O_NDELAY) {
-    args_map["flag_no_delay"] = (void *) 1;
-    flag &= ~O_NDELAY;
-  } else
-    args_map["flag_no_delay"] = 0;
-
-  if (flag & O_SYNC) {
-    args_map["flag_synchronous"] = (void *) 1;
-    flag &= ~O_SYNC;
-  } else
-    args_map["flag_synchronous"] = 0;
-
-  if (flag & O_TRUNC) {
-    args_map["flag_truncate"] = (void *) 1;
-    flag &= ~O_TRUNC;
-  } else
-    args_map["flag_truncate"] = 0;
+  // set read only flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_RDONLY, "flag_read_only");
+  // set write only flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_WRONLY, "flag_write_only");
+  // set both read and write flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_RDWR, "flag_read_and_write");
+  // set append flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_APPEND, "flag_append");
+  // set async flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_ASYNC, "flag_async");
+  // set close-on-exec flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_CLOEXEC, "flag_close_on_exec");
+  // set create flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_CREAT, "flag_create");
+  // set direct flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_DIRECT, "flag_direct");
+  // set directory flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_DIRECTORY, "flag_directory");
+  // set exclusive flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_EXCL, "flag_exclusive");
+  // set largefile flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_LARGEFILE, "flag_largefile");
+  // set last access time flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_NOATIME, "flag_no_access_time");
+  // set controlling terminal flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_NOCTTY, "flag_no_controlling_terminal");
+  // set no_follow flag (in case of symbolic link)
+  process_Flag_and_Mode_Args(args_map, open_flag, O_NOFOLLOW, "flag_no_follow");
+  // set non blocking mode flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_NONBLOCK, "flag_no_blocking_mode");
+  // set no delay flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_NDELAY, "flag_no_delay");
+  // set synchronized IO flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_SYNC, "flag_synchronous");
+  // set truncate mode flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_TRUNC, "flag_truncate");
 
   /*
    * Finally check if the value of flag is now zero or not.
    * If the value of flag is not set as zero, unknown flag
    * bit is set.
    */
-  if (flag == 0)
-    return true;
-  else
-    return false;
+  return (open_flag == 0);
 }
 
 /*
  * This function unwraps the mode value passed as an argument to system
  * call.
  */
-bool DataSeriesOutputModule::processMode(std::map<std::string, void *> &args_map,
-                                         long *args, int offset) {
+bool DataSeriesOutputModule::processMode(std::map<std::string, void *> &args_map, 
+					 long *args,
+					 int mode_offset) {
   // Save the mode argument with mode_value file in map
-  args_map["mode_value"] = &args[offset];
+  args_map["mode_value"] = &args[mode_offset];
+  mode_t mode = args[mode_offset];
 
-  // Initially set the individual mode bits to False.
-  const char *mode_field_name[] = {"mode_uid", "mode_gid", "mode_sticky_bit", \
-				   "mode_R_user", "mode_W_user", "mode_X_user", \
-				   "mode_R_group", "mode_W_group", "mode_X_group", \
-				   "mode_R_others", "mode_W_others", "mode_X_others"};
-
-  for (int i = 0; i < 12; i++) {
-    args_map[mode_field_name[i]] = 0;
-  }
-
-  mode_t mode = args[offset];
-
-  // set-user-ID bit
-  if (mode & S_ISUID) {
-    args_map["mode_uid"] = (void *) 1;
-    mode &= ~S_ISUID;
-  }
-
-  // set-group-ID bit
-  if (mode & S_ISGID) {
-    args_map["mode_gid"] = (void *) 1;
-    mode &= ~S_ISGID;
-  }
-
-  // sticky bit
-  if (mode & S_ISVTX) {
-    args_map["mode_sticky_bit"] = (void *) 1;
-    mode &= ~S_ISVTX;
-  }
-
-  // user read permission bit
-  if (mode & S_IRUSR) {
-    args_map["mode_R_user"] = (void *) 1;
-    mode &= ~S_IRUSR;
-  }
-
-  // user write permission bit
-  if (mode & S_IWUSR) {
-    args_map["mode_W_user"] = (void *) 1;
-    mode &= ~S_IWUSR;
-  }
-
-  // user execute permission bit
-  if (mode & S_IXUSR) {
-    args_map["mode_X_user"] = (void *) 1;
-    mode &= ~S_IXUSR;
-  }
-
-  // group read permission bit
-  if (mode & S_IRGRP) {
-    args_map["mode_R_group"] = (void *) 1;
-    mode &= ~S_IRGRP;
-  }
-
-  // group write permission bit
-  if (mode & S_IWGRP) {
-    args_map["mode_W_group"] = (void *) 1;
-    mode &= ~S_IWGRP;
-  }
-
-  // group execute permission bit
-  if (mode & S_IXGRP) {
-    args_map["mode_X_others"] = (void *) 1;
-    mode &= ~S_IXGRP;
-  }
-
-  // others read permission bit
-  if (mode & S_IROTH) {
-    args_map["mode_R_others"] = (void *) 1;
-    mode &= ~S_IROTH;
-  }
-
-  // others write permission bit
-  if (mode & S_IWOTH) {
-    args_map["mode_W_others"] = (void *) 1;
-    mode &= ~S_IWOTH;
-  }
-
-  // others execute permission bit
-  if (mode & S_IXOTH) {
-    args_map["mode_X_others"] = (void *) 1;
-    mode &= ~S_IXOTH;
-  }
+  // set user-ID bit
+  process_Flag_and_Mode_Args(args_map, mode, S_ISUID, "mode_uid");
+  // set group-ID bit
+  process_Flag_and_Mode_Args(args_map, mode, S_ISGID, "mode_gid");
+  //set sticky bit
+  process_Flag_and_Mode_Args(args_map, mode, S_ISVTX, "mode_sticky_bit");
+  // set user read permission bit
+  process_Flag_and_Mode_Args(args_map, mode, S_IRUSR, "mode_R_user");
+  // set user write permission bit
+  process_Flag_and_Mode_Args(args_map, mode, S_IWUSR, "mode_W_user");
+  // set user execute permission bit
+  process_Flag_and_Mode_Args(args_map, mode, S_IXUSR, "mode_X_user");
+  // set group read permission bit
+  process_Flag_and_Mode_Args(args_map, mode, S_IRGRP, "mode_R_group");
+  // set group write permission bit
+  process_Flag_and_Mode_Args(args_map, mode, S_IWGRP, "mode_W_group");
+  // set group execute permission bit
+  process_Flag_and_Mode_Args(args_map, mode, S_IXGRP, "mode_X_group");
+  // set others read permission bit
+  process_Flag_and_Mode_Args(args_map, mode, S_IROTH, "mode_R_others");
+  // set others write permission bit
+  process_Flag_and_Mode_Args(args_map, mode, S_IWOTH, "mode_W_others");
+  // set others execute permission bit
+  process_Flag_and_Mode_Args(args_map, mode, S_IXOTH, "mode_X_others");
 
   /*
    * Finally check if the value of mode is now zero or not.
    * If the value of mode is not set as zero, unknown mode
    * bit is set.
    */
-  if (mode == 0)
-    return true;
-  else
-    return false;
+  return (mode == 0);
 }

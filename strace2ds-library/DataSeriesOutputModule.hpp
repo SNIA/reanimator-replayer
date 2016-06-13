@@ -109,19 +109,30 @@ private:
 		  const std::string &field_name,
 		  void* field_value);
 
+  // Initialize args map for given system call
+  void initArgsMap(std::map<std::string, void *> &args_map,
+		   const char *extent_name);
+
   // Maps Close Sytem Call field value pair
   void makeCloseArgsMap(std::map<std::string, void *> &args_map, long *args);
 
   // Maps Open System Call field value pair
   void makeOpenArgsMap(std::map<std::string, void *> &args_map, long *args);
 
-  void writeCloseRecord(long *args);
+  // Process individual flag and mode bits
+  void process_Flag_and_Mode_Args(std::map<std::string, void *> &args_map,
+				  unsigned int &num,
+				  int value,
+				  std::string field_name);
 
   // Maps individual flag value for Open system call to its corresponding field name
-  bool processOpenFlags(std::map<std::string, void *> &args_map, unsigned int flag);
+  bool processOpenFlags(std::map<std::string, void *> &args_map,
+			unsigned int flag);
 
   // Maps individual mode bits of mode argument to its corresponding field name
-  bool processMode(std::map<std::string, void *> &args_map, long *args, int offset);
+  bool processMode(std::map<std::string, void *> &args_map,
+		   long *args,
+		   int offset);
 
 };
 
