@@ -182,7 +182,7 @@ public:
    * Get the process id of current system call record
    *
    * @return: corresponding executing_pid field of a record that
-   *	      extent series is pointing to.
+   *	       extent series is pointing to.
    */
   int executing_pid() const;
 
@@ -190,7 +190,7 @@ public:
    * Get the error number of current system call record
    *
    * @return: corresponding errno_number field of a record that
-   *           extent series is pointing to.
+   *          extent series is pointing to.
    */
   int errno_number() const;
 
