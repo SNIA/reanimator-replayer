@@ -132,10 +132,10 @@ void SystemCallTraceReplayModule::print_sys_call_fields() {
 }
 
 void SystemCallTraceReplayModule::print_common_fields() {
-  // First, converts the time values from Tfracs to seconds
+  // Convert the time values from Tfracs to seconds
   double time_returned_val = Tfrac_to_sec(time_returned());
   double time_recorded_val = Tfrac_to_sec(time_recorded());
- 
+  // Print the common fields and their values
   std::cout << sys_call_name_ << ": " << std::endl;
   std::cout.precision(25);
   std::cout << "time called(" << std::fixed << time_called() << "), " << std::endl;

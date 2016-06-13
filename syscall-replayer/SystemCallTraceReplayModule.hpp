@@ -77,7 +77,7 @@ protected:
   /*
    * This function will be called before replaying any corresponding 
    * system call.
-   * Note: Child class should implement this funciton to do things
+   * Note: Child class should implement this function to do things
    * before a replayer execute corresponding system call
    */
   virtual void prepareForProcessing() = 0;
@@ -86,7 +86,7 @@ protected:
    * This function is where all the replaying takes action. 
    * It will be called by execute() function for each record 
    * of a corresponding system call.
-   * Note: Child class should implement this funciton to replay
+   * Note: Child class should implement this function to replay
    * a specific system call
    */
   virtual void processRow() = 0;
@@ -104,7 +104,7 @@ protected:
   /* 
    * This function will be called after all system call 
    * operations are being replayed.
-   * Note: Child class can implement this funciton to do things
+   * Note: Child class can implement this function to do things
    * after all system call operations are replayed
    *
    * @param ret_val: return value of replayed operation
@@ -158,7 +158,7 @@ public:
    * Get the execution time of current system call record
    *
    * @return: corresponding time_called field of a record that
-   *	      extent series is pointing to.
+   *           extent series is pointing to.
    */
   double time_called() const;
 
@@ -166,7 +166,7 @@ public:
    * Get the time the current system call returned according to the record
    *
    * @return: corresponding time_returned field of a record that
-   *	      extent series is pointing to.
+   *	       extent series is pointing to.
    */
   uint64_t time_returned() const;
 
@@ -174,7 +174,7 @@ public:
    * Get the time the current system call record was written
    *
    * @return corresponding time_recorded field of a record that
-   *	     extent series is pointing to.
+   *	      extent series is pointing to.
    */
   uint64_t time_recorded() const;
 
@@ -182,7 +182,7 @@ public:
    * Get the process id of current system call record
    *
    * @return: corresponding executing_pid field of a record that
-   *	      extent series is pointing to.
+   *	       extent series is pointing to.
    */
   int executing_pid() const;
 
@@ -190,7 +190,7 @@ public:
    * Get the error number of current system call record
    *
    * @return: corresponding errno_number field of a record that
-   *          extent series is pointing to.
+   *           extent series is pointing to.
    */
   int errno_number() const;
 
@@ -198,7 +198,7 @@ public:
    * Get the return value of current system call record (not replayed ret value)
    *
    * @return: corresponding return value field of a record that
-   *          extent series is pointing to.
+   *           extent series is pointing to.
    */
   int return_value() const;
 
@@ -206,7 +206,7 @@ public:
    * Get the unique id of current system call record
    *
    * @return: corresponding unique id field of a record that
-   *          extent series is pointing to.
+   *           extent series is pointing to.
    */
   int64_t unique_id() const;
 
@@ -241,7 +241,7 @@ public:
   void execute();
 
   /*
-   * Convert a time value stored in Tfrac units (2^32 Tfracs = 1 sec) 
+   * Convert a time value stored in Tfrac units (2^32 Tfracs = 1 sec)
    * as a uint64_t to seconds (as a double)
    *
    * @return: the corresponding time value in seconds
