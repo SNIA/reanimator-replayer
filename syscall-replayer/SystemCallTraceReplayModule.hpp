@@ -182,7 +182,7 @@ public:
    * Get the process id of current system call record
    *
    * @return: corresponding executing_pid field of a record that
-   *	       extent series is pointing to.
+   *	      extent series is pointing to.
    */
   int executing_pid() const;
 
@@ -198,7 +198,7 @@ public:
    * Get the return value of current system call record (not replayed ret value)
    *
    * @return: corresponding return value field of a record that
-   *           extent series is pointing to.
+   *          extent series is pointing to.
    */
   int return_value() const;
 
@@ -206,7 +206,7 @@ public:
    * Get the unique id of current system call record
    *
    * @return: corresponding unique id field of a record that
-   *           extent series is pointing to.
+   *          extent series is pointing to.
    */
   int64_t unique_id() const;
 
