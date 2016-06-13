@@ -54,7 +54,7 @@ DataSeriesOutputModule *create_ds_module(const char *output_file, const char *ta
  * Write a record into the DataSeries output file
  * return NULL if failed
  */
-void *write_ds_record(DataSeriesOutputModule *ds_module, const char *extent_name,
+void write_ds_record(DataSeriesOutputModule *ds_module, const char *extent_name,
 		      long *args) {
   ((DataSeriesOutputModule *)ds_module)->writeRecord(extent_name, args);
 }
@@ -62,7 +62,7 @@ void *write_ds_record(DataSeriesOutputModule *ds_module, const char *extent_name
 /*
  * Free the module and flush all the records
  */
-void *destroy_ds_module(DataSeriesOutputModule *ds_module) {
+void destroy_ds_module(DataSeriesOutputModule *ds_module) {
   delete (DataSeriesOutputModule *)ds_module;
 }
 
@@ -70,7 +70,7 @@ void *destroy_ds_module(DataSeriesOutputModule *ds_module) {
  * Save the string value of path_name passed as an argument to
  * system calls.
  */
-void *save_path_string(DataSeriesOutputModule *ds_module, const char *path) {
+void save_path_string(DataSeriesOutputModule *ds_module, const char *path) {
   ((DataSeriesOutputModule *)ds_module)->fetch_path_string(path);
 }
 

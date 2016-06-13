@@ -40,6 +40,8 @@
 #include <DataSeries/DataSeriesFile.hpp>
 #include <DataSeries/DataSeriesModule.hpp>
 
+#include <fcntl.h>
+
 /* map<fieldname, pair<nullable, ExtentType> */
 typedef std::map<std::string, std::pair<bool, ExtentType::fieldType> > config_table_entry_type;
 /* map<extentname, config_table_entry_type> */
@@ -126,11 +128,11 @@ private:
 				  std::string field_name);
 
   // Maps individual flag value for Open system call to its corresponding field name
-  bool processOpenFlags(std::map<std::string, void *> &args_map,
+  u_int processOpenFlags(std::map<std::string, void *> &args_map,
 			unsigned int flag);
 
   // Maps individual mode bits of mode argument to its corresponding field name
-  bool processMode(std::map<std::string, void *> &args_map,
+  u_int processMode(std::map<std::string, void *> &args_map,
 		   long *args,
 		   int offset);
 

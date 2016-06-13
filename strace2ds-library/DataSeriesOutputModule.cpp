@@ -26,7 +26,6 @@
  */
 
 #include "DataSeriesOutputModule.hpp"
-#include <fcntl.h>
 
 // Constructor to set up all extents and fields
 DataSeriesOutputModule::DataSeriesOutputModule(std::ifstream &table_stream,
@@ -339,8 +338,10 @@ void DataSeriesOutputModule::makeOpenArgsMap(std::map<std::string, void *> &args
 
   /* Setting flag values */
   args_map["open_value"] = &args[offset + 1];
-  if (!processOpenFlags(args_map, args[offset + 1])) {
-    std::cerr << "Open: Unknown flag bits are set!!" << std::endl;
+  u_int flag = processOpenFlags(args_map, args[offset + 1]);
+  if (flag != 0) {
+    std::cerr << "Open: These flag are not processed/unknown->0x";
+    std::cerr << std::hex << flag << std::dec << std::endl;
     exit(1);
   }
 
@@ -349,8 +350,10 @@ void DataSeriesOutputModule::makeOpenArgsMap(std::map<std::string, void *> &args
    * mode value and mode bits as True.
    */
   if (args[offset + 1] & O_CREAT) {
-    if (!processMode(args_map, args, offset + 2)) {
-      std::cerr << "Open:: Unknown mode bits are set!!" << std::endl;
+    u_int mode = processMode(args_map, args, offset + 2);
+    if (mode != 0) {
+      std::cerr << "Open:: These modes are not processed/unknown->0";
+      std::cerr << std::oct << mode << std::dec << std::endl;
       exit(1);
     }
   }
@@ -383,7 +386,7 @@ void DataSeriesOutputModule::process_Flag_and_Mode_Args(std::map<std::string, vo
  * This function unwraps the flag value passed as an argument to
  * open system call and set the corresponding flag values as True.
  */
-bool DataSeriesOutputModule::processOpenFlags(std::map<std::string, void *> &args_map,
+u_int DataSeriesOutputModule::processOpenFlags(std::map<std::string, void *> &args_map,
 					      unsigned int open_flag) {
 
   /*
@@ -432,16 +435,16 @@ bool DataSeriesOutputModule::processOpenFlags(std::map<std::string, void *> &arg
    * If the value of flag is not set as zero, unknown flag
    * bit is set.
    */
-  return (open_flag == 0);
+  return open_flag;
 }
 
 /*
  * This function unwraps the mode value passed as an argument to system
  * call.
  */
-bool DataSeriesOutputModule::processMode(std::map<std::string, void *> &args_map, 
-					 long *args,
-					 int mode_offset) {
+u_int DataSeriesOutputModule::processMode(std::map<std::string, void *> &args_map,
+					  long *args,
+					  int mode_offset) {
   // Save the mode argument with mode_value file in map
   args_map["mode_value"] = &args[mode_offset];
   mode_t mode = args[mode_offset];
@@ -476,5 +479,5 @@ bool DataSeriesOutputModule::processMode(std::map<std::string, void *> &args_map
    * If the value of mode is not set as zero, unknown mode
    * bit is set.
    */
-  return (mode == 0);
+  return mode;
 }
