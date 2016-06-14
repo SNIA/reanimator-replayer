@@ -70,8 +70,8 @@ int SystemCallTraceReplayModule::errno_number() const {
   return (int)errno_number_.val();
 }
 
-int64_t SystemCallTraceReplayModule::return_value() const {
-  return (int64_t)return_value_.val();
+int SystemCallTraceReplayModule::return_value() const {
+  return (int)return_value_.val();
 }
 
 int64_t SystemCallTraceReplayModule::unique_id() const {

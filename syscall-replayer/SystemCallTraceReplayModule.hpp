@@ -200,7 +200,7 @@ public:
    * @return: corresponding return value field of a record that
    *          extent series is pointing to.
    */
-  int64_t return_value() const;
+  int return_value() const;
 
   /*
    * Get the unique id of current system call record
