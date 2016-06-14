@@ -54,7 +54,7 @@ extern DataSeriesOutputModule *create_ds_module(const char *output_file, const c
  * Write a record into the DataSeries output file
  * return NULL if failed
  */
-extern void *write_ds_record(DataSeriesOutputModule *ds_module, const char *extent_name,
+extern void write_ds_record(DataSeriesOutputModule *ds_module, const char *extent_name,
 		      long *args, struct timeval time_called_timeval, struct timeval time_returned_timeval,
 		      int return_value, int errno_number, int executing_pid) {
   ((DataSeriesOutputModule *)ds_module)->writeRecord(extent_name, args, time_called_timeval, time_returned_timeval,
@@ -64,7 +64,7 @@ extern void *write_ds_record(DataSeriesOutputModule *ds_module, const char *exte
 /*
  * Free the module and flush all the records
  */
-extern void *destroy_ds_module(DataSeriesOutputModule *ds_module) {
+extern void destroy_ds_module(DataSeriesOutputModule *ds_module) {
   delete (DataSeriesOutputModule *)ds_module;
 }
 

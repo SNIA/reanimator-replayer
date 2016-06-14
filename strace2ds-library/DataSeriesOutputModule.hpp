@@ -40,6 +40,9 @@
 #include <DataSeries/DataSeriesFile.hpp>
 #include <DataSeries/DataSeriesModule.hpp>
 
+#include <fcntl.h>
+#include <unistd.h>
+
 /* map<fieldname, pair<nullable, ExtentType> */
 typedef std::map<std::string, std::pair<bool, ExtentType::fieldType> > config_table_entry_type;
 /* map<extentname, config_table_entry_type> */
@@ -70,7 +73,7 @@ public:
   // Destructor to delete the module
   ~DataSeriesOutputModule();
 
-  // Fetch the char* path from tcp structure and store it in g
+  // Fetch the char* path string from tcp structure
   void fetch_path_string(const char *path);
 
 private:
@@ -80,6 +83,7 @@ private:
   DataSeriesSink ds_sink_;
   config_table_type config_table_;
   unsigned int record_num_;
+  /* path_string is used to save pathname of system call argument */
   std::string path_string;
 
   // Disable copy constructor
@@ -111,19 +115,45 @@ private:
 		  const std::string &field_name,
 		  void *field_value);
 
+  // Initialize args map for given system call
+  void initArgsMap(std::map<std::string, void *> &args_map,
+		   const char *extent_name);
+
   // Maps Close System Call field value pair
   void makeCloseArgsMap(std::map<std::string, void *> &args_map, long *args);
+
+  // Maps Open System Call field value pairs
+  void makeOpenArgsMap(std::map<std::string, void *> &args_map, long *args);
 
   // Maps Chdir System Call field value pair
   void makeChdirArgsMap(std::map<std::string, void *> &args_map, long *args);
 
-  // Maps Mkdir System Call field value pair
+  // Maps Mkdir System Call field value pairs
   void makeMkdirArgsMap(std::map<std::string, void *> &args_map, long *args);
 
-  // Maps Rmdir Sytem Call field value pair
+  // Maps Rmdir System Call field value pair
   void makeRmdirArgsMap(std::map<std::string, void *> &args_map, long *args);
 
-  void writeCloseRecord(long *args);
+  // Maps Unlink System Call field value pair
+  void makeUnlinkArgsMap(std::map<std::string, void *> &args_map, long *args);
+
+  // Maps Truncate System Call field value pairs
+  void makeTruncateArgsMap(std::map<std::string, void *> &args_map, long *args);
+
+  // Process individual flag and mode bits
+  void process_Flag_and_Mode_Args(std::map<std::string, void *> &args_map,
+				  unsigned int &num,
+				  int value,
+				  std::string field_name);
+
+  // Maps individual flag value for Open system call to its corresponding field name
+  u_int processOpenFlags(std::map<std::string, void *> &args_map,
+			 unsigned int flag);
+
+  // Maps individual mode bits of mode argument to its corresponding field name
+  u_int processMode(std::map<std::string, void *> &args_map,
+		    long *args,
+		    int offset);
 
   // Convert time from a timeval to a uint64_t stored in Tfrac units
   uint64_t timeval_to_Tfrac(struct timeval time);

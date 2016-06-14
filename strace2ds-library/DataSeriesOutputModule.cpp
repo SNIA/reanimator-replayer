@@ -26,7 +26,6 @@
  */
 
 #include "DataSeriesOutputModule.hpp"
-#include <fcntl.h>
 
 // Constructor to set up all extents and fields
 DataSeriesOutputModule::DataSeriesOutputModule(std::ifstream &table_stream,
@@ -104,12 +103,18 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
 
   if (strcmp(extent_name, "close") == 0) {
     makeCloseArgsMap(sys_call_args_map, args);
+  } else if (strcmp(extent_name, "open") == 0) {
+    makeOpenArgsMap(sys_call_args_map, args);
   } else if (strcmp(extent_name, "chdir") == 0) {
     makeChdirArgsMap(sys_call_args_map, args);
   } else if (strcmp(extent_name, "mkdir") == 0) {
     makeMkdirArgsMap(sys_call_args_map, args);
   } else if (strcmp(extent_name, "rmdir") == 0) {
     makeRmdirArgsMap(sys_call_args_map, args);
+  } else if (strcmp(extent_name, "unlink") == 0) {
+    makeUnlinkArgsMap(sys_call_args_map, args);
+  } else if (strcmp(extent_name, "truncate") == 0) {
+    makeTruncateArgsMap(sys_call_args_map, args);
   }
 
   // Create a new record to write
@@ -265,10 +270,7 @@ void DataSeriesOutputModule::setField(const std::string &extent_name,
   bool buffer;
   switch (extents_[extent_name][field_name].second) {
   case ExtentType::ft_bool:
-    if (field_value == 0)
-      buffer = false;
-    else
-      buffer = true;
+    buffer = (field_value != 0);
     doSetField<BoolField, bool>(extent_name, field_name, &buffer);
     break;
   case ExtentType::ft_byte:
@@ -332,13 +334,63 @@ void DataSeriesOutputModule::doSetField(const std::string &extent_name,
   ((FieldType *)(extents_[extent_name][field_name].first))->set(*(ValueType *)field_value);
 }
 
+// Save the path string obtained from strace.
 void DataSeriesOutputModule::fetch_path_string(const char *path) {
-  // Save the path string obtained from strace.
-  path_string = path;
+  if (path != NULL)
+   path_string = std::string(path);
+}
+
+// Initialize all non-nullable fields of given extent_name.
+void DataSeriesOutputModule::initArgsMap(std::map<std::string, void *> &args_map,
+					 const char *extent_name) {
+  for (config_table_entry_type::iterator iter = config_table_[extent_name].begin();
+   iter != config_table_[extent_name].end();
+   iter++) {
+    std::string field_name = iter->first;
+    bool nullable = iter->second.first;
+    if (!nullable && strcmp(field_name.c_str(), "unique_id") != 0)
+      args_map[field_name] = 0;
+  }
 }
 
 void DataSeriesOutputModule::makeCloseArgsMap(std::map<std::string, void *> &args_map, long *args) {
   args_map["descriptor"] = &args[0];
+}
+
+void DataSeriesOutputModule::makeOpenArgsMap(std::map<std::string, void *> &args_map, long *args) {
+  int offset = 0;
+
+  // initialize all non-nullable fields.
+  initArgsMap(args_map, "open");
+
+  if (!path_string.empty()) {
+    args_map["given_pathname"] = &path_string;
+  } else {
+    std::cerr << "Open: Pathname is set as NULL!!" << std::endl;
+    exit(1);
+  }
+
+  /* Setting flag values */
+  args_map["open_value"] = &args[offset + 1];
+  u_int flag = processOpenFlags(args_map, args[offset + 1]);
+  if (flag != 0) {
+    std::cerr << "Open: These flag are not processed/unknown->0x";
+    std::cerr << std::hex << flag << std::dec << std::endl;
+    exit(1);
+  }
+
+  /*
+   * If only, open is called with 3 arguments, set the corresponding
+   * mode value and mode bits as True.
+   */
+  if (args[offset + 1] & O_CREAT) {
+    u_int mode = processMode(args_map, args, offset + 2);
+    if (mode != 0) {
+      std::cerr << "Open: These modes are not processed/unknown->0";
+      std::cerr << std::oct << mode << std::dec << std::endl;
+      exit(1);
+    }
+  }
 }
 
 void DataSeriesOutputModule::makeChdirArgsMap(std::map<std::string, void *> &args_map, long *args) {
@@ -348,16 +400,163 @@ void DataSeriesOutputModule::makeChdirArgsMap(std::map<std::string, void *> &arg
 }
 
 void DataSeriesOutputModule::makeMkdirArgsMap(std::map<std::string, void *> &args_map, long *args) {
+  // Initialize all non-nullable fields
+  initArgsMap(args_map, "mkdir");
+
   if (!path_string.empty()) {
     args_map["given_pathname"] = &path_string;
   }
   args_map["mode_value"] = &args[1];
+
+  // Set the mode values in the map
+  u_int mode = processMode(args_map, args, 1);
+  if (mode != 0) {
+    std::cerr << "Mkdir: These modes are not processed/unknown->0";
+    std::cerr << std:: oct << mode << std::dec << std::endl;
+    exit(1);
+  }
 }
 
 void DataSeriesOutputModule::makeRmdirArgsMap(std::map<std::string, void *> &args_map, long *args) {
   if (!path_string.empty()) {
     args_map["given_pathname"] = &path_string;
   }
+}
+
+void DataSeriesOutputModule::makeUnlinkArgsMap(std::map<std::string, void *> &args_map, long *args) {
+  if (!path_string.empty()) {
+    args_map["given_pathname"] = &path_string;
+  }
+}
+
+void DataSeriesOutputModule::makeTruncateArgsMap(std::map<std::string, void *> &args_map, long *args) {
+  if (!path_string.empty()) {
+    args_map["given_pathname"] = &path_string;
+  }
+  args_map["truncate_length"] = &args[1];
+}
+
+/*
+ * This function process the flag and mode value passed as an argument
+ * to system calls. It checks each individual flag and mode bit and
+ * set corresponding bits as True in the argument map.
+ *
+ * @param args_map: stores mapping of field name for flag and mode bit.
+ *
+ * @param num: specifies either flag and mode argument.
+ *
+ * @param value: specifies flag or mode bit value. Ex: O_RDONLY or S_ISUID.
+ *
+ * @param filed_name: denotes the field name for individual flag or mode bit.
+ *                    Ex: "flag_read_only", "mode_R_user".
+ */
+void DataSeriesOutputModule::process_Flag_and_Mode_Args(std::map<std::string, void *> &args_map,
+							unsigned int &num, int value,
+							std::string field_name) {
+  if (num & value) {
+    args_map[field_name] = (void *) 1;
+    num &= ~value;
+  }
+}
+
+/*
+ * This function unwraps the flag value passed as an argument to
+ * open system call and set the corresponding flag values as True.
+ */
+u_int DataSeriesOutputModule::processOpenFlags(std::map<std::string, void *> &args_map,
+					       unsigned int open_flag) {
+
+  /*
+   * Process each individual flag bits that has been set
+   * in the argument open_flag.
+   */
+  // set read only flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_RDONLY, "flag_read_only");
+  // set write only flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_WRONLY, "flag_write_only");
+  // set both read and write flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_RDWR, "flag_read_and_write");
+  // set append flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_APPEND, "flag_append");
+  // set async flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_ASYNC, "flag_async");
+  // set close-on-exec flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_CLOEXEC, "flag_close_on_exec");
+  // set create flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_CREAT, "flag_create");
+  // set direct flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_DIRECT, "flag_direct");
+  // set directory flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_DIRECTORY, "flag_directory");
+  // set exclusive flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_EXCL, "flag_exclusive");
+  // set largefile flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_LARGEFILE, "flag_largefile");
+  // set last access time flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_NOATIME, "flag_no_access_time");
+  // set controlling terminal flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_NOCTTY, "flag_no_controlling_terminal");
+  // set no_follow flag (in case of symbolic link)
+  process_Flag_and_Mode_Args(args_map, open_flag, O_NOFOLLOW, "flag_no_follow");
+  // set non blocking mode flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_NONBLOCK, "flag_no_blocking_mode");
+  // set no delay flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_NDELAY, "flag_no_delay");
+  // set synchronized IO flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_SYNC, "flag_synchronous");
+  // set truncate mode flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_TRUNC, "flag_truncate");
+
+  /*
+   * Finally check if the value of flag is now zero or not.
+   * If the value of flag is not set as zero, unknown flag
+   * bit is set.
+   */
+  return open_flag;
+}
+
+/*
+ * This function unwraps the mode value passed as an argument to system
+ * call.
+ */
+u_int DataSeriesOutputModule::processMode(std::map<std::string, void *> &args_map,
+					  long *args,
+					  int mode_offset) {
+  // Save the mode argument with mode_value file in map
+  args_map["mode_value"] = &args[mode_offset];
+  mode_t mode = args[mode_offset];
+
+  // set user-ID bit
+  process_Flag_and_Mode_Args(args_map, mode, S_ISUID, "mode_uid");
+  // set group-ID bit
+  process_Flag_and_Mode_Args(args_map, mode, S_ISGID, "mode_gid");
+  //set sticky bit
+  process_Flag_and_Mode_Args(args_map, mode, S_ISVTX, "mode_sticky_bit");
+  // set user read permission bit
+  process_Flag_and_Mode_Args(args_map, mode, S_IRUSR, "mode_R_user");
+  // set user write permission bit
+  process_Flag_and_Mode_Args(args_map, mode, S_IWUSR, "mode_W_user");
+  // set user execute permission bit
+  process_Flag_and_Mode_Args(args_map, mode, S_IXUSR, "mode_X_user");
+  // set group read permission bit
+  process_Flag_and_Mode_Args(args_map, mode, S_IRGRP, "mode_R_group");
+  // set group write permission bit
+  process_Flag_and_Mode_Args(args_map, mode, S_IWGRP, "mode_W_group");
+  // set group execute permission bit
+  process_Flag_and_Mode_Args(args_map, mode, S_IXGRP, "mode_X_group");
+  // set others read permission bit
+  process_Flag_and_Mode_Args(args_map, mode, S_IROTH, "mode_R_others");
+  // set others write permission bit
+  process_Flag_and_Mode_Args(args_map, mode, S_IWOTH, "mode_W_others");
+  // set others execute permission bit
+  process_Flag_and_Mode_Args(args_map, mode, S_IXOTH, "mode_X_others");
+
+  /*
+   * Finally check if the value of mode is now zero or not.
+   * If the value of mode is not set as zero, unknown mode
+   * bit is set.
+   */
+  return mode;
 }
 
 uint64_t DataSeriesOutputModule::timeval_to_Tfrac(struct timeval time) {
