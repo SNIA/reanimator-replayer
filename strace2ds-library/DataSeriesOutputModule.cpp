@@ -72,8 +72,17 @@ DataSeriesOutputModule::DataSeriesOutputModule(std::ifstream &table_stream,
   ds_sink_.writeExtentLibrary(extent_type_library);
 }
 
-// Register the record and field values in into DS fields 
-bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args) {
+/* Register the record and field values in into DS fields
+ *
+ * @param extent_name: represents the name of system call being recorded.
+ *
+ * @param args: represent the array of const arguments passed to a system call.
+ *
+ * @param v_args: represent the helper arguments obtained from strace which are
+ *                copied from address space of actual process being traced.
+ */
+bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
+					 void **v_args) {
   std::map<std::string, void *> sys_call_args_map;
 
   sys_call_args_map["unique_id"] = &record_num_;
@@ -86,7 +95,11 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args) {
   if (strcmp(extent_name, "close") == 0) {
     makeCloseArgsMap(sys_call_args_map, args);
   } else if (strcmp(extent_name, "open") == 0) {
-    makeOpenArgsMap(sys_call_args_map, args);
+    makeOpenArgsMap(sys_call_args_map, args, v_args);
+  } else if (strcmp(extent_name, "read") == 0) {
+    makeReadArgsMap(sys_call_args_map, args, v_args);
+  } else if (strcmp(extent_name, "write") == 0) {
+    makeWriteArgsMap(sys_call_args_map, args, v_args);
   }
 
   // Create a new record to write
@@ -252,8 +265,8 @@ void DataSeriesOutputModule::setField(const std::string &extent_name,
     doSetField<DoubleField, double>(extent_name, field_name, field_value);
     break;
   case ExtentType::ft_variable32:
-    ((Variable32Field *)(extents_[extent_name][field_name].first))->set((*(std::string *)field_value).c_str(),
-									(*(std::string *)field_value).size()+1);
+    ((Variable32Field *)(extents_[extent_name][field_name].first))->set((*(char **)field_value),
+                                                                        strlen(*(char **)field_value) + 1);
     break;
   default:
     std::stringstream error_msg;
@@ -300,12 +313,6 @@ void DataSeriesOutputModule::doSetField(const std::string &extent_name,
   ((FieldType *)(extents_[extent_name][field_name].first))->set(*(ValueType *)field_value);
 }
 
-// Save the path string obtained from strace.
-void DataSeriesOutputModule::fetch_path_string(const char *path) {
-  if (path != NULL)
-   path_string = std::string(path);
-}
-
 // Initialize all non-nullable fields of given extent_name.
 void DataSeriesOutputModule::initArgsMap(std::map<std::string, void *> &args_map,
 					 const char *extent_name) {
@@ -323,17 +330,17 @@ void DataSeriesOutputModule::makeCloseArgsMap(std::map<std::string, void *> &arg
   args_map["descriptor"] = &args[0];
 }
 
-void DataSeriesOutputModule::makeOpenArgsMap(std::map<std::string, void *> &args_map, long *args) {
+void DataSeriesOutputModule::makeOpenArgsMap(std::map<std::string, void *> &args_map,
+					     long *args, void **v_args) {
   int offset = 0;
 
   // initialize all non-nullable fields.
   initArgsMap(args_map, "open");
 
-  if (!path_string.empty()) {
-    args_map["given_pathname"] = &path_string;
+  if (v_args[0] != NULL) {
+    args_map["given_pathname"] = &v_args[0];
   } else {
     std::cerr << "Open: Pathname is set as NULL!!" << std::endl;
-    exit(1);
   }
 
   /* Setting flag values */
@@ -342,7 +349,6 @@ void DataSeriesOutputModule::makeOpenArgsMap(std::map<std::string, void *> &args
   if (flag != 0) {
     std::cerr << "Open: These flag are not processed/unknown->0x";
     std::cerr << std::hex << flag << std::dec << std::endl;
-    exit(1);
   }
 
   /*
@@ -350,27 +356,26 @@ void DataSeriesOutputModule::makeOpenArgsMap(std::map<std::string, void *> &args
    * mode value and mode bits as True.
    */
   if (args[offset + 1] & O_CREAT) {
-    u_int mode = processMode(args_map, args, offset + 2);
+    mode_t mode = processMode(args_map, args, offset + 2);
     if (mode != 0) {
       std::cerr << "Open:: These modes are not processed/unknown->0";
       std::cerr << std::oct << mode << std::dec << std::endl;
-      exit(1);
     }
   }
 }
 
 /*
  * This function process the flag and mode value passed as an argument
- * to system calls. It checks each individual flag and mode bit and
+ * to system calls. It checks each individual flag/mode bit and
  * set corresponding bits as True in the argument map.
  *
- * @param args_map: stores mapping of field name for flag and mode bit.
+ * @param args_map: stores mapping of field name for flag/mode bit.
  *
- * @param num: specifies either flag and mode argument.
+ * @param num: specifies either flag or mode argument.
  *
  * @param value: specifies flag or mode bit value. Ex: O_RDONLY or S_ISUID.
  *
- * @param filed_name: denotes the field name for individual flag or mode bit.
+ * @param filed_name: denotes the field name for individual flag/mode bit.
  *                    Ex: "flag_read_only", "mode_R_user".
  */
 void DataSeriesOutputModule::process_Flag_and_Mode_Args(std::map<std::string, void *> &args_map,
@@ -385,9 +390,14 @@ void DataSeriesOutputModule::process_Flag_and_Mode_Args(std::map<std::string, vo
 /*
  * This function unwraps the flag value passed as an argument to
  * open system call and set the corresponding flag values as True.
+ *
+ * @param args_map: stores mapping of field name and value pair.
+ *
+ * @param open_flag: represents the flag value passed as an argument
+ *                   to open system call.
  */
 u_int DataSeriesOutputModule::processOpenFlags(std::map<std::string, void *> &args_map,
-					      unsigned int open_flag) {
+					       u_int open_flag) {
 
   /*
    * Process each individual flag bits that has been set
@@ -441,10 +451,16 @@ u_int DataSeriesOutputModule::processOpenFlags(std::map<std::string, void *> &ar
 /*
  * This function unwraps the mode value passed as an argument to system
  * call.
+ * @param args_map: stores mapping of field name and value pair.
+ *
+ * @param args: represents the complete arguments of actual system call.
+ *
+ * @param mode_offset: represents the index of mode value in actual
+ * 		       system call.
  */
-u_int DataSeriesOutputModule::processMode(std::map<std::string, void *> &args_map,
-					  long *args,
-					  int mode_offset) {
+mode_t DataSeriesOutputModule::processMode(std::map<std::string, void *> &args_map,
+					   long *args,
+					   u_int mode_offset) {
   // Save the mode argument with mode_value file in map
   args_map["mode_value"] = &args[mode_offset];
   mode_t mode = args[mode_offset];
@@ -480,4 +496,30 @@ u_int DataSeriesOutputModule::processMode(std::map<std::string, void *> &args_ma
    * bit is set.
    */
   return mode;
+}
+
+void DataSeriesOutputModule::makeReadArgsMap(std::map<std::string, void *> &args_map,
+					     long *args, void **v_args) {
+  args_map["descriptor"] = &args[0];
+
+  if (v_args[0] != NULL) {
+    args_map["data_read"] = &v_args[0];
+  } else {
+    std::cerr << "Read: Data to be read is set as NULL!!" << std::endl;
+  }
+
+  args_map["bytes_requested"] = &args[2];
+}
+
+void DataSeriesOutputModule::makeWriteArgsMap(std::map<std::string, void *> &args_map,
+					      long *args, void **v_args) {
+  args_map["descriptor"] = &args[0];
+
+  if (v_args[0] != NULL) {
+    args_map["data_written"] = &v_args[0];
+  } else {
+    std::cerr << "Write: Data to be written is set as NULL!!" << std::endl;
+  }
+
+  args_map["bytes_requested"] = &args[2];
 }

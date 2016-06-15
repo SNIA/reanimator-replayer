@@ -64,13 +64,10 @@ public:
 			 const char *output_file);
 
   // Register the record and field values in into DS fields
-  bool writeRecord(const char *extent_name, long *args);
+  bool writeRecord(const char *extent_name, long *args, void **v_args);
 
   // Destructor to delete the module
   ~DataSeriesOutputModule();
-
-  // Fetch the char* path from tcp structure.
-  void fetch_path_string(const char *path);
 
 private:
   OutputModuleMap modules_;
@@ -79,8 +76,6 @@ private:
   DataSeriesSink ds_sink_;
   config_table_type config_table_;
   unsigned int record_num_;
-  /* path_string is used to save pathname of system call argument */
-  std::string path_string;
 
   // Disable copy constructor
   DataSeriesOutputModule(const DataSeriesOutputModule&);
@@ -119,7 +114,8 @@ private:
   void makeCloseArgsMap(std::map<std::string, void *> &args_map, long *args);
 
   // Maps Open System Call field value pair
-  void makeOpenArgsMap(std::map<std::string, void *> &args_map, long *args);
+  void makeOpenArgsMap(std::map<std::string, void *> &args_map, long *args,
+		       void **v_args);
 
   // Process individual flag and mode bits
   void process_Flag_and_Mode_Args(std::map<std::string, void *> &args_map,
@@ -128,14 +124,19 @@ private:
 				  std::string field_name);
 
   // Maps individual flag value for Open system call to its corresponding field name
-  u_int processOpenFlags(std::map<std::string, void *> &args_map,
-			unsigned int flag);
+  u_int processOpenFlags(std::map<std::string, void *> &args_map, u_int flag);
 
   // Maps individual mode bits of mode argument to its corresponding field name
-  u_int processMode(std::map<std::string, void *> &args_map,
-		   long *args,
-		   int offset);
+  mode_t processMode(std::map<std::string, void *> &args_map,
+		    long *args, u_int offset);
 
+  // Maps Read System Call field value pair
+  void makeReadArgsMap(std::map<std::string, void *> &args_map, long *args,
+		       void **v_args);
+
+  // Maps Write System Call field value pair
+  void makeWriteArgsMap(std::map<std::string, void *> &args_map, long *args,
+			void **v_args);
 };
 
 #endif // DATA_SERIES_OUTPUT_MODULE_HPP
