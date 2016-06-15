@@ -40,7 +40,7 @@ protected:
   std::string sys_call_name_;
   bool verbose_;
   int  warn_level_;
-  DoubleField time_called_;
+  Int64Field time_called_;
   Int64Field time_returned_;
   Int64Field time_recorded_;
   Int32Field executing_pid_;
@@ -160,7 +160,7 @@ public:
    * @return: corresponding time_called field of a record that
    *          extent series is pointing to.
    */
-  double time_called() const;
+  uint64_t time_called() const;
 
   /*
    * Get the time the current system call returned according to the record

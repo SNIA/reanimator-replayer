@@ -50,8 +50,8 @@ bool SystemCallTraceReplayModule::abort_mode() const {
   return warn_level_ == ABORT_MODE;
 }
 
-double SystemCallTraceReplayModule::time_called() const {
-  return (double)time_called_.val();
+uint64_t SystemCallTraceReplayModule::time_called() const {
+  return (uint64_t)time_called_.val();
 }
 
 uint64_t SystemCallTraceReplayModule::time_returned() const {
@@ -133,14 +133,15 @@ void SystemCallTraceReplayModule::print_sys_call_fields() {
 
 void SystemCallTraceReplayModule::print_common_fields() {
   // Convert the time values from Tfracs to seconds
+  double time_called_val = Tfrac_to_sec(time_called());
   double time_returned_val = Tfrac_to_sec(time_returned());
   double time_recorded_val = Tfrac_to_sec(time_recorded());
   // Print the common fields and their values
   std::cout << sys_call_name_ << ": " << std::endl;
   std::cout.precision(25);
-  std::cout << "time called(" << std::fixed << time_called() << "), " << std::endl;
-  std::cout << "time returned(" << time_returned_val << "), " << std::endl;
-  std::cout << "time recorded(" << time_recorded_val << "), " << std::endl;
+  std::cout << "time called(" << std::fixed << time_called_val << "), " << std::endl;
+  std::cout << "time returned(" << std::fixed << time_returned_val << "), " << std::endl;
+  std::cout << "time recorded(" << std::fixed << time_recorded_val << "), " << std::endl;
   std::cout << "executing pid(" << executing_pid() << "), " << std::endl;
   std::cout << "errno(" << errno_number() << "), " << std::endl;
   std::cout << "return value(" << return_value() << "), " << std::endl;
