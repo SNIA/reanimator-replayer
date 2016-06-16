@@ -34,34 +34,30 @@ extern "C" {
 
 #include <sys/time.h>
 
+#define NUM_COMMON_FIELDS 5
+
 typedef struct DataSeriesOutputModule DataSeriesOutputModule;
 
 /*
  * Create DataSeries
  * return NULL if failed
  */
-DataSeriesOutputModule *create_ds_module(const char *output_file, const char *table_file_name,
+DataSeriesOutputModule *ds_create_module(const char *output_file, const char *table_file_name,
 					 const char *xml_dir_path);
 
 /*
  * Write a record into the DataSeries output file
  * return NULL if failed
  */
-void write_ds_record(DataSeriesOutputModule *ds_module,
+void ds_write_record(DataSeriesOutputModule *ds_module,
 		     const char *extent_name,
-		     long *args, struct timeval time_called_timeval,
-		     struct timeval time_returned_timeval,
-		     int return_value, int errno_number, int executing_pid);
+		     long *args, void *common_fields[NUM_COMMON_FIELDS], void **v_args); 
 
 /*
  * Free the module and flush all the records
  */
-void destroy_ds_module(DataSeriesOutputModule *ds_module);
+void ds_destroy_module(DataSeriesOutputModule *ds_module);
 
-/*
- * Save the value of path_name given as an argument to system call
- */
-void save_path_string(DataSeriesOutputModule *ds_module, const char *path);
 #ifdef __cplusplus
 }
 #endif

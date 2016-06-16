@@ -72,11 +72,21 @@ DataSeriesOutputModule::DataSeriesOutputModule(std::ifstream &table_stream,
   ds_sink_.writeExtentLibrary(extent_type_library);
 }
 
-// Register the record and field values in into DS fields 
+/* Register the record and field values in into DS fields
+ *
+ * @param extent_name: represents the name of system call being recorded.
+ *
+ * @param args: represent the array of const arguments passed to a system call.
+ *
+ * @param common_fields: represents the array of common fields values stored by
+ *                       strace
+ *
+ * @param v_args: represent the helper arguments obtained from strace which are
+ *                copied from address space of actual process being traced.
+ */ 
 bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
-					 struct timeval tv_time_called,
-					 struct timeval tv_time_returned,
-					 int return_value, int errno_number, int executing_pid) {
+					 void *common_fields[NUM_COMMON_FIELDS],
+					 void **v_args) {
   std::map<std::string, void *> sys_call_args_map;
   struct timeval tv_time_recorded;
 
@@ -89,26 +99,41 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
    */
 
   // Convert tv_time_called and tv_time_returned to Tfracs
-  uint64_t time_called_Tfrac = timeval_to_Tfrac(tv_time_called);
-  uint64_t time_returned_Tfrac = timeval_to_Tfrac(tv_time_returned);
-
+  uint64_t time_called_Tfrac = timeval_to_Tfrac(*(struct timeval *)
+						common_fields[0]);
+  uint64_t time_returned_Tfrac = timeval_to_Tfrac(*(struct timeval *)
+						  common_fields[1]);
   // Add the common field values to the map
   sys_call_args_map["time_called"] = &time_called_Tfrac;
   sys_call_args_map["time_returned"] = &time_returned_Tfrac;
+  sys_call_args_map["return_value"] = common_fields[2];
+  sys_call_args_map["errno_number"] = common_fields[3];
+  sys_call_args_map["executing_pid"] = common_fields[4];
+/*
   sys_call_args_map["return_value"] = &return_value;
   sys_call_args_map["errno_number"] = &errno_number;
   sys_call_args_map["executing_pid"] = &executing_pid;
+*/
 
   if (strcmp(extent_name, "close") == 0) {
     makeCloseArgsMap(sys_call_args_map, args);
+  } else if (strcmp(extent_name, "open") == 0) {
+    makeOpenArgsMap(sys_call_args_map, args, v_args);
+  } else if (strcmp(extent_name, "read") == 0) {
+    makeReadArgsMap(sys_call_args_map, args, v_args);
+  } else if (strcmp(extent_name, "write") == 0) {
+    makeWriteArgsMap(sys_call_args_map, args, v_args);
   }
 
   // Create a new record to write
   modules_[extent_name]->newRecord();
 
-  // Get the time the record was written as late as possible before we actually write the record
+  /* 
+   * Get the time the record was written as late as possible
+   * before we actually write the record
+   */
   gettimeofday(&tv_time_recorded, NULL);
-  // Convert time_recorded_timeval to a uint_64 in Tfracs  and add it to the map
+  // Convert time_recorded_timeval to Tfracs  and add it to the map
   uint64_t time_recorded_Tfrac = timeval_to_Tfrac(tv_time_recorded);
   sys_call_args_map["time_recorded"] = &time_recorded_Tfrac;
 
@@ -272,8 +297,8 @@ void DataSeriesOutputModule::setField(const std::string &extent_name,
     doSetField<DoubleField, double>(extent_name, field_name, field_value);
     break;
   case ExtentType::ft_variable32:
-    ((Variable32Field *)(extents_[extent_name][field_name].first))->set((*(std::string *)field_value).c_str(),
-									(*(std::string *)field_value).size()+1);
+    ((Variable32Field *)(extents_[extent_name][field_name].first))->set((*(char **)field_value),
+									strlen(*(char **)field_value) + 1);
     break;
   default:
     std::stringstream error_msg;
@@ -320,12 +345,218 @@ void DataSeriesOutputModule::doSetField(const std::string &extent_name,
   ((FieldType *)(extents_[extent_name][field_name].first))->set(*(ValueType *)field_value);
 }
 
+// Initialize all non-nullable fields of given extent_name.
+void DataSeriesOutputModule::initArgsMap(std::map<std::string, void *> &args_map,
+					 const char *extent_name) {
+  for (config_table_entry_type::iterator iter = config_table_[extent_name].begin();
+       iter != config_table_[extent_name].end();
+       iter++) {
+    std::string field_name = iter->first;
+    bool nullable = iter->second.first;
+    if (!nullable && strcmp(field_name.c_str(), "unique_id") != 0)
+      args_map[field_name] = 0;
+  }
+}
+
 void DataSeriesOutputModule::makeCloseArgsMap(std::map<std::string, void *> &args_map, long *args) {
   args_map["descriptor"] = &args[0];
 }
 
+void DataSeriesOutputModule::makeOpenArgsMap(std::map<std::string, void *> &args_map, long *args, void **v_args) {
+  int offset = 0;
+
+  // initialize all non-nullable fields.
+  initArgsMap(args_map, "open");
+
+  if (v_args[0] != NULL) {
+    args_map["given_pathname"] = &v_args[0];
+  } else {
+    std::cerr << "Open: Pathname is set as NULL!!" << std::endl;
+  }
+
+  /* Setting flag values */
+  args_map["open_value"] = &args[offset + 1];
+  u_int flag = processOpenFlags(args_map, args[offset + 1]);
+  if (flag != 0) {
+    std::cerr << "Open: These flag are not processed/unknown->0x";
+    std::cerr << std::hex << flag << std::dec << std::endl;
+  }
+
+  /*
+   * If only, open is called with 3 arguments, set the corresponding
+   * mode value and mode bits as True.
+   */
+  if (args[offset + 1] & O_CREAT) {
+    mode_t mode = processMode(args_map, args, offset + 2);
+    if (mode != 0) {
+      std::cerr << "Open:: These modes are not processed/unknown->0";
+      std::cerr << std::oct << mode << std::dec << std::endl;
+    }
+  }
+}
+
+/*
+ * This function process the flag and mode value passed as an argument
+ * to system calls. It checks each individual flag/mode bit and
+ * set corresponding bits as True in the argument map.
+ *
+ * @param args_map: stores mapping of field name for flag/mode bit.
+ *
+ * @param num: specifies either flag or mode argument.
+ *
+ * @param value: specifies flag or mode bit value. Ex: O_RDONLY or S_ISUID.
+ *
+ * @param filed_name: denotes the field name for individual flag/mode bit.
+ *                    Ex: "flag_read_only", "mode_R_user".
+ */
+void DataSeriesOutputModule::process_Flag_and_Mode_Args(std::map<std::string, void *> &args_map,
+							unsigned int &num,
+							int value,
+							std::string field_name) {
+  if (num & value) {
+    args_map[field_name] = (void *) 1;
+    num &= ~value;
+  }
+}
+
+/*
+ * This function unwraps the flag value passed as an argument to
+ * open system call and set the corresponding flag values as True.
+ *
+ * @param args_map: stores mapping of field name and value pair.
+ *
+ * @param open_flag: represents the flag value passed as an argument
+ *                   to open system call.
+ */
+u_int DataSeriesOutputModule::processOpenFlags(std::map<std::string, void *> &args_map, u_int open_flag) {
+
+  /*
+   * Process each individual flag bits that has been set
+   * in the argument open_flag.
+   */
+  // set read only flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_RDONLY, "flag_read_only");
+  // set write only flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_WRONLY, "flag_write_only");
+  // set both read and write flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_RDWR, "flag_read_and_write");
+  // set append flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_APPEND, "flag_append");
+  // set async flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_ASYNC, "flag_async");
+  // set close-on-exec flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_CLOEXEC, "flag_close_on_exec");
+  // set create flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_CREAT, "flag_create");
+  // set direct flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_DIRECT, "flag_direct");
+  // set directory flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_DIRECTORY, "flag_directory");
+  // set exclusive flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_EXCL, "flag_exclusive");
+  // set largefile flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_LARGEFILE, "flag_largefile");
+  // set last access time flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_NOATIME, "flag_no_access_time");
+  // set controlling terminal flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_NOCTTY, "flag_no_controlling_terminal");
+  // set no_follow flag (in case of symbolic link)
+  process_Flag_and_Mode_Args(args_map, open_flag, O_NOFOLLOW, "flag_no_follow");
+  // set non blocking mode flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_NONBLOCK, "flag_no_blocking_mode");
+  // set no delay flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_NDELAY, "flag_no_delay");
+  // set synchronized IO flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_SYNC, "flag_synchronous");
+  // set truncate mode flag
+  process_Flag_and_Mode_Args(args_map, open_flag, O_TRUNC, "flag_truncate");
+
+  /*
+   * Finally check if the value of flag is now zero or not.
+   * If the value of flag is not set as zero, unknown flag
+   * bit is set.
+   */
+  return open_flag;
+}
+
+/*
+ * This function unwraps the mode value passed as an argument to system
+ * call.
+ * @param args_map: stores mapping of field name and value pair.
+ *
+ * @param args: represents the complete arguments of actual system call.
+ *
+ * @param mode_offset: represents the index of mode value in actual
+ *        system call.
+ */
+mode_t DataSeriesOutputModule::processMode(std::map<std::string, void *> &args_map,
+					   long *args,
+					   u_int mode_offset) {
+  // Save the mode argument with mode_value file in map
+  args_map["mode_value"] = &args[mode_offset];
+  mode_t mode = args[mode_offset];
+
+  // set user-ID bit
+  process_Flag_and_Mode_Args(args_map, mode, S_ISUID, "mode_uid");
+  // set group-ID bit
+  process_Flag_and_Mode_Args(args_map, mode, S_ISGID, "mode_gid");
+  //set sticky bit
+  process_Flag_and_Mode_Args(args_map, mode, S_ISVTX, "mode_sticky_bit");
+  // set user read permission bit
+  process_Flag_and_Mode_Args(args_map, mode, S_IRUSR, "mode_R_user");
+  // set user write permission bit
+ process_Flag_and_Mode_Args(args_map, mode, S_IWUSR, "mode_W_user");
+  // set user execute permission bit
+  process_Flag_and_Mode_Args(args_map, mode, S_IXUSR, "mode_X_user");
+  // set group read permission bit
+  process_Flag_and_Mode_Args(args_map, mode, S_IRGRP, "mode_R_group");
+  // set group write permission bit
+  process_Flag_and_Mode_Args(args_map, mode, S_IWGRP, "mode_W_group");
+  // set group execute permission bit
+  process_Flag_and_Mode_Args(args_map, mode, S_IXGRP, "mode_X_group");
+  // set others read permission bit
+  process_Flag_and_Mode_Args(args_map, mode, S_IROTH, "mode_R_others");
+  // set others write permission bit
+  process_Flag_and_Mode_Args(args_map, mode, S_IWOTH, "mode_W_others");
+  // set others execute permission bit
+  process_Flag_and_Mode_Args(args_map, mode, S_IXOTH, "mode_X_others");
+
+  /*
+   * Finally check if the value of mode is now zero or not.
+   * If the value of mode is not set as zero, unknown mode
+   * bit is set.
+   */
+  return mode;
+}
+
+void DataSeriesOutputModule::makeReadArgsMap(std::map<std::string, void *> &args_map,
+					     long *args, void **v_args) {
+  args_map["descriptor"] = &args[0];
+
+  if (v_args[0] != NULL) {
+    args_map["data_read"] = &v_args[0];
+  } else {
+    std::cerr << "Read: Data to be read is set as NULL!!" << std::endl;
+  }
+
+  args_map["bytes_requested"] = &args[2];
+}
+
+void DataSeriesOutputModule::makeWriteArgsMap(std::map<std::string, void *> &args_map,
+					      long *args, void **v_args) {
+  args_map["descriptor"] = &args[0];
+
+  if (v_args[0] != NULL) {
+    args_map["data_written"] = &v_args[0];
+  } else {
+    std::cerr << "Write: Data to be written is set as NULL!!" << std::endl;
+  }
+
+  args_map["bytes_requested"] = &args[2];
+}
+
 uint64_t DataSeriesOutputModule::timeval_to_Tfrac(struct timeval tv) {
-  double time_seconds = (double) tv.tv_sec + pow(10.0, -6)*tv.tv_usec;
-  uint64_t time_Tfracs = (uint64_t)(time_seconds*(((uint64_t)1)<<32));
+  double time_seconds = (double) tv.tv_sec + pow(10.0, -6) * tv.tv_usec;
+  uint64_t time_Tfracs = (uint64_t)(time_seconds * (((uint64_t)1)<<32));
   return time_Tfracs;
 }

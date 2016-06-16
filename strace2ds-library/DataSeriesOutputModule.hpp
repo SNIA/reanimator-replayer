@@ -43,6 +43,8 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+#define NUM_COMMON_FIELDS 5
+
 /* map<fieldname, pair<nullable, ExtentType> */
 typedef std::map<std::string, std::pair<bool, ExtentType::fieldType> > config_table_entry_type;
 /* map<extentname, config_table_entry_type> */
@@ -66,15 +68,10 @@ public:
 
   // Register the record and field values in into DS fields
   bool writeRecord(const char *extent_name, long *args,
-		   struct timeval time_called_timeval,
-		   struct timeval time_returned_timeval,
-		   int return_value, int errno_number, int executing_pid);
+		   void *common_fields[NUM_COMMON_FIELDS], void **v_args);
 
   // Destructor to delete the module
   ~DataSeriesOutputModule();
-
-  // Fetch the char* path string from tcp structure
-  void fetch_path_string(const char *path);
 
 private:
   OutputModuleMap modules_;
@@ -119,6 +116,31 @@ private:
 
   // Maps Close System Call field value pair
   void makeCloseArgsMap(std::map<std::string, void *> &args_map, long *args);
+
+  // Maps Open System Call field value pair
+  void makeOpenArgsMap(std::map<std::string, void *> &args_map, long *args,
+		       void **v_args);
+
+  // Process individual flag and mode bits
+  void process_Flag_and_Mode_Args(std::map<std::string, void *> &args_map,
+				  unsigned int &num,
+				  int value,
+				  std::string field_name);
+
+  // Maps individual flag value for Open system call to its corresponding field name
+  u_int processOpenFlags(std::map<std::string, void *> &args_map, u_int flag);
+
+  // Maps individual mode bits of mode argument to its corresponding field name
+  mode_t processMode(std::map<std::string, void *> &args_map,
+		     long *args, u_int offset);
+
+  // Maps Read System Call field value pair
+  void makeReadArgsMap(std::map<std::string, void *> &args_map, long *args,
+		       void **v_args);
+
+  // Maps Write System Call field value pair
+  void makeWriteArgsMap(std::map<std::string, void *> &args_map, long *args,
+			void **v_args);
 
   // Convert time from a timeval to a uint64_t in Tfracs
   uint64_t timeval_to_Tfrac(struct timeval tv);
