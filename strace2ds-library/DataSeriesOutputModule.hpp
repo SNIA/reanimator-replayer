@@ -114,7 +114,8 @@ private:
   void makeCloseArgsMap(std::map<std::string, void *> &args_map, long *args);
 
   // Maps Open System Call field value pair
-  void makeOpenArgsMap(std::map<std::string, void *> &args_map, long *args,
+  void makeOpenArgsMap(std::map<std::string, void *> &args_map,
+		       long *args,
 		       void **v_args);
 
   // Process individual flag and mode bits
@@ -128,14 +129,17 @@ private:
 
   // Maps individual mode bits of mode argument to its corresponding field name
   mode_t processMode(std::map<std::string, void *> &args_map,
-		    long *args, u_int offset);
+		     long *args,
+		     u_int offset);
 
   // Maps Read System Call field value pair
-  void makeReadArgsMap(std::map<std::string, void *> &args_map, long *args,
+  void makeReadArgsMap(std::map<std::string, void *> &args_map,
+		       long *args,
 		       void **v_args);
 
   // Maps Write System Call field value pair
-  void makeWriteArgsMap(std::map<std::string, void *> &args_map, long *args,
+  void makeWriteArgsMap(std::map<std::string, void *> &args_map,
+			long *args,
 			void **v_args);
 };
 

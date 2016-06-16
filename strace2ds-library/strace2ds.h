@@ -38,15 +38,18 @@ typedef struct DataSeriesOutputModule DataSeriesOutputModule;
  * Create DataSeries
  * return NULL if failed
  */
-DataSeriesOutputModule *ds_create_module(const char *output_file, const char *table_file_name,
+DataSeriesOutputModule *ds_create_module(const char *output_file,
+					 const char *table_file_name,
 					 const char *xml_dir_path);
 
 /*
  * Write a record into the DataSeries output file
  * return NULL if failed
  */
-void ds_write_record(DataSeriesOutputModule *ds_module, const char *extent_name,
-		     long *args, void **v_args);
+void ds_write_record(DataSeriesOutputModule *ds_module,
+		     const char *extent_name,
+		     long *args,
+		     void **v_args);
 
 /*
  * Free the module and flush all the records
