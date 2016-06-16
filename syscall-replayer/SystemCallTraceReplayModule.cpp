@@ -172,6 +172,6 @@ void SystemCallTraceReplayModule::compare_retval_and_errno() {
 }
 
 double SystemCallTraceReplayModule::Tfrac_to_sec(uint64_t time) {
-  double time_in_secs = (double)(time*pow(2.0, -32));
+  double time_in_secs = (double)(time * pow(2.0, -32));
   return time_in_secs;
 }
