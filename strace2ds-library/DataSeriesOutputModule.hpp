@@ -63,7 +63,7 @@ public:
 			 const std::string xml_dir,
 			 const char *output_file);
 
-  // Register the record and field values in into DS fields
+  // Register the record and field values into DS fields
   bool writeRecord(const char *extent_name, long *args, void **v_args);
 
   // Destructor to delete the module
@@ -110,15 +110,15 @@ private:
   void initArgsMap(std::map<std::string, void *> &args_map,
 		   const char *extent_name);
 
-  // Maps Close Sytem Call field value pair
+  // Maps Close Sytem Call <field, value> pairs
   void makeCloseArgsMap(std::map<std::string, void *> &args_map, long *args);
 
-  // Maps Open System Call field value pair
+  // Maps Open System Call <field, value> pairs
   void makeOpenArgsMap(std::map<std::string, void *> &args_map,
 		       long *args,
 		       void **v_args);
 
-  // Process individual flag and mode bits
+  // Processes individual flag and mode bits
   void process_Flag_and_Mode_Args(std::map<std::string, void *> &args_map,
 				  unsigned int &num,
 				  int value,
@@ -132,12 +132,12 @@ private:
 		     long *args,
 		     u_int offset);
 
-  // Maps Read System Call field value pair
+  // Maps Read System Call <field, value> pairs
   void makeReadArgsMap(std::map<std::string, void *> &args_map,
 		       long *args,
 		       void **v_args);
 
-  // Maps Write System Call field value pair
+  // Maps Write System Call <field, value> pairs
   void makeWriteArgsMap(std::map<std::string, void *> &args_map,
 			long *args,
 			void **v_args);

@@ -72,14 +72,14 @@ DataSeriesOutputModule::DataSeriesOutputModule(std::ifstream &table_stream,
   ds_sink_.writeExtentLibrary(extent_type_library);
 }
 
-/* Register the record and field values in into DS fields
+/* Register the record and field values into DS fields.
  *
- * @param extent_name: represents the name of system call being recorded.
+ * @param extent_name: represents the name of a system call being recorded.
  *
  * @param args: represent the array of const arguments passed to a system call.
  *
  * @param v_args: represent the helper arguments obtained from strace which are
- *                copied from address space of actual process being traced.
+ *                copied from the address space of actual process being traced.
  */
 bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
 					 void **v_args) {
@@ -173,7 +173,7 @@ void DataSeriesOutputModule::initConfigTable(std::ifstream &table_stream) {
       ftype = ExtentType::ft_byte;
     else if (field_type == "int32")
       ftype = ExtentType::ft_int32;
-    else if (field_type == "int64" or field_type=="time")
+    else if (field_type == "int64" or field_type == "time")
       ftype = ExtentType::ft_int64;
     else if (field_type == "double")
       ftype = ExtentType::ft_double;
@@ -366,24 +366,24 @@ void DataSeriesOutputModule::makeOpenArgsMap(std::map<std::string,
   if (args[offset + 1] & O_CREAT) {
     mode_t mode = processMode(args_map, args, offset + 2);
     if (mode != 0) {
-      std::cerr << "Open:: These modes are not processed/unknown->0";
+      std::cerr << "Open: These modes are not processed/unknown->0";
       std::cerr << std::oct << mode << std::dec << std::endl;
     }
   }
 }
 
 /*
- * This function process the flag and mode value passed as an argument
- * to system calls. It checks each individual flag/mode bit and
- * set corresponding bits as True in the argument map.
+ * This function processes the flag and mode values passed as an arguments
+ * to system calls. It checks each individual flag/mode bits and sets the
+ * corresponding bits as True in the argument map.
  *
- * @param args_map: stores mapping of field name for flag/mode bit.
+ * @param args_map: stores mapping of <field, value> pairs.
  *
- * @param num: specifies either flag or mode argument.
+ * @param num: the actual flag or mode value.
  *
  * @param value: specifies flag or mode bit value. Ex: O_RDONLY or S_ISUID.
  *
- * @param filed_name: denotes the field name for individual flag/mode bit.
+ * @param field_name: denotes the field name for individual flag/mode bits.
  *                    Ex: "flag_read_only", "mode_R_user".
  */
 void DataSeriesOutputModule::process_Flag_and_Mode_Args(std::map<std::string,
@@ -398,13 +398,13 @@ void DataSeriesOutputModule::process_Flag_and_Mode_Args(std::map<std::string,
 }
 
 /*
- * This function unwraps the flag value passed as an argument to
- * open system call and set the corresponding flag values as True.
+ * This function unwraps the flag value passed as an argument to the
+ * open system call and sets the corresponding flag values as True.
  *
- * @param args_map: stores mapping of field name and value pair.
+ * @param args_map: stores mapping of <field, value> pairs.
  *
  * @param open_flag: represents the flag value passed as an argument
- *                   to open system call.
+ *                   to the open system call.
  */
 u_int DataSeriesOutputModule::processOpenFlags(std::map<std::string,
 					       void *> &args_map,
@@ -470,21 +470,22 @@ u_int DataSeriesOutputModule::processOpenFlags(std::map<std::string,
 			     "flag_truncate");
 
   /*
-   * Finally check if the value of flag is now zero or not.
-   * If the value of flag is not set as zero, unknown flag
-   * bit is set.
+   * Return remaining unprocessed flags so that caller can
+   * warn of unknown flags if the open_flag value is not set
+   * as zero.
    */
   return open_flag;
 }
 
 /*
- * This function unwraps the mode value passed as an argument to system
- * call.
- * @param args_map: stores mapping of field name and value pair.
+ * This function unwraps the mode value passed as an argument to the
+ * system call.
  *
- * @param args: represents the complete arguments of actual system call.
+ * @param args_map: stores mapping of <field, value> pairs.
  *
- * @param mode_offset: represents the index of mode value in actual
+ * @param args: represents complete arguments of the actual system call.
+ *
+ * @param mode_offset: represents index of mode value in the actual
  * 		       system call.
  */
 mode_t DataSeriesOutputModule::processMode(std::map<std::string,
@@ -521,9 +522,8 @@ mode_t DataSeriesOutputModule::processMode(std::map<std::string,
   process_Flag_and_Mode_Args(args_map, mode, S_IXOTH, "mode_X_others");
 
   /*
-   * Finally check if the value of mode is now zero or not.
-   * If the value of mode is not set as zero, unknown mode
-   * bit is set.
+   * Return remaining unprocessed modes so that caller can warn
+   * of unknown modes if the mode value is not set as zero.
    */
   return mode;
 }
