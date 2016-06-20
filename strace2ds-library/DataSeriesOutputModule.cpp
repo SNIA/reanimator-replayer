@@ -107,7 +107,8 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
   modules_[extent_name]->newRecord();
 
   // Write values to the new record
-  for (config_table_entry_type::iterator iter = config_table_[extent_name].begin();
+  for (config_table_entry_type::iterator iter =
+       config_table_[extent_name].begin();
        iter != config_table_[extent_name].end();
        iter++) {
     std::string field_name = iter->first;
@@ -203,27 +204,39 @@ void DataSeriesOutputModule::addExtent(const std::string &extent_name,
 
     switch ((ExtentType::fieldType) extent_type->getFieldType(field_name)) {
     case ExtentType::ft_bool:
-      addField(extent_name, field_name, new BoolField(series, field_name, nullable),
+      addField(extent_name,
+	       field_name,
+	       new BoolField(series, field_name, nullable),
 	       ExtentType::ft_bool);
       break;
     case ExtentType::ft_byte:
-      addField(extent_name, field_name, new ByteField(series, field_name, nullable),
+      addField(extent_name,
+	       field_name,
+	       new ByteField(series, field_name, nullable),
 	       ExtentType::ft_byte);
       break;
     case ExtentType::ft_int32:
-      addField(extent_name, field_name, new Int32Field(series, field_name, nullable),
+      addField(extent_name,
+	       field_name,
+	       new Int32Field(series, field_name, nullable),
 	       ExtentType::ft_int32);
       break;
     case ExtentType::ft_int64:
-      addField(extent_name, field_name, new Int64Field(series, field_name, nullable),
+      addField(extent_name,
+	       field_name,
+	       new Int64Field(series, field_name, nullable),
 	       ExtentType::ft_int64);
       break;
     case ExtentType::ft_double:
-      addField(extent_name, field_name, new DoubleField(series, field_name, nullable),
+      addField(extent_name,
+	       field_name,
+	       new DoubleField(series, field_name, nullable),
 	       ExtentType::ft_double);
       break;
     case ExtentType::ft_variable32:
-      addField(extent_name, field_name, new Variable32Field(series, field_name, nullable),
+      addField(extent_name,
+	       field_name,
+	       new Variable32Field(series, field_name, nullable),
 	       ExtentType::ft_variable32);
       break;
     default:
@@ -256,16 +269,24 @@ void DataSeriesOutputModule::setField(const std::string &extent_name,
     doSetField<BoolField, bool>(extent_name, field_name, &buffer);
     break;
   case ExtentType::ft_byte:
-    doSetField<ByteField, ExtentType::byte>(extent_name, field_name, field_value);
+    doSetField<ByteField, ExtentType::byte>(extent_name,
+					    field_name,
+					    field_value);
     break;
   case ExtentType::ft_int32:
-    doSetField<Int32Field, ExtentType::int32>(extent_name, field_name, field_value);
+    doSetField<Int32Field, ExtentType::int32>(extent_name,
+					      field_name,
+					      field_value);
     break;
   case ExtentType::ft_int64:
-    doSetField<Int64Field, ExtentType::int64>(extent_name, field_name, field_value);
+    doSetField<Int64Field, ExtentType::int64>(extent_name,
+					      field_name,
+					      field_value);
     break;
   case ExtentType::ft_double:
-    doSetField<DoubleField, double>(extent_name, field_name, field_value);
+    doSetField<DoubleField, double>(extent_name,
+				    field_name,
+				    field_value);
     break;
   case ExtentType::ft_variable32:
     ((Variable32Field *)(extents_[extent_name][field_name].first))
@@ -320,9 +341,11 @@ void DataSeriesOutputModule::doSetField(const std::string &extent_name,
 }
 
 // Initialize all non-nullable fields of given extent_name.
-void DataSeriesOutputModule::initArgsMap(std::map<std::string, void *> &args_map,
+void DataSeriesOutputModule::initArgsMap(std::map<std::string,
+					 void *> &args_map,
 					 const char *extent_name) {
-  for (config_table_entry_type::iterator iter = config_table_[extent_name].begin();
+  for (config_table_entry_type::iterator iter =
+	config_table_[extent_name].begin();
 	iter != config_table_[extent_name].end();
 	iter++) {
     std::string field_name = iter->first;
