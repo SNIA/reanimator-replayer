@@ -72,7 +72,8 @@ DataSeriesOutputModule::DataSeriesOutputModule(std::ifstream &table_stream,
   ds_sink_.writeExtentLibrary(extent_type_library);
 }
 
-/* Register the record and field values in into DS fields
+/*
+ * Register the record and field values in into DS fields
  *
  * @param extent_name: represents the name of system call being recorded.
  *
