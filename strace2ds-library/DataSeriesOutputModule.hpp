@@ -40,14 +40,9 @@
 #include <DataSeries/DataSeriesFile.hpp>
 #include <DataSeries/DataSeriesModule.hpp>
 
-#include <fcntl.h>
+#include <strace2ds.h>
 
-#define DS_NUM_COMMON_FIELDS 5
-#define DS_COMMON_FIELD_TIME_CALLED 0
-#define DS_COMMON_FIELD_TIME_RETURNED 1
-#define DS_COMMON_FIELD_RETURN_VALUE 2
-#define DS_COMMON_FIELD_ERRNO_NUMBER 3
-#define DS_COMMON_FIELD_EXECUTING_PID 4
+#include <fcntl.h>
 
 /* map<fieldname, pair<nullable, ExtentType> */
 typedef std::map<std::string, std::pair<bool, ExtentType::fieldType> > config_table_entry_type;

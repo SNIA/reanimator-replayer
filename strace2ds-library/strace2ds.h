@@ -28,12 +28,6 @@
 #ifndef STRACE2DS_H
 #define STRACE2DS_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include <sys/time.h>
-
 #define DS_NUM_COMMON_FIELDS 5
 #define DS_COMMON_FIELD_TIME_CALLED 0
 #define DS_COMMON_FIELD_TIME_RETURNED 1
@@ -41,6 +35,11 @@ extern "C" {
 #define DS_COMMON_FIELD_ERRNO_NUMBER 3
 #define DS_COMMON_FIELD_EXECUTING_PID 4
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include <sys/time.h>
 
 typedef struct DataSeriesOutputModule DataSeriesOutputModule;
 

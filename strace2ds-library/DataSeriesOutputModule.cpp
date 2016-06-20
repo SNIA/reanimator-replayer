@@ -83,7 +83,7 @@ DataSeriesOutputModule::DataSeriesOutputModule(std::ifstream &table_stream,
  *
  * @param v_args: represent the helper arguments obtained from strace which are
  *                copied from address space of actual process being traced.
- */ 
+ */
 bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
 					 void
 					 *common_fields[DS_NUM_COMMON_FIELDS],
