@@ -72,7 +72,8 @@ DataSeriesOutputModule::DataSeriesOutputModule(std::ifstream &table_stream,
   ds_sink_.writeExtentLibrary(extent_type_library);
 }
 
-/* Register the record and field values into DS fields.
+/*
+ * Register the record and field values into DS fields.
  *
  * @param extent_name: represents the name of a system call being recorded.
  *
@@ -122,7 +123,8 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
       } else {
 	std::cerr << extent_name << ":" << field_name << " ";
 	std::cerr << "WARNING: Attempting to setNull to a non-nullable field. ";
-	std::cerr << "This field will take on default value instead." << std::endl;
+	std::cerr << "This field will take on default value instead."
+		  << std::endl;
       }
     }
   }
@@ -374,7 +376,7 @@ void DataSeriesOutputModule::makeOpenArgsMap(std::map<std::string,
 
 /*
  * This function processes the flag and mode values passed as an arguments
- * to system calls. It checks each individual flag/mode bits and sets the
+ * to system calls.  It checks each individual flag/mode bits and sets the
  * corresponding bits as True in the argument map.
  *
  * @param args_map: stores mapping of <field, value> pairs.
