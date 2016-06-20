@@ -69,7 +69,7 @@ public:
 			 const std::string xml_dir,
 			 const char *output_file);
 
-  // Register the record and field values in into DS fields
+  // Register the record and field values into DS fields
   bool writeRecord(const char *extent_name, long *args,
 		   void *common_fields[DS_NUM_COMMON_FIELDS], void **v_args);
 

@@ -73,9 +73,9 @@ DataSeriesOutputModule::DataSeriesOutputModule(std::ifstream &table_stream,
 }
 
 /*
- * Register the record and field values in into DS fields
+ * Register the record and field values into DS fields
  *
- * @param extent_name: represents the name of system call being recorded.
+ * @param extent_name: represents the name of a system call being recorded.
  *
  * @param args: represent the array of const arguments passed to a system call.
  *
@@ -83,7 +83,7 @@ DataSeriesOutputModule::DataSeriesOutputModule(std::ifstream &table_stream,
  *                       strace
  *
  * @param v_args: represent the helper arguments obtained from strace which are
- *                copied from address space of actual process being traced.
+ *                copied from the address space of actual process being traced.
  */
 bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
 					 void
@@ -156,8 +156,7 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
 	setFieldNull(extent_name, field_name);
       } else {
 	std::cerr << extent_name << ":" << field_name << " ";
-	std::cerr <<
-	  "WARNING: Attempting to setNull to a non-nullable field. ";
+	std::cerr <<"WARNING: Attempting to setNull to a non-nullable field. ";
 	std::cerr << "This field will take on default value instead."
 		  << std::endl;
       }
