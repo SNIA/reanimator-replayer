@@ -85,8 +85,10 @@ DataSeriesOutputModule::DataSeriesOutputModule(std::ifstream &table_stream,
  *                copied from address space of actual process being traced.
  */ 
 bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
-					 void *common_fields[NUM_COMMON_FIELDS],
+					 void
+					 *common_fields[DS_NUM_COMMON_FIELDS],
 					 void **v_args) {
+					 
   std::map<std::string, void *> sys_call_args_map;
   struct timeval tv_time_recorded;
 
@@ -100,29 +102,28 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
 
   // Convert tv_time_called and tv_time_returned to Tfracs
   uint64_t time_called_Tfrac = timeval_to_Tfrac(*(struct timeval *)
-						common_fields[0]);
+						common_fields[DS_COMMON_FIELD_TIME_CALLED]);
   uint64_t time_returned_Tfrac = timeval_to_Tfrac(*(struct timeval *)
-						  common_fields[1]);
+						  common_fields[DS_COMMON_FIELD_TIME_RETURNED]);
+/*
+  uint64_t time_called_Tfrac = timeval_to_Tfrac(tv_time_called);
+  uint64_t time_returned_Tfrac = timeval_to_Tfrac(tv_time_returned);
+*/
+
   // Add the common field values to the map
   sys_call_args_map["time_called"] = &time_called_Tfrac;
   sys_call_args_map["time_returned"] = &time_returned_Tfrac;
-  sys_call_args_map["return_value"] = common_fields[2];
-  sys_call_args_map["errno_number"] = common_fields[3];
-  sys_call_args_map["executing_pid"] = common_fields[4];
-/*
-  sys_call_args_map["return_value"] = &return_value;
-  sys_call_args_map["errno_number"] = &errno_number;
-  sys_call_args_map["executing_pid"] = &executing_pid;
-*/
+  sys_call_args_map["return_value"] =
+    common_fields[DS_COMMON_FIELD_RETURN_VALUE];
+  sys_call_args_map["errno_number"] =
+    common_fields[DS_COMMON_FIELD_ERRNO_NUMBER];
+  sys_call_args_map["executing_pid"] =
+    common_fields[DS_COMMON_FIELD_EXECUTING_PID];
 
   if (strcmp(extent_name, "close") == 0) {
     makeCloseArgsMap(sys_call_args_map, args);
   } else if (strcmp(extent_name, "open") == 0) {
     makeOpenArgsMap(sys_call_args_map, args, v_args);
-  } else if (strcmp(extent_name, "read") == 0) {
-    makeReadArgsMap(sys_call_args_map, args, v_args);
-  } else if (strcmp(extent_name, "write") == 0) {
-    makeWriteArgsMap(sys_call_args_map, args, v_args);
   }
 
   // Create a new record to write
@@ -527,32 +528,6 @@ mode_t DataSeriesOutputModule::processMode(std::map<std::string, void *> &args_m
    * bit is set.
    */
   return mode;
-}
-
-void DataSeriesOutputModule::makeReadArgsMap(std::map<std::string, void *> &args_map,
-					     long *args, void **v_args) {
-  args_map["descriptor"] = &args[0];
-
-  if (v_args[0] != NULL) {
-    args_map["data_read"] = &v_args[0];
-  } else {
-    std::cerr << "Read: Data to be read is set as NULL!!" << std::endl;
-  }
-
-  args_map["bytes_requested"] = &args[2];
-}
-
-void DataSeriesOutputModule::makeWriteArgsMap(std::map<std::string, void *> &args_map,
-					      long *args, void **v_args) {
-  args_map["descriptor"] = &args[0];
-
-  if (v_args[0] != NULL) {
-    args_map["data_written"] = &v_args[0];
-  } else {
-    std::cerr << "Write: Data to be written is set as NULL!!" << std::endl;
-  }
-
-  args_map["bytes_requested"] = &args[2];
 }
 
 uint64_t DataSeriesOutputModule::timeval_to_Tfrac(struct timeval tv) {

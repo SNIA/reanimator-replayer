@@ -36,7 +36,8 @@ extern "C" {
  * Create DataSeries
  * return NULL if failed
  */
-DataSeriesOutputModule *ds_create_module(const char *output_file, const char *table_file_name,
+DataSeriesOutputModule *ds_create_module(const char *output_file,
+					 const char *table_file_name,
 					 const char *xml_dir_path) {
   std::ifstream table_stream(table_file_name);
   std::string xml_dir(xml_dir_path);
@@ -46,7 +47,9 @@ DataSeriesOutputModule *ds_create_module(const char *output_file, const char *ta
     return NULL;
   }
   /* Create Tables and Fields */
-  DataSeriesOutputModule *ds_module = new DataSeriesOutputModule(table_stream, xml_dir, output_file);
+  DataSeriesOutputModule *ds_module = new DataSeriesOutputModule(table_stream,
+								 xml_dir,
+								 output_file);
   return ds_module;
 }
 
@@ -56,7 +59,8 @@ DataSeriesOutputModule *ds_create_module(const char *output_file, const char *ta
  */
 void ds_write_record(DataSeriesOutputModule *ds_module, 
 		     const char *extent_name,
-		     long *args, void *common_fields[NUM_COMMON_FIELDS], void **v_args) {
+		     long *args, void *common_fields[DS_NUM_COMMON_FIELDS],
+		     void **v_args) {
 		     
   ((DataSeriesOutputModule *)ds_module)->writeRecord(extent_name, args,
 						     common_fields, v_args);

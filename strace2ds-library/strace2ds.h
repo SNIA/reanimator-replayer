@@ -34,7 +34,13 @@ extern "C" {
 
 #include <sys/time.h>
 
-#define NUM_COMMON_FIELDS 5
+#define DS_NUM_COMMON_FIELDS 5
+#define DS_COMMON_FIELD_TIME_CALLED 0
+#define DS_COMMON_FIELD_TIME_RETURNED 1
+#define DS_COMMON_FIELD_RETURN_VALUE 2
+#define DS_COMMON_FIELD_ERRNO_NUMBER 3
+#define DS_COMMON_FIELD_EXECUTING_PID 4
+
 
 typedef struct DataSeriesOutputModule DataSeriesOutputModule;
 
@@ -42,7 +48,8 @@ typedef struct DataSeriesOutputModule DataSeriesOutputModule;
  * Create DataSeries
  * return NULL if failed
  */
-DataSeriesOutputModule *ds_create_module(const char *output_file, const char *table_file_name,
+DataSeriesOutputModule *ds_create_module(const char *output_file,
+					 const char *table_file_name,
 					 const char *xml_dir_path);
 
 /*
@@ -51,7 +58,8 @@ DataSeriesOutputModule *ds_create_module(const char *output_file, const char *ta
  */
 void ds_write_record(DataSeriesOutputModule *ds_module,
 		     const char *extent_name,
-		     long *args, void *common_fields[NUM_COMMON_FIELDS], void **v_args); 
+		     long *args, void *common_fields[DS_NUM_COMMON_FIELDS],
+		     void **v_args); 
 
 /*
  * Free the module and flush all the records

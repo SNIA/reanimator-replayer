@@ -41,9 +41,13 @@
 #include <DataSeries/DataSeriesModule.hpp>
 
 #include <fcntl.h>
-#include <unistd.h>
 
-#define NUM_COMMON_FIELDS 5
+#define DS_NUM_COMMON_FIELDS 5
+#define DS_COMMON_FIELD_TIME_CALLED 0
+#define DS_COMMON_FIELD_TIME_RETURNED 1
+#define DS_COMMON_FIELD_RETURN_VALUE 2
+#define DS_COMMON_FIELD_ERRNO_NUMBER 3
+#define DS_COMMON_FIELD_EXECUTING_PID 4
 
 /* map<fieldname, pair<nullable, ExtentType> */
 typedef std::map<std::string, std::pair<bool, ExtentType::fieldType> > config_table_entry_type;
@@ -68,8 +72,8 @@ public:
 
   // Register the record and field values in into DS fields
   bool writeRecord(const char *extent_name, long *args,
-		   void *common_fields[NUM_COMMON_FIELDS], void **v_args);
-
+		   void *common_fields[DS_NUM_COMMON_FIELDS], void **v_args);
+		   
   // Destructor to delete the module
   ~DataSeriesOutputModule();
 
@@ -133,14 +137,6 @@ private:
   // Maps individual mode bits of mode argument to its corresponding field name
   mode_t processMode(std::map<std::string, void *> &args_map,
 		     long *args, u_int offset);
-
-  // Maps Read System Call field value pair
-  void makeReadArgsMap(std::map<std::string, void *> &args_map, long *args,
-		       void **v_args);
-
-  // Maps Write System Call field value pair
-  void makeWriteArgsMap(std::map<std::string, void *> &args_map, long *args,
-			void **v_args);
 
   // Convert time from a timeval to a uint64_t in Tfracs
   uint64_t timeval_to_Tfrac(struct timeval tv);
