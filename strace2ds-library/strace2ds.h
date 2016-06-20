@@ -56,9 +56,8 @@ DataSeriesOutputModule *ds_create_module(const char *output_file,
  * return NULL if failed
  */
 void ds_write_record(DataSeriesOutputModule *ds_module,
-		     const char *extent_name,
-		     long *args, void *common_fields[DS_NUM_COMMON_FIELDS],
-		     void **v_args);
+		     const char *extent_name, long *args,
+		     void *common_fields[DS_NUM_COMMON_FIELDS], void **v_args);
 
 /*
  * Free the module and flush all the records
