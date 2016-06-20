@@ -9,15 +9,16 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
- * This file implements all the functions in the SystemCallTraceReplayModule header
- * file
+ * This file implements all the functions in the SystemCallTraceReplayModule
+ * header file
  *
  * Read SystemCallTraceReplayModule.hpp for more information about this class.
  */
 
 #include "SystemCallTraceReplayModule.hpp"
 
-SystemCallTraceReplayModule::SystemCallTraceReplayModule(DataSeriesModule &source,
+SystemCallTraceReplayModule::SystemCallTraceReplayModule(DataSeriesModule
+							 &source,
 							 bool verbose_flag, 
 							 int warn_level_flag):
   RowAnalysisModule(source),
@@ -119,7 +120,8 @@ void SystemCallTraceReplayModule::execute() {
 void SystemCallTraceReplayModule::after_sys_call() {
   compare_retval_and_errno();
   if (verbose_mode()) {
-    std::cout << "System call '" << sys_call_name_ << "' was executed with following arguments:" << std::endl;
+    std::cout << "System call '" << sys_call_name_ <<
+      "' was executed with following arguments:" << std::endl;
     print_sys_call_fields();
   }
 }
@@ -139,13 +141,17 @@ void SystemCallTraceReplayModule::print_common_fields() {
   // Print the common fields and their values
   std::cout << sys_call_name_ << ": " << std::endl;
   std::cout.precision(25);
-  std::cout << "time called(" << std::fixed << time_called_val << "), " << std::endl;
-  std::cout << "time returned(" << std::fixed << time_returned_val << "), " << std::endl;
-  std::cout << "time recorded(" << std::fixed << time_recorded_val << "), " << std::endl;
+  std::cout << "time called(" << std::fixed << time_called_val << "), " <<
+    std::endl;
+  std::cout << "time returned(" << std::fixed << time_returned_val << "), " <<
+    std::endl;
+  std::cout << "time recorded(" << std::fixed << time_recorded_val << "), " <<
+    std::endl;
   std::cout << "executing pid(" << executing_pid() << "), " << std::endl;
   std::cout << "errno(" << errno_number() << "), " << std::endl;
   std::cout << "return value(" << return_value() << "), " << std::endl;
-  std::cout << "replayed return value(" << replayed_ret_val_ << "), " << std::endl;
+  std::cout << "replayed return value(" << replayed_ret_val_ << "), " <<
+    std::endl;
   std::cout << "unique id(" << unique_id_.val() << ")";
 }
 

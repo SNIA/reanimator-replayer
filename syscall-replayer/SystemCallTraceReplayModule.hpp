@@ -12,15 +12,15 @@
  * This header file provides basic members and functions used internally
  * for implementing a specific system call.
  *
- * SystemCallTraceReplayerModule is an/a abstract class/basic module that
- * has basic members and functions of a system call. It can be extended
- * to implement any specific system call. For example, open, read, write, etc.
+ * SystemCallTraceReplayerModule is an abstract class that has basic members
+ * and functions of a system call.  It can be extended to implement any
+ * specific system call.  For example, open, read, write, etc.
  *
  * INITIALIZATION AND USAGE
  * As part of the abstraction design, implementing a module that replays
  * a system call requires a class to extend this abstract class and implement
- * abstract functions - prepareForProcessing(), processRow(), and completeProcessing().
- *
+ * abstract functions - prepareForProcessing(), processRow(), and
+ * completeProcessing().
  */
 #ifndef SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
@@ -124,7 +124,8 @@ public:
    * @param warn_level_flag: a flag to indicate replaying mode
    *
    */
-  SystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag, int warn_level_flag);
+  SystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+			      int warn_level_flag);
 
   /*
    * Determine whether or not to replay in verbose mode
@@ -195,7 +196,8 @@ public:
   int errno_number() const;
 
   /*
-   * Get the return value of current system call record (not replayed ret value)
+   * Get the return value of current system call record
+   * (not replayed ret value)
    *
    * @return: corresponding return value field of a record that
    *          extent series is pointing to.
@@ -213,8 +215,8 @@ public:
   /*
    * This function overwrite getSharedExtent() in RowAnalysisModule.
    * It will find a extent test to see if current extent
-   * has more records in it. If there are, that means not all
-   * operations are replayed. Replayer still need to call execute()
+   * has more records in it.  If there are, that means not all
+   * operations are replayed.  Replayer still need to call execute()
    * to continue replaying.
    *
    * @return: a pointer to an extent
@@ -223,8 +225,8 @@ public:
 
   /*
    * This function will test to see if current extent
-   * has more records in it. If there are, that means not all
-   * operations are replayed. Replayer still need to call execute()
+   * has more records in it.  If there are, that means not all
+   * operations are replayed.  Replayer still need to call execute()
    * to continue replaying.
    *
    * @return: true indicates there are more records in the extent and
@@ -242,7 +244,7 @@ public:
 
   /*
    * Convert a time value stored in Tfrac units (2^32 Tfracs = 1 sec)
-   * as a uint64_t to seconds (as a double)
+   * (as a uint64_t) to seconds (as a double)
    *
    * @return: the corresponding time value in seconds
    */
