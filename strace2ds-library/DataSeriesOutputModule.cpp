@@ -88,7 +88,7 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
 					 void
 					 *common_fields[DS_NUM_COMMON_FIELDS],
 					 void **v_args) {
-					 
+
   std::map<std::string, void *> sys_call_args_map;
   struct timeval tv_time_recorded;
 
@@ -105,10 +105,6 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
 						common_fields[DS_COMMON_FIELD_TIME_CALLED]);
   uint64_t time_returned_Tfrac = timeval_to_Tfrac(*(struct timeval *)
 						  common_fields[DS_COMMON_FIELD_TIME_RETURNED]);
-/*
-  uint64_t time_called_Tfrac = timeval_to_Tfrac(tv_time_called);
-  uint64_t time_returned_Tfrac = timeval_to_Tfrac(tv_time_returned);
-*/
 
   // Add the common field values to the map
   sys_call_args_map["time_called"] = &time_called_Tfrac;
@@ -129,7 +125,7 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
   // Create a new record to write
   modules_[extent_name]->newRecord();
 
-  /* 
+  /*
    * Get the time the record was written as late as possible
    * before we actually write the record
    */

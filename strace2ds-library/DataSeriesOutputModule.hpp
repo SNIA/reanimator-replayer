@@ -73,7 +73,7 @@ public:
   // Register the record and field values in into DS fields
   bool writeRecord(const char *extent_name, long *args,
 		   void *common_fields[DS_NUM_COMMON_FIELDS], void **v_args);
-		   
+
   // Destructor to delete the module
   ~DataSeriesOutputModule();
 
