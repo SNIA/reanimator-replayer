@@ -10,17 +10,17 @@
  * FIX ME: fix following comments
  * 2ds.
  * This program is similar to DataSeries's csv2ds utility, but handles
- * extents with different types and nullable fields and is primarily used 
+ * extents with different types and nullable fields and is primarily used
  * for converting system call csv traces.
- * 
- * Usage: ./csv2ds <outputfile> <tablefile> <spec_string_file> 
+ *
+ * Usage: ./csv2ds <outputfile> <tablefile> <spec_string_file>
  *        <xml directory> <inputfiles...>
  *
  * <outputfile>: name of the dataseries output file
  * <tablefile>: name of the table file to refer to
- * <spec_string_file>: name of the file that contains a string 
+ * <spec_string_file>: name of the file that contains a string
  *                    that specifies the format of the input file
- * <xml directory>: directory path that contains extent xml. 
+ * <xml directory>: directory path that contains extent xml.
  *                 Remember to '/' should be the last character.
  * <inputfiles...>: input CSV files
  */
@@ -125,6 +125,8 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
     makeReadArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "write") == 0) {
     makeWriteArgsMap(sys_call_args_map, args, v_args);
+  } else if (strcmp(extent_name, "chdir") == 0) {
+    makeChdirArgsMap(sys_call_args_map, v_args);
   }
 
   // Create a new record to write
@@ -182,7 +184,7 @@ DataSeriesOutputModule::~DataSeriesOutputModule() {
 // Initialize config table
 void DataSeriesOutputModule::initConfigTable(std::ifstream &table_stream) {
   std::string line;
- 
+
   /* Special case for Common fields */
   config_table_entry_type common_field_map;
   while (getline(table_stream, line)) {
@@ -229,7 +231,7 @@ void DataSeriesOutputModule::initConfigTable(std::ifstream &table_stream) {
 
 // Add an extent(system call)
 void DataSeriesOutputModule::addExtent(const std::string &extent_name,
-				       ExtentSeries &series) { 
+				       ExtentSeries &series) {
   const ExtentType::Ptr extent_type = series.getTypePtr();
   for (uint32_t i = 0; i < extent_type->getNFields(); i++) {
     const std::string &field_name = extent_type->getFieldName(i);
@@ -620,4 +622,14 @@ void DataSeriesOutputModule::makeWriteArgsMap(std::map<std::string,
   }
 
   args_map["bytes_requested"] = &args[2];
+}
+
+void DataSeriesOutputModule::makeChdirArgsMap(std::map<std::string,
+					      void *> &args_map,
+                                              void **v_args) {
+  if (v_args[0] != NULL) {
+    args_map["given_pathname"] = &v_args[0];
+  } else {
+    std::cerr << "Chdir: Pathname is set as NULL!!" << std::endl;
+  }
 }

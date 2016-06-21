@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2015-2016 Leixiang Wu
  * Copyright (c) 2015-2016 Erez Zadok
@@ -153,6 +154,10 @@ private:
   // Maps Write System Call <field, value> pairs
   void makeWriteArgsMap(std::map<std::string, void *> &args_map,
 			long *args,
+			void **v_args);
+
+  // Maps Chdir System Call <field, value> pairs
+  void makeChdirArgsMap(std::map<std::string, void *> &args_map,
 			void **v_args);
 };
 
