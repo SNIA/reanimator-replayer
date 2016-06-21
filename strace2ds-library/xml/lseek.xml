@@ -1,5 +1,5 @@
 <ExtentType name="IOTTAFSL::Trace::Syscall::lseek" namespace="iotta.snia.org.fsl.cs.sunysb.edu" version="1.00">
-  <field name="time_called" type="double" opt_nullable="yes"/>
+  <field name="time_called" type="int64" opt_nullable="yes"/>
   <field name="time_returned" type="int64" opt_nullable="yes"/>
   <field name="time_recorded" type="int64" opt_nullable="yes"/>
   <field name="executing_pid" type="int32" opt_nullable="yes"/>
