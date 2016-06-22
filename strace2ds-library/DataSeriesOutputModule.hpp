@@ -154,6 +154,10 @@ private:
   void makeWriteArgsMap(std::map<std::string, void *> &args_map,
 			long *args,
 			void **v_args);
+  // Maps Chdir System Call <field, value> pairs
+  void makeChdirArgsMap(std::map<std::string, void *> &args_map,
+			void **v_args);
+
 };
 
 #endif // DATA_SERIES_OUTPUT_MODULE_HPP

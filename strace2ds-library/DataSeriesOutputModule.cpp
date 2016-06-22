@@ -125,6 +125,8 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
     makeReadArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "write") == 0) {
     makeWriteArgsMap(sys_call_args_map, args, v_args);
+  } else if (strcmp(extent_name, "chdir") == 0) {
+    makeChdirArgsMap(sys_call_args_map, v_args);
   }
 
   // Create a new record to write
@@ -620,4 +622,14 @@ void DataSeriesOutputModule::makeWriteArgsMap(std::map<std::string,
   }
 
   args_map["bytes_requested"] = &args[2];
+}
+
+void DataSeriesOutputModule::makeChdirArgsMap(std::map<std::string,
+					      void *> &args_map,
+					      void **v_args) {
+  if (v_args[0] != NULL) {
+    args_map["given_pathname"] = &v_args[0];
+  } else {
+    std::cerr << "Chdir: Data to be written is set as NULL!!" << std::endl;
+  }
 }
