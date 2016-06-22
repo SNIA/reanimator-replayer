@@ -630,6 +630,6 @@ void DataSeriesOutputModule::makeChdirArgsMap(std::map<std::string,
   if (v_args[0] != NULL) {
     args_map["given_pathname"] = &v_args[0];
   } else {
-    std::cerr << "Chdir: Data to be written is set as NULL!!" << std::endl;
+    std::cerr << "Chdir: Pathname is set as NULL!!" << std::endl;
   }
 }
