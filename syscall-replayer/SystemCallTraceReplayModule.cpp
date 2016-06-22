@@ -19,7 +19,7 @@
 
 SystemCallTraceReplayModule::SystemCallTraceReplayModule(DataSeriesModule
 							 &source,
-							 bool verbose_flag, 
+							 bool verbose_flag,
 							 int warn_level_flag):
   RowAnalysisModule(source),
   verbose_(verbose_flag),
@@ -109,7 +109,7 @@ bool SystemCallTraceReplayModule::cur_extent_has_more_record() {
     return false;
   }
 }
-  
+
 void SystemCallTraceReplayModule::execute() {
   ++processed_rows;
   processRow();

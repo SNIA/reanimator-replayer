@@ -621,4 +621,3 @@ void DataSeriesOutputModule::makeWriteArgsMap(std::map<std::string,
 
   args_map["bytes_requested"] = &args[2];
 }
-

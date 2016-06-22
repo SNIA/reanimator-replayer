@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2015-2016 Leixiang Wu
  * Copyright (c) 2015-2016 Erez Zadok

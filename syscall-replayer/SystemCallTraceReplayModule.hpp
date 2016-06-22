@@ -101,7 +101,7 @@ protected:
    */
   virtual void after_sys_call();
 
-  /* 
+  /*
    * This function will be called after all system call
    * operations are being replayed.
    * Note: Child class can implement this function to do things

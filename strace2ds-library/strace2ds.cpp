@@ -10,17 +10,17 @@
  * FIX ME: fix following comments
  * 2ds.
  * This program is similar to DataSeries's csv2ds utility, but handles
- * extents with different types and nullable fields and is primarily used 
+ * extents with different types and nullable fields and is primarily used
  * for converting system call csv traces.
- * 
- * Usage: ./csv2ds <outputfile> <tablefile> <spec_string_file> 
+ *
+ * Usage: ./csv2ds <outputfile> <tablefile> <spec_string_file>
  *        <xml directory> <inputfiles...>
  *
  * <outputfile>: name of the dataseries output file
  * <tablefile>: name of the table file to refer to
- * <spec_string_file>: name of the file that contains a string 
+ * <spec_string_file>: name of the file that contains a string
  *                    that specifies the format of the input file
- * <xml directory>: directory path that contains extent xml. 
+ * <xml directory>: directory path that contains extent xml.
  *                 Remember to '/' should be the last character.
  * <inputfiles...>: input CSV files
  */
