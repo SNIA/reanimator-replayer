@@ -158,6 +158,11 @@ private:
   void makeChdirArgsMap(std::map<std::string, void *> &args_map,
 			void **v_args);
 
+  // Maps Mkdir System Call <field, value> pairs
+  void makeMkdirArgsMap(std::map<std::string, void *> &args_map,
+			long *args,
+			void **v_args);
+
 };
 
 #endif // DATA_SERIES_OUTPUT_MODULE_HPP

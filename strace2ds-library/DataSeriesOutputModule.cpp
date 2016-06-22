@@ -127,6 +127,8 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
     makeWriteArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "chdir") == 0) {
     makeChdirArgsMap(sys_call_args_map, v_args);
+  } else if (strcmp(extent_name, "mkdir") == 0) {
+    makeMkdirArgsMap(sys_call_args_map, args, v_args);
   }
 
   // Create a new record to write
@@ -631,5 +633,23 @@ void DataSeriesOutputModule::makeChdirArgsMap(std::map<std::string,
     args_map["given_pathname"] = &v_args[0];
   } else {
     std::cerr << "Chdir: Pathname is set as NULL!!" << std::endl;
+  }
+}
+
+void DataSeriesOutputModule::makeMkdirArgsMap(std::map<std::string,
+					      void *> &args_map,
+					      long *args,
+					      void **v_args) {
+  initArgsMap(args_map, "mkdir");
+  int mode_offset = 1;
+  if (v_args[0] != NULL) {
+    args_map["given_pathname"] = &v_args[0];
+  } else {
+    std::cerr << "Mkdir: Pathname is set as NULL!!" << std::endl;
+  }
+  mode_t mode = processMode(args_map, args, 1);
+  if (mode != 0) {
+    std::cerr << "Mkdir: these modes are not processed/unknown->0";
+    std::cerr << std::oct << mode << std::dec << std::endl;
   }
 }
