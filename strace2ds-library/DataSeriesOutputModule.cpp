@@ -33,7 +33,7 @@ DataSeriesOutputModule::DataSeriesOutputModule(std::ifstream &table_stream,
 					       const char *output_file) :
   ds_sink_(output_file) {
   // Initialize record number
-  record_num_ = (u_int *)malloc(sizeof(u_int));
+  record_num_ = new u_int;
   *record_num_ = 0;
 
   // Initialize config table
