@@ -125,8 +125,10 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
     makeReadArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "write") == 0) {
     makeWriteArgsMap(sys_call_args_map, args, v_args);
-  } else if (strcmp(extent_name, "chdir") == 0) {
-    makeChdirArgsMap(sys_call_args_map, v_args);
+  } else if ((strcmp(extent_name, "chdir") == 0) ||
+	     (strcmp(extent_name, "rmdir") == 0)) {
+    // Chdir and Rmdir have the same arguments
+    makeChdirRmdirArgsMap(sys_call_args_map, v_args);
   } else if (strcmp(extent_name, "mkdir") == 0) {
     makeMkdirArgsMap(sys_call_args_map, args, v_args);
   }
@@ -388,7 +390,7 @@ void DataSeriesOutputModule::initArgsMap(std::map<std::string,
     std::string field_name = iter->first;
     bool nullable = iter->second.first;
     if (!nullable && strcmp(field_name.c_str(), "unique_id") != 0)
-      args_map[field_name] = 0;
+	args_map[field_name] = 0;
   }
 }
 
@@ -626,13 +628,13 @@ void DataSeriesOutputModule::makeWriteArgsMap(std::map<std::string,
   args_map["bytes_requested"] = &args[2];
 }
 
-void DataSeriesOutputModule::makeChdirArgsMap(std::map<std::string,
+void DataSeriesOutputModule::makeChdirRmdirArgsMap(std::map<std::string,
 					      void *> &args_map,
 					      void **v_args) {
   if (v_args[0] != NULL) {
     args_map["given_pathname"] = &v_args[0];
   } else {
-    std::cerr << "Chdir: Pathname is set as NULL!!" << std::endl;
+    std::cerr << "Chdir/Rmdir: Pathname is set as NULL!!" << std::endl;
   }
 }
 
