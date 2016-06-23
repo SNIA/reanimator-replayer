@@ -168,6 +168,10 @@ private:
   void makeLinkArgsMap(std::map<std::string, void *> &args_map,
 		       void **v_args);
 
+  // Maps Symlink System Call <field, value> pairs
+  void makeSymlinkArgsMap(std::map<std::string, void *> &args_map,
+			  void **v_args);
+
 };
 
 #endif // DATA_SERIES_OUTPUT_MODULE_HPP

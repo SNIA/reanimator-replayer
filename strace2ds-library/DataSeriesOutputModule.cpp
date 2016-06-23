@@ -133,6 +133,8 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
     makeMkdirArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "link") == 0) {
     makeLinkArgsMap(sys_call_args_map, v_args);
+  } else if (strcmp(extent_name, "symlink") == 0) {
+    makeSymlinkArgsMap(sys_call_args_map, v_args);
   }
 
   // Create a new record to write
@@ -670,5 +672,20 @@ void DataSeriesOutputModule::makeLinkArgsMap(std::map<std::string,
     args_map["given_newpathname"] = &v_args[1];
   } else {
     std::cerr << "Link: New Pathname is set as NULL!!" << std::endl;
+  }
+}
+
+void DataSeriesOutputModule::makeSymlinkArgsMap(std::map<std::string,
+						void *> &args_map,
+						void **v_args) {
+  if (v_args[0] != NULL) {
+    args_map["target_pathname"] = &v_args[0];
+  } else {
+    std::cerr << "Symlink: Target Pathname is set as NULL!!" << std::endl;
+  }
+  if (v_args[1] != NULL) {
+    args_map["given_pathname"] = &v_args[1];
+  } else {
+    std::cerr << "Symlink: Pathname is set as NULL!!" << std::endl;
   }
 }
