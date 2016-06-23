@@ -177,6 +177,16 @@ private:
 			   long *args,
 			   void **v_args);
 
+  // Maps Access System Call <field, value> pairs
+  void makeAccessArgsMap(std::map<std::string, void *> &args_map,
+			 long *args,
+			 void **v_args);
+
+  // Maps individual Access mode bits to the corresponding field names
+  mode_t processAccessMode(std::map<std::string, void *> &args_map,
+			   long *args,
+			   u_int mode_offset);
+
 };
 
 #endif // DATA_SERIES_OUTPUT_MODULE_HPP

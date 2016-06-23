@@ -12,7 +12,6 @@
   <field name="unique_id" type="int64" opt_nullable="no"/>
   <field name="given_pathname" type="variable32" opt_nullable="no"/>
   <field name="full_pathname" type="variable32" opt_nullable="yes"/>
-  <field name="pathname" type="variable32" opt_nullable="no"/>
   <field name="mode_value" type="int32" opt_nullable="yes"/>
   <field name="mode_read" type="bool" opt_nullable="no"/>
   <field name="mode_write" type="bool" opt_nullable="no"/>

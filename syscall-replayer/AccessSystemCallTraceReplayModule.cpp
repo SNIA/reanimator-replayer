@@ -22,7 +22,7 @@ AccessSystemCallTraceReplayModule::AccessSystemCallTraceReplayModule(DataSeriesM
 								     int warn_level_flag):
   SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
   given_pathname_(series, "given_pathname"),
-  mode_value_(series, "mode_value") {
+  mode_value_(series, "mode_value", Field::flag_nullable) {
   sys_call_name_ = "access";
 }
 

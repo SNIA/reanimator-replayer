@@ -139,6 +139,8 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
     makeSymlinkArgsMap(sys_call_args_map, v_args);
   } else if (strcmp(extent_name, "truncate") == 0) {
     makeTruncateArgsMap(sys_call_args_map, args, v_args);
+  } else if (strcmp(extent_name, "access") == 0) {
+    makeAccessArgsMap(sys_call_args_map, args, v_args);
   }
 
   // Create a new record to write
@@ -387,7 +389,7 @@ void DataSeriesOutputModule::doSetField(const std::string &extent_name,
 					*(ValueType *)field_value);
 }
 
-// Initialize all non-nullable fields of given extent_name.
+// Initialize all non-nullable boolean fields as False of given extent_name.
 void DataSeriesOutputModule::initArgsMap(std::map<std::string,
 					 void *> &args_map,
 					 const char *extent_name) {
@@ -397,8 +399,9 @@ void DataSeriesOutputModule::initArgsMap(std::map<std::string,
 	iter++) {
     std::string field_name = iter->first;
     bool nullable = iter->second.first;
-    if (!nullable && strcmp(field_name.c_str(), "unique_id") != 0)
-	args_map[field_name] = 0;
+    if (!nullable &&
+	extents_[extent_name][field_name].second == ExtentType::ft_bool)
+      args_map[field_name] = 0;
   }
 }
 
@@ -414,7 +417,7 @@ void DataSeriesOutputModule::makeOpenArgsMap(std::map<std::string,
 					     void **v_args) {
   int offset = 0;
 
-  // Initialize all non-nullable fields.
+  // Initialize all non-nullable boolean fields to False.
   initArgsMap(args_map, "open");
 
   if (v_args[0] != NULL) {
@@ -704,4 +707,61 @@ void DataSeriesOutputModule::makeTruncateArgsMap(std::map<std::string,
     std::cerr << "Truncate: Pathname is set as NULL!!" << std::endl;
   }
   args_map["truncate_length"] = &args[1];
+}
+
+void DataSeriesOutputModule::makeAccessArgsMap(std::map<std::string,
+					       void *> &args_map,
+					       long *args,
+					       void **v_args) {
+  // Initialize all non-nullable boolean fields to False.
+  initArgsMap(args_map, "access");
+  u_int mode_offset = 1;
+
+  if (v_args[0] != NULL) {
+    args_map["given_pathname"] = &v_args[0];
+  } else {
+    std::cerr << "Access: Pathname is set as NULL!!" << std::endl;
+  }
+
+  // Map the individual mode fields
+  mode_t mode = processAccessMode(args_map, args, mode_offset);
+  if (mode != 0) {
+    std::cerr << "Access: These modes are not processed/unknown->0";
+    std::cerr << std::oct << mode << std::dec << std::endl;
+  }
+}
+
+/*
+ * This function unwraps the mode value passed as an argument to the
+ * Access system call, which has different modes than Open and Mkdir.
+ *
+ * @param args_map: stores mapping of <field, value> pairs.
+ *
+ * @param args: represents complete arguments of the actual system call.
+ *
+ * @param mode_offset: represents index of mode value in the actual
+ *		       system call.
+ */
+mode_t DataSeriesOutputModule::processAccessMode(std::map<std::string,
+						 void *> &args_map,
+						 long *args,
+						 u_int mode_offset) {
+  // Save the mode argument with mode_value field in the map
+  args_map["mode_value"] = &args[mode_offset];
+  mode_t mode = args[mode_offset];
+
+  // set read permission bit
+  process_Flag_and_Mode_Args(args_map, mode, R_OK, "mode_read");
+  // set write permission bit
+  process_Flag_and_Mode_Args(args_map, mode, W_OK, "mode_write");
+  // set execute permission bit
+  process_Flag_and_Mode_Args(args_map, mode, X_OK, "mode_execute");
+  // set existence bit
+  process_Flag_and_Mode_Args(args_map, mode, F_OK, "mode_exist");
+
+  /*
+   * Return remaining unprocessed modes so that caller can warn
+   * of unknown modes if the mode value is not set as zero.
+   */
+  return mode;
 }

@@ -201,7 +201,6 @@ lstat	stat_result_mtime	1	int64
 lstat	stat_result_ctime	1	int64
 access	given_pathname	0	variable32
 access	full_pathname	1	variable32
-access	pathname	0	variable32
 access	mode_value	1	int32
 access	mode_read	0	bool
 access	mode_write	0	bool
