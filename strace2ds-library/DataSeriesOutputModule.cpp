@@ -373,7 +373,7 @@ void DataSeriesOutputModule::doSetField(const std::string &extent_name,
 					*(ValueType *)field_value);
 }
 
-// Initialize all non-nullable fields of given extent_name.
+// Initialize all non-nullable boolean fields as False of given extent_name.
 void DataSeriesOutputModule::initArgsMap(std::map<std::string,
 					 void *> &args_map,
 					 const char *extent_name) {
@@ -383,7 +383,8 @@ void DataSeriesOutputModule::initArgsMap(std::map<std::string,
 	iter++) {
     std::string field_name = iter->first;
     bool nullable = iter->second.first;
-    if (!nullable && strcmp(field_name.c_str(), "unique_id") != 0)
+    if (!nullable &&
+        extents_[extent_name][field_name].second == ExtentType::ft_bool)
       args_map[field_name] = 0;
   }
 }
@@ -400,7 +401,7 @@ void DataSeriesOutputModule::makeOpenArgsMap(std::map<std::string,
 					     void **v_args) {
   int offset = 0;
 
-  // Initialize all non-nullable fields.
+  // Initialize all non-nullable boolean fields to False.
   initArgsMap(args_map, "open");
 
   if (v_args[0] != NULL) {
