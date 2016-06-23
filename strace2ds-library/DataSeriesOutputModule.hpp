@@ -83,7 +83,6 @@ private:
   DataSeriesSink ds_sink_;
   config_table_type config_table_;
   u_int *record_num_;
-  u_int buffer_len;
 
   // Disable copy constructor
   DataSeriesOutputModule(const DataSeriesOutputModule&);
