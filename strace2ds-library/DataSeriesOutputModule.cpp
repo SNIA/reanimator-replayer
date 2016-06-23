@@ -136,6 +136,8 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
     makeLinkArgsMap(sys_call_args_map, v_args);
   } else if (strcmp(extent_name, "symlink") == 0) {
     makeSymlinkArgsMap(sys_call_args_map, v_args);
+  } else if (strcmp(extent_name, "truncate") == 0) {
+    makeTruncateArgsMap(sys_call_args_map, args, v_args);
   }
 
   // Create a new record to write
@@ -689,4 +691,16 @@ void DataSeriesOutputModule::makeSymlinkArgsMap(std::map<std::string,
   } else {
     std::cerr << "Symlink: Pathname is set as NULL!!" << std::endl;
   }
+}
+
+void DataSeriesOutputModule::makeTruncateArgsMap(std::map<std::string,
+						 void *> &args_map,
+						 long *args,
+						 void **v_args) {
+  if (v_args[0] != NULL) {
+    args_map["given_pathname"] = &v_args[0];
+  } else {
+    std::cerr << "Truncate: Pathname is set as NULL!!" << std::endl;
+  }
+  args_map["truncate_length"] = &args[1];
 }
