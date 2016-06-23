@@ -31,7 +31,11 @@
 DataSeriesOutputModule::DataSeriesOutputModule(std::ifstream &table_stream,
 					       const std::string xml_dir,
 					       const char *output_file) :
-  ds_sink_(output_file), record_num_(0) {
+  ds_sink_(output_file) {
+  // Initialize record number
+  record_num_ = (u_int *)malloc(sizeof(u_int));
+  *record_num_ = 0;
+
   // Initialize config table
   initConfigTable(table_stream);
 
@@ -92,8 +96,9 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
 
   std::map<std::string, void *> sys_call_args_map;
   struct timeval tv_time_recorded;
+  u_int var32_len;
 
-  sys_call_args_map["unique_id"] = &record_num_;
+  sys_call_args_map["unique_id"] = record_num_;
   /*
    * Create a map from field names to field values.
    * Iterate through every possible fields (via table_).
@@ -146,10 +151,17 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
        iter++) {
     std::string field_name = iter->first;
     bool nullable = iter->second.first;
+    var32_len = 0;
 
     if (sys_call_args_map.find(field_name) != sys_call_args_map.end()) {
       void *field_value = sys_call_args_map[field_name];
-      setField(extent_name, field_name, field_value);
+      /*
+       * If field is of type Variable32, then retrieve the length of the
+       * field that needs to be set.
+       */
+      if (extents_[extent_name][field_name].second == ExtentType::ft_variable32)
+        var32_len = getVariable32FieldLength(sys_call_args_map, field_name);
+      setField(extent_name, field_name, field_value, var32_len);
       continue;
     } else {
       if (nullable) {
@@ -164,7 +176,7 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
   }
 
   // Update record number
-  record_num_++;
+  (*record_num_)++;
 }
 
 // Destructor to delete the module
@@ -177,6 +189,7 @@ DataSeriesOutputModule::~DataSeriesOutputModule() {
     iter->second->close();
     delete iter->second;
   }
+  delete record_num_;
 }
 
 // Initialize config table
@@ -294,7 +307,8 @@ void DataSeriesOutputModule::addField(const std::string &extent_name,
  */
 void DataSeriesOutputModule::setField(const std::string &extent_name,
 				      const std::string &field_name,
-				      void *field_value) {
+				      void *field_value,
+				      u_int var32_len) {
   bool buffer;
   switch (extents_[extent_name][field_name].second) {
   case ExtentType::ft_bool:
@@ -323,7 +337,7 @@ void DataSeriesOutputModule::setField(const std::string &extent_name,
     break;
   case ExtentType::ft_variable32:
     ((Variable32Field *)(extents_[extent_name][field_name].first))
-      ->set((*(char **)field_value), strlen(*(char **)field_value) + 1);
+      ->set((*(char **)field_value), var32_len);
     break;
   default:
     std::stringstream error_msg;
@@ -371,6 +385,36 @@ void DataSeriesOutputModule::doSetField(const std::string &extent_name,
 					void* field_value) {
   ((FieldType *)(extents_[extent_name][field_name].first))->set(
 					*(ValueType *)field_value);
+}
+
+/*
+ * Standard string functions does not work for buffer data that is read
+ * or written.  Hence we cannot use strlen() in setField() function.
+ * This function returns the length of variable32 type field.
+ */
+u_int DataSeriesOutputModule::getVariable32FieldLength(std::map<std::string,
+						       void *> &args_map,
+						       const std::string
+						       &field_name) {
+  u_int length = 0;
+  std::map<std::string, void *>::iterator it = args_map.find(field_name);
+  if (it != args_map.end()) {
+    /*
+     * If field_name refers to the pathname passed as an argument to
+     * the system call, string length function can be used to determine
+     * the length.
+     */
+    if (field_name == "given_pathname") {
+      void *field_value = args_map[field_name];
+      length = strlen(*(char **)field_value);
+    /*
+     * If field_name refers to the actual data read or written, then length
+     * of buffer must be the return value of that corresponding system call.
+     */
+    } else if (field_name == "data_read" || field_name == "data_written")
+      length = *(int *)(args_map["return_value"]);
+  }
+  return length;
 }
 
 // Initialize all non-nullable boolean fields as False of given extent_name.
