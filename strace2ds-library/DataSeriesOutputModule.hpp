@@ -82,7 +82,8 @@ private:
   /* Sink is a wrapper for a DataSeries output file. */
   DataSeriesSink ds_sink_;
   config_table_type config_table_;
-  unsigned int record_num_;
+  u_int *record_num_;
+  u_int buffer_len;
 
   // Disable copy constructor
   DataSeriesOutputModule(const DataSeriesOutputModule&);
@@ -102,7 +103,8 @@ private:
   // Set corresponding DS field to the given value
   void setField(const std::string &extent_name,
 		const std::string &field_name,
-		void *field_value);
+		void *field_value,
+		u_int var32);
 
   // Set corresponding DS field to null
   void setFieldNull(const std::string &extent_name,
@@ -112,6 +114,10 @@ private:
   void doSetField(const std::string &extent_name,
 		  const std::string &field_name,
 		  void *field_value);
+
+  // Returns the length for field of type variable32
+  u_int getVariable32FieldLength(std::map<std::string, void *> &args_map,
+			    const std::string &field_name);
 
   // Initialize args map for given system call
   void initArgsMap(std::map<std::string, void *> &args_map,
