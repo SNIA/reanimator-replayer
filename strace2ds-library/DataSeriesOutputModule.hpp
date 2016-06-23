@@ -164,6 +164,10 @@ private:
 			long *args,
 			void **v_args);
 
+  // Maps Link System Call <field, value> pairs
+  void makeLinkArgsMap(std::map<std::string, void *> &args_map,
+		       void **v_args);
+
 };
 
 #endif // DATA_SERIES_OUTPUT_MODULE_HPP
