@@ -130,8 +130,9 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
 	     (strcmp(extent_name, "unlink") == 0)) {
     // Chdir, Rmdir, and Unlink have the same arguments (a pathname)
     makeChdirRmdirUnlinkArgsMap(sys_call_args_map, v_args);
-  } else if (strcmp(extent_name, "mkdir") == 0) {
-    makeMkdirArgsMap(sys_call_args_map, args, v_args);
+  } else if ((strcmp(extent_name, "mkdir") == 0) ||
+	     (strcmp(extent_name, "creat") == 0)) {
+    makeMkdirCreatArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "link") == 0) {
     makeLinkArgsMap(sys_call_args_map, v_args);
   } else if (strcmp(extent_name, "symlink") == 0) {
@@ -645,7 +646,7 @@ void DataSeriesOutputModule::makeChdirRmdirUnlinkArgsMap(std::map<std::string,
   }
 }
 
-void DataSeriesOutputModule::makeMkdirArgsMap(std::map<std::string,
+void DataSeriesOutputModule::makeMkdirCreatArgsMap(std::map<std::string,
 					      void *> &args_map,
 					      long *args,
 					      void **v_args) {
@@ -654,11 +655,11 @@ void DataSeriesOutputModule::makeMkdirArgsMap(std::map<std::string,
   if (v_args[0] != NULL) {
     args_map["given_pathname"] = &v_args[0];
   } else {
-    std::cerr << "Mkdir: Pathname is set as NULL!!" << std::endl;
+    std::cerr << "Mkdir/Creat: Pathname is set as NULL!!" << std::endl;
   }
   mode_t mode = processMode(args_map, args, 1);
   if (mode != 0) {
-    std::cerr << "Mkdir: these modes are not processed/unknown->0";
+    std::cerr << "Mkdir/Creat: these modes are not processed/unknown->0";
     std::cerr << std::oct << mode << std::dec << std::endl;
   }
 }

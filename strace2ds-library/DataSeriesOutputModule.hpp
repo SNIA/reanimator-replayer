@@ -159,8 +159,8 @@ private:
   void makeChdirRmdirUnlinkArgsMap(std::map<std::string, void *> &args_map,
 			void **v_args);
 
-  // Maps Mkdir System Call <field, value> pairs
-  void makeMkdirArgsMap(std::map<std::string, void *> &args_map,
+  // Maps Mkdir and Creat System Calls <field, value> pairs
+  void makeMkdirCreatArgsMap(std::map<std::string, void *> &args_map,
 			long *args,
 			void **v_args);
 
