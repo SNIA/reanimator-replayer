@@ -126,9 +126,10 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
   } else if (strcmp(extent_name, "write") == 0) {
     makeWriteArgsMap(sys_call_args_map, args, v_args);
   } else if ((strcmp(extent_name, "chdir") == 0) ||
-	     (strcmp(extent_name, "rmdir") == 0)) {
-    // Chdir and Rmdir have the same arguments
-    makeChdirRmdirArgsMap(sys_call_args_map, v_args);
+	     (strcmp(extent_name, "rmdir") == 0) ||
+	     (strcmp(extent_name, "unlink") == 0)) {
+    // Chdir, Rmdir, and Unlink have the same arguments (a pathname)
+    makeChdirRmdirUnlinkArgsMap(sys_call_args_map, v_args);
   } else if (strcmp(extent_name, "mkdir") == 0) {
     makeMkdirArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "link") == 0) {
@@ -632,13 +633,13 @@ void DataSeriesOutputModule::makeWriteArgsMap(std::map<std::string,
   args_map["bytes_requested"] = &args[2];
 }
 
-void DataSeriesOutputModule::makeChdirRmdirArgsMap(std::map<std::string,
+void DataSeriesOutputModule::makeChdirRmdirUnlinkArgsMap(std::map<std::string,
 					      void *> &args_map,
 					      void **v_args) {
   if (v_args[0] != NULL) {
     args_map["given_pathname"] = &v_args[0];
   } else {
-    std::cerr << "Chdir/Rmdir: Pathname is set as NULL!!" << std::endl;
+    std::cerr << "Chdir/Rmdir/Unlink: Pathname is set as NULL!!" << std::endl;
   }
 }
 
