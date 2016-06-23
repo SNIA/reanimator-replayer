@@ -391,6 +391,8 @@ void DataSeriesOutputModule::doSetField(const std::string &extent_name,
  * Standard string functions does not work for buffer data that is read
  * or written.  Hence we cannot use strlen() in setField() function.
  * This function returns the length of variable32 type field.
+ * NOTE: This function should be extended according to the field name of
+ * system call as described in SNIA document.
  */
 u_int DataSeriesOutputModule::getVariable32FieldLength(std::map<std::string,
 						       void *> &args_map,
@@ -413,6 +415,9 @@ u_int DataSeriesOutputModule::getVariable32FieldLength(std::map<std::string,
      */
     } else if (field_name == "data_read" || field_name == "data_written")
       length = *(int *)(args_map["return_value"]);
+  } else {
+    std::cerr << "WARNING: field_name = " << field_name << " ";
+    std::cerr << "is not set in the arguments map";
   }
   return length;
 }
