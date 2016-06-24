@@ -162,6 +162,11 @@ private:
 
   // Maps LSeek System Call <field, value> pairs
   void makeLSeekArgsMap(std::map<std::string, void *> &args_map, long *args);
+
+  // Maps PRead System Call <field, value> pairs
+  void makePReadArgsMap(std::map<std::string, void *> &args_map,
+		        long *args,
+		        void **v_args);
 };
 
 #endif // DATA_SERIES_OUTPUT_MODULE_HPP
