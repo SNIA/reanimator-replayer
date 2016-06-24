@@ -159,6 +159,9 @@ private:
   void makeWriteArgsMap(std::map<std::string, void *> &args_map,
 			long *args,
 			void **v_args);
+
+  // Maps LSeek System Call <field, value> pairs
+  void makeLSeekArgsMap(std::map<std::string, void *> &args_map, long *args);
 };
 
 #endif // DATA_SERIES_OUTPUT_MODULE_HPP

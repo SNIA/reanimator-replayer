@@ -130,6 +130,8 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
     makeReadArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "write") == 0) {
     makeWriteArgsMap(sys_call_args_map, args, v_args);
+  } else if (strcmp(extent_name, "lseek") == 0) {
+    makeLSeekArgsMap(sys_call_args_map, args);
   }
 
   // Create a new record to write
@@ -670,4 +672,12 @@ void DataSeriesOutputModule::makeWriteArgsMap(std::map<std::string,
   }
 
   args_map["bytes_requested"] = &args[2];
+}
+
+void DataSeriesOutputModule::makeLSeekArgsMap(std::map<std::string,
+					      void *> &args_map,
+					      long *args) {
+  args_map["descriptor"] = &args[0];
+  args_map["offset"] = &args[1];
+  args_map["whence"] = &args[2];
 }
