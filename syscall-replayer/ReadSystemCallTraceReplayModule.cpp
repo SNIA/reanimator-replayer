@@ -12,15 +12,17 @@
  * This file implements all the functions in the
  * ReadSystemCallTraceReplayModule header file
  *
- * Read ReadSystemCallTraceReplayModule.hpp for more information about this class.
+ * Read ReadSystemCallTraceReplayModule.hpp for more information
+ * about this class.
  */
 
 #include "ReadSystemCallTraceReplayModule.hpp"
 
-ReadSystemCallTraceReplayModule::ReadSystemCallTraceReplayModule(DataSeriesModule &source,
-								 bool verbose_flag,
-								 bool verify_flag,
-								 int warn_level_flag):
+ReadSystemCallTraceReplayModule::
+ReadSystemCallTraceReplayModule(DataSeriesModule &source,
+				bool verbose_flag,
+				bool verify_flag,
+				int warn_level_flag):
   SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
   verify_(verify_flag),
   descriptor_(series, "descriptor"),
@@ -36,7 +38,8 @@ void ReadSystemCallTraceReplayModule::print_specific_fields() {
 }
 
 void ReadSystemCallTraceReplayModule::prepareForProcessing() {
-  std::cout << "-----Read System Call Replayer starts to replay...-----" << std::endl;
+  std::cout << "-----Read System Call Replayer starts to replay...-----"
+	    << std::endl;
 }
 
 void ReadSystemCallTraceReplayModule::processRow() {
@@ -54,7 +57,8 @@ void ReadSystemCallTraceReplayModule::processRow() {
       if (!default_mode()) {
 	std::cout << "time called:" << std::fixed
 		  <<  Tfrac_to_sec(time_called()) << std::endl;
-	std::cout << "Captured read data is different from replayed read data" << std::endl;
+	std::cout << "Captured read data is different from replayed read data"
+		  << std::endl;
 	std::cout << "Captured read data: " << data_read_.val() << ", ";
 	std::cout << "Replayed read data: " << buffer << std::endl;
 	if (abort_mode()) {
@@ -70,14 +74,17 @@ void ReadSystemCallTraceReplayModule::processRow() {
 }
 
 void ReadSystemCallTraceReplayModule::completeProcessing() {
-  std::cout << "-----Read System Call Replayer finished replaying...-----" << std::endl;
+  std::cout << "-----Read System Call Replayer finished replaying...-----"
+	    << std::endl;
 }
 
-PReadSystemCallTraceReplayModule::PReadSystemCallTraceReplayModule(DataSeriesModule &source,
-								 bool verbose_flag,
-								 bool verify_flag,
-								 int warn_level_flag):
-  ReadSystemCallTraceReplayModule(source, verbose_flag, verify_flag, warn_level_flag),
+PReadSystemCallTraceReplayModule::
+PReadSystemCallTraceReplayModule(DataSeriesModule &source,
+				 bool verbose_flag,
+				 bool verify_flag,
+				 int warn_level_flag):
+  ReadSystemCallTraceReplayModule(source, verbose_flag,
+				  verify_flag, warn_level_flag),
   offset_(series, "offset") {
   sys_call_name_ = "pread";
 }
@@ -88,7 +95,8 @@ void PReadSystemCallTraceReplayModule::print_specific_fields() {
 }
 
 void PReadSystemCallTraceReplayModule::prepareForProcessing() {
-  std::cout << "-----PRead System Call Replayer starts to replay...-----" << std::endl;
+  std::cout << "-----PRead System Call Replayer starts to replay...-----"
+	    << std::endl;
 }
 
 void PReadSystemCallTraceReplayModule::processRow() {
@@ -107,7 +115,8 @@ void PReadSystemCallTraceReplayModule::processRow() {
       if (warn_level_ != DEFAULT_MODE) {
 	std::cout << "time called:" << std::fixed
 		  <<  Tfrac_to_sec(time_called()) << std::endl;
-	std::cout << "Captured pread data is different from replayed pread data" << std::endl;
+	std::cout << "Captured pread data is different from replayed pread data"
+		  << std::endl;
 	std::cout << "Captured pread data: " << data_read_.val() << ", ";
 	std::cout << "Replayed pread data: " << buffer << std::endl;
 	if (warn_level_ == ABORT_MODE ) {
@@ -123,5 +132,6 @@ void PReadSystemCallTraceReplayModule::processRow() {
 }
 
 void PReadSystemCallTraceReplayModule::completeProcessing() {
-  std::cout << "-----PRead System Call Replayer finished replaying...-----" << std::endl;
+  std::cout << "-----PRead System Call Replayer finished replaying...-----"
+	    << std::endl;
 }

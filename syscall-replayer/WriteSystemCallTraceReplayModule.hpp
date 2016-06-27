@@ -1,9 +1,9 @@
 /*
- * Copyright (c) 2015-2016 Leixiang Wu 
+ * Copyright (c) 2015-2016 Leixiang Wu
  * Copyright (c) 2015-2016 Shubhi Rani
  * Copyright (c) 2015-2016 Sonam Mandal
  * Copyright (c) 2015-2016 Erez Zadok
- * Copyright (c) 2015-2016 Stony Brook University 
+ * Copyright (c) 2015-2016 Stony Brook University
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -13,7 +13,7 @@
  * system call.
  *
  * WriteSystemCallTraceReplayerModule is a class/module that
- * has members and functions of replaying write system call. 
+ * has members and functions of replaying write system call.
  *
  * USAGE
  * A main program could initialize this class with a dataseries file
@@ -27,7 +27,7 @@
 #include "SystemCallTraceReplayModule.hpp"
 
 class WriteSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-private:
+protected:
   bool verify_;
   std::string pattern_data_;
   std::ifstream random_file_;
@@ -43,28 +43,28 @@ private:
 
   /*
    * This function will prepare things before replaying any
-   * write system call. Right now it displays a starting 
+   * write system call. Right now it displays a starting
    * message and opens urandom device if pattern is random.
    */
   void prepareForProcessing();
 
   /*
-   * This function will gather arguments in the trace file 
-   * or create our own arguments (for example, pattern), 
-   * then replay an write system call with those arguments. 
+   * This function will gather arguments in the trace file
+   * or create our own arguments (for example, pattern),
+   * then replay an write system call with those arguments.
    */
   void processRow();
 
   /*
-   * This function will do things that have be done 
-   * after finishing replaying all write system calls. 
+   * This function will do things that have be done
+   * after finishing replaying all write system calls.
    * Now, it displays an ending message and close
    * urandom if pattern is random.
    */
   void completeProcessing();
 
   /*
-   * If pattern is random, this function will randomly 
+   * If pattern is random, this function will randomly
    * generate numbers using standard rand() and srand()
    * library functions to fill the buffer.
    */
@@ -78,4 +78,41 @@ public:
                                    std::string pattern_data);
 };
 
+class PWriteSystemCallTraceReplayModule : public WriteSystemCallTraceReplayModule {
+private:
+  /* PWrite System Call Trace Fields in Dataseries file */
+  Int64Field offset_;
+
+  /*
+   * Print pwrite sys call field values in a nice format
+   */
+  void print_specific_fields();
+
+  /*
+   * This function will prepare things before replaying any
+   * pwrite system call. Right now it displays a starting
+   * message.
+   */
+  void prepareForProcessing();
+
+  /*
+   * This function will gather arguments in the trace file
+   * and then replay an pwrite system call with those arguments.
+   */
+  void processRow();
+
+  /*
+   * This function will do things that have be done
+   * after finishing replaying all pwrite system calls.
+   * Now, it only displays an ending message.
+   */
+  void completeProcessing();
+
+public:
+  PWriteSystemCallTraceReplayModule(DataSeriesModule &source,
+				  bool verbose_flag,
+				  bool verify_flag,
+				  int warn_level_flag,
+				  std::string pattern_data);
+};
 #endif /* WRITE_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */
