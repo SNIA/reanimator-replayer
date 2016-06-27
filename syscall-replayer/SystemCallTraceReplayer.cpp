@@ -41,6 +41,7 @@
 #include "RmdirSystemCallTraceReplayModule.hpp"
 #include "MkdirSystemCallTraceReplayModule.hpp"
 #include "StatSystemCallTraceReplayModule.hpp"
+#include "ChmodSystemCallTraceReplayModule.hpp"
 
 /*
  * min heap uses this function to sort elements in the tree.
@@ -217,6 +218,7 @@ int main(int argc, char *argv[]) {
   system_calls.push_back("rmdir");
   system_calls.push_back("mkdir");
   system_calls.push_back("stat");
+  system_calls.push_back("chmod");
 
   std::vector<TypeIndexModule *> type_index_modules;
 
@@ -320,6 +322,10 @@ int main(int argc, char *argv[]) {
 					verbose,
 					verify,
 					warn_level);
+  ChmodSystemCallTraceReplayModule *chmod_module =
+    new ChmodSystemCallTraceReplayModule(*prefetch_buffer_modules[16],
+					 verbose,
+					 warn_level);
   /*
    * This vector is going to used to load replaying modules.
    * Therefore, add replaying modules into this vector in here.
@@ -342,6 +348,7 @@ int main(int argc, char *argv[]) {
   system_call_trace_replay_modules.push_back(rmdir_module);
   system_call_trace_replay_modules.push_back(mkdir_module);
   system_call_trace_replay_modules.push_back(stat_module);
+  system_call_trace_replay_modules.push_back(chmod_module);
 
   // Double check to make sure all replaying modules are loaded.
   if (system_call_trace_replay_modules.size() != system_calls.size()) {

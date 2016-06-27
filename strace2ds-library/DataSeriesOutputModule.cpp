@@ -136,8 +136,10 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
     // Chdir, Rmdir, and Unlink have the same arguments (a pathname)
     makeChdirRmdirUnlinkArgsMap(sys_call_args_map, v_args);
   } else if ((strcmp(extent_name, "mkdir") == 0) ||
-	     (strcmp(extent_name, "creat") == 0)) {
-    makeMkdirCreatArgsMap(sys_call_args_map, args, v_args);
+	     (strcmp(extent_name, "creat") == 0) ||
+	     (strcmp(extent_name, "chmod") == 0)) {
+    // Mkdir, Creat, and Chmod have the same arguments (a pathname and a mode)
+    makeMkdirCreatChmodArgsMap(sys_call_args_map, args, v_args, extent_name);
   } else if (strcmp(extent_name, "link") == 0) {
     makeLinkArgsMap(sys_call_args_map, v_args);
   } else if (strcmp(extent_name, "symlink") == 0) {
@@ -176,7 +178,7 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
        * field that needs to be set.
        */
       if (extents_[extent_name][field_name].second == ExtentType::ft_variable32)
-        var32_len = getVariable32FieldLength(sys_call_args_map, field_name);
+	var32_len = getVariable32FieldLength(sys_call_args_map, field_name);
       setField(extent_name, field_name, field_value, var32_len);
       continue;
     } else {
@@ -422,7 +424,10 @@ u_int DataSeriesOutputModule::getVariable32FieldLength(std::map<std::string,
      * the system call, string length function can be used to determine
      * the length.
      */
-    if (field_name == "given_pathname") {
+    if ((field_name == "given_pathname") ||
+	(field_name == "given_oldpathname") ||
+	(field_name == "given_newpathname") ||
+	(field_name == "target_pathname")) {
       void *field_value = args_map[field_name];
       length = strlen(*(char **)field_value);
     /*
@@ -449,7 +454,7 @@ void DataSeriesOutputModule::initArgsMap(std::map<std::string,
     std::string field_name = iter->first;
     bool nullable = iter->second.first;
     if (!nullable &&
-        extents_[extent_name][field_name].second == ExtentType::ft_bool)
+	extents_[extent_name][field_name].second == ExtentType::ft_bool)
       args_map[field_name] = 0;
   }
 }
@@ -610,7 +615,7 @@ u_int DataSeriesOutputModule::processOpenFlags(std::map<std::string,
  * @param args: represents complete arguments of the actual system call.
  *
  * @param mode_offset: represents index of mode value in the actual
- * 		       system call.
+ *		       system call.
  */
 mode_t DataSeriesOutputModule::processMode(std::map<std::string,
 					   void *> &args_map,
@@ -689,8 +694,8 @@ void DataSeriesOutputModule::makeWriteArgsMap(std::map<std::string,
 }
 
 void DataSeriesOutputModule::makeChdirRmdirUnlinkArgsMap(std::map<std::string,
-					      void *> &args_map,
-					      void **v_args) {
+							 void *> &args_map,
+							 void **v_args) {
   if (v_args[0] != NULL) {
     args_map["given_pathname"] = &v_args[0];
   } else {
@@ -698,20 +703,21 @@ void DataSeriesOutputModule::makeChdirRmdirUnlinkArgsMap(std::map<std::string,
   }
 }
 
-void DataSeriesOutputModule::makeMkdirCreatArgsMap(std::map<std::string,
-					      void *> &args_map,
-					      long *args,
-					      void **v_args) {
-  initArgsMap(args_map, "mkdir");
+void DataSeriesOutputModule::makeMkdirCreatChmodArgsMap(std::map<std::string,
+							void *> &args_map,
+							long *args,
+							void **v_args,
+							const char *extent_name) {
+  initArgsMap(args_map, extent_name);
   int mode_offset = 1;
   if (v_args[0] != NULL) {
     args_map["given_pathname"] = &v_args[0];
   } else {
-    std::cerr << "Mkdir/Creat: Pathname is set as NULL!!" << std::endl;
+    std::cerr << "Mkdir/Creat/Chmod: Pathname is set as NULL!!" << std::endl;
   }
   mode_t mode = processMode(args_map, args, 1);
   if (mode != 0) {
-    std::cerr << "Mkdir/Creat: these modes are not processed/unknown->0";
+    std::cerr << "Mkdir/Creat/Chmod: These modes are not processed/unknown->0";
     std::cerr << std::oct << mode << std::dec << std::endl;
   }
 }
