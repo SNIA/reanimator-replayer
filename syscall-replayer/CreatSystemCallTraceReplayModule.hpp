@@ -61,7 +61,9 @@ private:
   void completeProcessing();
 
 public:
-  CreatSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag, int warn_level_flag);
+  CreatSystemCallTraceReplayModule(DataSeriesModule &source,
+				   bool verbose_flag,
+				   int warn_level_flag);
 };
 
 #endif /* CREAT_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

@@ -9,17 +9,19 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
- * This file implements all the functions in the RmdirSystemCallTraceReplayModule
- * header file.
+ * This file implements all the functions in the
+ * RmdirSystemCallTraceReplayModule header file.
  *
- * Read RmdirSystemCallTraceReplayModule.hpp for more information about this class.
+ * Read RmdirSystemCallTraceReplayModule.hpp for more information about this
+ * class.
  */
 
 #include "RmdirSystemCallTraceReplayModule.hpp"
 
-RmdirSystemCallTraceReplayModule::RmdirSystemCallTraceReplayModule(DataSeriesModule &source,
-								   bool verbose_flag,
-								   int warn_level_flag):
+RmdirSystemCallTraceReplayModule::RmdirSystemCallTraceReplayModule(
+					   DataSeriesModule &source,
+					   bool verbose_flag,
+					   int warn_level_flag):
   SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
   given_pathname_(series, "given_pathname") {
   sys_call_name_ = "rmdir";
@@ -30,7 +32,8 @@ void RmdirSystemCallTraceReplayModule::print_specific_fields() {
 }
 
 void RmdirSystemCallTraceReplayModule::prepareForProcessing() {
-  std::cout << "-----Rmdir System Call Replayer starts to replay...-----" << std::endl;
+  std::cout << "-----Rmdir System Call Replayer starts to replay...-----"
+	    << std::endl;
 }
 
 void RmdirSystemCallTraceReplayModule::processRow() {
@@ -42,5 +45,6 @@ void RmdirSystemCallTraceReplayModule::processRow() {
 }
 
 void RmdirSystemCallTraceReplayModule::completeProcessing() {
-  std::cout << "-----Rmdir System Call Replayer finished replaying...-----" << std::endl;
+  std::cout << "-----Rmdir System Call Replayer finished replaying...-----"
+	    << std::endl;
 }

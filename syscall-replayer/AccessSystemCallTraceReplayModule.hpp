@@ -59,7 +59,9 @@ protected:
   void completeProcessing();
 
 public:
-  AccessSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag, int warn_level_flag);
+  AccessSystemCallTraceReplayModule(DataSeriesModule &source,
+				    bool verbose_flag,
+				    int warn_level_flag);
 };
 
 #endif /* ACCESS_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

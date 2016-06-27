@@ -9,17 +9,19 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
- * This file implements all the functions in the CreatSystemCallTraceReplayModule
- * header file
+ * This file implements all the functions in the
+ * CreatSystemCallTraceReplayModule header file
  *
- * Read CreatSystemCallTraceReplayModule.hpp for more information about this class.
+ * Read CreatSystemCallTraceReplayModule.hpp for more information about this
+ * class.
  */
 
 #include "CreatSystemCallTraceReplayModule.hpp"
 
-CreatSystemCallTraceReplayModule::CreatSystemCallTraceReplayModule(DataSeriesModule &source,
-								   bool verbose_flag,
-								   int warn_level_flag):
+CreatSystemCallTraceReplayModule::CreatSystemCallTraceReplayModule(
+					   DataSeriesModule &source,
+					   bool verbose_flag,
+					   int warn_level_flag):
   SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
   given_pathname_(series, "given_pathname"),
   mode_value_(series, "mode_value", Field::flag_nullable) {
@@ -32,7 +34,8 @@ void CreatSystemCallTraceReplayModule::print_specific_fields() {
 }
 
 void CreatSystemCallTraceReplayModule::prepareForProcessing() {
-  std::cout << "-----Creat System Call Replayer starts to replay...-----" << std::endl;
+  std::cout << "-----Creat System Call Replayer starts to replay...-----"
+	    << std::endl;
 }
 
 void CreatSystemCallTraceReplayModule::processRow() {
@@ -47,5 +50,6 @@ void CreatSystemCallTraceReplayModule::processRow() {
 }
 
 void CreatSystemCallTraceReplayModule::completeProcessing() {
-  std::cout << "-----Creat System Call Replayer finished replaying...-----" << std::endl;
+  std::cout << "-----Creat System Call Replayer finished replaying...-----"
+	    << std::endl;
 }

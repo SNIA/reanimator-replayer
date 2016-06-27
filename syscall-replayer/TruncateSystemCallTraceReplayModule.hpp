@@ -60,7 +60,9 @@ protected:
   void completeProcessing();
 
 public:
-  TruncateSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag, int warn_level_flag);
+  TruncateSystemCallTraceReplayModule(DataSeriesModule &source,
+				      bool verbose_flag,
+				      int warn_level_flag);
 };
 
 #endif /* TRUNCATE_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

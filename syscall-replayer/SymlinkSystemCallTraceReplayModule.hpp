@@ -59,7 +59,9 @@ protected:
   void completeProcessing();
 
 public:
-  SymlinkSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag, int warn_level_flag);
+  SymlinkSystemCallTraceReplayModule(DataSeriesModule &source,
+				     bool verbose_flag,
+				     int warn_level_flag);
 };
 
 #endif /* SYMLINK_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

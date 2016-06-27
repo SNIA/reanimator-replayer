@@ -59,7 +59,9 @@ protected:
   void completeProcessing();
 
 public:
-  LinkSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag, int warn_level_flag);
+  LinkSystemCallTraceReplayModule(DataSeriesModule &source,
+				  bool verbose_flag,
+				  int warn_level_flag);
 };
 
 #endif /* LINK_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

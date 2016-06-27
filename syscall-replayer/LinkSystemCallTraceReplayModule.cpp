@@ -9,17 +9,19 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
- * This file implements all the functions in the LinkSystemCallTraceReplayModule
- * header file
+ * This file implements all the functions in the
+ * LinkSystemCallTraceReplayModule header file
  *
- * Read LinkSystemCallTraceReplayModule.hpp for more information about this class.
+ * Read LinkSystemCallTraceReplayModule.hpp for more information about this
+ * class.
  */
 
 #include "LinkSystemCallTraceReplayModule.hpp"
 
-LinkSystemCallTraceReplayModule::LinkSystemCallTraceReplayModule(DataSeriesModule &source,
-								 bool verbose_flag,
-								 int warn_level_flag):
+LinkSystemCallTraceReplayModule::LinkSystemCallTraceReplayModule(
+					 DataSeriesModule &source,
+					 bool verbose_flag,
+					 int warn_level_flag):
   SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
   given_oldpathname_(series, "given_oldpathname"),
   given_newpathname_(series, "given_newpathname") {
@@ -32,7 +34,8 @@ void LinkSystemCallTraceReplayModule::print_specific_fields() {
 }
 
 void LinkSystemCallTraceReplayModule::prepareForProcessing() {
-  std::cout << "-----Link System Call Replayer starts to replay...-----" << std::endl;
+  std::cout << "-----Link System Call Replayer starts to replay...-----"
+	    << std::endl;
 }
 
 void LinkSystemCallTraceReplayModule::processRow() {
@@ -44,5 +47,6 @@ void LinkSystemCallTraceReplayModule::processRow() {
 }
 
 void LinkSystemCallTraceReplayModule::completeProcessing() {
-  std::cout << "-----Link System Call Replayer finished replaying...-----" << std::endl;
+  std::cout << "-----Link System Call Replayer finished replaying...-----"
+	    << std::endl;
 }

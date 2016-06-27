@@ -10,11 +10,11 @@
  * published by the Free Software Foundation.
  *
  * This header file provides members and functions for implementing stat
- * system call.  
+ * system call.
  *
  * StatSystemCallTraceReplayerModule is a class/module that
  * has members and functions of replaying stat system call.
- * 
+ *
  * USAGE
  * A main program could initialize this class with a dataseries file
  * and call execute() function until all extents are processed.
@@ -46,10 +46,10 @@ protected:
   Int64Field stat_result_atime_;
   Int64Field stat_result_mtime_;
   Int64Field stat_result_ctime_;
-  
+
   /*
-   * This function will prepare things before replaying any 
-   * stat system call. Right now it displays a starting 
+   * This function will prepare things before replaying any
+   * stat system call. Right now it displays a starting
    * message.
    */
   void prepareForProcessing();
@@ -58,13 +58,13 @@ protected:
    * Print stat sys call field values in a nice format
    */
   void print_specific_fields();
- 
+
   /*
    * Print stat sys call mode values in format as
    * Format: drwxrwxrwx
    */
   void print_mode_value(unsigned int st_mode);
- 
+
   /*
    * This function will gather arguments in the trace file
    * and replay an stat system call with those arguments.
@@ -72,15 +72,17 @@ protected:
   void processRow();
 
   /*
-   * This function will do things that have be done 
-   * after finishing replaying all stat system calls. 
+   * This function will do things that have be done
+   * after finishing replaying all stat system calls.
    * Now, it only displays an ending message.
    */
   void completeProcessing();
-  
+
 public:
-  StatSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag, 
-                                  bool verify_flag, int warn_level_flag);
+  StatSystemCallTraceReplayModule(DataSeriesModule &source,
+				  bool verbose_flag,
+				  bool verify_flag,
+				  int warn_level_flag);
 
 };
 

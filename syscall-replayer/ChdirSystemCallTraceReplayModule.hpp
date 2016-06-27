@@ -58,6 +58,8 @@ protected:
   void completeProcessing();
 
 public:
-  ChdirSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag, int warn_level_flag);
+  ChdirSystemCallTraceReplayModule(DataSeriesModule &source,
+				   bool verbose_flag,
+				   int warn_level_flag);
 };
 #endif /* CHDIR_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

@@ -47,8 +47,8 @@ private:
    * and replay an close system call with those arguments
    */
   void processRow();
-  
-  /* 
+
+  /*
    * This function will do things that have be done
    * after finishing replaying all close system calls.
    * Now, it only displays an ending message.
@@ -56,7 +56,9 @@ private:
   void completeProcessing();
 
 public:
-  CloseSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag, int warn_level_flag);
+  CloseSystemCallTraceReplayModule(DataSeriesModule &source,
+				   bool verbose_flag,
+				   int warn_level_flag);
 };
 
 #endif /* CLOSE_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */
