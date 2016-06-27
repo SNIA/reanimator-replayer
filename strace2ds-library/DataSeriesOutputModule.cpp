@@ -134,6 +134,8 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
     makeLSeekArgsMap(sys_call_args_map, args);
   } else if (strcmp(extent_name, "pread") == 0) {
     makePReadArgsMap(sys_call_args_map, args, v_args);
+  } else if (strcmp(extent_name, "pwrite") == 0) {
+    makePWriteArgsMap(sys_call_args_map, args, v_args);
   }
 
   // Create a new record to write
@@ -694,6 +696,22 @@ void DataSeriesOutputModule::makePReadArgsMap(std::map<std::string,
     args_map["data_read"] = &v_args[0];
   } else {
     std::cerr << "PRead: Data to be read is set as NULL!!" << std::endl;
+  }
+
+  args_map["bytes_requested"] = &args[2];
+  args_map["offset"] = &args[3];
+}
+
+void DataSeriesOutputModule::makePWriteArgsMap(std::map<std::string,
+					       void *> &args_map,
+					       long *args,
+					       void **v_args) {
+  args_map["descriptor"] = &args[0];
+
+  if (v_args[0] != NULL) {
+    args_map["data_written"] = &v_args[0];
+  } else {
+    std::cerr << "PWrite: Data to be written is set as NULL!!" << std::endl;
   }
 
   args_map["bytes_requested"] = &args[2];
