@@ -10,11 +10,11 @@
  * published by the Free Software Foundation.
  *
  * This header file provides members and functions for implementing open
- * system call.  
+ * system call.
  *
  * OpenSystemCallTraceReplayerModule is a class/module that
  * has members and functions of replaying open system call.
- * 
+ *
  * USAGE
  * A main program could initialize this class with a dataseries file
  * and call execute() function until all extents are processed.
@@ -42,8 +42,8 @@ private:
   void print_specific_fields();
 
   /*
-   * This function will prepare things before replaying any 
-   * open system call. Right now it displays a starting 
+   * This function will prepare things before replaying any
+   * open system call. Right now it displays a starting
    * message.
    */
   void prepareForProcessing();
@@ -55,14 +55,16 @@ private:
   void processRow();
 
   /*
-   * This function will do things that have be done 
-   * after finishing replaying all open system calls. 
+   * This function will do things that have be done
+   * after finishing replaying all open system calls.
    * Now, it only displays an ending message.
    */
   void completeProcessing();
-  
+
 public:
-  OpenSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag, int warn_level_flag);
+  OpenSystemCallTraceReplayModule(DataSeriesModule &source,
+				  bool verbose_flag,
+				  int warn_level_flag);
 
 };
 
