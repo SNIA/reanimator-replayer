@@ -41,7 +41,6 @@
 #include "RmdirSystemCallTraceReplayModule.hpp"
 #include "MkdirSystemCallTraceReplayModule.hpp"
 #include "StatSystemCallTraceReplayModule.hpp"
-#include "ChmodSystemCallTraceReplayModule.hpp"
 
 /*
  * min heap uses this function to sort elements in the tree.

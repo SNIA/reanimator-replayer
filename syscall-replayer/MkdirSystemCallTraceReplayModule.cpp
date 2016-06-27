@@ -12,16 +12,16 @@
  * This file implements all the functions in the
  * MkdirSystemCallTraceReplayModule header file
  *
- * Read MkdirSystemCallTraceReplayModule.hpp for more information about this
- * class.
+ * Read MkdirSystemCallTraceReplayModule.hpp for more information
+ * about this class.
  */
 
 #include "MkdirSystemCallTraceReplayModule.hpp"
 
-MkdirSystemCallTraceReplayModule::MkdirSystemCallTraceReplayModule(
-					   DataSeriesModule &source,
-					   bool verbose_flag,
-					   int warn_level_flag):
+MkdirSystemCallTraceReplayModule::
+MkdirSystemCallTraceReplayModule(DataSeriesModule &source,
+				 bool verbose_flag,
+				 int warn_level_flag):
   SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
   given_pathname_(series, "given_pathname"),
   mode_value_(series, "mode_value", Field::flag_nullable) {

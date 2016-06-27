@@ -12,16 +12,16 @@
  * This file implements all the functions in the
  * UnlinkSystemCallTraceReplayModule header file
  *
- * Read UnlinkSystemCallTraceReplayModule.hpp for more information about this
- * class.
+ * Read UnlinkSystemCallTraceReplayModule.hpp for more information
+ * about this class.
  */
 
 #include "UnlinkSystemCallTraceReplayModule.hpp"
 
-UnlinkSystemCallTraceReplayModule::UnlinkSystemCallTraceReplayModule(
-					     DataSeriesModule &source,
-					     bool verbose_flag,
-					     int warn_level_flag):
+UnlinkSystemCallTraceReplayModule::
+UnlinkSystemCallTraceReplayModule(DataSeriesModule &source,
+				  bool verbose_flag,
+				  int warn_level_flag):
   SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
   given_pathname_(series, "given_pathname") {
   sys_call_name_ = "unlink";

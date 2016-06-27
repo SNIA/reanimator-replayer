@@ -12,16 +12,16 @@
  * This file implements all the functions in the
  * SymlinkSystemCallTraceReplayModule header file
  *
- * Read SymlinkSystemCallTraceReplayModule.hpp for more information about this
- * class.
+ * Read SymlinkSystemCallTraceReplayModule.hpp for more information
+ * about this class.
  */
 
 #include "SymlinkSystemCallTraceReplayModule.hpp"
 
-SymlinkSystemCallTraceReplayModule::SymlinkSystemCallTraceReplayModule(
-					       DataSeriesModule &source,
-					       bool verbose_flag,
-					       int warn_level_flag):
+SymlinkSystemCallTraceReplayModule::
+SymlinkSystemCallTraceReplayModule(DataSeriesModule &source,
+				   bool verbose_flag,
+				   int warn_level_flag):
   SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
   target_pathname_(series, "target_pathname"),
   given_pathname_(series, "given_pathname") {
