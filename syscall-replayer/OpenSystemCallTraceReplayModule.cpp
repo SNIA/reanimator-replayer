@@ -12,16 +12,16 @@
  * This file implements all the functions in the
  * OpenSystemCallTraceReplayModule header file
  *
- * Read OpenSystemCallTraceReplayModule.hpp for more information about this
- * class.
+ * Read OpenSystemCallTraceReplayModule.hpp for more information
+ * about this class.
  */
 
 #include "OpenSystemCallTraceReplayModule.hpp"
 
-OpenSystemCallTraceReplayModule::OpenSystemCallTraceReplayModule(
-					 DataSeriesModule &source,
-					 bool verbose_flag,
-					 int warn_level_flag):
+OpenSystemCallTraceReplayModule::
+OpenSystemCallTraceReplayModule(DataSeriesModule &source,
+				bool verbose_flag,
+				int warn_level_flag):
   SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
   given_pathname_(series, "given_pathname"),
   open_value_(series, "open_value", Field::flag_nullable),

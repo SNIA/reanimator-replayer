@@ -12,16 +12,16 @@
  * This file implements all the functions in the
  * LSeekSystemCallTraceReplayModule header file
  *
- * Read LSeekSystemCallTraceReplayModule.hpp for more information about this
- * class.
+ * Read LSeekSystemCallTraceReplayModule.hpp for more information
+ * about this class.
  */
 
 #include "LSeekSystemCallTraceReplayModule.hpp"
 
-LSeekSystemCallTraceReplayModule::LSeekSystemCallTraceReplayModule(
-					   DataSeriesModule &source,
-					   bool verbose_flag,
-					   int warn_level_flag):
+LSeekSystemCallTraceReplayModule::
+LSeekSystemCallTraceReplayModule(DataSeriesModule &source,
+				 bool verbose_flag,
+				 int warn_level_flag):
   SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
   descriptor_(series, "descriptor"),
   offset_(series, "offset"),

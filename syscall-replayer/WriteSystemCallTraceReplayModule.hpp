@@ -27,7 +27,7 @@
 #include "SystemCallTraceReplayModule.hpp"
 
 class WriteSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-private:
+protected:
   bool verify_;
   std::string pattern_data_;
   std::ifstream random_file_;
@@ -78,4 +78,41 @@ public:
                                    std::string pattern_data);
 };
 
+class PWriteSystemCallTraceReplayModule : public WriteSystemCallTraceReplayModule {
+private:
+  /* PWrite System Call Trace Fields in Dataseries file */
+  Int64Field offset_;
+
+  /*
+   * Print pwrite sys call field values in a nice format
+   */
+  void print_specific_fields();
+
+  /*
+   * This function will prepare things before replaying any
+   * pwrite system call. Right now it displays a starting
+   * message.
+   */
+  void prepareForProcessing();
+
+  /*
+   * This function will gather arguments in the trace file
+   * and then replay an pwrite system call with those arguments.
+   */
+  void processRow();
+
+  /*
+   * This function will do things that have be done
+   * after finishing replaying all pwrite system calls.
+   * Now, it only displays an ending message.
+   */
+  void completeProcessing();
+
+public:
+  PWriteSystemCallTraceReplayModule(DataSeriesModule &source,
+				  bool verbose_flag,
+				  bool verify_flag,
+				  int warn_level_flag,
+				  std::string pattern_data);
+};
 #endif /* WRITE_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

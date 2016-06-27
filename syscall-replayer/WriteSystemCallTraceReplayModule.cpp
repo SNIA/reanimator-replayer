@@ -12,18 +12,18 @@
  * This file implements all the functions in the
  * WriteSystemCallTraceReplayModule header file
  *
- * Read WriteSystemCallTraceReplayModule.hpp for more information about this
- * class.
+ * Read WriteSystemCallTraceReplayModule.hpp for more information
+ * about this class.
  */
 
 #include "WriteSystemCallTraceReplayModule.hpp"
 
-WriteSystemCallTraceReplayModule::WriteSystemCallTraceReplayModule(
-					   DataSeriesModule &source,
-					   bool verbose_flag,
-					   bool verify_flag,
-					   int warn_level_flag,
-					   std::string pattern_data):
+WriteSystemCallTraceReplayModule::
+WriteSystemCallTraceReplayModule(DataSeriesModule &source,
+				 bool verbose_flag,
+				 bool verify_flag,
+				 int warn_level_flag,
+				 std::string pattern_data):
   SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
   verify_(verify_flag),
   pattern_data_(pattern_data),
@@ -114,6 +114,79 @@ void WriteSystemCallTraceReplayModule::processRow() {
 void WriteSystemCallTraceReplayModule::completeProcessing() {
   std::cout << "-----Write System Call Replayer finished replaying...-----"
 	    << std::endl;
+  if (pattern_data_ == "random") {
+#ifdef DEV_URANDOM
+    // Close the urandom device
+    random_file_.close();
+#endif
+  }
+}
+
+PWriteSystemCallTraceReplayModule::
+PWriteSystemCallTraceReplayModule(DataSeriesModule &source,
+				  bool verbose_flag,
+				  bool verify_flag,
+				  int warn_level_flag,
+				  std::string pattern_data):
+  WriteSystemCallTraceReplayModule(source, verbose_flag,
+				   verify_flag, warn_level_flag, pattern_data),
+  offset_(series, "offset") {
+  sys_call_name_ = "pwrite";
+}
+
+void PWriteSystemCallTraceReplayModule::print_specific_fields() {
+  WriteSystemCallTraceReplayModule::print_specific_fields();
+  std::cout << "offset(" << offset_.val() << ")";
+}
+
+void PWriteSystemCallTraceReplayModule::prepareForProcessing() {
+  std::cout << "-----PWrite System Call Replayer starts to replay...-----"
+	    << std::endl;
+}
+
+void PWriteSystemCallTraceReplayModule::processRow() {
+  // Get replaying file descriptor.
+  int fd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
+  size_t nbytes = bytes_requested_.val();
+  char *data_buffer;
+
+  // Check to see if write data is NULL in DS or user didn't specify pattern
+  if (data_written_.isNull() && pattern_data_.empty() ) {
+    // Let's write zeros.
+    pattern_data_ = "0x0";
+  }
+
+  // Check to see if user wants to use pattern
+  if (!pattern_data_.empty()) {
+    data_buffer = new char[nbytes];
+    if (pattern_data_ == "random") {
+#ifdef DEV_URANDOM
+      random_file_.read(data_buffer, nbytes);
+#else
+      data_buffer = random_fill_buffer(data_buffer, nbytes);
+#endif
+    } else {
+      int pattern_hex;
+      std::stringstream pattern_stream;
+      pattern_stream << std::hex << pattern_data_;
+      pattern_stream >> pattern_hex;
+      memset(data_buffer, pattern_hex, nbytes);
+    }
+  } else {
+    data_buffer = (char *)data_written_.val();
+  }
+
+  int offset = offset_.val();
+  replayed_ret_val_ = pwrite(fd, data_buffer, nbytes, offset);
+
+  // Free the buffer
+  if (!pattern_data_.empty())
+    delete[] data_buffer;
+}
+
+void PWriteSystemCallTraceReplayModule::completeProcessing() {
+  std::cout << "-----PWrite System Call Replayer finished replaying...-----"
+            << std::endl;
   if (pattern_data_ == "random") {
 #ifdef DEV_URANDOM
     // Close the urandom device

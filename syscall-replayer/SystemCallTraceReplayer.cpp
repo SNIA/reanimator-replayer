@@ -84,9 +84,11 @@ boost::program_options::variables_map get_options(int argc,
   po::options_description config("Configuration");
   config.add_options()
     ("verbose,v", "system calls replay in verbose mode")
-    ("verify", "verifies that the data being written/read is exactly what was used originally")
+    ("verify", "verifies that the data being written/read is \
+                exactly what was used originally")
     ("warn,w", po::value<int>(), "system call replays in warn mode")
-    ("pattern,p", po::value<std::string>(), "write repeated pattern data in write system call")
+    ("pattern,p", po::value<std::string>(),
+     "write repeated pattern data in write system call")
     ;
 
   /*
@@ -218,13 +220,13 @@ int main(int argc, char *argv[]) {
   system_calls.push_back("rmdir");
   system_calls.push_back("mkdir");
   system_calls.push_back("stat");
-  system_calls.push_back("chmod");
+  system_calls.push_back("pwrite");
 
   std::vector<TypeIndexModule *> type_index_modules;
 
   for (unsigned int i = 0; i < system_calls.size(); i++) {
     TypeIndexModule *type_index_module = new TypeIndexModule(kExtentTypePrefix
-							    + system_calls[i]);
+							     + system_calls[i]);
     type_index_modules.push_back(type_index_module);
   }
 
@@ -240,18 +242,17 @@ int main(int argc, char *argv[]) {
   std::vector<PrefetchBufferModule *> prefetch_buffer_modules;
   for (unsigned int i = 0; i < type_index_modules.size(); ++i) {
     /* Parallel decompress and replay, 8MiB buffer */
-    PrefetchBufferModule *module = new PrefetchBufferModule(
-					     *(type_index_modules[i]),
-					     8 * 1024 * 1024);
+    PrefetchBufferModule *module =
+      new PrefetchBufferModule(*(type_index_modules[i]), 8 * 1024 * 1024);
     prefetch_buffer_modules.push_back(module);
   }
 
   /*
    * Create a replaying module for each system call.
-   * Remeber to modify here to create a replaying module when supporting a new
-   * system call.
-   * IMPORTANT: each entry in prefetch_buffer_modules corresponds to its own
-   * module.
+   * Remember to modify here to create a replaying module when supporting
+   * a new system call.
+   * IMPORTANT: each entry in prefetch_buffer_modules corresponds to
+   * its own module.
    */
   OpenSystemCallTraceReplayModule *open_module =
     new OpenSystemCallTraceReplayModule(*prefetch_buffer_modules[0],
@@ -322,10 +323,13 @@ int main(int argc, char *argv[]) {
 					verbose,
 					verify,
 					warn_level);
-  ChmodSystemCallTraceReplayModule *chmod_module =
-    new ChmodSystemCallTraceReplayModule(*prefetch_buffer_modules[16],
-					 verbose,
-					 warn_level);
+  PWriteSystemCallTraceReplayModule *pwrite_module =
+    new PWriteSystemCallTraceReplayModule(*prefetch_buffer_modules[16],
+					  verbose,
+					  verify,
+					  warn_level,
+					  pattern_data);
+
   /*
    * This vector is going to used to load replaying modules.
    * Therefore, add replaying modules into this vector in here.
@@ -348,17 +352,18 @@ int main(int argc, char *argv[]) {
   system_call_trace_replay_modules.push_back(rmdir_module);
   system_call_trace_replay_modules.push_back(mkdir_module);
   system_call_trace_replay_modules.push_back(stat_module);
-  system_call_trace_replay_modules.push_back(chmod_module);
+  system_call_trace_replay_modules.push_back(pwrite_module);
 
   // Double check to make sure all replaying modules are loaded.
   if (system_call_trace_replay_modules.size() != system_calls.size()) {
-    std::cerr << "The number of loaded replaying modules is not same as the number of supported system calls\n";
+    std::cerr << "The number of loaded replaying modules is not same"
+	      << "as the number of supported system calls\n";
     abort();
   }
 
   /*
-   * Define a min heap that stores each module. The heap is ordered by
-   * unique_id field.
+   * Define a min heap that stores each module. The heap is ordered
+   * by unique_id field.
    */
   std::priority_queue<SystemCallTraceReplayModule*,
 		      std::vector<SystemCallTraceReplayModule*>,

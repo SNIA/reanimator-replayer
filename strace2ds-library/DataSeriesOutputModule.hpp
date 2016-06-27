@@ -82,8 +82,7 @@ private:
   /* Sink is a wrapper for a DataSeries output file. */
   DataSeriesSink ds_sink_;
   config_table_type config_table_;
-  u_int *record_num_;
-  u_int buffer_len;
+  u_int record_num_;
 
   // Disable copy constructor
   DataSeriesOutputModule(const DataSeriesOutputModule&);
@@ -211,6 +210,18 @@ private:
 			   long *args,
 			   u_int mode_offset);
 
+  // Maps LSeek System Call <field, value> pairs
+  void makeLSeekArgsMap(std::map<std::string, void *> &args_map, long *args);
+
+  // Maps PRead System Call <field, value> pairs
+  void makePReadArgsMap(std::map<std::string, void *> &args_map,
+		        long *args,
+		        void **v_args);
+
+  // Maps PWrite System Call <field, value> pairs
+  void makePWriteArgsMap(std::map<std::string, void *> &args_map,
+		         long *args,
+		         void **v_args);
 };
 
 #endif // DATA_SERIES_OUTPUT_MODULE_HPP

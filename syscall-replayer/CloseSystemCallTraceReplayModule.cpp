@@ -12,16 +12,16 @@
  * This file implements all the functions in the
  * CloseSystemCallTraceReplayModule header file.
  *
- * Read CloseSystemCallTraceReplayModule.hpp for more information about this
- * class.
+ * Read CloseSystemCallTraceReplayModule.hpp for more information
+ * about this class.
  */
 
 #include "CloseSystemCallTraceReplayModule.hpp"
 
-CloseSystemCallTraceReplayModule::CloseSystemCallTraceReplayModule(
-					   DataSeriesModule &source,
-					   bool verbose_flag,
-					   int warn_level_flag):
+CloseSystemCallTraceReplayModule::
+CloseSystemCallTraceReplayModule(DataSeriesModule &source,
+				 bool verbose_flag,
+				 int warn_level_flag):
   SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
   descriptor_(series, "descriptor") {
   sys_call_name_ = "close";

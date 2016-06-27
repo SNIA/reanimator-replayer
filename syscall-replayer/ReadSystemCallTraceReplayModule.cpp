@@ -12,17 +12,17 @@
  * This file implements all the functions in the
  * ReadSystemCallTraceReplayModule header file
  *
- * Read ReadSystemCallTraceReplayModule.hpp for more information about this
- * class.
+ * Read ReadSystemCallTraceReplayModule.hpp for more information
+ * about this class.
  */
 
 #include "ReadSystemCallTraceReplayModule.hpp"
 
-ReadSystemCallTraceReplayModule::ReadSystemCallTraceReplayModule(
-					 DataSeriesModule &source,
-					 bool verbose_flag,
-					 bool verify_flag,
-					 int warn_level_flag):
+ReadSystemCallTraceReplayModule::
+ReadSystemCallTraceReplayModule(DataSeriesModule &source,
+				bool verbose_flag,
+				bool verify_flag,
+				int warn_level_flag):
   SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
   verify_(verify_flag),
   descriptor_(series, "descriptor"),
@@ -55,8 +55,8 @@ void ReadSystemCallTraceReplayModule::processRow() {
       // Data aren't same
       std::cerr << "Verification of data in read failed.\n";
       if (!default_mode()) {
-	std::cout << "time called:" << std::fixed << time_called()
-		  << std::endl;
+	std::cout << "time called:" << std::fixed
+		  <<  Tfrac_to_sec(time_called()) << std::endl;
 	std::cout << "Captured read data is different from replayed read data"
 		  << std::endl;
 	std::cout << "Captured read data: " << data_read_.val() << ", ";
@@ -78,13 +78,13 @@ void ReadSystemCallTraceReplayModule::completeProcessing() {
 	    << std::endl;
 }
 
-PReadSystemCallTraceReplayModule::PReadSystemCallTraceReplayModule(
-					   DataSeriesModule &source,
-					   bool verbose_flag,
-					   bool verify_flag,
-					   int warn_level_flag):
-  ReadSystemCallTraceReplayModule(source, verbose_flag, verify_flag,
-				  warn_level_flag),
+PReadSystemCallTraceReplayModule::
+PReadSystemCallTraceReplayModule(DataSeriesModule &source,
+				 bool verbose_flag,
+				 bool verify_flag,
+				 int warn_level_flag):
+  ReadSystemCallTraceReplayModule(source, verbose_flag,
+				  verify_flag, warn_level_flag),
   offset_(series, "offset") {
   sys_call_name_ = "pread";
 }
@@ -105,16 +105,16 @@ void PReadSystemCallTraceReplayModule::processRow() {
   int nbytes = bytes_requested_.val();
   char buffer[nbytes];
   int offset = offset_.val();
-  int ret = pread(fd, buffer, nbytes, offset);
+  replayed_ret_val_ = pread(fd, buffer, nbytes, offset);
 
   if (verify_ == true) {
     // Verify read data and data in the trace file are same
-    if (memcmp(data_read_.val(), buffer, ret) != 0) {
+    if (memcmp(data_read_.val(), buffer, replayed_ret_val_) != 0) {
       // Data aren't same
       std::cerr << "Verification of data in pread failed.\n";
       if (warn_level_ != DEFAULT_MODE) {
-	std::cout << "time called:" << std::fixed << time_called()
-		  << std::endl;
+	std::cout << "time called:" << std::fixed
+		  <<  Tfrac_to_sec(time_called()) << std::endl;
 	std::cout << "Captured pread data is different from replayed pread data"
 		  << std::endl;
 	std::cout << "Captured pread data: " << data_read_.val() << ", ";

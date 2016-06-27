@@ -31,11 +31,7 @@
 DataSeriesOutputModule::DataSeriesOutputModule(std::ifstream &table_stream,
 					       const std::string xml_dir,
 					       const char *output_file) :
-  ds_sink_(output_file) {
-  // Initialize record number
-  record_num_ = (u_int *)malloc(sizeof(u_int));
-  *record_num_ = 0;
-
+  ds_sink_(output_file), record_num_(0) {
   // Initialize config table
   initConfigTable(table_stream);
 
@@ -98,7 +94,7 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
   struct timeval tv_time_recorded;
   u_int var32_len;
 
-  sys_call_args_map["unique_id"] = record_num_;
+  sys_call_args_map["unique_id"] = &record_num_;
   /*
    * Create a map from field names to field values.
    * Iterate through every possible fields (via table_).
@@ -150,6 +146,12 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
     makeTruncateArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "access") == 0) {
     makeAccessArgsMap(sys_call_args_map, args, v_args);
+  } else if (strcmp(extent_name, "lseek") == 0) {
+    makeLSeekArgsMap(sys_call_args_map, args);
+  } else if (strcmp(extent_name, "pread") == 0) {
+    makePReadArgsMap(sys_call_args_map, args, v_args);
+  } else if (strcmp(extent_name, "pwrite") == 0) {
+    makePWriteArgsMap(sys_call_args_map, args, v_args);
   }
 
   // Create a new record to write
@@ -196,7 +198,7 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
   }
 
   // Update record number
-  (*record_num_)++;
+  record_num_++;
 }
 
 // Destructor to delete the module
@@ -209,7 +211,6 @@ DataSeriesOutputModule::~DataSeriesOutputModule() {
     iter->second->close();
     delete iter->second;
   }
-  delete record_num_;
 }
 
 // Initialize config table
@@ -876,4 +877,44 @@ mode_t DataSeriesOutputModule::processAccessMode(std::map<std::string,
    * of unknown modes if the mode value is not set as zero.
    */
   return mode;
+}
+
+void DataSeriesOutputModule::makeLSeekArgsMap(std::map<std::string,
+					      void *> &args_map,
+					      long *args) {
+  args_map["descriptor"] = &args[0];
+  args_map["offset"] = &args[1];
+  args_map["whence"] = &args[2];
+}
+
+void DataSeriesOutputModule::makePReadArgsMap(std::map<std::string,
+					      void *> &args_map,
+					      long *args,
+					      void **v_args) {
+  args_map["descriptor"] = &args[0];
+
+  if (v_args[0] != NULL) {
+    args_map["data_read"] = &v_args[0];
+  } else {
+    std::cerr << "PRead: Data to be read is set as NULL!!" << std::endl;
+  }
+
+  args_map["bytes_requested"] = &args[2];
+  args_map["offset"] = &args[3];
+}
+
+void DataSeriesOutputModule::makePWriteArgsMap(std::map<std::string,
+					       void *> &args_map,
+					       long *args,
+					       void **v_args) {
+  args_map["descriptor"] = &args[0];
+
+  if (v_args[0] != NULL) {
+    args_map["data_written"] = &v_args[0];
+  } else {
+    std::cerr << "PWrite: Data to be written is set as NULL!!" << std::endl;
+  }
+
+  args_map["bytes_requested"] = &args[2];
+  args_map["offset"] = &args[3];
 }
