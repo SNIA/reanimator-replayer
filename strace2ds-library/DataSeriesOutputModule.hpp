@@ -82,7 +82,7 @@ private:
   /* Sink is a wrapper for a DataSeries output file. */
   DataSeriesSink ds_sink_;
   config_table_type config_table_;
-  u_int *record_num_;
+  u_int record_num_;
 
   // Disable copy constructor
   DataSeriesOutputModule(const DataSeriesOutputModule&);
