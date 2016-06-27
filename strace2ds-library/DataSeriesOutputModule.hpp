@@ -161,15 +161,32 @@ private:
 			long *args,
 			void **v_args);
 
-  // Maps Chdir, Rmdir, and Unlink System Calls <field, value> pairs
-  void makeChdirRmdirUnlinkArgsMap(std::map<std::string, void *> &args_map,
+  // Maps Chdir System Call <field, value> pairs
+  void makeChdirArgsMap(std::map<std::string, void *> &args_map,
 				   void **v_args);
 
-  // Maps Mkdir, Creat, and Chmod System Calls <field, value> pairs
-  void makeMkdirCreatChmodArgsMap(std::map<std::string, void *> &args_map,
+  // Maps Rmdir System Call <field, value> pairs
+  void makeRmdirArgsMap(std::map<std::string, void *> &args_map,
+				   void **v_args);
+
+  // Maps Unlink System Call <field, value> pairs
+  void makeUnlinkArgsMap(std::map<std::string, void *> &args_map,
+				   void **v_args);
+
+  // Maps Mkdir System Call <field, value> pairs
+  void makeMkdirArgsMap(std::map<std::string, void *> &args_map,
 				  long *args,
-				  void **v_args,
-				  const char *extent_name);
+				  void **v_args);
+
+  // Maps Creat System Call <field, value> pairs
+  void makeCreatArgsMap(std::map<std::string, void *> &args_map,
+				  long *args,
+				  void **v_args);
+
+  // Maps Chmod System Calls <field, value> pairs
+  void makeChmodArgsMap(std::map<std::string, void *> &args_map,
+				  long *args,
+				  void **v_args);
 
   // Maps Link System Call <field, value> pairs
   void makeLinkArgsMap(std::map<std::string, void *> &args_map,
