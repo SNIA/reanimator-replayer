@@ -43,6 +43,7 @@
 #include "StatSystemCallTraceReplayModule.hpp"
 #include "ReadlinkSystemCallTraceReplayModule.hpp"
 #include "UtimeSystemCallTraceReplayModule.hpp"
+#include "ChmodSystemCallTraceReplayModule.hpp"
 
 /*
  * min heap uses this function to sort elements in the tree.
@@ -222,6 +223,8 @@ int main(int argc, char *argv[]) {
   system_calls.push_back("mkdir");
   system_calls.push_back("stat");
   system_calls.push_back("pwrite");
+  system_calls.push_back("readlink");
+  system_calls.push_back("utime");
   system_calls.push_back("chmod");
 
   std::vector<TypeIndexModule *> type_index_modules;
@@ -349,6 +352,17 @@ int main(int argc, char *argv[]) {
 				 verify,
 				 warn_level,
 				 pattern_data);
+  ReadlinkSystemCallTraceReplayModule *readlink_module =
+    new ReadlinkSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 verify,
+				 warn_level);
+  UtimeSystemCallTraceReplayModule *utime_module =
+    new UtimeSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 warn_level);
   ChmodSystemCallTraceReplayModule *chmod_module =
     new ChmodSystemCallTraceReplayModule(
 				 *prefetch_buffer_modules[module_index++],
@@ -378,6 +392,8 @@ int main(int argc, char *argv[]) {
   system_call_trace_replay_modules.push_back(mkdir_module);
   system_call_trace_replay_modules.push_back(stat_module);
   system_call_trace_replay_modules.push_back(pwrite_module);
+  system_call_trace_replay_modules.push_back(readlink_module);
+  system_call_trace_replay_modules.push_back(utime_module);
   system_call_trace_replay_modules.push_back(chmod_module);
 
   // Double check to make sure all replaying modules are loaded.
