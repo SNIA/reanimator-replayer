@@ -12,16 +12,16 @@
  * This file implements all the functions in the
  * RmdirSystemCallTraceReplayModule header file.
  *
- * Read RmdirSystemCallTraceReplayModule.hpp for more information about this
- * class.
+ * Read RmdirSystemCallTraceReplayModule.hpp for more information
+ * about this class.
  */
 
 #include "RmdirSystemCallTraceReplayModule.hpp"
 
-RmdirSystemCallTraceReplayModule::RmdirSystemCallTraceReplayModule(
-					   DataSeriesModule &source,
-					   bool verbose_flag,
-					   int warn_level_flag):
+RmdirSystemCallTraceReplayModule::
+RmdirSystemCallTraceReplayModule(DataSeriesModule &source,
+				 bool verbose_flag,
+				 int warn_level_flag):
   SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
   given_pathname_(series, "given_pathname") {
   sys_call_name_ = "rmdir";

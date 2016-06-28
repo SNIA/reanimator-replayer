@@ -12,16 +12,16 @@
  * This file implements all the functions in the
  * ChdirSystemCallTraceReplayModule header file
  *
- * Read ChdirSystemCallTraceReplayModule.hpp for more information about this
- * class.
+ * Read ChdirSystemCallTraceReplayModule.hpp for more information
+ * about this class.
  */
 
 #include "ChdirSystemCallTraceReplayModule.hpp"
 
-ChdirSystemCallTraceReplayModule::ChdirSystemCallTraceReplayModule(
-					   DataSeriesModule &source,
-					   bool verbose_flag,
-					   int warn_level_flag):
+ChdirSystemCallTraceReplayModule::
+ChdirSystemCallTraceReplayModule(DataSeriesModule &source,
+				 bool verbose_flag,
+				 int warn_level_flag):
   SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
   given_pathname_(series, "given_pathname") {
   sys_call_name_ = "chdir";

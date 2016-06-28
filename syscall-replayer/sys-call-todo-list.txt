@@ -4,11 +4,11 @@ The POSIX system calls considered applicable to I/O tracing:
 2. write - support
 3. lseek - support
 4. mmap - NOT supported
-5. fstat - NOT supported
+5. fstat - In progress
 6. pread - support
 7. pwrite - support
-8. readv - NOT supported
-9. writev - NOT supported
+8. readv - In progress
+9. writev - In progress
 10. fcntl - NOT supported
 11. ioctl - NOT supported
 12. fsync - NOT supported
@@ -16,19 +16,20 @@ The POSIX system calls considered applicable to I/O tracing:
 14. close - support
 15. stat - In Progress
 16. lstat - In Progress
-17. access - NOT supported
+17. access - support
 18. execve - NOT supported
 19. truncate - support
 20. chdir - support
-21. mkdir - IN Progress
-22. rmdir - NOT supported
-23. creat - NOT supported
-24. link - NOT supported
+21. mkdir - support
+22. rmdir - support
+23. creat - support
+24. link - support
 25. unlink - support
 26. symlink - support
-27. readlink - NOT supported
-28. chmod - NOT supported
-29. utime - NOT supported
+27. readlink - In progress
+28. chmod - In progress
+29. chown - In progress
+30. utime - NOT supported
 31. utimes - NOT supported
 32. mknod - NOT supported
 33. munmap - NOT supported

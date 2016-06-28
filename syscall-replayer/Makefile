@@ -10,7 +10,7 @@
 # published by the Free Software Foundation.
 #
 # This Makefile is designed to facilate building all system call modules
-# and a system call replayer. 
+# and a system call replayer.
 #
 # USAGE
 # make clear - clear all the temp files and object files
@@ -31,14 +31,24 @@ CXX      = g++
 TARGETS = system-call-replayer
 
 SYSTEM_CALL_REPLAY_MODULE_OBJECTS = SystemCallTraceReplayer.o SystemCallTraceReplayModule.o \
-				    OpenSystemCallTraceReplayModule.o CloseSystemCallTraceReplayModule.o \
-				    ReadSystemCallTraceReplayModule.o WriteSystemCallTraceReplayModule.o \
-				    LSeekSystemCallTraceReplayModule.o TruncateSystemCallTraceReplayModule.o \
-				    AccessSystemCallTraceReplayModule.o UnlinkSystemCallTraceReplayModule.o \
-				    RmdirSystemCallTraceReplayModule.o LinkSystemCallTraceReplayModule.o \
-				    CreatSystemCallTraceReplayModule.o ChdirSystemCallTraceReplayModule.o \
-				    SymlinkSystemCallTraceReplayModule.o MkdirSystemCallTraceReplayModule.o \
-				    StatSystemCallTraceReplayModule.o ChmodSystemCallTraceReplayModule.o
+				    OpenSystemCallTraceReplayModule.o \
+				    CloseSystemCallTraceReplayModule.o \
+				    ReadSystemCallTraceReplayModule.o \
+				    WriteSystemCallTraceReplayModule.o \
+				    LSeekSystemCallTraceReplayModule.o \
+				    TruncateSystemCallTraceReplayModule.o \
+				    AccessSystemCallTraceReplayModule.o \
+				    UnlinkSystemCallTraceReplayModule.o \
+				    RmdirSystemCallTraceReplayModule.o \
+				    LinkSystemCallTraceReplayModule.o \
+				    CreatSystemCallTraceReplayModule.o \
+				    ChdirSystemCallTraceReplayModule.o \
+				    SymlinkSystemCallTraceReplayModule.o \
+				    MkdirSystemCallTraceReplayModule.o \
+				    StatSystemCallTraceReplayModule.o \
+				    ReadlinkSystemCallTraceReplayModule.o \
+				    UtimeSystemCallTraceReplayModule.o \
+				    ChmodSystemCallTraceReplayModule.o
 
 # Modify following variables if the path of your replayer is different.
 SYS_CALL_REPLAYER_DIR=$(HOME)/trace2model/syscall-replayer

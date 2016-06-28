@@ -12,16 +12,16 @@
  * This file implements all the functions in the
  * LinkSystemCallTraceReplayModule header file
  *
- * Read LinkSystemCallTraceReplayModule.hpp for more information about this
- * class.
+ * Read LinkSystemCallTraceReplayModule.hpp for more information
+ * about this class.
  */
 
 #include "LinkSystemCallTraceReplayModule.hpp"
 
-LinkSystemCallTraceReplayModule::LinkSystemCallTraceReplayModule(
-					 DataSeriesModule &source,
-					 bool verbose_flag,
-					 int warn_level_flag):
+LinkSystemCallTraceReplayModule::
+LinkSystemCallTraceReplayModule(DataSeriesModule &source,
+				bool verbose_flag,
+				int warn_level_flag):
   SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
   given_oldpathname_(series, "given_oldpathname"),
   given_newpathname_(series, "given_newpathname") {

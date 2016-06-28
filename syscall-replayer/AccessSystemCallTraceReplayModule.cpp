@@ -12,16 +12,16 @@
  * This file implements all the functions in the
  * AccessSystemCallTraceReplayModule header file
  *
- * Read AccessSystemCallTraceReplayModule.hpp for more information about this
- * class.
+ * Read AccessSystemCallTraceReplayModule.hpp for more information
+ * about this class.
  */
 
 #include "AccessSystemCallTraceReplayModule.hpp"
 
-AccessSystemCallTraceReplayModule::AccessSystemCallTraceReplayModule(
-					     DataSeriesModule &source,
-					     bool verbose_flag,
-					     int warn_level_flag):
+AccessSystemCallTraceReplayModule::
+AccessSystemCallTraceReplayModule(DataSeriesModule &source,
+				  bool verbose_flag,
+				  int warn_level_flag):
   SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
   given_pathname_(series, "given_pathname"),
   mode_value_(series, "mode_value", Field::flag_nullable) {
