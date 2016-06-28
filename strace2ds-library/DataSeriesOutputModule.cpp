@@ -152,6 +152,8 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
     makePReadArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "pwrite") == 0) {
     makePWriteArgsMap(sys_call_args_map, args, v_args);
+  } else if (strcmp(extent_name, "stat") == 0) {
+    makeStatArgsMap(sys_call_args_map, v_args);
   }
 
   // Create a new record to write
@@ -666,6 +668,12 @@ uint64_t DataSeriesOutputModule::timeval_to_Tfrac(struct timeval tv) {
   return time_Tfracs;
 }
 
+uint64_t DataSeriesOutputModule::timespec_to_Tfrac(struct timespec ts) {
+  double time_seconds = (double) ts.tv_sec + pow(10.0, -9) * ts.tv_nsec;
+  uint64_t time_Tfracs = (uint64_t)(time_seconds * (((uint64_t)1)<<32));
+  return time_Tfracs;
+}
+
 void DataSeriesOutputModule::makeReadArgsMap(std::map<std::string,
 					     void *> &args_map,
 					     long *args,
@@ -917,4 +925,40 @@ void DataSeriesOutputModule::makePWriteArgsMap(std::map<std::string,
 
   args_map["bytes_requested"] = &args[2];
   args_map["offset"] = &args[3];
+}
+
+void DataSeriesOutputModule::makeStatArgsMap(std::map<std::string,
+					     void *> &args_map,
+					     void **v_args) {
+  if (v_args[0] != NULL) {
+    args_map["given_pathname"] = &v_args[0];
+  } else {
+    std::cerr << "Stat: Pathname is set as NULL!!" << std::endl;
+  }
+
+  struct stat *statbuf = (struct stat *) v_args[1];
+
+  args_map["stat_result_dev"] = &statbuf->st_dev;
+  args_map["stat_result_ino"] = &statbuf->st_ino;
+  args_map["stat_result_mode"] = &statbuf->st_mode;
+  args_map["stat_result_nlink"] = &statbuf->st_nlink;
+  args_map["stat_result_uid"] = &statbuf->st_uid;
+  args_map["stat_result_gid"] = &statbuf->st_gid;
+  args_map["stat_result_rdev"] = &statbuf->st_rdev;
+  args_map["stat_result_size"] = &statbuf->st_size;
+  args_map["stat_result_blksize"] = &statbuf->st_blksize;
+  args_map["stat_result_blocks"] = &statbuf->st_blocks;
+
+  /*
+   * Convert stat_result_atime, stat_result_mtime and
+   * stat_result_ctime to Tfracs.
+   */
+  uint64_t atime_Tfrac = timespec_to_Tfrac(statbuf->st_atim);
+  uint64_t mtime_Tfrac = timespec_to_Tfrac(statbuf->st_mtim);
+  uint64_t ctime_Tfrac = timespec_to_Tfrac(statbuf->st_ctim);
+  std::cerr << "atime: " << atime_Tfrac << std::endl;
+  std::cerr << "mtime: " << mtime_Tfrac << std::endl;
+  args_map["stat_result_atime"] = &atime_Tfrac;
+  args_map["stat_result_mtime"] = &mtime_Tfrac;
+  args_map["stat_result_ctime"] = &ctime_Tfrac;
 }
