@@ -154,6 +154,8 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
     makePWriteArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "chown") == 0) {
     makeChownArgsMap(sys_call_args_map, args, v_args);
+  } else if (strcmp(extent_name, "readlink") == 0) {
+    makeReadlinkArgsMap(sys_call_args_map, args, v_args);
   }
 
   // Create a new record to write
@@ -439,7 +441,9 @@ u_int DataSeriesOutputModule::getVariable32FieldLength(std::map<std::string,
      * If field_name refers to the actual data read or written, then length
      * of buffer must be the return value of that corresponding system call.
      */
-    } else if (field_name == "data_read" || field_name == "data_written")
+    } else if ((field_name == "data_read") ||
+	       (field_name == "data_written") ||
+	       (field_name == "link_value"))
       length = *(int *)(args_map["return_value"]);
   } else {
     std::cerr << "WARNING: field_name = " << field_name << " ";
@@ -933,4 +937,23 @@ void DataSeriesOutputModule::makeChownArgsMap(std::map<std::string,
 
   args_map["new_owner"] = &args[1];
   args_map["new_group"] = &args[2];
+}
+
+void DataSeriesOutputModule::makeReadlinkArgsMap(std::map<std::string,
+						 void *> &args_map,
+						 long *args,
+						 void **v_args) {
+  if (v_args[0] != NULL) {
+    args_map["given_pathname"] = &v_args[0];
+  } else {
+    std::cerr << "Readlink: Pathname is set as NULL!!" << std::endl;
+  }
+
+  if (v_args[1] != NULL) {
+    args_map["link_value"] = &v_args[1];
+  } else {
+    std::cerr << "Readlink: Link value is set as NULL!" << std::endl;
+  }
+
+  args_map["buffer_size"] = &args[2];
 }
