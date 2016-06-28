@@ -63,6 +63,6 @@ public:
   ReadlinkSystemCallTraceReplayModule(DataSeriesModule &source,
 				   bool verbose_flag,
 				   bool verify_flag,
-                                   int warn_level_flag);
+				   int warn_level_flag);
 };
 #endif /* READLINK_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

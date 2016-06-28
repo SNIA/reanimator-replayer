@@ -47,7 +47,9 @@ SYSTEM_CALL_REPLAY_MODULE_OBJECTS = SystemCallTraceReplayer.o SystemCallTraceRep
 				    MkdirSystemCallTraceReplayModule.o \
 				    StatSystemCallTraceReplayModule.o \
 				    ReadlinkSystemCallTraceReplayModule.o \
-				    UtimeSystemCallTraceReplayModule.o
+				    UtimeSystemCallTraceReplayModule.o \
+				    ChmodSystemCallTraceReplayModule.o \
+				    ChownSystemCallTraceReplayModule.o
 
 # Modify following variables if the path of your replayer is different.
 SYS_CALL_REPLAYER_DIR=$(HOME)/trace2model/syscall-replayer
