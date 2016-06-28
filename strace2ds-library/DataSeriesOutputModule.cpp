@@ -152,6 +152,8 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
     makePReadArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "pwrite") == 0) {
     makePWriteArgsMap(sys_call_args_map, args, v_args);
+  } else if (strcmp(extent_name, "chown") == 0) {
+    makeChownArgsMap(sys_call_args_map, args, v_args);
   }
 
   // Create a new record to write
@@ -917,4 +919,18 @@ void DataSeriesOutputModule::makePWriteArgsMap(std::map<std::string,
 
   args_map["bytes_requested"] = &args[2];
   args_map["offset"] = &args[3];
+}
+
+void DataSeriesOutputModule::makeChownArgsMap(std::map<std::string,
+					      void *> &args_map,
+					      long *args,
+					      void **v_args) {
+  if (v_args[0] != NULL) {
+    args_map["given_pathname"] = &v_args[0];
+  } else {
+    std::cerr << "Chown: Pathname is set as NULL!!" << std::endl;
+  }
+
+  args_map["new_owner"] = &args[1];
+  args_map["new_group"] = &args[2];
 }
