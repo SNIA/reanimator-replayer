@@ -221,6 +221,7 @@ int main(int argc, char *argv[]) {
   system_calls.push_back("mkdir");
   system_calls.push_back("stat");
   system_calls.push_back("pwrite");
+  system_calls.push_back("chmod");
 
   std::vector<TypeIndexModule *> type_index_modules;
 
@@ -254,81 +255,104 @@ int main(int argc, char *argv[]) {
    * IMPORTANT: each entry in prefetch_buffer_modules corresponds to
    * its own module.
    */
+  int module_index = 0;
   OpenSystemCallTraceReplayModule *open_module =
-    new OpenSystemCallTraceReplayModule(*prefetch_buffer_modules[0],
-					verbose,
-					warn_level);
+    new OpenSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 warn_level);
   CloseSystemCallTraceReplayModule *close_module =
-    new CloseSystemCallTraceReplayModule(*prefetch_buffer_modules[1],
-					 verbose,
-					 warn_level);
+    new CloseSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 warn_level);
   ReadSystemCallTraceReplayModule *read_module =
-    new ReadSystemCallTraceReplayModule(*prefetch_buffer_modules[2],
-					verbose,
-					verify,
-					warn_level);
+    new ReadSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 verify,
+				 warn_level);
   WriteSystemCallTraceReplayModule *write_module =
-    new WriteSystemCallTraceReplayModule(*prefetch_buffer_modules[3],
-					 verbose,
-					 verify,
-					 warn_level,
-					 pattern_data);
+    new WriteSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 verify,
+				 warn_level,
+				 pattern_data);
   LSeekSystemCallTraceReplayModule *lseek_module =
-    new LSeekSystemCallTraceReplayModule(*prefetch_buffer_modules[4],
-					 verbose,
-					 warn_level);
+    new LSeekSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 warn_level);
   PReadSystemCallTraceReplayModule *pread_module =
-    new PReadSystemCallTraceReplayModule(*prefetch_buffer_modules[5],
-					 verbose,
-					 verify,
-					 warn_level);
+    new PReadSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 verify,
+				 warn_level);
   AccessSystemCallTraceReplayModule *access_module =
-    new AccessSystemCallTraceReplayModule(*prefetch_buffer_modules[6],
-					  verbose,
-					  warn_level);
+    new AccessSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 warn_level);
   ChdirSystemCallTraceReplayModule *chdir_module =
-    new ChdirSystemCallTraceReplayModule(*prefetch_buffer_modules[7],
-					 verbose,
-					 warn_level);
+    new ChdirSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 warn_level);
   TruncateSystemCallTraceReplayModule *truncate_module =
-    new TruncateSystemCallTraceReplayModule(*prefetch_buffer_modules[8],
-					    verbose,
-					    warn_level);
+    new TruncateSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 warn_level);
   CreatSystemCallTraceReplayModule *creat_module =
-    new CreatSystemCallTraceReplayModule(*prefetch_buffer_modules[9],
-					 verbose,
-					 warn_level);
+    new CreatSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 warn_level);
   LinkSystemCallTraceReplayModule *link_module =
-    new LinkSystemCallTraceReplayModule(*prefetch_buffer_modules[10],
-					verbose,
-					warn_level);
+    new LinkSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 warn_level);
   UnlinkSystemCallTraceReplayModule *unlink_module =
-    new UnlinkSystemCallTraceReplayModule(*prefetch_buffer_modules[11],
-					  verbose,
-					  warn_level);
+    new UnlinkSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 warn_level);
   SymlinkSystemCallTraceReplayModule *symlink_module =
-    new SymlinkSystemCallTraceReplayModule(*prefetch_buffer_modules[12],
-					   verbose,
-					   warn_level);
+    new SymlinkSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 warn_level);
   RmdirSystemCallTraceReplayModule *rmdir_module =
-    new RmdirSystemCallTraceReplayModule(*prefetch_buffer_modules[13],
-					 verbose,
-					 warn_level);
+    new RmdirSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 warn_level);
   MkdirSystemCallTraceReplayModule *mkdir_module =
-    new MkdirSystemCallTraceReplayModule(*prefetch_buffer_modules[14],
-					 verbose,
-					 warn_level);
+    new MkdirSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 warn_level);
   StatSystemCallTraceReplayModule *stat_module =
-    new StatSystemCallTraceReplayModule(*prefetch_buffer_modules[15],
-					verbose,
-					verify,
-					warn_level);
+    new StatSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 verify,
+				 warn_level);
   PWriteSystemCallTraceReplayModule *pwrite_module =
-    new PWriteSystemCallTraceReplayModule(*prefetch_buffer_modules[16],
-					  verbose,
-					  verify,
-					  warn_level,
-					  pattern_data);
+    new PWriteSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 verify,
+				 warn_level,
+				 pattern_data);
+  ChmodSystemCallTraceReplayModule *chmod_module =
+    new ChmodSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 warn_level);
 
   /*
    * This vector is going to used to load replaying modules.
@@ -353,6 +377,7 @@ int main(int argc, char *argv[]) {
   system_call_trace_replay_modules.push_back(mkdir_module);
   system_call_trace_replay_modules.push_back(stat_module);
   system_call_trace_replay_modules.push_back(pwrite_module);
+  system_call_trace_replay_modules.push_back(chmod_module);
 
   // Double check to make sure all replaying modules are loaded.
   if (system_call_trace_replay_modules.size() != system_calls.size()) {
