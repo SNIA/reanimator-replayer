@@ -10,9 +10,9 @@
  * published by the Free Software Foundation.
  *
  * This file implements all the functions in the
- * MkdirSystemCallTraceReplayModule header file
+ * ChmodSystemCallTraceReplayModule header file
  *
- * Read MkdirSystemCallTraceReplayModule.hpp for more information about this
+ * Read ChmodSystemCallTraceReplayModule.hpp for more information about this
  * class.
  */
 

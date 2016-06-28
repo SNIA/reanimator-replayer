@@ -9,11 +9,11 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
- * This header file provides members and functions for implementing mkdir
+ * This header file provides members and functions for implementing chmod
  * system call.
  *
- * MkdirSystemCallTraceReplayerModule is a class/module that
- * has members and functions of replaying mkdir system call.
+ * ChmodSystemCallTraceReplayerModule is a class/module that
+ * has members and functions of replaying chmod system call.
  *
  * USAGE
  * A main program could initialize this class with a dataseries file
@@ -49,7 +49,7 @@ private:
 
   /*
    * This function will gather arguments in the trace file
-   * and replay an mkdir system call with those arguments.
+   * and replay an chmod system call with those arguments.
    */
   void processRow();
 
