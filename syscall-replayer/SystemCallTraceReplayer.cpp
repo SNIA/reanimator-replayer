@@ -44,6 +44,7 @@
 #include "ReadlinkSystemCallTraceReplayModule.hpp"
 #include "UtimeSystemCallTraceReplayModule.hpp"
 #include "ChmodSystemCallTraceReplayModule.hpp"
+#include "ChownSystemCallTraceReplayModule.hpp"
 
 /*
  * min heap uses this function to sort elements in the tree.
@@ -87,7 +88,7 @@ boost::program_options::variables_map get_options(int argc,
   config.add_options()
     ("verbose,v", "system calls replay in verbose mode")
     ("verify", "verifies that the data being written/read is \
-                exactly what was used originally")
+		exactly what was used originally")
     ("warn,w", po::value<int>(), "system call replays in warn mode")
     ("pattern,p", po::value<std::string>(),
      "write repeated pattern data in write system call")
@@ -226,6 +227,7 @@ int main(int argc, char *argv[]) {
   system_calls.push_back("readlink");
   system_calls.push_back("utime");
   system_calls.push_back("chmod");
+  system_calls.push_back("chown");
 
   std::vector<TypeIndexModule *> type_index_modules;
 
@@ -368,6 +370,11 @@ int main(int argc, char *argv[]) {
 				 *prefetch_buffer_modules[module_index++],
 				 verbose,
 				 warn_level);
+  ChownSystemCallTraceReplayModule *chown_module =
+    new ChownSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 warn_level);
 
   /*
    * This vector is going to used to load replaying modules.
@@ -395,6 +402,7 @@ int main(int argc, char *argv[]) {
   system_call_trace_replay_modules.push_back(readlink_module);
   system_call_trace_replay_modules.push_back(utime_module);
   system_call_trace_replay_modules.push_back(chmod_module);
+  system_call_trace_replay_modules.push_back(chown_module);
 
   // Double check to make sure all replaying modules are loaded.
   if (system_call_trace_replay_modules.size() != system_calls.size()) {
