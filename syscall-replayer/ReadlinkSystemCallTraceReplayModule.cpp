@@ -57,9 +57,10 @@ void ReadlinkSystemCallTraceReplayModule::processRow() {
       // Target path aren't same
       std::cerr << "Verification of path in readlink failed.\n";
       if (!default_mode()) {
-	std::cout << "time called:" << std::fixed << time_called() << std::endl;
+	std::cout << "time called:" << std::fixed << time_called()
+		  << std::endl;
 	std::cout << "Captured readlink path is different from replayed\
-                      readlink path" << std::endl;
+		      readlink path" << std::endl;
 	std::cout << "Captured readlink path: "
 		  << (char*)link_value_.val() << ", ";
 	std::cout << "Replayed readlink path: "
