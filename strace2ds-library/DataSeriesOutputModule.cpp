@@ -438,7 +438,7 @@ u_int DataSeriesOutputModule::getVariable32FieldLength(std::map<std::string,
 	(field_name == "given_newpathname") ||
 	(field_name == "target_pathname")) {
       void *field_value = args_map[field_name];
-      length = strlen(*(char **)field_value);
+      length = strlen(*(char **) field_value);
     /*
      * If field_name refers to the actual data read or written, then length
      * of buffer must be the return value of that corresponding system call.
@@ -670,12 +670,12 @@ mode_t DataSeriesOutputModule::processMode(std::map<std::string,
 
 uint64_t DataSeriesOutputModule::timeval_to_Tfrac(struct timeval tv) {
   double time_seconds = (double) tv.tv_sec + pow(10.0, -6) * tv.tv_usec;
-  uint64_t time_Tfracs = (uint64_t)(time_seconds * (((uint64_t)1)<<32));
+  uint64_t time_Tfracs = (uint64_t) (time_seconds * (((uint64_t) 1)<<32));
   return time_Tfracs;
 }
 
-uint64_t DataSeriesOutputModule::sec_to_Tfrac(long time) {
-  uint64_t time_Tfracs = (uint64_t)(time * (((uint64_t)1)<<32));
+uint64_t DataSeriesOutputModule::sec_to_Tfrac(time_t time) {
+  uint64_t time_Tfracs = (uint64_t) (time * (((uint64_t) 1)<<32));
   return time_Tfracs;
 }
 
@@ -976,26 +976,18 @@ void DataSeriesOutputModule::makeUtimeArgsMap(std::map<std::string,
   } else {
     std::cerr << "Utime: Pathname is set as NULL!!" << std::endl;
   }
-    if (v_args[1] != NULL) {
-      struct utimbuf *times = (struct utimbuf *)v_args[1];
-      long access_time = (long)times->actime;
-      long mod_time = (long)times->modtime;
-      access_time_Tfrac = sec_to_Tfrac(access_time);
-      mod_time_Tfrac = sec_to_Tfrac(mod_time);
-      if (access_time < 0) {
-	std::cerr << "Utime: Access time is a negative value. \
-Negative values are unsupported and may result in inaccurate traces."
-		  << std::endl;
-      }
-      if (mod_time < 0) {
-	std::cerr << "Utime: Mod time is a negative value. \
-Negative values are unsupported and may result in inaccurate traces."
-		  << std::endl;
-      }
-    } else {
-    std::cerr << "Utime: struct utimbuf is set as NULL!!" << std::endl;
-    }
 
-    args_map["access_time"] = &access_time_Tfrac;
-    args_map["mod_time"] = &mod_time_Tfrac;
+  if (v_args[1] != NULL) {
+    struct utimbuf *times = (struct utimbuf *) v_args[1];
+
+    // Convert the time_t members of the struct utimbuf to Tfracs (uint64_t)
+    access_time_Tfrac = sec_to_Tfrac(times->actime);
+    mod_time_Tfrac = sec_to_Tfrac(times->modtime);
+  } else {
+    // In the case of a NULL utimbuf, set access_time and mod_time equal to 0
+    access_time_Tfrac = 0;
+    mod_time_Tfrac = 0;
+  }
+  args_map["access_time"] = &access_time_Tfrac;
+  args_map["mod_time"] = &mod_time_Tfrac;
 }

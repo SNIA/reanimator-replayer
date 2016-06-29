@@ -152,7 +152,7 @@ private:
   uint64_t timeval_to_Tfrac(struct timeval tv);
 
   // Convert time from a long (seconds) to a uint64_t in Tfracs
-  uint64_t sec_to_Tfrac(long time);
+  uint64_t sec_to_Tfrac(time_t time);
 
   // Maps Read System Call <field, value> pairs
   void makeReadArgsMap(std::map<std::string, void *> &args_map,
