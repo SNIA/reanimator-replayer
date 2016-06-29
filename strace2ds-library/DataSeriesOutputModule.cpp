@@ -962,8 +962,6 @@ void DataSeriesOutputModule::makeStatArgsMap(std::map<std::string,
   uint64_t atime_Tfrac = timespec_to_Tfrac(statbuf->st_atim);
   uint64_t mtime_Tfrac = timespec_to_Tfrac(statbuf->st_mtim);
   uint64_t ctime_Tfrac = timespec_to_Tfrac(statbuf->st_ctim);
-  std::cerr << "atime: " << atime_Tfrac << std::endl;
-  std::cerr << "mtime: " << mtime_Tfrac << std::endl;
   args_map["stat_result_atime"] = &atime_Tfrac;
   args_map["stat_result_mtime"] = &mtime_Tfrac;
   args_map["stat_result_ctime"] = &ctime_Tfrac;
