@@ -86,4 +86,37 @@ public:
 
 };
 
+class LStatSystemCallTraceReplayModule : public StatSystemCallTraceReplayModule {
+private:
+  /*
+   * This function will prepare things before replaying any
+   * lstat system call. Right now it displays a starting
+   * message.
+   */
+  void prepareForProcessing();
+
+  /*
+   * Print lstat sys call field values in a nice format
+   */
+  void print_specific_fields();
+
+  /*
+   * This function will gather arguments in the trace file
+   * and replay an lstat system call with those arguments.
+   */
+  void processRow();
+
+  /*
+   * This function will do things that have be done
+   * after finishing replaying all lstat system calls.
+   * Now, it only displays an ending message.
+   */
+  void completeProcessing();
+
+public:
+  LStatSystemCallTraceReplayModule(DataSeriesModule &source,
+				  bool verbose_flag,
+				  bool verify_flag,
+				  int warn_level_flag);
+};
 #endif /* STAT_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

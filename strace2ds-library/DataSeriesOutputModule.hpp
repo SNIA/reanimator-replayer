@@ -227,8 +227,8 @@ private:
 
   // Maps PWrite System Call <field, value> pairs
   void makePWriteArgsMap(std::map<std::string, void *> &args_map,
-		         long *args,
-		         void **v_args);
+			 long *args,
+			 void **v_args);
 
   // Maps Stat System Call <field, value> pairs
   void makeStatArgsMap(std::map<std::string, void *> &args_map,
@@ -247,6 +247,10 @@ private:
   // Maps Utime System Call <field, value> pairs
   void makeUtimeArgsMap(std::map<std::string, void *> &args_map,
 			void **v_args);
+
+  // Maps LStat System Call <field, value> pairs
+  void makeLStatArgsMap(std::map<std::string, void *> &args_map,
+		       void **v_args);
 };
 
 #endif // DATA_SERIES_OUTPUT_MODULE_HPP
