@@ -43,6 +43,7 @@
 #include <strace2ds.h>
 
 #include <fcntl.h>
+#include <utime.h>
 
 /* map<fieldname, pair<nullable, ExtentType> */
 typedef std::map<std::string,
@@ -150,6 +151,9 @@ private:
   // Convert time from a timeval to a uint64_t in Tfracs
   uint64_t timeval_to_Tfrac(struct timeval tv);
 
+  // Convert time from a long (seconds) to a uint64_t in Tfracs
+  uint64_t sec_to_Tfrac(long time);
+
   // Maps Read System Call <field, value> pairs
   void makeReadArgsMap(std::map<std::string, void *> &args_map,
 		       long *args,
@@ -232,6 +236,10 @@ private:
   void makeReadlinkArgsMap(std::map<std::string, void *> &args_map,
 			   long *args,
 			   void **v_args);
+
+  // Maps Utime System Call <field, value> pairs
+  void makeUtimeArgsMap(std::map<std::string, void *> &args_map,
+			void **v_args);
 };
 
 #endif // DATA_SERIES_OUTPUT_MODULE_HPP

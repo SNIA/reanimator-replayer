@@ -30,9 +30,10 @@ UtimeSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void UtimeSystemCallTraceReplayModule::print_specific_fields() {
-  std::cout << "given_pathname(" << given_pathname_.val() << "), ";
-  std::cout << "access_time(" << (double)access_time_.val() << "), ";
-  std::cout << "mod_time(" << (double)mod_time_.val() << ")";
+  std::cout << "given_pathname(" << given_pathname_.val() << ")," << std::endl;
+  std::cout << "access_time(" << Tfrac_to_sec(access_time_.val())
+	    << ")," << std::endl;
+  std::cout << "mod_time(" << Tfrac_to_sec(mod_time_.val()) << ")";
 }
 
 void UtimeSystemCallTraceReplayModule::prepareForProcessing() {
@@ -44,8 +45,8 @@ void UtimeSystemCallTraceReplayModule::processRow() {
   // Get replaying file given_pathname.
   struct utimbuf utimebuf;
   const char *pathname = (char *)given_pathname_.val();
-  utimebuf.actime = (double)access_time_.val();
-  utimebuf.modtime = (double)mod_time_.val();
+  utimebuf.actime = Tfrac_to_sec(access_time_.val());
+  utimebuf.modtime = Tfrac_to_sec(mod_time_.val());
 
   // Replay the utime system call.
   replayed_ret_val_ = utime(pathname, &utimebuf);
