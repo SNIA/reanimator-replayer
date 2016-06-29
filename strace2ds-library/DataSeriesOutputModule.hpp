@@ -154,6 +154,9 @@ private:
   // Convert time from a long (seconds) to a uint64_t in Tfracs
   uint64_t sec_to_Tfrac(time_t time);
 
+  // Convert time from a timespec to a uint64_t in Tfracs
+  uint64_t timespec_to_Tfrac(struct timespec ts);
+
   // Maps Read System Call <field, value> pairs
   void makeReadArgsMap(std::map<std::string, void *> &args_map,
 		       long *args,
@@ -224,8 +227,12 @@ private:
 
   // Maps PWrite System Call <field, value> pairs
   void makePWriteArgsMap(std::map<std::string, void *> &args_map,
-			 long *args,
-			 void **v_args);
+		         long *args,
+		         void **v_args);
+
+  // Maps Stat System Call <field, value> pairs
+  void makeStatArgsMap(std::map<std::string, void *> &args_map,
+		       void **v_args);
 
   // Maps Chown System Call <field, value> pairs
   void makeChownArgsMap(std::map<std::string, void *> &args_map,
