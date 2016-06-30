@@ -158,6 +158,8 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
     makeChownArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "readlink") == 0) {
     makeReadlinkArgsMap(sys_call_args_map, args, v_args);
+  } else if (strcmp(extent_name, "readv") == 0) {
+    makeReadvArgsMap(sys_call_args_map, args, v_args);
   }
 
   // Create a new record to write
@@ -1002,4 +1004,25 @@ void DataSeriesOutputModule::makeReadlinkArgsMap(std::map<std::string,
   }
 
   args_map["buffer_size"] = &args[2];
+}
+
+void DataSeriesOutputModule::makeReadvArgsMap(std::map<std::string,
+					      void *> &args_map,
+					      long *args,
+					      void **v_args) {
+  bool first_record = *(bool *) v_args[0];
+  if (first_record) {
+    args_map["descriptor"] = &args[0];
+    args_map["count"] = &args[2];
+    args_map["iov_number"] = v_args[1];
+    args_map["bytes_requested"] = v_args[2];
+  } else {
+    args_map["iov_number"] = v_args[1];
+    args_map["bytes_requested"] = v_args[2];
+    args_map["return_value"] = v_args[2];
+    if (v_args[3] != NULL)
+      args_map["data_read"] = &v_args[3];
+    else
+      std::cerr << "Readv: Data to be read is set as NULL" << std::endl;
+  }
 }

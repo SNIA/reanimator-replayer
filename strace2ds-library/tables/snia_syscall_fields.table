@@ -63,13 +63,13 @@ pwrite	data_written	1	variable32
 readv	descriptor	1	int32
 readv	count	1	int32
 readv	iov_number	0	int32
-readv	buffer_ptr	0	int64
+readv	buffer_ptr	1	int64
 readv	bytes_requested	0	int64
 readv	data_read	1	variable32
 writev	descriptor	1	int32
 writev	count	1	int32
 writev	iov_number	0	int32
-writev	buffer_ptr	0	int64
+writev	buffer_ptr	1	int64
 writev	bytes_requested	0	int64
 writev	data_written	1	variable32
 fcntl	descriptor	0	int32

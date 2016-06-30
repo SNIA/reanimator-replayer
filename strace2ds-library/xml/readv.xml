@@ -13,7 +13,7 @@
   <field name="descriptor" type="int32" opt_nullable="yes"/>
   <field name="count" type="int32" opt_nullable="yes"/>
   <field name="iov_number" type="int32" opt_nullable="no"/>
-  <field name="buffer_ptr" type="int64" opt_nullable="no"/>
+  <field name="buffer_ptr" type="int64" opt_nullable="yes"/>
   <field name="bytes_requested" type="int64" opt_nullable="no"/>
   <field name="data_read" type="variable32" opt_nullable="yes"/>
 </ExtentType>
