@@ -99,8 +99,6 @@ void BasicStatSystemCallTraceReplayModule::verifyResult(
   int stat_result_blksize = (int) stat_result_blksize_.val();
   int stat_result_blocks = (int) stat_result_blocks_.val();
 
-  std::cout << "Verifying result of system call " << sys_call_name_
-	    << ":" << std::endl;
   /* Verify stat buffer contents in the trace file are same
    * We are comparing only key fields captured in strace : st_ino,
    * st_mode, st_nlink, st_uid, st_gid, st_size, st_blksize and
@@ -116,12 +114,14 @@ void BasicStatSystemCallTraceReplayModule::verifyResult(
       stat_result_blocks != replayed_stat_buf.st_blocks) {
 
       // Stat buffers aren't same
-      std::cerr << "Verification of stat buffer content failed.\n";
+    std::cerr << "Verification of " << sys_call_name_
+	      << " buffer content failed.\n";
       if (!default_mode()) {
-	std::cout << "time called:" << std::fixed << time_called()
-		  << std::endl;
-	std::cout << "Captured stat content is different from replayed"
-		  << "stat content" << std::endl;
+	std::cout << "time called:" << std::fixed
+		  << Tfrac_to_sec(time_called()) << std::endl;
+	std::cout << "Captured " << sys_call_name_
+		  << " content is different from replayed "
+		  << sys_call_name_ << " content" << std::endl;
 	std::cout << "Captured file inode: " << stat_result_ino << ", ";
 	std::cout << "Replayed file inode: " << replayed_stat_buf.st_ino
 		  << std::endl;
@@ -156,7 +156,8 @@ void BasicStatSystemCallTraceReplayModule::verifyResult(
       }
     } else {
       if (verbose_mode()) {
-	std::cout << "Verification of stat buffer succeeded.\n";
+	std::cout << "Verification of " << sys_call_name_
+		  << " buffer succeeded.\n";
       }
   }
 }
