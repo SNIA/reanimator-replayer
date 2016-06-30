@@ -63,7 +63,7 @@ protected:
    * Print stat sys call mode values in format as
    * Format: drwxrwxrwx
    */
-  void print_mode_value(unsigned int st_mode);
+  void print_mode_value(u_int st_mode);
 
   /*
    * This function will gather arguments in the trace file

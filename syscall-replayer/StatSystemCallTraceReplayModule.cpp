@@ -48,7 +48,7 @@ void StatSystemCallTraceReplayModule::prepareForProcessing() {
 
 void StatSystemCallTraceReplayModule::print_mode_value(u_int st_mode) {
   int printable_mode = 0;
-  mode_t mode = (mode_t)st_mode;
+  mode_t mode = (mode_t) st_mode;
   if(mode & S_ISUID)
     printable_mode |= 0x4000;
   if(mode & S_ISGID)
@@ -98,15 +98,15 @@ void StatSystemCallTraceReplayModule::print_specific_fields() {
 
 void StatSystemCallTraceReplayModule::processRow() {
   struct stat stat_buf;
-  char *pathname = (char*)given_pathname_.val();
-  unsigned int stat_result_ino = (int)stat_result_ino_.val();
-  unsigned int stat_result_mode = stat_result_mode_.val();
-  unsigned int stat_result_nlink = (int)stat_result_nlink_.val();
-  unsigned int stat_result_uid = (int)stat_result_uid_.val();
-  unsigned int stat_result_gid = (int)stat_result_gid_.val();
+  char *pathname = (char *) given_pathname_.val();
+  u_int stat_result_ino = (u_int) stat_result_ino_.val();
+  u_int stat_result_mode = stat_result_mode_.val();
+  u_int stat_result_nlink = (u_int) stat_result_nlink_.val();
+  u_int stat_result_uid = (u_int) stat_result_uid_.val();
+  u_int stat_result_gid = (u_int) stat_result_gid_.val();
   long stat_result_size = stat_result_size_.val();
-  int stat_result_blksize = (int)stat_result_blksize_.val();
-  int stat_result_blocks = (int)stat_result_blocks_.val();
+  int stat_result_blksize = (int) stat_result_blksize_.val();
+  int stat_result_blocks = (int) stat_result_blocks_.val();
 
   // replay the stat system call
   replayed_ret_val_ = stat(pathname, &stat_buf);
@@ -194,15 +194,15 @@ void LStatSystemCallTraceReplayModule::prepareForProcessing() {
 
 void LStatSystemCallTraceReplayModule::processRow() {
   struct stat stat_buf;
-  char *pathname = (char*)given_pathname_.val();
-  unsigned int stat_result_ino = (int)stat_result_ino_.val();
-  unsigned int stat_result_mode = stat_result_mode_.val();
-  unsigned int stat_result_nlink = (int)stat_result_nlink_.val();
-  unsigned int stat_result_uid = (int)stat_result_uid_.val();
-  unsigned int stat_result_gid = (int)stat_result_gid_.val();
+  char *pathname = (char *) given_pathname_.val();
+  u_int stat_result_ino = (u_int) stat_result_ino_.val();
+  u_int stat_result_mode = stat_result_mode_.val();
+  u_int stat_result_nlink = (u_int) stat_result_nlink_.val();
+  u_int stat_result_uid = (u_int) stat_result_uid_.val();
+  u_int stat_result_gid = (u_int) stat_result_gid_.val();
   long stat_result_size = stat_result_size_.val();
-  int stat_result_blksize = (int)stat_result_blksize_.val();
-  int stat_result_blocks = (int)stat_result_blocks_.val();
+  int stat_result_blksize = (int) stat_result_blksize_.val();
+  int stat_result_blocks = (int) stat_result_blocks_.val();
 
   // replay the lstat system call
   replayed_ret_val_ = lstat(pathname, &stat_buf);
@@ -222,7 +222,7 @@ void LStatSystemCallTraceReplayModule::processRow() {
         stat_result_blksize != stat_buf.st_blksize ||
 	stat_result_blocks != stat_buf.st_blocks) {
 
-      // Stat buffer aren't same
+      // Stat buffers aren't same
       std::cerr << "Verification of lstat buffer content failed.\n";
       if (!default_mode()) {
 	std::cout << "time called:" << std::fixed << time_called()
