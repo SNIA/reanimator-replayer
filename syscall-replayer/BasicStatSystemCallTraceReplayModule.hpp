@@ -9,11 +9,11 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
- * This header file provides members and functions for implementing stat
- * system call.
+ * This header file provides members and functions for implementing stat,
+ * lstat, and fstat system calls.
  *
- * StatSystemCallTraceReplayerModule is a class/module that
- * has members and functions of replaying stat system call.
+ * BasicStatSystemCallTraceReplayerModule is a class/module that
+ * has members and functions of replaying stat, lstat, and fstat system calls.
  *
  * USAGE
  * A main program could initialize this class with a dataseries file

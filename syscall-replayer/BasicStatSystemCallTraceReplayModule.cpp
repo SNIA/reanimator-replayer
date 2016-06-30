@@ -10,9 +10,9 @@
  * published by the Free Software Foundation.
  *
  * This file implements all the functions in the
- * StatSystemCallTraceReplayModule header file.
+ * BasicStatSystemCallTraceReplayModule header file.
  *
- * Read StatSystemCallTraceReplayModule.hpp for more information
+ * Read BasicStatSystemCallTraceReplayModule.hpp for more information
  * about this class.
  */
 
