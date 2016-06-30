@@ -99,6 +99,8 @@ void BasicStatSystemCallTraceReplayModule::verifyResult(
   int stat_result_blksize = (int) stat_result_blksize_.val();
   int stat_result_blocks = (int) stat_result_blocks_.val();
 
+  std::cout << "Verifying result of system call " << sys_call_name_
+	    << ":" << std::endl;
   /* Verify stat buffer contents in the trace file are same
    * We are comparing only key fields captured in strace : st_ino,
    * st_mode, st_nlink, st_uid, st_gid, st_size, st_blksize and

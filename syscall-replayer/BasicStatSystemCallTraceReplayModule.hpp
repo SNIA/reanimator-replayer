@@ -20,8 +20,8 @@
  * and call execute() function until all extents are processed.
  *
  */
-#ifndef STAT_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
-#define STAT_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
+#ifndef BASIC_STAT_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
+#define BASIC_STAT_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 
 #include "SystemCallTraceReplayModule.hpp"
 
@@ -210,4 +210,4 @@ public:
 				   bool verify_flag,
 				   int warn_level_flag);
 };
-#endif /* STAT_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */
+#endif /* BASIC_STAT_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */
