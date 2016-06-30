@@ -69,8 +69,8 @@ protected:
 
   /*
    * This function will gather arguments in the trace file
-   * and call replayStatCall to replay a stat, lstat, or fstat
-   * system call with those arguments.
+   * and replay a stat, lstat, or fstat system call with those arguments.
+   * This function will be defined in the derived classes.
    */
   virtual void processRow() = 0;
 
