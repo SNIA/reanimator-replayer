@@ -45,7 +45,7 @@ SYSTEM_CALL_REPLAY_MODULE_OBJECTS = SystemCallTraceReplayer.o SystemCallTraceRep
 				    ChdirSystemCallTraceReplayModule.o \
 				    SymlinkSystemCallTraceReplayModule.o \
 				    MkdirSystemCallTraceReplayModule.o \
-				    StatSystemCallTraceReplayModule.o \
+				    BasicStatSystemCallTraceReplayModule.o \
 				    ReadlinkSystemCallTraceReplayModule.o \
 				    UtimeSystemCallTraceReplayModule.o \
 				    ChmodSystemCallTraceReplayModule.o \

@@ -162,6 +162,8 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
     makeUtimeArgsMap(sys_call_args_map, v_args);
   } else if (strcmp(extent_name, "lstat") == 0) {
     makeLStatArgsMap(sys_call_args_map, v_args);
+  } else if (strcmp(extent_name, "fstat") == 0) {
+    makeFStatArgsMap(sys_call_args_map, args, v_args);
   }
 
   // Create a new record to write
@@ -1075,5 +1077,40 @@ void DataSeriesOutputModule::makeLStatArgsMap(std::map<std::string,
     args_map["stat_result_ctime"] = &ctime_Tfrac;
   } else {
     std::cerr << "LStat: Struct stat buffer is set as NULL!!" << std::endl;
+  }
+}
+
+void DataSeriesOutputModule::makeFStatArgsMap(std::map<std::string,
+					      void *> &args_map,
+					      long *args,
+					      void **v_args) {
+  args_map["descriptor"] = &args[0];
+
+  if (v_args[0] != NULL) {
+    struct stat *statbuf = (struct stat *) v_args[0];
+
+    args_map["stat_result_dev"] = &statbuf->st_dev;
+    args_map["stat_result_ino"] = &statbuf->st_ino;
+    args_map["stat_result_mode"] = &statbuf->st_mode;
+    args_map["stat_result_nlink"] = &statbuf->st_nlink;
+    args_map["stat_result_uid"] = &statbuf->st_uid;
+    args_map["stat_result_gid"] = &statbuf->st_gid;
+    args_map["stat_result_rdev"] = &statbuf->st_rdev;
+    args_map["stat_result_size"] = &statbuf->st_size;
+    args_map["stat_result_blksize"] = &statbuf->st_blksize;
+    args_map["stat_result_blocks"] = &statbuf->st_blocks;
+
+    /*
+     * Convert stat_result_atime, stat_result_mtime and
+     * stat_result_ctime to Tfracs.
+     */
+    static uint64_t atime_Tfrac = timespec_to_Tfrac(statbuf->st_atim);
+    static uint64_t mtime_Tfrac = timespec_to_Tfrac(statbuf->st_mtim);
+    static uint64_t ctime_Tfrac = timespec_to_Tfrac(statbuf->st_ctim);
+    args_map["stat_result_atime"] = &atime_Tfrac;
+    args_map["stat_result_mtime"] = &mtime_Tfrac;
+    args_map["stat_result_ctime"] = &ctime_Tfrac;
+  } else {
+    std::cerr << "FStat: Struct stat buffer is set as NULL!!" << std::endl;
   }
 }

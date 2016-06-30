@@ -40,7 +40,7 @@
 #include "SymlinkSystemCallTraceReplayModule.hpp"
 #include "RmdirSystemCallTraceReplayModule.hpp"
 #include "MkdirSystemCallTraceReplayModule.hpp"
-#include "StatSystemCallTraceReplayModule.hpp"
+#include "BasicStatSystemCallTraceReplayModule.hpp"
 #include "ReadlinkSystemCallTraceReplayModule.hpp"
 #include "UtimeSystemCallTraceReplayModule.hpp"
 #include "ChmodSystemCallTraceReplayModule.hpp"
@@ -229,6 +229,7 @@ int main(int argc, char *argv[]) {
   system_calls.push_back("chmod");
   system_calls.push_back("chown");
   system_calls.push_back("lstat");
+  system_calls.push_back("fstat");
 
   std::vector<TypeIndexModule *> type_index_modules;
 
@@ -382,6 +383,12 @@ int main(int argc, char *argv[]) {
 				 verbose,
 				 verify,
 				 warn_level);
+  FStatSystemCallTraceReplayModule *fstat_module =
+    new FStatSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 verify,
+				 warn_level);
 
   /*
    * This vector is going to used to load replaying modules.
@@ -411,6 +418,7 @@ int main(int argc, char *argv[]) {
   system_call_trace_replay_modules.push_back(chmod_module);
   system_call_trace_replay_modules.push_back(chown_module);
   system_call_trace_replay_modules.push_back(lstat_module);
+  system_call_trace_replay_modules.push_back(fstat_module);
 
   // Double check to make sure all replaying modules are loaded.
   if (system_call_trace_replay_modules.size() != system_calls.size()) {
