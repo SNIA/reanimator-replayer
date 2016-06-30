@@ -41,29 +41,29 @@ BasicStatSystemCallTraceReplayModule(DataSeriesModule &source,
 void BasicStatSystemCallTraceReplayModule::print_mode_value(u_int st_mode) {
   int printable_mode = 0;
   mode_t mode = (mode_t) st_mode;
-  if(mode & S_ISUID)
+  if (mode & S_ISUID)
     printable_mode |= 0x4000;
-  if(mode & S_ISGID)
+  if (mode & S_ISGID)
     printable_mode |= 0x2000;
-  if(mode & S_ISVTX)
+  if (mode & S_ISVTX)
     printable_mode |= 0x1000;
-  if(mode & S_IRUSR)
+  if (mode & S_IRUSR)
     printable_mode |= 0x400;
-  if(mode & S_IWUSR)
+  if (mode & S_IWUSR)
     printable_mode |= 0x200;
-  if(mode & S_IXUSR)
+  if (mode & S_IXUSR)
     printable_mode |= 0x100;
-  if(mode & S_IRGRP)
+  if (mode & S_IRGRP)
     printable_mode |= 0x040;
-  if(mode & S_IWGRP)
+  if (mode & S_IWGRP)
     printable_mode |= 0x020;
-  if(mode & S_IXGRP)
+  if (mode & S_IXGRP)
     printable_mode |= 0x010;
-  if(mode & S_IROTH)
+  if (mode & S_IROTH)
     printable_mode |= 0x0004;
-  if(mode & S_IWOTH)
+  if (mode & S_IWOTH)
     printable_mode |= 0x002;
-  if(mode & S_IXOTH)
+  if (mode & S_IXOTH)
     printable_mode |= 0x001;
 
   std::cout << std::hex << printable_mode << std::dec;
