@@ -82,7 +82,7 @@ protected:
   void verifyResult(struct stat replayed_stat_buf);
 
   /*
-   * This function will do things that have be done
+   * This function will do things that have to be done
    * after finishing replaying all stat system calls.
    * Now, it only displays an ending message.  This function wil be defined
    * in the derived classes.
@@ -122,7 +122,7 @@ private:
   void processRow();
 
   /*
-   * This function will do things that have be done
+   * This function will do things that have to be done
    * after finishing replaying all stat system calls.
    * Now, it only displays an ending message.
    */
@@ -160,7 +160,7 @@ private:
   void processRow();
 
   /*
-   * This function will do things that have be done
+   * This function will do things that have to be done
    * after finishing replaying all lstat system calls.
    * Now, it only displays an ending message.
    */
@@ -198,7 +198,7 @@ private:
   void processRow();
 
   /*
-   * This function will do things that have be done
+   * This function will do things that have to be done
    * after finishing replaying all fstat system calls.
    * Now, it only displays an ending message.
    */

@@ -185,7 +185,7 @@ void StatSystemCallTraceReplayModule::processRow() {
   char *pathname = (char *) given_pathname_.val();
 
   // replay the stat system call
-  replayed_ret_val_ = lstat(pathname, &stat_buf);
+  replayed_ret_val_ = stat(pathname, &stat_buf);
 
   if (verify_ == true) {
     BasicStatSystemCallTraceReplayModule::verifyResult(stat_buf);
@@ -258,7 +258,7 @@ void FStatSystemCallTraceReplayModule::prepareForProcessing() {
 
 void FStatSystemCallTraceReplayModule::processRow() {
   struct stat stat_buf;
-  u_int descriptor = descriptor_.val();
+  int descriptor = descriptor_.val();
 
   // replay the fstat system call
   replayed_ret_val_ = fstat(descriptor, &stat_buf);
