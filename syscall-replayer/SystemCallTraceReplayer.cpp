@@ -230,6 +230,7 @@ int main(int argc, char *argv[]) {
   system_calls.push_back("chown");
   system_calls.push_back("lstat");
   system_calls.push_back("fstat");
+  system_calls.push_back("utimes");
 
   std::vector<TypeIndexModule *> type_index_modules;
 
@@ -389,6 +390,11 @@ int main(int argc, char *argv[]) {
 				 verbose,
 				 verify,
 				 warn_level);
+  UtimesSystemCallTraceReplayModule *utimes_module =
+    new UtimesSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 warn_level);
 
   /*
    * This vector is going to used to load replaying modules.
@@ -419,6 +425,7 @@ int main(int argc, char *argv[]) {
   system_call_trace_replay_modules.push_back(chown_module);
   system_call_trace_replay_modules.push_back(lstat_module);
   system_call_trace_replay_modules.push_back(fstat_module);
+  system_call_trace_replay_modules.push_back(utimes_module);
 
   // Double check to make sure all replaying modules are loaded.
   if (system_call_trace_replay_modules.size() != system_calls.size()) {

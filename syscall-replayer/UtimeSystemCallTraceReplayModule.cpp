@@ -36,14 +36,14 @@ void UtimeSystemCallTraceReplayModule::print_specific_fields() {
 }
 
 void UtimeSystemCallTraceReplayModule::prepareForProcessing() {
-  std::cout << "-----Utime system call replayer starts to replay...-----"
+  std::cout << "-----Utime System Call Replayer starts to replay...-----"
 	    << std::endl;
 }
 
 void UtimeSystemCallTraceReplayModule::processRow() {
   // Get replaying file given_pathname.
   struct utimbuf utimebuf;
-  const char *pathname = (char *)given_pathname_.val();
+  const char *pathname = (char *) given_pathname_.val();
   utimebuf.actime = Tfrac_to_sec(access_time_.val());
   utimebuf.modtime = Tfrac_to_sec(mod_time_.val());
 
@@ -56,6 +56,51 @@ void UtimeSystemCallTraceReplayModule::processRow() {
 }
 
 void UtimeSystemCallTraceReplayModule::completeProcessing() {
-  std::cout << "-----Utime system call replayer finished replaying...-----"
+  std::cout << "-----Utime System Call Replayer finished replaying...-----"
+	    << std::endl;
+}
+
+UtimesSystemCallTraceReplayModule::
+UtimesSystemCallTraceReplayModule(DataSeriesModule &source,
+				  bool verbose_flag,
+				  int warn_level_flag):
+  UtimeSystemCallTraceReplayModule(source, verbose_flag, warn_level_flag) {
+  sys_call_name_ = "utimes";
+}
+
+void UtimesSystemCallTraceReplayModule::prepareForProcessing() {
+  std::cout << "-----Utimes System Call Replayer starts to replay...-----"
+	    << std::endl;
+}
+
+void UtimesSystemCallTraceReplayModule::processRow() {
+  // Get replaying file given_pathname and make timeval array.
+  struct timeval tv[2];
+  const char *pathname = (char *) given_pathname_.val();
+
+  /*
+   * If the recorded error was EINVAL (invalid argument), don't initialize
+   * the timeval array, in order to replicate the recorded behavior.
+   */
+  if (errno_number_.val() != 22) {
+    struct timeval tv_access_time = Tfrac_to_timeval(access_time_.val());
+    struct timeval tv_mod_time = Tfrac_to_timeval(mod_time_.val());
+    tv[0] = tv_access_time;
+    tv[1] = tv_mod_time;
+  }
+
+  // Replay the utimes system call.
+  if ((access_time_.val() == 0) && (mod_time_.val() == 0))
+    /*
+     * If access_time and mod_time are both 0, then assume the timeval
+     * array is NULL.
+     */
+    replayed_ret_val_ = utimes(pathname, NULL);
+  else
+    replayed_ret_val_ = utimes(pathname, tv);
+}
+
+void UtimesSystemCallTraceReplayModule::completeProcessing() {
+  std::cout << "-----Utimes System Call Replayer finished replaying...-----"
 	    << std::endl;
 }

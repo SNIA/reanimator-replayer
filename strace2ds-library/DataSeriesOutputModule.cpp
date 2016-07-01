@@ -164,6 +164,8 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
     makeLStatArgsMap(sys_call_args_map, v_args);
   } else if (strcmp(extent_name, "fstat") == 0) {
     makeFStatArgsMap(sys_call_args_map, args, v_args);
+  } else if (strcmp(extent_name, "utimes") == 0) {
+    makeUtimesArgsMap(sys_call_args_map, v_args);
   }
 
   // Create a new record to write
@@ -1113,4 +1115,34 @@ void DataSeriesOutputModule::makeFStatArgsMap(std::map<std::string,
   } else {
     std::cerr << "FStat: Struct stat buffer is set as NULL!!" << std::endl;
   }
+}
+
+void DataSeriesOutputModule::makeUtimesArgsMap(std::map<std::string,
+					       void *> &args_map,
+					       void **v_args) {
+  static uint64_t access_time_Tfrac;
+  static uint64_t mod_time_Tfrac;
+
+  if (v_args[0] != NULL) {
+    args_map["given_pathname"] = &v_args[0];
+  } else {
+    std::cerr << "Utimes: Pathname is set as NULL!!" << std::endl;
+  }
+
+  if (v_args[1] != NULL) {
+    struct timeval *tv = (struct timeval *) v_args[1];
+
+    // Convert timeval arguments to Tfracs (uint64_t)
+    access_time_Tfrac = timeval_to_Tfrac(tv[0]);
+    mod_time_Tfrac = timeval_to_Tfrac(tv[1]);
+  } else {
+    /*
+     * In the case of a NULL timeval array, set access_time and
+     * mod_time equal to 0.
+     */
+    access_time_Tfrac = 0;
+    mod_time_Tfrac = 0;
+  }
+  args_map["access_time"] = &access_time_Tfrac;
+  args_map["mod_time"] = &mod_time_Tfrac;
 }
