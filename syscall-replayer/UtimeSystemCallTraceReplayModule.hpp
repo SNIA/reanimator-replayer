@@ -28,6 +28,7 @@
 
 class UtimeSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 protected:
+  bool verify_;
   /* utime System Call Trace Fields in Dataseries file */
   Variable32Field given_pathname_;
   Int64Field access_time_;
@@ -61,6 +62,7 @@ protected:
 public:
   UtimeSystemCallTraceReplayModule(DataSeriesModule &source,
 				   bool verbose_flag,
+				   bool verify_flag,
 				   int warn_level_flag);
 };
 
@@ -90,6 +92,7 @@ private:
 public:
   UtimesSystemCallTraceReplayModule(DataSeriesModule &source,
 				    bool verbose_flag,
+				    bool verify_flag,
 				    int warn_level_flag);
 };
 #endif /* UTIME_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

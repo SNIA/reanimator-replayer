@@ -367,6 +367,7 @@ int main(int argc, char *argv[]) {
     new UtimeSystemCallTraceReplayModule(
 				 *prefetch_buffer_modules[module_index++],
 				 verbose,
+				 verify,
 				 warn_level);
   ChmodSystemCallTraceReplayModule *chmod_module =
     new ChmodSystemCallTraceReplayModule(
@@ -394,6 +395,7 @@ int main(int argc, char *argv[]) {
     new UtimesSystemCallTraceReplayModule(
 				 *prefetch_buffer_modules[module_index++],
 				 verbose,
+				 verify,
 				 warn_level);
 
   /*
