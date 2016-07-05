@@ -38,3 +38,4 @@ The POSIX system calls considered applicable to I/O tracing:
 36. exit - NOT supported
 37. dup - NOT supported
 38. dup2 - NOT supported
+39. rename - support
