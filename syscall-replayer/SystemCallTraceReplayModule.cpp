@@ -113,7 +113,8 @@ bool SystemCallTraceReplayModule::cur_extent_has_more_record() {
 void SystemCallTraceReplayModule::execute() {
   ++processed_rows;
   processRow();
-  after_sys_call();
+  if (sys_call_name_ != "readv")
+    after_sys_call();
   ++series;
 }
 
