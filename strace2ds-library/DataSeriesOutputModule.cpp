@@ -166,6 +166,8 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
     makeFStatArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "utimes") == 0) {
     makeUtimesArgsMap(sys_call_args_map, v_args);
+  } else if (strcmp(extent_name, "rename") == 0) {
+    makeRenameArgsMap(sys_call_args_map, v_args);
   }
 
   // Create a new record to write
@@ -444,7 +446,9 @@ u_int DataSeriesOutputModule::getVariable32FieldLength(std::map<std::string,
     if ((field_name == "given_pathname") ||
 	(field_name == "given_oldpathname") ||
 	(field_name == "given_newpathname") ||
-	(field_name == "target_pathname")) {
+	(field_name == "target_pathname") ||
+	(field_name == "given_oldname") ||
+	(field_name == "given_newname")){
       void *field_value = args_map[field_name];
       length = strlen(*(char **) field_value);
     /*
@@ -1145,4 +1149,20 @@ void DataSeriesOutputModule::makeUtimesArgsMap(std::map<std::string,
   }
   args_map["access_time"] = &access_time_Tfrac;
   args_map["mod_time"] = &mod_time_Tfrac;
+}
+
+void DataSeriesOutputModule::makeRenameArgsMap(std::map<std::string,
+					       void *> &args_map,
+					       void **v_args) {
+  if (v_args[0] != NULL) {
+    args_map["given_oldname"] = &v_args[0];
+  } else {
+    std::cerr << "Rename: Old name is set as NULL!!" << std::endl;
+  }
+
+  if (v_args[1] != NULL) {
+    args_map["given_newname"] = &v_args[1];
+  } else {
+    std::cerr << "Rename: New name is set as NULL!!" << std::endl;
+  }
 }

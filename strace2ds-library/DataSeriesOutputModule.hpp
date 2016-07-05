@@ -260,6 +260,10 @@ private:
   // Maps Utimes System Call <field, value> pairs
   void makeUtimesArgsMap(std::map<std::string, void *> &args_map,
 			 void **v_args);
+
+  // Maps Rename System Call <field, value> pairs
+  void makeRenameArgsMap(std::map<std::string, void *> &args_map,
+			 void **v_args);
 };
 
 #endif // DATA_SERIES_OUTPUT_MODULE_HPP
