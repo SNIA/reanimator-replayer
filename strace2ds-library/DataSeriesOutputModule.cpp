@@ -168,6 +168,8 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
     makeUtimesArgsMap(sys_call_args_map, v_args);
   } else if (strcmp(extent_name, "rename") == 0) {
     makeRenameArgsMap(sys_call_args_map, v_args);
+  } else if (strcmp(extent_name, "fsync") == 0) {
+    makeFsyncArgsMap(sys_call_args_map, args);
   }
 
   // Create a new record to write
@@ -1165,4 +1167,10 @@ void DataSeriesOutputModule::makeRenameArgsMap(std::map<std::string,
   } else {
     std::cerr << "Rename: New name is set as NULL!!" << std::endl;
   }
+}
+
+void DataSeriesOutputModule::makeFsyncArgsMap(std::map<std::string,
+					      void *> &args_map,
+					      long *args) {
+  args_map["descriptor"] = &args[0];
 }
