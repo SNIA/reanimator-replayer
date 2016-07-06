@@ -9,8 +9,8 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
- * This header file provides members and functions for implementing read
- * system call.
+ * This header file provides members and functions for implementing
+ * readv system call.
  *
  * ReadvSystemCallTraceReplayerModule is a class/module that
  * has members and functions of replaying readv system call.
