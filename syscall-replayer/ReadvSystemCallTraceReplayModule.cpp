@@ -34,14 +34,11 @@ ReadvSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void ReadvSystemCallTraceReplayModule::print_specific_fields() {
-  std::cout << "System call '" << sys_call_name_
-	    << "' was executed with following arguments:" << std::endl;
-  // Print common fields first
-  print_common_fields();
-  std::cout << ", " << std::endl;
+  // Save the postion of first record.
+  const void *first_record_pos = series.getCurPos();
 
   /*
-   * Then, print the descriptor value, number of iovec and total
+   * Print the descriptor value, number of iovec and total
    * number of bytes read from the first record of dataseries file.
    */
   std::cout << "descriptor:(" << descriptor_.val() << "), ";
@@ -61,11 +58,9 @@ void ReadvSystemCallTraceReplayModule::print_specific_fields() {
     count--;
   }
   std::cout << std::endl;
-}
 
-void ReadvSystemCallTraceReplayModule::prepareForProcessing() {
-  std::cout << "-----Readv System Call Replayer starts to replay...-----"
-	    << std::endl;
+  // Again, set the pointer to the first record.
+  series.setCurPos(first_record_pos);
 }
 
 void ReadvSystemCallTraceReplayModule::processRow() {
@@ -75,7 +70,6 @@ void ReadvSystemCallTraceReplayModule::processRow() {
   int iov_number = iov_number_.val();
   char *traced_buffer[count];
   char *replayed_buffer[count];
-  int actual_ret_val_ = return_value();
 
   struct iovec iov[count];
 
@@ -84,6 +78,7 @@ void ReadvSystemCallTraceReplayModule::processRow() {
    */
   const void *first_record_pos = series.getCurPos();
   int iovcnt = count;
+  rows_per_call_ = count + 1;
 
   /*
    * If iov number is equal to '-1', this means it is first record of
@@ -157,33 +152,6 @@ void ReadvSystemCallTraceReplayModule::processRow() {
     }
   }
 
-  // Save the position of the last record in Extent Series.
-  const void *last_record_pos = series.getCurPos();
-
-  /* If replayer runs in verbose mode. */
-  if (verbose_mode()) {
-    // Sets the position to the first record of single readv system call.
-    series.setCurPos(first_record_pos);
-    print_specific_fields();
-    // Sets the position to the last record of single readv system call.
-    series.setCurPos(last_record_pos);
-  }
-
-  /*
-   * If return values are different, then check for
-   * default, warn and abort mode.
-   */
-  if (actual_ret_val_ != replayed_ret_val_) {
-    if (default_mode())
-      return;
-    series.setCurPos(first_record_pos);
-    print_specific_fields();
-    series.setCurPos(last_record_pos);
-    std::cout << "Warning: Return values are different. \n";
-    if (abort_mode())
-      abort();
-  }
-
   /*
    * Free both traced and replayed buffers.
    */
@@ -191,9 +159,10 @@ void ReadvSystemCallTraceReplayModule::processRow() {
     delete[] replayed_buffer[iovcnt_];
     delete[] traced_buffer[iovcnt_];
   }
-}
 
-void ReadvSystemCallTraceReplayModule::completeProcessing() {
-  std::cout << "-----Readv System Call Replayer finished replaying...-----"
-	    << std::endl;
+  /*
+   * After executing a single readv system call, set the
+   * pointer in the Extent Series to the first record.
+   */
+  series.setCurPos(first_record_pos);
 }

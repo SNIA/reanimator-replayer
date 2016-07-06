@@ -44,24 +44,10 @@ private:
   void print_specific_fields();
 
   /*
-   * This function will prepare things before replaying any
-   * readv system call. Right now it displays a starting
-   * message.
-   */
-  void prepareForProcessing();
-
-  /*
    * This function will gather arguments in the trace file
    * and then replay an readv system call with those arguments.
    */
   void processRow();
-
-  /*
-   * This function will do things that have be done
-   * after finishing replaying all readv system calls.
-   * Now, it only displays an ending message.
-   */
-  void completeProcessing();
 
 public:
   ReadvSystemCallTraceReplayModule(DataSeriesModule &source,
