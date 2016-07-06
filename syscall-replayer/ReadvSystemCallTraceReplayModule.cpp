@@ -84,6 +84,7 @@ void ReadvSystemCallTraceReplayModule::processRow() {
    */
   const void *first_record_pos = series.getCurPos();
   int iovcnt = count;
+
   /*
    * If iov number is equal to '-1', this means it is first record of
    * single readv system call.
@@ -103,7 +104,7 @@ void ReadvSystemCallTraceReplayModule::processRow() {
 
       /*
        * Allocate memory and copy the actual buffer.
-       * NOTE: *****FUTURE WORK *****
+       * XXX NOTE: *****FUTURE WORK *****
        * Instead of allocating individual buffer, we can allocate
        * one single buffer.
        */
@@ -149,11 +150,9 @@ void ReadvSystemCallTraceReplayModule::processRow() {
 	    abort();
 	  }
 	}
-      } else {
-	if (verbose_mode()) {
-	  std::cout << "Verification of data for iov number: "
-		    << iovcnt_ << " in readv succeeded" << std::endl;
-	}
+      } else if (verbose_mode()) {
+	std::cout << "Verification of data for iov number: "
+		  << iovcnt_ << " in readv succeeded" << std::endl;
       }
     }
   }
