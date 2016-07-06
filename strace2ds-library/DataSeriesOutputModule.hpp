@@ -268,6 +268,15 @@ private:
   // Maps Fsync System Call <field, value> pairs
   void makeFsyncArgsMap(std::map<std::string, void *> &args_map,
 			long *args);
+
+  // Maps Mknod System Call <field, value> pairs
+  void makeMknodArgsMap(std::map<std::string, void *> &args_map,
+			long *args,
+			void **v_args);
+
+  // Processes, encodes, and maps the type field for the Mknod system call
+  mode_t processMknodType(std::map<std::string, void *> &args_map,
+			  mode_t mode);
 };
 
 #endif // DATA_SERIES_OUTPUT_MODULE_HPP

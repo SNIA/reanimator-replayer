@@ -170,6 +170,8 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
     makeRenameArgsMap(sys_call_args_map, v_args);
   } else if (strcmp(extent_name, "fsync") == 0) {
     makeFsyncArgsMap(sys_call_args_map, args);
+  } else if (strcmp(extent_name, "mknod") == 0) {
+    makeMknodArgsMap(sys_call_args_map, args, v_args);
   }
 
   // Create a new record to write
@@ -1173,4 +1175,72 @@ void DataSeriesOutputModule::makeFsyncArgsMap(std::map<std::string,
 					      void *> &args_map,
 					      long *args) {
   args_map["descriptor"] = &args[0];
+}
+
+void DataSeriesOutputModule::makeMknodArgsMap(std::map<std::string,
+					      void *> &args_map,
+					      long *args,
+					      void **v_args) {
+  static int32_t dev;
+  initArgsMap(args_map, "mknod");
+  if (v_args[0] != NULL) {
+    args_map["given_pathname"] = &v_args[0];
+  } else {
+    std::cerr << "Mknod: Pathname is set as NULL!!" << std::endl;
+  }
+
+  mode_t mode = processMode(args_map, args, 1);
+
+  mode = processMknodType(args_map, mode);
+
+  if (mode != 0) {
+    std::cerr << "Mknod: These modes are not processed/unknown: ";
+    std::cerr << std::oct << mode << std::dec << ". ";
+    std::cerr << "File type field will be set as 'regular'." << std::endl;
+  }
+
+  if ((args[1] & S_IFCHR) || (args[1] & S_IFBLK)) {
+    dev = (int32_t) args[2];
+    args_map["dev"] = &dev;
+  }
+}
+
+mode_t DataSeriesOutputModule::processMknodType(std::map<std::string,
+					      void *> &args_map,
+					      mode_t mode) {
+  static u_int type;
+
+  /*
+   * Check for each file type.  If the mode is equal to the value for that
+   * file type, set type to the encoding value specified by SNIA:
+   * Regular = 0
+   * Character special = 1
+   * Block special = 2
+   * FIFO = 3
+   * Socket = 4
+   */
+  if (mode == S_IFSOCK) {
+    type = 4;
+    mode &= ~S_IFSOCK;
+  } else if (mode == S_IFIFO) {
+    type = 3;
+    mode &= ~S_IFIFO;
+  } else if (mode == S_IFBLK) {
+    type = 2;
+    mode &= ~S_IFBLK;
+  } else if (mode == S_IFCHR) {
+    type = 1;
+    mode &= ~S_IFCHR;
+  } else if ((mode == S_IFREG) || (mode == 0)) {
+    type = 0;
+    mode &= ~S_IFREG;
+  }
+
+  args_map["type"] = &type;
+
+  /*
+   * Return remaining unprocessed modes so that caller can warn
+   * of unknown modes if the mode value is not set as zero.
+   */
+  return mode;
 }
