@@ -51,13 +51,12 @@ void ReadvSystemCallTraceReplayModule::print_specific_fields() {
    * Iteratively fetch the new record to print the iov_number
    * and data read for each iovec buffers.
    */
-  while(count > 0 && series.morerecords()) {
+  while (count > 0 && series.morerecords()) {
     ++series;
-    std::cout << "iov_number:(" << iov_number_.val() << "), ";
-    std::cout << "data_read:(" << data_read_.val() << ")\n";
+    std::cout << "\niov_number:(" << iov_number_.val() << "), ";
+    std::cout << "data_read:(" << data_read_.val() << ")";
     count--;
   }
-  std::cout << std::endl;
 
   // Again, set the pointer to the first record.
   series.setCurPos(first_record_pos);
@@ -71,15 +70,21 @@ void ReadvSystemCallTraceReplayModule::processRow() {
   char *traced_buffer[count];
   char *replayed_buffer[count];
 
-  struct iovec iov[count];
+  /*
+   * The total number of rows processed by single readv system
+   * call is one plus number of iovec which is equal to the
+   * count field as described in SNIA document for readv system
+   * call.
+   */
+  rows_per_call_ = count + 1;
 
   /*
    * Save the position of the first record in the Extent Series.
    */
   const void *first_record_pos = series.getCurPos();
   int iovcnt = count;
-  rows_per_call_ = count + 1;
 
+  struct iovec iov[count];
   /*
    * If iov number is equal to '-1', this means it is first record of
    * single readv system call.
@@ -91,7 +96,6 @@ void ReadvSystemCallTraceReplayModule::processRow() {
      * call.
      */
     while (iovcnt > 0 && series.morerecords()) {
-      ++processed_rows;
       ++series; /* This moves the pointer in extent series to next record */
 
       int iov_num = iov_number_.val();
