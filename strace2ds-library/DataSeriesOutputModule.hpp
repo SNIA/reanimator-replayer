@@ -44,7 +44,6 @@
 
 #include <fcntl.h>
 #include <utime.h>
-#include <sys/stat.h>
 
 /* map<fieldname, pair<nullable, ExtentType> */
 typedef std::map<std::string,
