@@ -57,11 +57,6 @@ void MknodSystemCallTraceReplayModule::print_specific_fields() {
   std::cout << "dev(" << dev_.val() << ")";
 }
 
-void MknodSystemCallTraceReplayModule::prepareForProcessing() {
-  std::cout << "-----Mknod System Call Replayer starts to replay...-----"
-	    << std::endl;
-}
-
 void MknodSystemCallTraceReplayModule::processRow() {
   const char *pathname = (char *)given_pathname_.val();
   mode_t mode = mode_value_.val();
@@ -69,9 +64,4 @@ void MknodSystemCallTraceReplayModule::processRow() {
 
   // replay the mknod system call
   replayed_ret_val_ = mknod(pathname, mode, dev);
-}
-
-void MknodSystemCallTraceReplayModule::completeProcessing() {
-  std::cout << "-----Mknod System Call Replayer finished replaying...-----"
-	    << std::endl;
 }

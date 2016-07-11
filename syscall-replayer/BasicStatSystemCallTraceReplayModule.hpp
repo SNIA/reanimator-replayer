@@ -50,13 +50,6 @@ protected:
   Int64Field stat_result_ctime_;
 
   /*
-   * This function will prepare things before replaying any
-   * stat system call.  Right now it displays a starting
-   * message. This function will be defined in the derived classes.
-   */
-  virtual void prepareForProcessing() = 0;
-
-  /*
    * Print stat, lstat, and fstat sys call field values in a nice format
    */
   void print_specific_fields();
@@ -81,14 +74,6 @@ protected:
    */
   void verifyResult(struct stat replayed_stat_buf);
 
-  /*
-   * This function will do things that have to be done
-   * after finishing replaying all stat system calls.
-   * Now, it only displays an ending message.  This function wil be defined
-   * in the derived classes.
-   */
-  virtual void completeProcessing()= 0;
-
 public:
   BasicStatSystemCallTraceReplayModule(DataSeriesModule &source,
 				       bool verbose_flag,
@@ -104,13 +89,6 @@ private:
   Variable32Field given_pathname_;
 
   /*
-   * This function will prepare things before replaying any
-   * stat system call. Right now it displays a starting
-   * message.
-   */
-  void prepareForProcessing();
-
-  /*
    * Print stat sys call field values in a nice format
    */
   void print_specific_fields();
@@ -120,13 +98,6 @@ private:
    * and call replay a stat system call with those arguments.
    */
   void processRow();
-
-  /*
-   * This function will do things that have to be done
-   * after finishing replaying all stat system calls.
-   * Now, it only displays an ending message.
-   */
-  void completeProcessing();
 
 public:
   StatSystemCallTraceReplayModule(DataSeriesModule &source,
@@ -142,13 +113,6 @@ private:
   Variable32Field given_pathname_;
 
   /*
-   * This function will prepare things before replaying any
-   * lstat system call. Right now it displays a starting
-   * message.
-   */
-  void prepareForProcessing();
-
-  /*
    * Print lstat sys call field values in a nice format
    */
   void print_specific_fields();
@@ -158,13 +122,6 @@ private:
    * and call replay an lstat system call with those arguments.
    */
   void processRow();
-
-  /*
-   * This function will do things that have to be done
-   * after finishing replaying all lstat system calls.
-   * Now, it only displays an ending message.
-   */
-  void completeProcessing();
 
 public:
   LStatSystemCallTraceReplayModule(DataSeriesModule &source,
@@ -180,13 +137,6 @@ private:
   Int32Field descriptor_;
 
   /*
-   * This function will prepare things before replaying any
-   * fstat system call. Right now it displays a starting
-   * message.
-   */
-  void prepareForProcessing();
-
-  /*
    * Print fstat sys call field values in a nice format
    */
   void print_specific_fields();
@@ -196,13 +146,6 @@ private:
    * and call replay an fstat system call with those arguments.
    */
   void processRow();
-
-  /*
-   * This function will do things that have to be done
-   * after finishing replaying all fstat system calls.
-   * Now, it only displays an ending message.
-   */
-  void completeProcessing();
 
 public:
   FStatSystemCallTraceReplayModule(DataSeriesModule &source,
