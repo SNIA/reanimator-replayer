@@ -36,19 +36,19 @@ void MknodSystemCallTraceReplayModule::print_specific_fields() {
 
   // Decode the file type field from the encoding specified by SNIA
   switch (type_.val()) {
-  case 0:
+  case DS_FILE_TYPE_REG:
     std::cout << "regular";
     break;
-  case 1:
+  case DS_FILE_TYPE_CHR:
     std::cout << "character special";
     break;
-  case 2:
+  case DS_FILE_TYPE_BLK:
     std::cout << "block special";
     break;
-  case 3:
+  case DS_FILE_TYPE_FIFO:
     std::cout << "FIFO";
     break;
-  case 4:
+  case DS_FILE_TYPE_SOCK:
     std::cout << "socket";
     break;
   }

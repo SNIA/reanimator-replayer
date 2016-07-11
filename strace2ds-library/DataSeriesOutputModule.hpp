@@ -44,6 +44,13 @@
 
 #include <fcntl.h>
 #include <utime.h>
+#include <sys/stat.h>
+
+#define DS_FILE_TYPE_REG 0
+#define DS_FILE_TYPE_CHR 1
+#define DS_FILE_TYPE_BLK 2
+#define DS_FILE_TYPE_FIFO 3
+#define DS_FILE_TYPE_SOCK 4
 
 /* map<fieldname, pair<nullable, ExtentType> */
 typedef std::map<std::string,

@@ -1218,23 +1218,22 @@ mode_t DataSeriesOutputModule::processMknodType(std::map<std::string,
    * FIFO = 3
    * Socket = 4
    */
-  if (mode == S_IFSOCK) {
-    type = 4;
-    mode &= ~S_IFSOCK;
-  } else if (mode == S_IFIFO) {
-    type = 3;
-    mode &= ~S_IFIFO;
-  } else if (mode == S_IFBLK) {
-    type = 2;
-    mode &= ~S_IFBLK;
-  } else if (mode == S_IFCHR) {
-    type = 1;
-    mode &= ~S_IFCHR;
-  } else if ((mode == S_IFREG) || (mode == 0)) {
-    type = 0;
+  if ((S_ISREG(mode)) || (mode == 0)) {
+    type = DS_FILE_TYPE_REG;
     mode &= ~S_IFREG;
+  } else if (S_ISCHR(mode)) {
+    type = DS_FILE_TYPE_CHR;
+    mode &= ~S_IFCHR;
+  } else if (S_ISBLK(mode)) {
+    type = DS_FILE_TYPE_BLK;
+    mode &= ~S_IFBLK;
+  } else if (S_ISFIFO(mode)) {
+    type = DS_FILE_TYPE_FIFO;
+    mode &= ~S_IFIFO;
+  } else if (S_ISSOCK(mode)) {
+    type = DS_FILE_TYPE_SOCK;
+    mode &= ~S_IFSOCK;
   }
-
   args_map["type"] = &type;
 
   /*
