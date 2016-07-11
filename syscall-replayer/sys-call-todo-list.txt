@@ -7,7 +7,7 @@ The POSIX system calls considered applicable to I/O tracing:
 5. fstat - support
 6. pread - support
 7. pwrite - support
-8. readv - In progress
+8. readv - support
 9. writev - In progress
 10. fcntl - NOT supported
 11. ioctl - NOT supported

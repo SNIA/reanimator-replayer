@@ -45,6 +45,7 @@
 #include "UtimeSystemCallTraceReplayModule.hpp"
 #include "ChmodSystemCallTraceReplayModule.hpp"
 #include "ChownSystemCallTraceReplayModule.hpp"
+#include "ReadvSystemCallTraceReplayModule.hpp"
 #include "RenameSystemCallTraceReplayModule.hpp"
 #include "FsyncSystemCallTraceReplayModule.hpp"
 #include "MknodSystemCallTraceReplayModule.hpp"
@@ -231,6 +232,7 @@ int main(int argc, char *argv[]) {
   system_calls.push_back("utime");
   system_calls.push_back("chmod");
   system_calls.push_back("chown");
+  system_calls.push_back("readv");
   system_calls.push_back("lstat");
   system_calls.push_back("fstat");
   system_calls.push_back("utimes");
@@ -385,6 +387,12 @@ int main(int argc, char *argv[]) {
 				 *prefetch_buffer_modules[module_index++],
 				 verbose,
 				 warn_level);
+  ReadvSystemCallTraceReplayModule *readv_module =
+    new ReadvSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+                                 verbose,
+                                 verify,
+                                 warn_level);
   LStatSystemCallTraceReplayModule *lstat_module =
     new LStatSystemCallTraceReplayModule(
 				 *prefetch_buffer_modules[module_index++],
@@ -446,6 +454,7 @@ int main(int argc, char *argv[]) {
   system_call_trace_replay_modules.push_back(utime_module);
   system_call_trace_replay_modules.push_back(chmod_module);
   system_call_trace_replay_modules.push_back(chown_module);
+  system_call_trace_replay_modules.push_back(readv_module);
   system_call_trace_replay_modules.push_back(lstat_module);
   system_call_trace_replay_modules.push_back(fstat_module);
   system_call_trace_replay_modules.push_back(utimes_module);
@@ -487,7 +496,7 @@ int main(int argc, char *argv[]) {
     execute_replayer->execute();
     // Check to see if all the extents in the module are processed
     if (execute_replayer->cur_extent_has_more_record() ||
-	execute_replayer->getSharedExtent() != NULL){
+	execute_replayer->getSharedExtent() != NULL) {
       // No, there are more extents, so we add it to min_heap
       replayers_heap.push(execute_replayer);
     }

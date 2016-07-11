@@ -31,18 +31,8 @@ void UnlinkSystemCallTraceReplayModule::print_specific_fields() {
   std::cout << "pathname(" << given_pathname_.val() << ")";
 }
 
-void UnlinkSystemCallTraceReplayModule::prepareForProcessing() {
-  std::cout << "-----Unlink System Call Replayer starts to replay...-----"
-	    << std::endl;
-}
-
 void UnlinkSystemCallTraceReplayModule::processRow() {
   char *path = (char *)given_pathname_.val();
   // Replay the unlink system call
   replayed_ret_val_ = unlink(path);
-}
-
-void UnlinkSystemCallTraceReplayModule::completeProcessing() {
-  std::cout << "-----Unlink System Call Replayer finished replaying...-----"
-	    << std::endl;
 }

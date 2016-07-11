@@ -50,6 +50,7 @@ SYSTEM_CALL_REPLAY_MODULE_OBJECTS = SystemCallTraceReplayer.o SystemCallTraceRep
 				    UtimeSystemCallTraceReplayModule.o \
 				    ChmodSystemCallTraceReplayModule.o \
 				    ChownSystemCallTraceReplayModule.o \
+				    ReadvSystemCallTraceReplayModule.o \
 				    RenameSystemCallTraceReplayModule.o \
 				    FsyncSystemCallTraceReplayModule.o \
 				    MknodSystemCallTraceReplayModule.o

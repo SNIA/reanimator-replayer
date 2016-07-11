@@ -39,24 +39,10 @@ private:
   void print_specific_fields();
 
   /*
-   * This function will prepare things before replaying any
-   * lseek system call. Right now it displays a starting
-   * message.
-   */
-  void prepareForProcessing();
-
-  /*
    * This function will gather arguments in the trace file
    * and then replay lseek system call with those arguments.
    */
   void processRow();
-
-  /*
-   * This function will do things that have be done
-   * after finishing replaying all lseek system calls in the
-   * trace files. Now, it only displays an ending message.
-   */
-  void completeProcessing();
 
 public:
   LSeekSystemCallTraceReplayModule(DataSeriesModule &source,

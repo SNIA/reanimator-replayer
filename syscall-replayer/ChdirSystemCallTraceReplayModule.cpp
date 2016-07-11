@@ -31,19 +31,9 @@ void ChdirSystemCallTraceReplayModule::print_specific_fields() {
   std::cout << "pathname(" << given_pathname_.val() << ")";
 }
 
-void ChdirSystemCallTraceReplayModule::prepareForProcessing() {
-  std::cout << "-----Chdir System Call Replayer starts to replay...-----"
-	    << std::endl;
-}
-
 void ChdirSystemCallTraceReplayModule::processRow() {
   char *path = (char *)given_pathname_.val();
 
   // Replay chdir system call
   replayed_ret_val_ = chdir(path);
-}
-
-void ChdirSystemCallTraceReplayModule::completeProcessing() {
-  std::cout << "-----Chdir System Call Replayer finished replaying...-----"
-	    << std::endl;
 }

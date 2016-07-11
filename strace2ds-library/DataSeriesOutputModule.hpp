@@ -251,6 +251,11 @@ private:
 			   long *args,
 			   void **v_args);
 
+  // Maps Readv System Call <field, value> pairs
+  void makeReadvArgsMap(std::map<std::string, void *> &args_map,
+			long *args,
+			void **v_args);
+  
   // Maps Utime System Call <field, value> pairs
   void makeUtimeArgsMap(std::map<std::string, void *> &args_map,
 			void **v_args);

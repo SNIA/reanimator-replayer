@@ -28,11 +28,6 @@ ChmodSystemCallTraceReplayModule::ChmodSystemCallTraceReplayModule(
   sys_call_name_ = "chmod";
 }
 
-void ChmodSystemCallTraceReplayModule::prepareForProcessing() {
-  std::cout << "-----Chmod System Call Replayer starts to replay...-----"
-	    << std::endl;
-}
-
 void ChmodSystemCallTraceReplayModule::print_specific_fields() {
   std::cout << "pathname(" << given_pathname_.val() << "), ";
   std::cout << "mode(" << mode_value_.val() << ")";
@@ -44,9 +39,4 @@ void ChmodSystemCallTraceReplayModule::processRow() {
 
   // Replay the chmod system call
   replayed_ret_val_ = chmod(pathname, mode);
-}
-
-void ChmodSystemCallTraceReplayModule::completeProcessing() {
-  std::cout << "-----Chmod System Call Replayer finished replaying...-----"
-	    << std::endl;
 }

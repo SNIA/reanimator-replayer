@@ -31,20 +31,10 @@ void RmdirSystemCallTraceReplayModule::print_specific_fields() {
   std::cout << "given_pathname(" << given_pathname_.val() << ")";
 }
 
-void RmdirSystemCallTraceReplayModule::prepareForProcessing() {
-  std::cout << "-----Rmdir System Call Replayer starts to replay...-----"
-	    << std::endl;
-}
-
 void RmdirSystemCallTraceReplayModule::processRow() {
   // Get actual file descriptor
   const char *pathname = (char *)given_pathname_.val();
 
   // replay rmdir sys call.
   replayed_ret_val_ = rmdir(pathname);
-}
-
-void RmdirSystemCallTraceReplayModule::completeProcessing() {
-  std::cout << "-----Rmdir System Call Replayer finished replaying...-----"
-	    << std::endl;
 }

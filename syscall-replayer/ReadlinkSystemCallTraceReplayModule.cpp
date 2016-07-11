@@ -31,11 +31,6 @@ ReadlinkSystemCallTraceReplayModule(DataSeriesModule &source,
   sys_call_name_ = "readlink";
 }
 
-void ReadlinkSystemCallTraceReplayModule::prepareForProcessing() {
-  std::cout << "-----Readlink System Call Replayer starts to replay...-----"
-	    << std::endl;
-}
-
 void ReadlinkSystemCallTraceReplayModule::print_specific_fields() {
   std::cout << "link path(" << given_pathname_.val() << "), ";
   std::cout << "target path(" << (char*)link_value_.val() << "), " ;
@@ -75,9 +70,4 @@ void ReadlinkSystemCallTraceReplayModule::processRow() {
       }
     }
   }
-}
-
-void ReadlinkSystemCallTraceReplayModule::completeProcessing() {
-  std::cout << "-----Readlink System Call Replayer finished replaying...-----"
-	    << std::endl;
 }

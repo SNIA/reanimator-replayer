@@ -36,13 +36,6 @@ private:
   Int32Field mode_value_;
 
   /*
-   * This function will prepare things before replaying any
-   * mkdir system call. Right now it displays a starting
-   * message.
-   */
-  void prepareForProcessing();
-
-  /*
    * Print open sys call field values in a nice format
    */
   void print_specific_fields();
@@ -52,13 +45,6 @@ private:
    * and replay an mkdir system call with those arguments.
    */
   void processRow();
-
-  /*
-   * This function will do things that have be done
-   * after finishing replaying all open system calls.
-   * Now, it only displays an ending message.
-   */
-  void completeProcessing();
 
 public:
   MkdirSystemCallTraceReplayModule(DataSeriesModule &source,

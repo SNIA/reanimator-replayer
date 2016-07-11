@@ -36,19 +36,9 @@ void TruncateSystemCallTraceReplayModule::print_specific_fields() {
   std::cout << "length(" << truncate_length_.val() << ")";
 }
 
-void TruncateSystemCallTraceReplayModule::prepareForProcessing() {
-  std::cout << "-----Truncate System Call Replayer starts to replay...-----"
-	    << std::endl;
-}
-
 void TruncateSystemCallTraceReplayModule::processRow() {
   char *path = (char *)given_pathname_.val();
   int64_t length = truncate_length_.val();
   // Replay the truncate system call
   replayed_ret_val_ = truncate(path, length);
-}
-
-void TruncateSystemCallTraceReplayModule::completeProcessing() {
-  std::cout << "-----Truncate System Call Replayer finished replaying...-----"
-	    << std::endl;
 }

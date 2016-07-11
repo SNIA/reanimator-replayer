@@ -35,11 +35,6 @@ void LSeekSystemCallTraceReplayModule::print_specific_fields() {
   std::cout << "whence(" << whence_.val() << ")";
 }
 
-void LSeekSystemCallTraceReplayModule::prepareForProcessing() {
-  std::cout << "-----lseek system call replayer starts to replay...-----"
-	    << std::endl;
-}
-
 void LSeekSystemCallTraceReplayModule::processRow() {
   // Get replaying file descriptor.
   int fd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
@@ -48,9 +43,4 @@ void LSeekSystemCallTraceReplayModule::processRow() {
 
   // Replay
   replayed_ret_val_ = lseek(fd, offset, whence);
-}
-
-void LSeekSystemCallTraceReplayModule::completeProcessing() {
-  std::cout << "-----lseek system call replayer finished replaying...-----"
-	    << std::endl;
 }

@@ -33,20 +33,10 @@ void SymlinkSystemCallTraceReplayModule::print_specific_fields() {
   std::cout << "link path(" << given_pathname_.val() << ")";
 }
 
-void SymlinkSystemCallTraceReplayModule::prepareForProcessing() {
-  std::cout << "-----Symlink System Call Replayer starts to replay...-----"
-	    << std::endl;
-}
-
 void SymlinkSystemCallTraceReplayModule::processRow() {
   char *target_path = (char *)target_pathname_.val();
   char *link_path = (char *)given_pathname_.val();
 
   // Replay symlink system call
   replayed_ret_val_ = symlink(target_path, link_path);
-}
-
-void SymlinkSystemCallTraceReplayModule::completeProcessing() {
-  std::cout << "-----Symlink System Call Replayer finished replaying...-----"
-	    << std::endl;
 }
