@@ -11,7 +11,7 @@ The POSIX system calls considered applicable to I/O tracing:
 9. writev - In progress
 10. fcntl - NOT supported
 11. ioctl - NOT supported
-12. fsync - NOT supported
+12. fsync - support
 13. open - support
 14. close - support
 15. stat - support
@@ -38,3 +38,4 @@ The POSIX system calls considered applicable to I/O tracing:
 36. exit - NOT supported
 37. dup - NOT supported
 38. dup2 - NOT supported
+39. rename - support

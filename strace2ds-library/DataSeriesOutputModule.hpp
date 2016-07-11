@@ -43,6 +43,7 @@
 #include <strace2ds.h>
 
 #include <fcntl.h>
+#include <utime.h>
 
 /* map<fieldname, pair<nullable, ExtentType> */
 typedef std::map<std::string,
@@ -150,6 +151,9 @@ private:
   // Convert time from a timeval to a uint64_t in Tfracs
   uint64_t timeval_to_Tfrac(struct timeval tv);
 
+  // Convert time from a long (seconds) to a uint64_t in Tfracs
+  uint64_t sec_to_Tfrac(time_t time);
+
   // Convert time from a timespec to a uint64_t in Tfracs
   uint64_t timespec_to_Tfrac(struct timespec ts);
 
@@ -223,8 +227,8 @@ private:
 
   // Maps PWrite System Call <field, value> pairs
   void makePWriteArgsMap(std::map<std::string, void *> &args_map,
-		         long *args,
-		         void **v_args);
+			 long *args,
+			 void **v_args);
 
   // Maps Stat System Call <field, value> pairs
   void makeStatArgsMap(std::map<std::string, void *> &args_map,
@@ -244,6 +248,31 @@ private:
   void makeReadvArgsMap(std::map<std::string, void *> &args_map,
 			long *args,
 			void **v_args);
+  
+  // Maps Utime System Call <field, value> pairs
+  void makeUtimeArgsMap(std::map<std::string, void *> &args_map,
+			void **v_args);
+
+  // Maps LStat System Call <field, value> pairs
+  void makeLStatArgsMap(std::map<std::string, void *> &args_map,
+		       void **v_args);
+
+  // Maps FStat System Call <field, value> pairs
+  void makeFStatArgsMap(std::map<std::string, void *> &args_map,
+			long *args,
+			void **v_args);
+
+  // Maps Utimes System Call <field, value> pairs
+  void makeUtimesArgsMap(std::map<std::string, void *> &args_map,
+			 void **v_args);
+
+  // Maps Rename System Call <field, value> pairs
+  void makeRenameArgsMap(std::map<std::string, void *> &args_map,
+			 void **v_args);
+
+  // Maps Fsync System Call <field, value> pairs
+  void makeFsyncArgsMap(std::map<std::string, void *> &args_map,
+			long *args);
 };
 
 #endif // DATA_SERIES_OUTPUT_MODULE_HPP

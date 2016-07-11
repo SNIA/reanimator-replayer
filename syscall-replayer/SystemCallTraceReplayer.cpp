@@ -40,12 +40,14 @@
 #include "SymlinkSystemCallTraceReplayModule.hpp"
 #include "RmdirSystemCallTraceReplayModule.hpp"
 #include "MkdirSystemCallTraceReplayModule.hpp"
-#include "StatSystemCallTraceReplayModule.hpp"
+#include "BasicStatSystemCallTraceReplayModule.hpp"
 #include "ReadlinkSystemCallTraceReplayModule.hpp"
 #include "UtimeSystemCallTraceReplayModule.hpp"
 #include "ChmodSystemCallTraceReplayModule.hpp"
 #include "ChownSystemCallTraceReplayModule.hpp"
 #include "ReadvSystemCallTraceReplayModule.hpp"
+#include "RenameSystemCallTraceReplayModule.hpp"
+#include "FsyncSystemCallTraceReplayModule.hpp"
 
 /*
  * min heap uses this function to sort elements in the tree.
@@ -230,6 +232,11 @@ int main(int argc, char *argv[]) {
   system_calls.push_back("chmod");
   system_calls.push_back("chown");
   system_calls.push_back("readv");
+  system_calls.push_back("lstat");
+  system_calls.push_back("fstat");
+  system_calls.push_back("utimes");
+  system_calls.push_back("rename");
+  system_calls.push_back("fsync");
 
   std::vector<TypeIndexModule *> type_index_modules;
 
@@ -366,6 +373,7 @@ int main(int argc, char *argv[]) {
     new UtimeSystemCallTraceReplayModule(
 				 *prefetch_buffer_modules[module_index++],
 				 verbose,
+				 verify,
 				 warn_level);
   ChmodSystemCallTraceReplayModule *chmod_module =
     new ChmodSystemCallTraceReplayModule(
@@ -380,8 +388,36 @@ int main(int argc, char *argv[]) {
   ReadvSystemCallTraceReplayModule *readv_module =
     new ReadvSystemCallTraceReplayModule(
 				 *prefetch_buffer_modules[module_index++],
+                                 verbose,
+                                 verify,
+                                 warn_level);
+  LStatSystemCallTraceReplayModule *lstat_module =
+    new LStatSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
 				 verbose,
 				 verify,
+				 warn_level);
+  FStatSystemCallTraceReplayModule *fstat_module =
+    new FStatSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 verify,
+				 warn_level);
+  UtimesSystemCallTraceReplayModule *utimes_module =
+    new UtimesSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 verify,
+				 warn_level);
+  RenameSystemCallTraceReplayModule *rename_module =
+    new RenameSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 warn_level);
+  FsyncSystemCallTraceReplayModule *fsync_module =
+    new FsyncSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
 				 warn_level);
 
   /*
@@ -412,6 +448,11 @@ int main(int argc, char *argv[]) {
   system_call_trace_replay_modules.push_back(chmod_module);
   system_call_trace_replay_modules.push_back(chown_module);
   system_call_trace_replay_modules.push_back(readv_module);
+  system_call_trace_replay_modules.push_back(lstat_module);
+  system_call_trace_replay_modules.push_back(fstat_module);
+  system_call_trace_replay_modules.push_back(utimes_module);
+  system_call_trace_replay_modules.push_back(rename_module);
+  system_call_trace_replay_modules.push_back(fsync_module);
 
   // Double check to make sure all replaying modules are loaded.
   if (system_call_trace_replay_modules.size() != system_calls.size()) {

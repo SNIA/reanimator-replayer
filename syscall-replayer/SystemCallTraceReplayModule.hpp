@@ -243,6 +243,13 @@ public:
    */
   double Tfrac_to_sec(uint64_t time);
 
+  /*
+   * Convert a time value stored in Tfrac units (2^32 Tfracs = 1 sec)
+   * (as a uint64_t) to a struct timeval (for the utimes system call)
+   *
+   * @return: the corresponding timeval
+   */
+  struct timeval Tfrac_to_timeval(uint64_t time);
 };
 
 #endif /* SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

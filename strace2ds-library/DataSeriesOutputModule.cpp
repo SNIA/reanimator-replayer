@@ -160,6 +160,18 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
     makeReadlinkArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "readv") == 0) {
     makeReadvArgsMap(sys_call_args_map, args, v_args);
+  } else if (strcmp(extent_name, "utime") == 0) {
+    makeUtimeArgsMap(sys_call_args_map, v_args);
+  } else if (strcmp(extent_name, "lstat") == 0) {
+    makeLStatArgsMap(sys_call_args_map, v_args);
+  } else if (strcmp(extent_name, "fstat") == 0) {
+    makeFStatArgsMap(sys_call_args_map, args, v_args);
+  } else if (strcmp(extent_name, "utimes") == 0) {
+    makeUtimesArgsMap(sys_call_args_map, v_args);
+  } else if (strcmp(extent_name, "rename") == 0) {
+    makeRenameArgsMap(sys_call_args_map, v_args);
+  } else if (strcmp(extent_name, "fsync") == 0) {
+    makeFsyncArgsMap(sys_call_args_map, args);
   }
 
   // Create a new record to write
@@ -438,9 +450,11 @@ u_int DataSeriesOutputModule::getVariable32FieldLength(std::map<std::string,
     if ((field_name == "given_pathname") ||
 	(field_name == "given_oldpathname") ||
 	(field_name == "given_newpathname") ||
-	(field_name == "target_pathname")) {
+	(field_name == "target_pathname") ||
+	(field_name == "given_oldname") ||
+	(field_name == "given_newname")){
       void *field_value = args_map[field_name];
-      length = strlen(*(char **)field_value);
+      length = strlen(*(char **) field_value);
     /*
      * If field_name refers to the actual data read or written, then length
      * of buffer must be the return value of that corresponding system call.
@@ -672,7 +686,12 @@ mode_t DataSeriesOutputModule::processMode(std::map<std::string,
 
 uint64_t DataSeriesOutputModule::timeval_to_Tfrac(struct timeval tv) {
   double time_seconds = (double) tv.tv_sec + pow(10.0, -6) * tv.tv_usec;
-  uint64_t time_Tfracs = (uint64_t)(time_seconds * (((uint64_t)1)<<32));
+  uint64_t time_Tfracs = (uint64_t) (time_seconds * (((uint64_t) 1)<<32));
+  return time_Tfracs;
+}
+
+uint64_t DataSeriesOutputModule::sec_to_Tfrac(time_t time) {
+  uint64_t time_Tfracs = (uint64_t) (time * (((uint64_t) 1)<<32));
   return time_Tfracs;
 }
 
@@ -1036,4 +1055,156 @@ void DataSeriesOutputModule::makeReadvArgsMap(std::map<std::string,
     else
       std::cerr << "Readv: Data to be read is set as NULL" << std::endl;
   }
+}
+
+void DataSeriesOutputModule::makeUtimeArgsMap(std::map<std::string,
+					      void *> &args_map,
+					      void **v_args) {
+  static uint64_t access_time_Tfrac;
+  static uint64_t mod_time_Tfrac;
+
+  if (v_args[0] != NULL) {
+    args_map["given_pathname"] = &v_args[0];
+  } else {
+    std::cerr << "Utime: Pathname is set as NULL!!" << std::endl;
+  }
+
+  if (v_args[1] != NULL) {
+    struct utimbuf *times = (struct utimbuf *) v_args[1];
+
+    // Convert the time_t members of the struct utimbuf to Tfracs (uint64_t)
+    access_time_Tfrac = sec_to_Tfrac(times->actime);
+    mod_time_Tfrac = sec_to_Tfrac(times->modtime);
+  } else {
+    // In the case of a NULL utimbuf, set access_time and mod_time equal to 0
+    access_time_Tfrac = 0;
+    mod_time_Tfrac = 0;
+  }
+  args_map["access_time"] = &access_time_Tfrac;
+  args_map["mod_time"] = &mod_time_Tfrac;
+}
+
+void DataSeriesOutputModule::makeLStatArgsMap(std::map<std::string,
+					     void *> &args_map,
+					     void **v_args) {
+  if (v_args[0] != NULL) {
+    args_map["given_pathname"] = &v_args[0];
+  } else {
+    std::cerr << "LStat: Pathname is set as NULL!!" << std::endl;
+  }
+
+  if (v_args[1] != NULL) {
+    struct stat *statbuf = (struct stat *) v_args[1];
+
+    args_map["stat_result_dev"] = &statbuf->st_dev;
+    args_map["stat_result_ino"] = &statbuf->st_ino;
+    args_map["stat_result_mode"] = &statbuf->st_mode;
+    args_map["stat_result_nlink"] = &statbuf->st_nlink;
+    args_map["stat_result_uid"] = &statbuf->st_uid;
+    args_map["stat_result_gid"] = &statbuf->st_gid;
+    args_map["stat_result_rdev"] = &statbuf->st_rdev;
+    args_map["stat_result_size"] = &statbuf->st_size;
+    args_map["stat_result_blksize"] = &statbuf->st_blksize;
+    args_map["stat_result_blocks"] = &statbuf->st_blocks;
+
+    /*
+     * Convert stat_result_atime, stat_result_mtime and
+     * stat_result_ctime to Tfracs.
+     */
+    static uint64_t atime_Tfrac = timespec_to_Tfrac(statbuf->st_atim);
+    static uint64_t mtime_Tfrac = timespec_to_Tfrac(statbuf->st_mtim);
+    static uint64_t ctime_Tfrac = timespec_to_Tfrac(statbuf->st_ctim);
+    args_map["stat_result_atime"] = &atime_Tfrac;
+    args_map["stat_result_mtime"] = &mtime_Tfrac;
+    args_map["stat_result_ctime"] = &ctime_Tfrac;
+  } else {
+    std::cerr << "LStat: Struct stat buffer is set as NULL!!" << std::endl;
+  }
+}
+
+void DataSeriesOutputModule::makeFStatArgsMap(std::map<std::string,
+					      void *> &args_map,
+					      long *args,
+					      void **v_args) {
+  args_map["descriptor"] = &args[0];
+
+  if (v_args[0] != NULL) {
+    struct stat *statbuf = (struct stat *) v_args[0];
+
+    args_map["stat_result_dev"] = &statbuf->st_dev;
+    args_map["stat_result_ino"] = &statbuf->st_ino;
+    args_map["stat_result_mode"] = &statbuf->st_mode;
+    args_map["stat_result_nlink"] = &statbuf->st_nlink;
+    args_map["stat_result_uid"] = &statbuf->st_uid;
+    args_map["stat_result_gid"] = &statbuf->st_gid;
+    args_map["stat_result_rdev"] = &statbuf->st_rdev;
+    args_map["stat_result_size"] = &statbuf->st_size;
+    args_map["stat_result_blksize"] = &statbuf->st_blksize;
+    args_map["stat_result_blocks"] = &statbuf->st_blocks;
+
+    /*
+     * Convert stat_result_atime, stat_result_mtime and
+     * stat_result_ctime to Tfracs.
+     */
+    static uint64_t atime_Tfrac = timespec_to_Tfrac(statbuf->st_atim);
+    static uint64_t mtime_Tfrac = timespec_to_Tfrac(statbuf->st_mtim);
+    static uint64_t ctime_Tfrac = timespec_to_Tfrac(statbuf->st_ctim);
+    args_map["stat_result_atime"] = &atime_Tfrac;
+    args_map["stat_result_mtime"] = &mtime_Tfrac;
+    args_map["stat_result_ctime"] = &ctime_Tfrac;
+  } else {
+    std::cerr << "FStat: Struct stat buffer is set as NULL!!" << std::endl;
+  }
+}
+
+void DataSeriesOutputModule::makeUtimesArgsMap(std::map<std::string,
+					       void *> &args_map,
+					       void **v_args) {
+  static uint64_t access_time_Tfrac;
+  static uint64_t mod_time_Tfrac;
+
+  if (v_args[0] != NULL) {
+    args_map["given_pathname"] = &v_args[0];
+  } else {
+    std::cerr << "Utimes: Pathname is set as NULL!!" << std::endl;
+  }
+
+  if (v_args[1] != NULL) {
+    struct timeval *tv = (struct timeval *) v_args[1];
+
+    // Convert timeval arguments to Tfracs (uint64_t)
+    access_time_Tfrac = timeval_to_Tfrac(tv[0]);
+    mod_time_Tfrac = timeval_to_Tfrac(tv[1]);
+  } else {
+    /*
+     * In the case of a NULL timeval array, set access_time and
+     * mod_time equal to 0.
+     */
+    access_time_Tfrac = 0;
+    mod_time_Tfrac = 0;
+  }
+  args_map["access_time"] = &access_time_Tfrac;
+  args_map["mod_time"] = &mod_time_Tfrac;
+}
+
+void DataSeriesOutputModule::makeRenameArgsMap(std::map<std::string,
+					       void *> &args_map,
+					       void **v_args) {
+  if (v_args[0] != NULL) {
+    args_map["given_oldname"] = &v_args[0];
+  } else {
+    std::cerr << "Rename: Old name is set as NULL!!" << std::endl;
+  }
+
+  if (v_args[1] != NULL) {
+    args_map["given_newname"] = &v_args[1];
+  } else {
+    std::cerr << "Rename: New name is set as NULL!!" << std::endl;
+  }
+}
+
+void DataSeriesOutputModule::makeFsyncArgsMap(std::map<std::string,
+					      void *> &args_map,
+					      long *args) {
+  args_map["descriptor"] = &args[0];
 }

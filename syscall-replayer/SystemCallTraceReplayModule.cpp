@@ -186,3 +186,14 @@ double SystemCallTraceReplayModule::Tfrac_to_sec(uint64_t time) {
   double time_in_secs = (double)(time * pow(2.0, -32));
   return time_in_secs;
 }
+
+struct timeval SystemCallTraceReplayModule::Tfrac_to_timeval(uint64_t time) {
+  struct timeval tv;
+  double time_in_secs = Tfrac_to_sec(time);
+  uint32_t full_secs = (uint32_t) time_in_secs;
+  uint32_t u_secs = (uint32_t) (time_in_secs - (double) full_secs)
+    * pow(10.0, 6);
+  tv.tv_sec = full_secs;
+  tv.tv_usec = u_secs;
+  return tv;
+}
