@@ -19,8 +19,7 @@
  * INITIALIZATION AND USAGE
  * As part of the abstraction design, implementing a module that replays
  * a system call requires a class to extend this abstract class and implement
- * abstract functions - prepareForProcessing(), processRow(), and
- * completeProcessing().
+ * abstract function - processRow().
  */
 #ifndef SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
