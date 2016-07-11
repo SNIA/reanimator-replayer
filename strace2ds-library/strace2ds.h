@@ -62,6 +62,12 @@ void ds_write_record(DataSeriesOutputModule *ds_module,
 		     void **v_args);
 
 /*
+ * If the program attempts to trace a system call not supported
+ * by the library, print a warning message.
+ */
+void ds_print_warning(const char *sys_call_name, long sys_call_number);
+
+/*
  * Free the module and flush all the records
  */
 void ds_destroy_module(DataSeriesOutputModule *ds_module);

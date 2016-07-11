@@ -68,6 +68,15 @@ void ds_write_record(DataSeriesOutputModule *ds_module,
 }
 
 /*
+ * If the program attempts to trace a system call not supported
+ * by the library, print a warning message.
+ */
+void ds_print_warning(const char *sys_call_name, long sys_call_number) {
+  std::cerr << "WARNING: Attempting to trace unsupported system call: "
+	    << sys_call_name << " (" << sys_call_number << ")" << std::endl;
+}
+
+/*
  * Free the module and flush all the records
  */
 void ds_destroy_module(DataSeriesOutputModule *ds_module) {
