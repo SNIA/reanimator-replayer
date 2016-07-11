@@ -41,24 +41,10 @@ private:
   void print_specific_fields();
 
   /*
-   * This function will prepare things before replaying any
-   * creat system call. Right now it displays a starting
-   * message.
-   */
-  void prepareForProcessing();
-
-  /*
    * This function will gather arguments in the trace file
    * and replay an creat system call with those arguments.
    */
   void processRow();
-
-  /*
-   * This function will do things that have be done
-   * after finishing replaying all creat system calls.
-   * Now, it only displays an ending message.
-   */
-  void completeProcessing();
 
 public:
   CreatSystemCallTraceReplayModule(DataSeriesModule &source,

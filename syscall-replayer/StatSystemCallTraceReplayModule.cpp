@@ -41,11 +41,6 @@ StatSystemCallTraceReplayModule(DataSeriesModule &source,
   sys_call_name_ = "stat";
 }
 
-void StatSystemCallTraceReplayModule::prepareForProcessing() {
-  std::cout << "-----Stat System Call Replayer starts to replay...-----"
-	    << std::endl;
-}
-
 void StatSystemCallTraceReplayModule::print_mode_value(u_int st_mode) {
   int printable_mode = 0;
   mode_t mode = (mode_t)st_mode;
@@ -166,9 +161,4 @@ void StatSystemCallTraceReplayModule::processRow() {
       }
     }
   }
-}
-
-void StatSystemCallTraceReplayModule::completeProcessing() {
-  std::cout << "-----Stat System Call Replayer finished replaying...-----"
-	    << std::endl;
 }

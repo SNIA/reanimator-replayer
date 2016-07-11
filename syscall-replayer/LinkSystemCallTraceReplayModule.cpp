@@ -33,20 +33,10 @@ void LinkSystemCallTraceReplayModule::print_specific_fields() {
   std::cout << "new path(" << given_newpathname_.val() << ")";
 }
 
-void LinkSystemCallTraceReplayModule::prepareForProcessing() {
-  std::cout << "-----Link System Call Replayer starts to replay...-----"
-	    << std::endl;
-}
-
 void LinkSystemCallTraceReplayModule::processRow() {
   const char *old_path_name = (const char *)given_oldpathname_.val();
   const char *new_path_name = (const char *)given_newpathname_.val();
 
   // Replay the link system call
   replayed_ret_val_ = link(old_path_name, new_path_name);
-}
-
-void LinkSystemCallTraceReplayModule::completeProcessing() {
-  std::cout << "-----Link System Call Replayer finished replaying...-----"
-	    << std::endl;
 }

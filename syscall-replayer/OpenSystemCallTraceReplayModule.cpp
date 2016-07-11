@@ -35,11 +35,6 @@ void OpenSystemCallTraceReplayModule::print_specific_fields() {
   std::cout << "mode(" << mode_value_.val() << ")";
 }
 
-void OpenSystemCallTraceReplayModule::prepareForProcessing() {
-  std::cout << "-----Open System Call Replayer starts to replay...-----"
-	    << std::endl;
-}
-
 void OpenSystemCallTraceReplayModule::processRow() {
   const char *pathname = (char *)given_pathname_.val();
   int flags = open_value_.val();
@@ -50,9 +45,4 @@ void OpenSystemCallTraceReplayModule::processRow() {
   replayed_ret_val_ = open(pathname, flags, mode);
   // Add a mapping from fd in trace file to actual replayed fd
   SystemCallTraceReplayModule::fd_map_[return_value] = replayed_ret_val_;
-}
-
-void OpenSystemCallTraceReplayModule::completeProcessing() {
-  std::cout << "-----Open System Call Replayer finished replaying...-----"
-	    << std::endl;
 }

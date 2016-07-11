@@ -42,26 +42,11 @@ protected:
   void print_specific_fields();
 
   /*
-   * This function will prepare things before replaying any
-   * write system call. Right now it displays a starting
-   * message and opens urandom device if pattern is random.
-   */
-  void prepareForProcessing();
-
-  /*
    * This function will gather arguments in the trace file
    * or create our own arguments (for example, pattern),
    * then replay an write system call with those arguments.
    */
   void processRow();
-
-  /*
-   * This function will do things that have be done
-   * after finishing replaying all write system calls.
-   * Now, it displays an ending message and close
-   * urandom if pattern is random.
-   */
-  void completeProcessing();
 
   /*
    * If pattern is random, this function will randomly
@@ -89,24 +74,10 @@ private:
   void print_specific_fields();
 
   /*
-   * This function will prepare things before replaying any
-   * pwrite system call. Right now it displays a starting
-   * message.
-   */
-  void prepareForProcessing();
-
-  /*
    * This function will gather arguments in the trace file
    * and then replay an pwrite system call with those arguments.
    */
   void processRow();
-
-  /*
-   * This function will do things that have be done
-   * after finishing replaying all pwrite system calls.
-   * Now, it only displays an ending message.
-   */
-  void completeProcessing();
 
 public:
   PWriteSystemCallTraceReplayModule(DataSeriesModule &source,

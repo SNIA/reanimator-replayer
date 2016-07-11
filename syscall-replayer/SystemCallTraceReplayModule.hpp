@@ -47,8 +47,9 @@ protected:
   Int32Field errno_number_;
   Int64Field return_value_;
   Int64Field unique_id_;
-  bool completed_;
+  int rows_per_call_; // It stores the number of rows processed per system call.
   int replayed_ret_val_;
+
   /*
    * Print common and specific sys call field values in a nice format
    */
@@ -75,14 +76,6 @@ protected:
   void compare_retval_and_errno();
 
   /*
-   * This function will be called before replaying any corresponding
-   * system call.
-   * Note: Child class should implement this function to do things
-   * before a replayer execute corresponding system call
-   */
-  virtual void prepareForProcessing() = 0;
-
-  /*
    * This function is where all the replaying takes action.
    * It will be called by execute() function for each record
    * of a corresponding system call.
@@ -92,7 +85,17 @@ protected:
   virtual void processRow() = 0;
 
   /*
-   * after_sys_call is called by execute() function.
+   * This function will be called after processRow() of correponding
+   * system call is called. It calls the after_sys_call() which does
+   * the post checking of each record processed.  Finally it increments
+   * the pointer in the Extent Series by the number of rows processed
+   * per system call.
+   */
+
+  virtual void completeProcessing();
+
+  /*
+   * after_sys_call is called by completeProcessing() function.
    * This function gets called after a system call is replayed.
    * Currently, it prints system call fields if the replayer
    * is running in verbose mode.
@@ -100,16 +103,6 @@ protected:
    * you want to do after replaying a system call.
    */
   virtual void after_sys_call();
-
-  /*
-   * This function will be called after all system call
-   * operations are being replayed.
-   * Note: Child class can implement this function to do things
-   * after all system call operations are replayed
-   *
-   * @param ret_val: return value of replayed operation
-   */
-  virtual void completeProcessing() = 0;
 
 public:
   // A mapping of file descriptors in the trace file to actual file descriptors

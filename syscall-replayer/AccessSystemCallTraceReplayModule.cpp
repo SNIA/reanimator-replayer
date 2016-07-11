@@ -33,20 +33,10 @@ void AccessSystemCallTraceReplayModule::print_specific_fields() {
   std::cout << "mode(" << mode_value_.val() << ")";
 }
 
-void AccessSystemCallTraceReplayModule::prepareForProcessing() {
-  std::cout << "-----Access System Call Replayer starts to replay...-----"
-	    << std::endl;
-}
-
 void AccessSystemCallTraceReplayModule::processRow() {
   const char *pathname = (char *)given_pathname_.val();
   int mode_value = mode_value_.val();
 
   // Replay the access system call
   replayed_ret_val_ = access(pathname, mode_value);
-}
-
-void AccessSystemCallTraceReplayModule::completeProcessing() {
-  std::cout << "-----Access System Call Replayer finished replaying...-----"
-	    << std::endl;
 }

@@ -57,9 +57,11 @@ char *WriteSystemCallTraceReplayModule::random_fill_buffer(char *buffer,
   return buffer;
 }
 
-void WriteSystemCallTraceReplayModule::prepareForProcessing() {
-  std::cout << "-----Write System Call Replayer starts to replay...-----"
-	    << std::endl;
+void WriteSystemCallTraceReplayModule::processRow() {
+  size_t nbytes = bytes_requested_.val();
+  int fd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
+  char *data_buffer;
+
   if (pattern_data_ == "random") {
 #ifdef DEV_URANDOM
     // Pattern is random, so open urandom device
@@ -70,12 +72,6 @@ void WriteSystemCallTraceReplayModule::prepareForProcessing() {
     }
 #endif
   }
-}
-
-void WriteSystemCallTraceReplayModule::processRow() {
-  size_t nbytes = bytes_requested_.val();
-  int fd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
-  char *data_buffer;
 
   // Check to see if write data was in DS and user didn't specify pattern
   if (data_written_.isNull() && pattern_data_.empty()) {
@@ -109,11 +105,7 @@ void WriteSystemCallTraceReplayModule::processRow() {
   if (!pattern_data_.empty()){
     delete[] data_buffer;
   }
-}
 
-void WriteSystemCallTraceReplayModule::completeProcessing() {
-  std::cout << "-----Write System Call Replayer finished replaying...-----"
-	    << std::endl;
   if (pattern_data_ == "random") {
 #ifdef DEV_URANDOM
     // Close the urandom device
@@ -139,16 +131,22 @@ void PWriteSystemCallTraceReplayModule::print_specific_fields() {
   std::cout << "offset(" << offset_.val() << ")";
 }
 
-void PWriteSystemCallTraceReplayModule::prepareForProcessing() {
-  std::cout << "-----PWrite System Call Replayer starts to replay...-----"
-	    << std::endl;
-}
-
 void PWriteSystemCallTraceReplayModule::processRow() {
   // Get replaying file descriptor.
   int fd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
   size_t nbytes = bytes_requested_.val();
   char *data_buffer;
+
+  if (pattern_data_ == "random") {
+#ifdef DEV_URANDOM
+    // Pattern is random, so open urandom device
+    random_file_.open("/dev/urandom");
+    if (!random_file_.is_open()) {
+      std::cerr << "Unable to open file '/dev/urandom/'.\n";
+      exit(EXIT_FAILURE);
+    }
+#endif
+  }
 
   // Check to see if write data is NULL in DS or user didn't specify pattern
   if (data_written_.isNull() && pattern_data_.empty() ) {
@@ -182,11 +180,7 @@ void PWriteSystemCallTraceReplayModule::processRow() {
   // Free the buffer
   if (!pattern_data_.empty())
     delete[] data_buffer;
-}
 
-void PWriteSystemCallTraceReplayModule::completeProcessing() {
-  std::cout << "-----PWrite System Call Replayer finished replaying...-----"
-            << std::endl;
   if (pattern_data_ == "random") {
 #ifdef DEV_URANDOM
     // Close the urandom device

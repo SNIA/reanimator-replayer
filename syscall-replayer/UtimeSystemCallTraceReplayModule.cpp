@@ -35,11 +35,6 @@ void UtimeSystemCallTraceReplayModule::print_specific_fields() {
   std::cout << "mod_time(" << (double)mod_time_.val() << ")";
 }
 
-void UtimeSystemCallTraceReplayModule::prepareForProcessing() {
-  std::cout << "-----Utime system call replayer starts to replay...-----"
-	    << std::endl;
-}
-
 void UtimeSystemCallTraceReplayModule::processRow() {
   // Get replaying file given_pathname.
   struct utimbuf utimebuf;
@@ -49,9 +44,4 @@ void UtimeSystemCallTraceReplayModule::processRow() {
 
   // Replay the utime system call.
   replayed_ret_val_ = utime(pathname, &utimebuf);
-}
-
-void UtimeSystemCallTraceReplayModule::completeProcessing() {
-  std::cout << "-----Utime system call replayer finished replaying...-----"
-	    << std::endl;
 }

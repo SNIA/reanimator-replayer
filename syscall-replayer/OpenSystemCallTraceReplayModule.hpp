@@ -42,24 +42,10 @@ private:
   void print_specific_fields();
 
   /*
-   * This function will prepare things before replaying any
-   * open system call. Right now it displays a starting
-   * message.
-   */
-  void prepareForProcessing();
-
-  /*
    * This function will gather arguments in the trace file
    * and replay an open system call with those arguments.
    */
   void processRow();
-
-  /*
-   * This function will do things that have be done
-   * after finishing replaying all open system calls.
-   * Now, it only displays an ending message.
-   */
-  void completeProcessing();
 
 public:
   OpenSystemCallTraceReplayModule(DataSeriesModule &source,

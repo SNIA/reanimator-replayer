@@ -39,24 +39,10 @@ protected:
   void print_specific_fields();
 
   /*
-   * This function will prepare things before replaying any
-   * access system call. Right now it displays a starting
-   * message.
-   */
-  void prepareForProcessing();
-
-  /*
    * This function will gather arguments in the trace file
    * and replay a access system call with those arguments.
    */
   void processRow();
-
-  /*
-   * This function will do things that have be done
-   * after finishing replaying all access system calls.
-   * Now, it only displays an ending message.
-   */
-  void completeProcessing();
 
 public:
   AccessSystemCallTraceReplayModule(DataSeriesModule &source,

@@ -37,11 +37,6 @@ void ReadSystemCallTraceReplayModule::print_specific_fields() {
   std::cout << "bytes requested(" << bytes_requested_.val() << ")";
 }
 
-void ReadSystemCallTraceReplayModule::prepareForProcessing() {
-  std::cout << "-----Read System Call Replayer starts to replay...-----"
-	    << std::endl;
-}
-
 void ReadSystemCallTraceReplayModule::processRow() {
   // Get replaying file descriptor.
   int fd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
@@ -73,11 +68,6 @@ void ReadSystemCallTraceReplayModule::processRow() {
   }
 }
 
-void ReadSystemCallTraceReplayModule::completeProcessing() {
-  std::cout << "-----Read System Call Replayer finished replaying...-----"
-	    << std::endl;
-}
-
 PReadSystemCallTraceReplayModule::
 PReadSystemCallTraceReplayModule(DataSeriesModule &source,
 				 bool verbose_flag,
@@ -92,11 +82,6 @@ PReadSystemCallTraceReplayModule(DataSeriesModule &source,
 void PReadSystemCallTraceReplayModule::print_specific_fields() {
   ReadSystemCallTraceReplayModule::print_specific_fields();
   std::cout << "offset(" << offset_.val() << ")";
-}
-
-void PReadSystemCallTraceReplayModule::prepareForProcessing() {
-  std::cout << "-----PRead System Call Replayer starts to replay...-----"
-	    << std::endl;
 }
 
 void PReadSystemCallTraceReplayModule::processRow() {
@@ -129,9 +114,4 @@ void PReadSystemCallTraceReplayModule::processRow() {
       }
     }
   }
-}
-
-void PReadSystemCallTraceReplayModule::completeProcessing() {
-  std::cout << "-----PRead System Call Replayer finished replaying...-----"
-	    << std::endl;
 }

@@ -31,20 +31,10 @@ void CloseSystemCallTraceReplayModule::print_specific_fields() {
   std::cout << "descriptor(" << descriptor_.val() << ")";
 }
 
-void CloseSystemCallTraceReplayModule::prepareForProcessing() {
-  std::cout << "-----Close System Call Replayer starts to replay...-----"
-	    << std::endl;
-}
-
 void CloseSystemCallTraceReplayModule::processRow() {
   // Get actual file descriptor
   int fd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
 
   replayed_ret_val_ = close(fd);
   SystemCallTraceReplayModule::fd_map_.erase(descriptor_.val());
-}
-
-void CloseSystemCallTraceReplayModule::completeProcessing() {
-  std::cout << "-----Close System Call Replayer finished replaying...-----"
-	    << std::endl;
 }

@@ -28,11 +28,6 @@ MkdirSystemCallTraceReplayModule(DataSeriesModule &source,
   sys_call_name_ = "mkdir";
 }
 
-void MkdirSystemCallTraceReplayModule::prepareForProcessing() {
-  std::cout << "-----Mkdir System Call Replayer starts to replay...-----"
-	    << std::endl;
-}
-
 void MkdirSystemCallTraceReplayModule::print_specific_fields() {
   std::cout << "pathname(" << given_pathname_.val() << "), ";
   std::cout << "mode(" << mode_value_.val() << ")";
@@ -44,9 +39,4 @@ void MkdirSystemCallTraceReplayModule::processRow() {
 
   // Replay the mkdir system call
   replayed_ret_val_ = mkdir(pathname, mode);
-}
-
-void MkdirSystemCallTraceReplayModule::completeProcessing() {
-  std::cout << "-----Mkdir System Call Replayer finished replaying...-----"
-	    << std::endl;
 }

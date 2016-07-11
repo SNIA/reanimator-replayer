@@ -31,7 +31,7 @@ SystemCallTraceReplayModule::SystemCallTraceReplayModule(DataSeriesModule
   errno_number_(series, "errno_number", Field::flag_nullable),
   return_value_(series, "return_value", Field::flag_nullable),
   unique_id_(series, "unique_id"),
-  completed_(false),
+  rows_per_call_(1),
   replayed_ret_val_(0) {
 }
 
@@ -81,22 +81,22 @@ int64_t SystemCallTraceReplayModule::unique_id() const {
 
 Extent::Ptr SystemCallTraceReplayModule::getSharedExtent() {
   Extent::Ptr e = source.getSharedExtent();
-  if (e == NULL) {
-    if (!completed_ && prepared) {
-      completed_ = true;
-      completeProcessing();
+  if (e != NULL) {
+    if (!prepared) {
+      firstExtent(*e);
     }
-    return e;
-  }
-  completed_ = false;
-  if (!prepared) {
-    firstExtent(*e);
-  }
-  newExtentHook(*e);
-  series.setExtent(e);
-  if (!prepared) {
-    prepareForProcessing();
-    prepared = true;
+    newExtentHook(*e);
+    series.setExtent(e);
+    if (!prepared) {
+      std::cout << "----- '" << sys_call_name_ << "' "
+                << "System Call Replayer has started replaying...-----\n"
+                << std::endl;
+      prepared = true;
+    }
+  } else if (prepared) {
+      std::cout << "----- '" << sys_call_name_ << "' "
+		<< "System Call Replayer finished replaying...-----\n"
+		<< std::endl;
   }
   return e;
 }
@@ -111,11 +111,14 @@ bool SystemCallTraceReplayModule::cur_extent_has_more_record() {
 }
 
 void SystemCallTraceReplayModule::execute() {
-  ++processed_rows;
   processRow();
-  if (sys_call_name_ != "readv")
-    after_sys_call();
-  ++series;
+  completeProcessing();
+}
+
+void SystemCallTraceReplayModule::completeProcessing() {
+  after_sys_call();
+  for (int i = 0; i < rows_per_call_; i++)
+    ++series;
 }
 
 void SystemCallTraceReplayModule::after_sys_call() {

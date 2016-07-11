@@ -48,13 +48,6 @@ protected:
   Int64Field stat_result_ctime_;
 
   /*
-   * This function will prepare things before replaying any
-   * stat system call. Right now it displays a starting
-   * message.
-   */
-  void prepareForProcessing();
-
-  /*
    * Print stat sys call field values in a nice format
    */
   void print_specific_fields();
@@ -70,13 +63,6 @@ protected:
    * and replay an stat system call with those arguments.
    */
   void processRow();
-
-  /*
-   * This function will do things that have be done
-   * after finishing replaying all stat system calls.
-   * Now, it only displays an ending message.
-   */
-  void completeProcessing();
 
 public:
   StatSystemCallTraceReplayModule(DataSeriesModule &source,
