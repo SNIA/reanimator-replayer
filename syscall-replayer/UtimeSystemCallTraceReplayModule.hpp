@@ -56,24 +56,10 @@ class UtimesSystemCallTraceReplayModule :
   public UtimeSystemCallTraceReplayModule {
 private:
   /*
-   * This function will prepare things before replaying any
-   * utimes system call. Right now it displays a starting
-   * message.
-   */
-  void prepareForProcessing();
-
-  /*
    * This function will gather arguments in the trace file
    * and then replay utimes system call with those arguments.
    */
   void processRow();
-
-  /*
-   * This function will do things that have be done
-   * after finishing replaying all utimes system calls in the
-   * trace files. Now, it only displays an ending message.
-   */
-  void completeProcessing();
 
 public:
   UtimesSystemCallTraceReplayModule(DataSeriesModule &source,

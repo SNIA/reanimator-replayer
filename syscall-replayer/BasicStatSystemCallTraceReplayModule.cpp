@@ -178,11 +178,6 @@ void StatSystemCallTraceReplayModule::print_specific_fields() {
   BasicStatSystemCallTraceReplayModule::print_specific_fields();
 }
 
-void StatSystemCallTraceReplayModule::prepareForProcessing() {
-  std::cout << "-----Stat System Call Replayer starts to replay...-----"
-	    << std::endl;
-}
-
 void StatSystemCallTraceReplayModule::processRow() {
   struct stat stat_buf;
   char *pathname = (char *) given_pathname_.val();
@@ -193,11 +188,6 @@ void StatSystemCallTraceReplayModule::processRow() {
   if (verify_ == true) {
     BasicStatSystemCallTraceReplayModule::verifyResult(stat_buf);
   }
-}
-
-void StatSystemCallTraceReplayModule::completeProcessing() {
-  std::cout << "-----Stat System Call Replayer finished replaying...-----"
-	    << std::endl;
 }
 
 LStatSystemCallTraceReplayModule::
@@ -216,11 +206,6 @@ void LStatSystemCallTraceReplayModule::print_specific_fields() {
   BasicStatSystemCallTraceReplayModule::print_specific_fields();
 }
 
-void LStatSystemCallTraceReplayModule::prepareForProcessing() {
-  std::cout << "-----LStat System Call Replayer starts to replay...-----"
-	    << std::endl;
-}
-
 void LStatSystemCallTraceReplayModule::processRow() {
   struct stat stat_buf;
   char *pathname = (char *) given_pathname_.val();
@@ -231,11 +216,6 @@ void LStatSystemCallTraceReplayModule::processRow() {
   if (verify_ == true) {
     BasicStatSystemCallTraceReplayModule::verifyResult(stat_buf);
   }
-}
-
-void LStatSystemCallTraceReplayModule::completeProcessing() {
-  std::cout << "-----LStat System Call Replayer finished replaying...-----"
-	    << std::endl;
 }
 
 FStatSystemCallTraceReplayModule::
@@ -254,11 +234,6 @@ void FStatSystemCallTraceReplayModule::print_specific_fields() {
   BasicStatSystemCallTraceReplayModule::print_specific_fields();
 }
 
-void FStatSystemCallTraceReplayModule::prepareForProcessing() {
-  std::cout << "-----FStat System Call Replayer starts to replay...-----"
-	    << std::endl;
-}
-
 void FStatSystemCallTraceReplayModule::processRow() {
   struct stat stat_buf;
   int descriptor = descriptor_.val();
@@ -269,9 +244,4 @@ void FStatSystemCallTraceReplayModule::processRow() {
   if (verify_ == true) {
     BasicStatSystemCallTraceReplayModule::verifyResult(stat_buf);
   }
-}
-
-void FStatSystemCallTraceReplayModule::completeProcessing() {
-  std::cout << "-----FStat System Call Replayer finished replaying...-----"
-	    << std::endl;
 }

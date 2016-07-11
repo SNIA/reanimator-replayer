@@ -33,20 +33,10 @@ void RenameSystemCallTraceReplayModule::print_specific_fields() {
   std::cout << "new name(" << given_newname_.val() << ")";
 }
 
-void RenameSystemCallTraceReplayModule::prepareForProcessing() {
-  std::cout << "-----Rename System Call Replayer starts to replay...-----"
-            << std::endl;
-}
-
 void RenameSystemCallTraceReplayModule::processRow() {
   const char *old_name = (const char *)given_oldname_.val();
   const char *new_name = (const char *)given_newname_.val();
 
   // Replay the rename system call
   replayed_ret_val_ = rename(old_name, new_name);
-}
-
-void RenameSystemCallTraceReplayModule::completeProcessing() {
-  std::cout << "-----Rename System Call Replayer finished replaying...-----"
-            << std::endl;
 }

@@ -69,11 +69,6 @@ UtimesSystemCallTraceReplayModule(DataSeriesModule &source,
   sys_call_name_ = "utimes";
 }
 
-void UtimesSystemCallTraceReplayModule::prepareForProcessing() {
-  std::cout << "-----Utimes System Call Replayer starts to replay...-----"
-	    << std::endl;
-}
-
 void UtimesSystemCallTraceReplayModule::processRow() {
   // Get replaying file given_pathname and make timeval array.
   struct timeval tv[2];
@@ -98,9 +93,4 @@ It will assign the current time to the file's access_time and mod_time."
   }
   else
     replayed_ret_val_ = utimes(pathname, tv);
-}
-
-void UtimesSystemCallTraceReplayModule::completeProcessing() {
-  std::cout << "-----Utimes System Call Replayer finished replaying...-----"
-	    << std::endl;
 }

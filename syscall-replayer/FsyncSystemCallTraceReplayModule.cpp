@@ -31,19 +31,9 @@ void FsyncSystemCallTraceReplayModule::print_specific_fields() {
   std::cout << "descriptor(" << descriptor_.val() << ")";
 }
 
-void FsyncSystemCallTraceReplayModule::prepareForProcessing() {
-  std::cout << "-----Fsync System Call Replayer starts to replay...-----"
-	    << std::endl;
-}
-
 void FsyncSystemCallTraceReplayModule::processRow() {
   // Get actual file descriptor
   int fd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
 
   replayed_ret_val_ = fsync(fd);
-}
-
-void FsyncSystemCallTraceReplayModule::completeProcessing() {
-  std::cout << "-----Fsync System Call Replayer finished replaying...-----"
-	    << std::endl;
 }
