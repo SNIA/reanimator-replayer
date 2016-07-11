@@ -35,20 +35,10 @@ void ChownSystemCallTraceReplayModule::print_specific_fields() {
   std::cout << "group(" << new_group_.val() << ")";
 }
 
-void ChownSystemCallTraceReplayModule::prepareForProcessing() {
-  std::cout << "-----Chown System Call Replayer starts to replay...-----"
-	    << std::endl;
-}
-
 void ChownSystemCallTraceReplayModule::processRow() {
   char *path = (char *)given_pathname_.val();
   uid_t owner = (uid_t)new_owner_.val();
   gid_t group = (gid_t)new_group_.val();
   // Replay the chown system call
   replayed_ret_val_ = chown(path, owner, group);
-}
-
-void ChownSystemCallTraceReplayModule::completeProcessing() {
-  std::cout << "-----Chown System Call Replayer finished replaying...-----"
-	    << std::endl;
 }
