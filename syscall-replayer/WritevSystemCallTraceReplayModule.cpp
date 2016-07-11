@@ -153,7 +153,7 @@ void WritevSystemCallTraceReplayModule::processRow() {
 	  data_buffer[iov_num] = random_fill_buffer(data_buffer[iov_num],
 						    bytes_requested);
 #endif
-      	} else {
+	} else {
 	  int pattern_hex;
 	  std::stringstream pattern_stream;
 	  pattern_stream << std::hex << pattern_data_;
