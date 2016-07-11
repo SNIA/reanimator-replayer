@@ -75,9 +75,9 @@ char *WritevSystemCallTraceReplayModule::random_fill_buffer(char *buffer,
   srand(time(0));
   num = rand();
   memcpy(buffer, &num, remaining);
-  for (i = remaining; i < bytes; i+=size) {
+  for (i = remaining; i < bytes; i += size) {
     num = rand();
-    memcpy(buffer+i, &num, size);
+    memcpy(buffer + i, &num, size);
   }
   return buffer;
 }
