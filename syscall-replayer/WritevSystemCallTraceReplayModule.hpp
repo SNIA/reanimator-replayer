@@ -27,7 +27,6 @@
 #include <sys/uio.h>
 
 #include "SystemCallTraceReplayModule.hpp"
-#include "WriteSystemCallTraceReplayModule.hpp"
 
 class WritevSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 private:
