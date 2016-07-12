@@ -29,12 +29,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#define DS_FILE_TYPE_REG 0
-#define DS_FILE_TYPE_CHR 1
-#define DS_FILE_TYPE_BLK 2
-#define DS_FILE_TYPE_FIFO 3
-#define DS_FILE_TYPE_SOCK 4
-
 class MknodSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 private:
   /* Mknod System Call Trace Fields in Dataseries file */
