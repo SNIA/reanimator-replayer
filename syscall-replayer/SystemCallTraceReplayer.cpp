@@ -50,6 +50,7 @@
 #include "FsyncSystemCallTraceReplayModule.hpp"
 #include "MknodSystemCallTraceReplayModule.hpp"
 #include "PipeSystemCallTraceReplayModule.hpp"
+#include "DupSystemCallTraceReplayModule.hpp"
 
 /*
  * min heap uses this function to sort elements in the tree.
@@ -241,6 +242,7 @@ int main(int argc, char *argv[]) {
   system_calls.push_back("fsync");
   system_calls.push_back("mknod");
   system_calls.push_back("pipe");
+  system_calls.push_back("dup");
 
   std::vector<TypeIndexModule *> type_index_modules;
 
@@ -434,6 +436,11 @@ int main(int argc, char *argv[]) {
 				 verbose,
 				 verify,
 				 warn_level);
+  DupSystemCallTraceReplayModule *dup_module =
+    new DupSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 warn_level);
 
   /*
    * This vector is going to used to load replaying modules.
@@ -470,6 +477,7 @@ int main(int argc, char *argv[]) {
   system_call_trace_replay_modules.push_back(fsync_module);
   system_call_trace_replay_modules.push_back(mknod_module);
   system_call_trace_replay_modules.push_back(pipe_module);
+  system_call_trace_replay_modules.push_back(dup_module);
 
   // Double check to make sure all replaying modules are loaded.
   if (system_call_trace_replay_modules.size() != system_calls.size()) {
