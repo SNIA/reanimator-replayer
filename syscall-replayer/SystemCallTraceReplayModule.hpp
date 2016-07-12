@@ -25,7 +25,7 @@
 #define SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 
 #include <DataSeries/RowAnalysisModule.hpp>
-#include "../strace2ds-library/strace2ds.h"
+#include "../../strace2ds/include/strace2ds.h"
 
 #include <string>
 #include <map>
