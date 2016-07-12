@@ -178,6 +178,8 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
     makePipeArgsMap(sys_call_args_map, v_args);
   } else if (strcmp(extent_name, "dup") == 0) {
     makeDupArgsMap(sys_call_args_map, args);
+  } else if (strcmp(extent_name, "dup2") == 0) {
+    makeDup2ArgsMap(sys_call_args_map, args);
   }
 
   // Create a new record to write
@@ -1307,4 +1309,11 @@ void DataSeriesOutputModule::makeDupArgsMap(std::map<std::string,
 					    void *> &args_map,
 					    long *args) {
   args_map["descriptor"] = &args[0];
+}
+
+void DataSeriesOutputModule::makeDup2ArgsMap(std::map<std::string,
+					     void *> &args_map,
+					     long *args) {
+  args_map["old_descriptor"] = &args[0];
+  args_map["new_descriptor"] = &args[1];
 }

@@ -291,6 +291,10 @@ private:
   // Maps Dup System Call <field, value> pairs
   void makeDupArgsMap(std::map<std::string, void *> &args_map,
 		      long *args);
+
+  // Maps Dup2 System Call <field, value> pairs
+  void makeDup2ArgsMap(std::map<std::string, void *> &args_map,
+		       long *args);
 };
 
 #endif // DATA_SERIES_OUTPUT_MODULE_HPP
