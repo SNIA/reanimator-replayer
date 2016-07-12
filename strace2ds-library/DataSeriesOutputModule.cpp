@@ -174,6 +174,8 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
     makeFsyncArgsMap(sys_call_args_map, args);
   } else if (strcmp(extent_name, "mknod") == 0) {
     makeMknodArgsMap(sys_call_args_map, args, v_args);
+  } else if (strcmp(extent_name, "pipe") == 0) {
+    makePipeArgsMap(sys_call_args_map, v_args);
   }
 
   // Create a new record to write
@@ -1275,4 +1277,26 @@ mode_t DataSeriesOutputModule::processMknodType(std::map<std::string,
    * of unknown modes if the mode value is not set as zero.
    */
   return mode;
+}
+
+void DataSeriesOutputModule::makePipeArgsMap(std::map<std::string,
+					     void *> &args_map,
+					     void **v_args) {
+  static int pipefd[2];
+
+  if (v_args[0] != NULL) {
+    pipefd[0] = ((int *) v_args[0])[0];
+    pipefd[1] = ((int *) v_args[0])[1];
+  } else {
+    /*
+     * In the case of a NULL file descriptor array, set
+     * read_descriptor and write_descriptor equal to 0.
+     */
+    pipefd[0] = 0;
+    pipefd[1] = 0;
+    std::cerr << "Pipe: File descriptor array is set as NULL!!" << std::endl;
+  }
+
+  args_map["read_descriptor"] = &pipefd[0];
+  args_map["write_descriptor"] = &pipefd[1];
 }
