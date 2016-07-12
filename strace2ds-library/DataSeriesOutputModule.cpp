@@ -1060,9 +1060,9 @@ void DataSeriesOutputModule::makeReadvArgsMap(std::map<std::string,
 }
 
 void DataSeriesOutputModule::makeWritevArgsMap(std::map<std::string,
-                                               void *> &args_map,
-                                               long *args,
-                                               void **v_args) {
+					       void *> &args_map,
+					       long *args,
+					       void **v_args) {
   int iov_number = *(int *) v_args[0];
 
   /*

@@ -390,15 +390,15 @@ int main(int argc, char *argv[]) {
   ReadvSystemCallTraceReplayModule *readv_module =
     new ReadvSystemCallTraceReplayModule(
 				 *prefetch_buffer_modules[module_index++],
-                                 verbose,
-                                 verify,
-                                 warn_level);
+				 verbose,
+				 verify,
+				 warn_level);
   WritevSystemCallTraceReplayModule *writev_module =
     new WritevSystemCallTraceReplayModule(
-                                 *prefetch_buffer_modules[module_index++],
-                                 verbose,
-                                 warn_level,
-                                 pattern_data);
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 warn_level,
+				 pattern_data);
   LStatSystemCallTraceReplayModule *lstat_module =
     new LStatSystemCallTraceReplayModule(
 				 *prefetch_buffer_modules[module_index++],

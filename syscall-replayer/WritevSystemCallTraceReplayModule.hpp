@@ -27,6 +27,7 @@
 #include <sys/uio.h>
 
 #include "SystemCallTraceReplayModule.hpp"
+#include "WriteSystemCallTraceReplayModule.hpp"
 
 class WritevSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 private:
@@ -49,13 +50,6 @@ private:
    * and then replay a writev system call with those arguments.
    */
   void processRow();
-
-  /*
-   * If pattern is random, this function will randomly
-   * generate numbers using standard rand() and srand()
-   * library functions to fill the buffer.
-   */
-  char* random_fill_buffer(char *buffer, size_t nbytes);
 
 public:
   WritevSystemCallTraceReplayModule(DataSeriesModule &source,

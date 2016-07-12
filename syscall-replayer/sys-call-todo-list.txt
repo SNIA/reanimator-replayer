@@ -10,7 +10,7 @@ The POSIX system calls considered applicable to I/O tracing:
 8. readv - support
 9. writev - support
 10. fcntl - NOT supported
-11. ioctl - NOT supported
+11. ioctl - NOT supported - (full semantics not provided in SNIA)
 12. fsync - support
 13. open - support
 14. close - support
