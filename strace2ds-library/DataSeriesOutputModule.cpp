@@ -160,6 +160,8 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
     makeReadlinkArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "readv") == 0) {
     makeReadvArgsMap(sys_call_args_map, args, v_args);
+  } else if (strcmp(extent_name, "writev") == 0) {
+    makeWritevArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "utime") == 0) {
     makeUtimeArgsMap(sys_call_args_map, v_args);
   } else if (strcmp(extent_name, "lstat") == 0) {
@@ -1054,6 +1056,38 @@ void DataSeriesOutputModule::makeReadvArgsMap(std::map<std::string,
       args_map["data_read"] = &v_args[2];
     else
       std::cerr << "Readv: Data to be read is set as NULL" << std::endl;
+  }
+}
+
+void DataSeriesOutputModule::makeWritevArgsMap(std::map<std::string,
+					       void *> &args_map,
+					       long *args,
+					       void **v_args) {
+  int iov_number = *(int *) v_args[0];
+
+  /*
+   * iov_number equal to '-1' denotes the first record for the
+   * writev system call. For first record, we save the file
+   * descriptor, count, iov_number and total number of bytes
+   * requested and do not set the data_written field.
+   */
+  if (iov_number == -1) {
+    args_map["descriptor"] = &args[0];
+    args_map["count"] = &args[2];
+    args_map["iov_number"] = v_args[0];
+    args_map["bytes_requested"] = v_args[1];
+  } else {
+    /*
+     * For rest of the records, we do not save file descriptor and
+     * count fields. We only save the iov_number, bytes_requested
+     * and data_written fields.
+     */
+    args_map["iov_number"] = v_args[0];
+    args_map["bytes_requested"] = v_args[1];
+    if (v_args[2] != NULL)
+      args_map["data_written"] = &v_args[2];
+    else
+      std::cerr << "Writev: Data to be written is set as NULL" << std::endl;
   }
 }
 

@@ -51,6 +51,7 @@ SYSTEM_CALL_REPLAY_MODULE_OBJECTS = SystemCallTraceReplayer.o SystemCallTraceRep
 				    ChmodSystemCallTraceReplayModule.o \
 				    ChownSystemCallTraceReplayModule.o \
 				    ReadvSystemCallTraceReplayModule.o \
+				    WritevSystemCallTraceReplayModule.o \
 				    RenameSystemCallTraceReplayModule.o \
 				    FsyncSystemCallTraceReplayModule.o
 

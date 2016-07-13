@@ -48,19 +48,12 @@ protected:
    */
   void processRow();
 
-  /*
-   * If pattern is random, this function will randomly
-   * generate numbers using standard rand() and srand()
-   * library functions to fill the buffer.
-   */
-  char* random_fill_buffer(char *buffer, size_t nbytes);
-
 public:
   WriteSystemCallTraceReplayModule(DataSeriesModule &source,
-                                   bool verbose_flag,
-                                   bool verify_flag,
-                                   int warn_level_flag,
-                                   std::string pattern_data);
+				   bool verbose_flag,
+				   bool verify_flag,
+				   int warn_level_flag,
+				   std::string pattern_data);
 };
 
 class PWriteSystemCallTraceReplayModule : public WriteSystemCallTraceReplayModule {
@@ -81,9 +74,9 @@ private:
 
 public:
   PWriteSystemCallTraceReplayModule(DataSeriesModule &source,
-				  bool verbose_flag,
-				  bool verify_flag,
-				  int warn_level_flag,
-				  std::string pattern_data);
+				    bool verbose_flag,
+				    bool verify_flag,
+				    int warn_level_flag,
+				    std::string pattern_data);
 };
 #endif /* WRITE_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */
