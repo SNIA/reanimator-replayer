@@ -107,9 +107,9 @@ fcntl	lock_whence	1	int32
 fcntl	lock_whence_start	0	bool
 fcntl	lock_whence_current	0	bool
 fcntl	lock_whence_end	0	bool
-fcntl	lock_start	0	int32
-fcntl	lock_length	0	int32
-fcntl	lock_pid	0	int32
+fcntl	lock_start	1	int32
+fcntl	lock_length	1	int32
+fcntl	lock_pid	1	int32
 fcntl	command_get_process_id	0	bool
 fcntl	command_set_process_id	0	bool
 fcntl	command_get_signal	0	bool

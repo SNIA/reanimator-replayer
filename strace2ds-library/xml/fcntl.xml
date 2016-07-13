@@ -45,9 +45,9 @@
   <field name="lock_whence_start" type="bool" opt_nullable="no"/>
   <field name="lock_whence_current" type="bool" opt_nullable="no"/>
   <field name="lock_whence_end" type="bool" opt_nullable="no"/>
-  <field name="lock_start" type="int32" opt_nullable="no"/>
-  <field name="lock_length" type="int32" opt_nullable="no"/>
-  <field name="lock_pid" type="int32" opt_nullable="no"/>
+  <field name="lock_start" type="int32" opt_nullable="yes"/>
+  <field name="lock_length" type="int32" opt_nullable="yes"/>
+  <field name="lock_pid" type="int32" opt_nullable="yes"/>
   <field name="command_get_process_id" type="bool" opt_nullable="no"/>
   <field name="command_set_process_id" type="bool" opt_nullable="no"/>
   <field name="command_get_signal" type="bool" opt_nullable="no"/>

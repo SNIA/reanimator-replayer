@@ -182,6 +182,9 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
     makeDupArgsMap(sys_call_args_map, args);
   } else if (strcmp(extent_name, "dup2") == 0) {
     makeDup2ArgsMap(sys_call_args_map, args);
+  } else if (strcmp(extent_name, "fcntl") == 0) {
+    makeFcntlArgsMap(sys_call_args_map, args, v_args,
+		     *(int *) common_fields[DS_COMMON_FIELD_RETURN_VALUE]);
   }
 
   // Create a new record to write
@@ -1350,4 +1353,376 @@ void DataSeriesOutputModule::makeDup2ArgsMap(std::map<std::string,
 					     long *args) {
   args_map["old_descriptor"] = &args[0];
   args_map["new_descriptor"] = &args[1];
+}
+
+void DataSeriesOutputModule::makeFcntlArgsMap(std::map<std::string,
+					      void *> &args_map,
+					      long *args,
+					      void **v_args,
+					      int return_value) {
+  // Set all non-nullable boolean fields to false
+  initArgsMap(args_map, "fcntl");
+
+  // Save the descriptor and command value to the map
+  args_map["descriptor"] = &args[0];
+  args_map["command_value"] = &args[1];
+
+  int command = args[1];
+  /*
+   * Check the command argument passed to fcntl and set the corresponding
+   * fields in the map
+   */
+  switch (command) {
+
+  // File descriptor dup command
+  case F_DUPFD: {
+    args_map["argument_value"] = &args[2];
+    setFcntlBoolField(args_map, "command_dup");
+  } break;
+
+  // Get file descriptor flags command
+  case F_GETFD: {
+    setFcntlBoolField(args_map, "command_get_descriptor_flags");
+  } break;
+
+  // Set file descriptor flags command
+  case F_SETFD: {
+    setFcntlBoolField(args_map, "command_set_descriptor_flags");
+    args_map["argument_value"] = &args[2];
+    u_int fd_flag = (u_int) args[2];
+    process_Flag_and_Mode_Args(args_map, fd_flag, FD_CLOEXEC,
+			       "argument_descriptor_flag_exec_close");
+    if (fd_flag != 0) {
+      std::cerr << "Fcntl: SETFD: These flags are not processed/unknown->0x"
+		<< std::hex << fd_flag << std::dec << std::endl;
+    }
+  } break;
+
+  // Get file status flags command
+  case F_GETFL: {
+    setFcntlBoolField(args_map, "command_get_status_flags");
+  } break;
+
+  // Set file status flags command
+  case F_SETFL: {
+    setFcntlBoolField(args_map, "command_set_status_flags");
+    args_map["argument_value"] = &args[2];
+    u_int status_flag = processFcntlStatusFlags(args_map, args[2]);
+    if (status_flag != 0) {
+      std::cerr << "Fcntl: SETFL: These flags are not processed/unknown->0x"
+		<< std::hex << status_flag << std::dec << std::endl;
+    }
+  } break;
+
+  // Set lock command
+  case F_SETLK: {
+    setFcntlBoolField(args_map, "command_set_lock");
+    processFcntlFlock(args_map, (struct flock *) v_args[0]);
+  } break;
+
+  // Set lock wait command
+  case F_SETLKW: {
+    setFcntlBoolField(args_map, "command_set_lock_wait");
+    processFcntlFlock(args_map, (struct flock *) v_args[0]);
+  } break;
+
+  // Get lock command
+  case F_GETLK: {
+    setFcntlBoolField(args_map, "command_get_lock");
+    processFcntlFlock(args_map, (struct flock *) v_args[0]);
+  } break;
+
+  // Get process id command
+  case F_GETOWN: {
+    setFcntlBoolField(args_map, "command_get_process_id");
+  } break;
+
+  // Set process id command
+  case F_SETOWN: {
+    setFcntlBoolField(args_map, "command_set_process_id");
+    args_map["argument_value"] = &args[2];
+  } break;
+
+  // Get signal command
+  case F_GETSIG: {
+    setFcntlBoolField(args_map, "command_get_signal");
+  } break;
+
+  // Set signal command
+  case F_SETSIG: {
+    setFcntlBoolField(args_map, "command_set_signal");
+    args_map["argument_value"] = &args[2];
+  } break;
+
+  // Get lease command
+  case F_GETLEASE: {
+    setFcntlBoolField(args_map, "command_get_lease");
+    processFcntlLease(args_map, return_value);
+  } break;
+
+  // Set lease command
+  case F_SETLEASE: {
+    setFcntlBoolField(args_map, "command_set_lease");
+    args_map["argument_value"] = &args[2];
+    processFcntlLease(args_map, args[2]);
+  } break;
+
+  // Notify command
+  case F_NOTIFY: {
+    setFcntlBoolField(args_map, "command_notify");
+    args_map["argument_value"] = &args[2];
+    u_int notify_value = processFcntlNotify(args_map, args);
+    if (notify_value != 0) {
+      std::cerr << "Fcntl: F_NOTIFY: These flags are not processed/unknown->"
+		<< std::hex << notify_value << std::dec << std::endl;
+    }
+  } break;
+
+  /*
+   * If the command value doesn't match a known command, print
+   * a warning message
+   */
+  default:
+    std::cerr << "Fcntl: Command is unknown->" << command << std::endl;
+    args_map["argument_value"] = &args[2];
+  }
+}
+
+/*
+ * This function sets a field in the map to True.  It is used when
+ * processing the system call Fcntl.
+ * This function is used to process boolean fields that do not
+ * correspond to single bit flags/modes.
+ */
+void DataSeriesOutputModule::setFcntlBoolField(std::map<std::string,
+					       void *> &args_map,
+					       const char *field) {
+  args_map[field] = (void *) 1;
+}
+
+/*
+ * This function unwraps the flag value passed as an argument to the
+ * fcntl system call with the F_SETFL command and sets the corresponding
+ * flag values as True.
+ *
+ * @param args_map: stores mapping of <field, value> pairs.
+ *
+ * @param status_flag: represents the flag value passed as an argument
+ *                   to the fcntl system call.
+ */
+u_int DataSeriesOutputModule::processFcntlStatusFlags(std::map<std::string,
+						      void *> &args_map,
+						      u_int status_flag) {
+
+  /*
+   * Process each individual flag bit that has been set
+   * in the argument status_flag.
+   */
+  // set append flag
+  process_Flag_and_Mode_Args(args_map, status_flag, O_APPEND,
+			     "argument_status_flag_append");
+  // set async flag
+  process_Flag_and_Mode_Args(args_map, status_flag, O_ASYNC,
+			     "argument_status_flag_async");
+  // set create flag
+  process_Flag_and_Mode_Args(args_map, status_flag, O_CREAT,
+			     "argument_status_flag_create");
+  // set direct flag
+  process_Flag_and_Mode_Args(args_map, status_flag, O_DIRECT,
+			     "argument_status_flag_direct");
+  // set directory flag
+  process_Flag_and_Mode_Args(args_map, status_flag, O_DIRECTORY,
+			     "argument_status_flag_directory");
+  // set exclusive flag
+  process_Flag_and_Mode_Args(args_map, status_flag, O_EXCL,
+			     "argument_status_flag_exclusive");
+  // set largefile flag
+  process_Flag_and_Mode_Args(args_map, status_flag, O_LARGEFILE,
+			     "argument_status_flag_largefile");
+  // set last access time flag
+  process_Flag_and_Mode_Args(args_map, status_flag, O_NOATIME,
+			     "argument_status_flag_no_access_time");
+  // set controlling terminal flag
+  process_Flag_and_Mode_Args(args_map, status_flag, O_NOCTTY,
+			     "argument_status_flag_no_controlling_terminal");
+  // set no_follow flag (in case of symbolic link)
+  process_Flag_and_Mode_Args(args_map, status_flag, O_NOFOLLOW,
+			     "argument_status_flag_no_follow");
+  // set non blocking mode flag
+  process_Flag_and_Mode_Args(args_map, status_flag, O_NONBLOCK,
+			     "argument_status_flag_no_blocking_mode");
+  // set no delay flag
+  process_Flag_and_Mode_Args(args_map, status_flag, O_NDELAY,
+			     "argument_status_flag_no_delay");
+  // set synchronized IO flag
+  process_Flag_and_Mode_Args(args_map, status_flag, O_SYNC,
+			     "argument_status_flag_synchronous");
+  // set truncate mode flag
+  process_Flag_and_Mode_Args(args_map, status_flag, O_TRUNC,
+			     "argument_status_flag_truncate");
+
+  /*
+   * Return remaining unprocessed flags so that caller can
+   * warn of unknown flags if the status_flag value is not set
+   * as zero.
+   */
+  return status_flag;
+}
+
+/*
+ * This function saves the values in the flock structure passed to
+ * Fcntl with command F_SETLK, F_SETLKW, or F_GETLK into the map
+ */
+void DataSeriesOutputModule::processFcntlFlock(std::map<std::string,
+					       void *> &args_map,
+					       struct flock *lock) {
+  if (lock != NULL) {
+    // Save the values in the flock structure to the map
+    processFcntlFlockType(args_map, lock);
+    processFcntlFlockWhence(args_map, lock);
+    args_map["lock_start"] = &lock->l_start;
+    args_map["lock_length"] = &lock->l_len;
+    args_map["lock_pid"] = &lock->l_pid;
+  } else {
+    /*
+     * If the flock passed to Fcntl was NULL, then print a warning message.
+     * The int32 fields lock_type, lock_whence, lock_start, lock_length,
+     * and lock_pid will be set to 0 by default.
+     */
+    std::cerr << "Flock: Struct flock is set as NULL!!" << std::endl;
+  }
+}
+
+/*
+ * This function processes the l_type member of an flock structure
+ * and sets the corresponding field in the map
+ */
+void DataSeriesOutputModule::processFcntlFlockType(std::map<std::string,
+						   void *> &args_map,
+						   struct flock *lock) {
+  // Save the lock type value into the map
+  args_map["lock_type"] = &lock->l_type;
+  u_int type = lock->l_type;
+
+  /*
+   * If the type value matches one of the possible types, set the
+   * corresponding field in the map to True
+   */
+  switch (type) {
+  // set read lock field
+  case F_RDLCK:
+    setFcntlBoolField(args_map, "lock_type_read");
+    break;
+  // set write lock field
+  case F_WRLCK:
+    setFcntlBoolField(args_map, "lock_type_write");
+    break;
+  // set unlocked field
+  case F_UNLCK:
+    setFcntlBoolField(args_map, "lock_type_unlocked");
+    break;
+  // If the type value isn't a known type, print a warning message
+  default:
+    std::cerr << "Fcntl: Lock type is unknown->" << lock << std::endl;
+  }
+}
+
+/*
+ * This function processes the l_whence member of an flock structure
+ * and sets the corresponding field in the map
+ */
+void DataSeriesOutputModule::processFcntlFlockWhence(std::map<std::string,
+						     void *> &args_map,
+						     struct flock *lock) {
+  // Save the lock whence value into the map
+  args_map["lock_whence"] = &lock->l_whence;
+  u_int whence = lock->l_whence;
+
+  /*
+   * If the whence value matches one of the possible values, set the
+   * corresponding field in the map to True
+   */
+  switch (whence) {
+  // set SEEK_SET whence field
+  case SEEK_SET:
+    setFcntlBoolField(args_map, "lock_whence_start");
+    break;
+  // set SEEK_CUR whence field
+  case SEEK_CUR:
+    setFcntlBoolField(args_map, "lock_whence_current");
+    break;
+  // set SEEK_END whence field
+  case SEEK_END:
+    setFcntlBoolField(args_map, "lock_whence_end");
+    break;
+  // If the whence value isn't a known whence value, print a warning message
+  default:
+    std:: cerr << "Fcntl: Lock whence is unknown->" << whence << std::endl;
+  }
+}
+
+/*
+ * This function processes the lease value passed to an Fcntl system call with
+ * an F_SETLEASE command or returned from an F_GETLEASE command
+ */
+void DataSeriesOutputModule::processFcntlLease(std::map<std::string,
+					       void *> &args_map,
+					       u_int lease) {
+  /*
+   * If the lease argument matches one of the possible values, set the
+   * corresponding field in the map to True
+   */
+  switch (lease) {
+  // set read lock lease field
+  case F_RDLCK:
+    setFcntlBoolField(args_map, "argument_lease_read");
+    break;
+  // set write lock lease field
+  case F_WRLCK:
+    setFcntlBoolField(args_map, "argument_lease_write");
+    break;
+  // set unlocked lease field
+  case F_UNLCK:
+    setFcntlBoolField(args_map, "argument_lease_remove");
+    break;
+  // If the lease argument isn't a known lease, print a warning message
+  default:
+    std::cerr << "Fcntl: Lease argument is unknown->" << lease << std::endl;
+  }
+}
+
+/*
+ * This function processes the notify value passed to an Fcntl system call
+ * with an F_NOTIFY command.  It returns any unprocessed notify_value bits.
+ */
+u_int DataSeriesOutputModule::processFcntlNotify(std::map<std::string,
+						void *> &args_map,
+						long *args) {
+  u_int notify_value = args[2];
+
+  // set access argument bit
+  process_Flag_and_Mode_Args(args_map, notify_value, DN_ACCESS,
+			     "argument_notify_access");
+  // set access argument bit
+  process_Flag_and_Mode_Args(args_map, notify_value, DN_MODIFY,
+			     "argument_notify_modify");
+  // set access argument bit
+  process_Flag_and_Mode_Args(args_map, notify_value, DN_CREATE,
+			     "argument_notify_create");
+  // set access argument bit
+  process_Flag_and_Mode_Args(args_map, notify_value, DN_DELETE,
+			     "argument_notify_delete");
+  // set access argument bit
+  process_Flag_and_Mode_Args(args_map, notify_value, DN_RENAME,
+			     "argument_notify_rename");
+  // set access argument bit
+  process_Flag_and_Mode_Args(args_map, notify_value, DN_ATTRIB,
+			     "argument_notify_attribute");
+
+  /*
+   * Return remaining notify flags so that caller can
+   * warn of unknown flags if the notify_value is not set
+   * as zero.
+   */
+  return notify_value;
 }

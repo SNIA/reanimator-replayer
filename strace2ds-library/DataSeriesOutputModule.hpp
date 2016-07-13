@@ -300,6 +300,67 @@ private:
   // Maps Dup2 System Call <field, value> pairs
   void makeDup2ArgsMap(std::map<std::string, void *> &args_map,
 		       long *args);
+
+  // Maps Fcntl System Call <field, value> pairs
+  void makeFcntlArgsMap(std::map<std::string, void *> &args_map,
+			long *args,
+			void **v_args,
+			int return_value);
+
+  // Sets a non-bitwise boolean field to True in the map
+  void setFcntlBoolField(std::map<std::string,
+			 void *> &args_map,
+			 const char *field);
+
+  /*
+   * Maps the status flag value passed to an Fcntl system call with the
+   * F_SETFL command to the corresponding map fields
+   */
+  u_int processFcntlStatusFlags(std::map<std::string,
+				void *> &args_map,
+				u_int status_flag);
+
+  /*
+   * Maps the values in an flock structure passed to an Fcntl system call
+   * with a F_SETLK, F_SETLKW, or F_GETLK command to the corresponding
+   * map fields
+   */
+  void processFcntlFlock(std::map<std::string,
+			 void *> &args_map,
+			 struct flock *lock);
+
+  /*
+   * Processes the type value in an flock structure passed to an Fcntl
+   * system call and sets the corresponding map field to True
+   */
+  void processFcntlFlockType(std::map<std::string,
+			     void *> &args_map,
+			     struct flock *lock);
+
+  /*
+   * Processes the whence value in an flock structure passed to an Fcntl
+   * system call and sets the corresponding map field to True
+   */
+  void processFcntlFlockWhence(std::map<std::string,
+			       void *> &args_map,
+			       struct flock *lock);
+
+  /*
+   * Processes the lease argument passed to an Fcntl system call with a
+   * F_SETLEASE or F_GETLEASE command and sets the corresponding map
+   * field to True
+   */
+  void processFcntlLease(std::map<std::string,
+			 void *> &args_map,
+			 u_int lease);
+
+  /*
+   * Processes the notify argument passed to an Fcntl system call with
+   * a F_NOTIFY command to the corresponding map fields
+   */
+  u_int processFcntlNotify(std::map<std::string,
+			   void *> &args_map,
+			   long *args);
 };
 
 #endif // DATA_SERIES_OUTPUT_MODULE_HPP
