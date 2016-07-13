@@ -312,6 +312,8 @@ munmap	start_address	0	int64
 munmap	length	0	int64
 pipe	read_descriptor	0	int32
 pipe	write_descriptor	0	int32
+exit	exit_status	0	int32
+exit	generated	0	bool
 fork			
 dup	descriptor	0	int32
 dup2	old_descriptor	0	int32

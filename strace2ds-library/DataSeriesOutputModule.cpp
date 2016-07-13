@@ -182,6 +182,8 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
     makeDupArgsMap(sys_call_args_map, args);
   } else if (strcmp(extent_name, "dup2") == 0) {
     makeDup2ArgsMap(sys_call_args_map, args);
+  } else if (strcmp(extent_name, "exit") == 0) {
+    makeExitArgsMap(sys_call_args_map, args, v_args);
   }
 
   // Create a new record to write
@@ -1350,4 +1352,13 @@ void DataSeriesOutputModule::makeDup2ArgsMap(std::map<std::string,
 					     long *args) {
   args_map["old_descriptor"] = &args[0];
   args_map["new_descriptor"] = &args[1];
+}
+
+void DataSeriesOutputModule::makeExitArgsMap(std::map<std::string,
+					     void *> &args_map,
+					     long *args,
+					     void **v_args) {
+  std::cerr << "exit_map called\n";
+  args_map["exit_status"] = &args[0];
+  args_map["generated"] = v_args[0];
 }
