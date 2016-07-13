@@ -1374,15 +1374,15 @@ void DataSeriesOutputModule::makeFcntlArgsMap(std::map<std::string,
   switch (command) {
 
   // File descriptor dup command
-  case F_DUPFD: {
+  case F_DUPFD:
     args_map["command_dup"] = &true_;
     args_map["argument_value"] = &args[2];
-  } break;
+    break;
 
   // Get file descriptor flags command
-  case F_GETFD: {
+  case F_GETFD:
     args_map["command_get_descriptor_flags"] = &true_;
-  } break;
+    break;
 
   // Set file descriptor flags command
   case F_SETFD: {
@@ -1395,12 +1395,12 @@ void DataSeriesOutputModule::makeFcntlArgsMap(std::map<std::string,
       std::cerr << "Fcntl: SETFD: These flags are not processed/unknown->0x"
 		<< std::hex << fd_flag << std::dec << std::endl;
     }
-  } break;
-
+    break;
+  }
   // Get file status flags command
-  case F_GETFL: {
+  case F_GETFL:
     args_map["command_get_status_flags"] = &true_;
-  } break;
+    break;
 
   // Set file status flags command
   case F_SETFL: {
@@ -1411,61 +1411,61 @@ void DataSeriesOutputModule::makeFcntlArgsMap(std::map<std::string,
       std::cerr << "Fcntl: SETFL: These flags are not processed/unknown->0x"
 		<< std::hex << status_flag << std::dec << std::endl;
     }
-  } break;
-
+    break;
+  }
   // Set lock command
-  case F_SETLK: {
+  case F_SETLK:
     args_map["command_set_lock"] = &true_;
     processFcntlFlock(args_map, (struct flock *) v_args[0]);
-  } break;
+    break;
 
   // Set lock wait command
-  case F_SETLKW: {
+  case F_SETLKW:
     args_map["command_set_lock_wait"] = &true_;
     processFcntlFlock(args_map, (struct flock *) v_args[0]);
-  } break;
+    break;
 
   // Get lock command
-  case F_GETLK: {
+  case F_GETLK:
     args_map["command_get_lock"] = &true_;
     processFcntlFlock(args_map, (struct flock *) v_args[0]);
-  } break;
+    break;
 
   // Get process id command
-  case F_GETOWN: {
+  case F_GETOWN:
     args_map["command_get_process_id"] = &true_;
-  } break;
+    break;
 
   // Set process id command
-  case F_SETOWN: {
+  case F_SETOWN:
     args_map["command_set_process_id"] = &true_;
     args_map["argument_value"] = &args[2];
-  } break;
+    break;
 
   // Get signal command
-  case F_GETSIG: {
+  case F_GETSIG:
     args_map["command_get_signal"] = &true_;
-  } break;
+    break;
 
   // Set signal command
-  case F_SETSIG: {
+  case F_SETSIG:
     args_map["command_set_signal"] = &true_;
     args_map["argument_value"] = &args[2];
-  } break;
+    break;
 
   // Get lease command
   case F_GETLEASE: {
     args_map["command_get_lease"] = &true_;
     int return_value = *(int *) args_map["return_value"];
     processFcntlLease(args_map, return_value);
-  } break;
-
+    break;
+  }
   // Set lease command
-  case F_SETLEASE: {
+  case F_SETLEASE:
     args_map["command_set_lease"] = &true_;
     args_map["argument_value"] = &args[2];
     processFcntlLease(args_map, args[2]);
-  } break;
+    break;
 
   // Notify command
   case F_NOTIFY: {
@@ -1476,8 +1476,8 @@ void DataSeriesOutputModule::makeFcntlArgsMap(std::map<std::string,
       std::cerr << "Fcntl: F_NOTIFY: These flags are not processed/unknown->"
 		<< std::hex << notify_value << std::dec << std::endl;
     }
-  } break;
-
+    break;
+  }
   /*
    * If the command value doesn't match a known command, print
    * a warning message
