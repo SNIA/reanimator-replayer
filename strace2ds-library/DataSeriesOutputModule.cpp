@@ -183,8 +183,7 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
   } else if (strcmp(extent_name, "dup2") == 0) {
     makeDup2ArgsMap(sys_call_args_map, args);
   } else if (strcmp(extent_name, "fcntl") == 0) {
-    makeFcntlArgsMap(sys_call_args_map, args, v_args,
-		     *(int *) common_fields[DS_COMMON_FIELD_RETURN_VALUE]);
+    makeFcntlArgsMap(sys_call_args_map, args, v_args);
   }
 
   // Create a new record to write
@@ -1358,8 +1357,7 @@ void DataSeriesOutputModule::makeDup2ArgsMap(std::map<std::string,
 void DataSeriesOutputModule::makeFcntlArgsMap(std::map<std::string,
 					      void *> &args_map,
 					      long *args,
-					      void **v_args,
-					      int return_value) {
+					      void **v_args) {
   // Set all non-nullable boolean fields to false
   initArgsMap(args_map, "fcntl");
 
@@ -1368,6 +1366,7 @@ void DataSeriesOutputModule::makeFcntlArgsMap(std::map<std::string,
   args_map["command_value"] = &args[1];
 
   int command = args[1];
+  static bool true_ = true;
   /*
    * Check the command argument passed to fcntl and set the corresponding
    * fields in the map
@@ -1376,18 +1375,18 @@ void DataSeriesOutputModule::makeFcntlArgsMap(std::map<std::string,
 
   // File descriptor dup command
   case F_DUPFD: {
+    args_map["command_dup"] = &true_;
     args_map["argument_value"] = &args[2];
-    setFcntlBoolField(args_map, "command_dup");
   } break;
 
   // Get file descriptor flags command
   case F_GETFD: {
-    setFcntlBoolField(args_map, "command_get_descriptor_flags");
+    args_map["command_get_descriptor_flags"] = &true_;
   } break;
 
   // Set file descriptor flags command
   case F_SETFD: {
-    setFcntlBoolField(args_map, "command_set_descriptor_flags");
+    args_map["command_set_descriptor_flags"] = &true_;
     args_map["argument_value"] = &args[2];
     u_int fd_flag = (u_int) args[2];
     process_Flag_and_Mode_Args(args_map, fd_flag, FD_CLOEXEC,
@@ -1400,12 +1399,12 @@ void DataSeriesOutputModule::makeFcntlArgsMap(std::map<std::string,
 
   // Get file status flags command
   case F_GETFL: {
-    setFcntlBoolField(args_map, "command_get_status_flags");
+    args_map["command_get_status_flags"] = &true_;
   } break;
 
   // Set file status flags command
   case F_SETFL: {
-    setFcntlBoolField(args_map, "command_set_status_flags");
+    args_map["command_set_status_flags"] = &true_;
     args_map["argument_value"] = &args[2];
     u_int status_flag = processFcntlStatusFlags(args_map, args[2]);
     if (status_flag != 0) {
@@ -1416,60 +1415,61 @@ void DataSeriesOutputModule::makeFcntlArgsMap(std::map<std::string,
 
   // Set lock command
   case F_SETLK: {
-    setFcntlBoolField(args_map, "command_set_lock");
+    args_map["command_set_lock"] = &true_;
     processFcntlFlock(args_map, (struct flock *) v_args[0]);
   } break;
 
   // Set lock wait command
   case F_SETLKW: {
-    setFcntlBoolField(args_map, "command_set_lock_wait");
+    args_map["command_set_lock_wait"] = &true_;
     processFcntlFlock(args_map, (struct flock *) v_args[0]);
   } break;
 
   // Get lock command
   case F_GETLK: {
-    setFcntlBoolField(args_map, "command_get_lock");
+    args_map["command_get_lock"] = &true_;
     processFcntlFlock(args_map, (struct flock *) v_args[0]);
   } break;
 
   // Get process id command
   case F_GETOWN: {
-    setFcntlBoolField(args_map, "command_get_process_id");
+    args_map["command_get_process_id"] = &true_;
   } break;
 
   // Set process id command
   case F_SETOWN: {
-    setFcntlBoolField(args_map, "command_set_process_id");
+    args_map["command_set_process_id"] = &true_;
     args_map["argument_value"] = &args[2];
   } break;
 
   // Get signal command
   case F_GETSIG: {
-    setFcntlBoolField(args_map, "command_get_signal");
+    args_map["command_get_signal"] = &true_;
   } break;
 
   // Set signal command
   case F_SETSIG: {
-    setFcntlBoolField(args_map, "command_set_signal");
+    args_map["command_set_signal"] = &true_;
     args_map["argument_value"] = &args[2];
   } break;
 
   // Get lease command
   case F_GETLEASE: {
-    setFcntlBoolField(args_map, "command_get_lease");
+    args_map["command_get_lease"] = &true_;
+    int return_value = *(int *) args_map["return_value"];
     processFcntlLease(args_map, return_value);
   } break;
 
   // Set lease command
   case F_SETLEASE: {
-    setFcntlBoolField(args_map, "command_set_lease");
+    args_map["command_set_lease"] = &true_;
     args_map["argument_value"] = &args[2];
     processFcntlLease(args_map, args[2]);
   } break;
 
   // Notify command
   case F_NOTIFY: {
-    setFcntlBoolField(args_map, "command_notify");
+    args_map["command_notify"] = &true_;
     args_map["argument_value"] = &args[2];
     u_int notify_value = processFcntlNotify(args_map, args);
     if (notify_value != 0) {
@@ -1486,18 +1486,6 @@ void DataSeriesOutputModule::makeFcntlArgsMap(std::map<std::string,
     std::cerr << "Fcntl: Command is unknown->" << command << std::endl;
     args_map["argument_value"] = &args[2];
   }
-}
-
-/*
- * This function sets a field in the map to True.  It is used when
- * processing the system call Fcntl.
- * This function is used to process boolean fields that do not
- * correspond to single bit flags/modes.
- */
-void DataSeriesOutputModule::setFcntlBoolField(std::map<std::string,
-					       void *> &args_map,
-					       const char *field) {
-  args_map[field] = (void *) 1;
 }
 
 /*
@@ -1603,6 +1591,7 @@ void DataSeriesOutputModule::processFcntlFlockType(std::map<std::string,
   // Save the lock type value into the map
   args_map["lock_type"] = &lock->l_type;
   u_int type = lock->l_type;
+  static bool true_ = true;
 
   /*
    * If the type value matches one of the possible types, set the
@@ -1611,15 +1600,15 @@ void DataSeriesOutputModule::processFcntlFlockType(std::map<std::string,
   switch (type) {
   // set read lock field
   case F_RDLCK:
-    setFcntlBoolField(args_map, "lock_type_read");
+    args_map["lock_type_read"] = &true_;
     break;
   // set write lock field
   case F_WRLCK:
-    setFcntlBoolField(args_map, "lock_type_write");
+    args_map["lock_type_write"] = &true_;
     break;
   // set unlocked field
   case F_UNLCK:
-    setFcntlBoolField(args_map, "lock_type_unlocked");
+    args_map["lock_type_unlocked"] = &true_;
     break;
   // If the type value isn't a known type, print a warning message
   default:
@@ -1637,6 +1626,7 @@ void DataSeriesOutputModule::processFcntlFlockWhence(std::map<std::string,
   // Save the lock whence value into the map
   args_map["lock_whence"] = &lock->l_whence;
   u_int whence = lock->l_whence;
+  static bool true_ = true;
 
   /*
    * If the whence value matches one of the possible values, set the
@@ -1645,15 +1635,15 @@ void DataSeriesOutputModule::processFcntlFlockWhence(std::map<std::string,
   switch (whence) {
   // set SEEK_SET whence field
   case SEEK_SET:
-    setFcntlBoolField(args_map, "lock_whence_start");
+    args_map["lock_whence_start"] = &true_;
     break;
   // set SEEK_CUR whence field
   case SEEK_CUR:
-    setFcntlBoolField(args_map, "lock_whence_current");
+    args_map["lock_whence_current"] = &true_;
     break;
   // set SEEK_END whence field
   case SEEK_END:
-    setFcntlBoolField(args_map, "lock_whence_end");
+    args_map["lock_whence_end"] = &true_;
     break;
   // If the whence value isn't a known whence value, print a warning message
   default:
@@ -1667,7 +1657,8 @@ void DataSeriesOutputModule::processFcntlFlockWhence(std::map<std::string,
  */
 void DataSeriesOutputModule::processFcntlLease(std::map<std::string,
 					       void *> &args_map,
-					       u_int lease) {
+					       int lease) {
+  static bool true_ = true;
   /*
    * If the lease argument matches one of the possible values, set the
    * corresponding field in the map to True
@@ -1675,15 +1666,15 @@ void DataSeriesOutputModule::processFcntlLease(std::map<std::string,
   switch (lease) {
   // set read lock lease field
   case F_RDLCK:
-    setFcntlBoolField(args_map, "argument_lease_read");
+    args_map["argument_lease_read"] = &true_;
     break;
   // set write lock lease field
   case F_WRLCK:
-    setFcntlBoolField(args_map, "argument_lease_write");
+    args_map["argument_lease_write"] = &true_;
     break;
   // set unlocked lease field
   case F_UNLCK:
-    setFcntlBoolField(args_map, "argument_lease_remove");
+    args_map["argument_lease_remove"] = &true_;
     break;
   // If the lease argument isn't a known lease, print a warning message
   default:

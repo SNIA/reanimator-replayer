@@ -304,13 +304,7 @@ private:
   // Maps Fcntl System Call <field, value> pairs
   void makeFcntlArgsMap(std::map<std::string, void *> &args_map,
 			long *args,
-			void **v_args,
-			int return_value);
-
-  // Sets a non-bitwise boolean field to True in the map
-  void setFcntlBoolField(std::map<std::string,
-			 void *> &args_map,
-			 const char *field);
+			void **v_args);
 
   /*
    * Maps the status flag value passed to an Fcntl system call with the
@@ -352,7 +346,7 @@ private:
    */
   void processFcntlLease(std::map<std::string,
 			 void *> &args_map,
-			 u_int lease);
+			 int lease);
 
   /*
    * Processes the notify argument passed to an Fcntl system call with
