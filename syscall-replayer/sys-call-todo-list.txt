@@ -36,6 +36,6 @@ The POSIX system calls considered applicable to I/O tracing:
 34. pipe - support
 35. fork - NOT supported
 36. exit - NOT supported
-37. dup - NOT supported
-38. dup2 - NOT supported
+37. dup - support
+38. dup2 - support
 39. rename - support
