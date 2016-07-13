@@ -19,7 +19,8 @@
 
 OPTFLAGS = -g -O2 -Wall
 
-CPPFLAGS = -I/usr/local/dataseries/include -I/usr/include/libxml2/
+CPPFLAGS = -I/usr/local/dataseries/include -I/usr/include/libxml2/ \
+	   -I$(HOME)/strace2ds/include
 
 LDFLAGS =  -lboost_program_options -laio -lDataSeries \
 	   -lLintel -L/usr/local/dataseries/lib
