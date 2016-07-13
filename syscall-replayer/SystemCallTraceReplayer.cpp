@@ -46,6 +46,7 @@
 #include "ChmodSystemCallTraceReplayModule.hpp"
 #include "ChownSystemCallTraceReplayModule.hpp"
 #include "ReadvSystemCallTraceReplayModule.hpp"
+#include "WritevSystemCallTraceReplayModule.hpp"
 #include "RenameSystemCallTraceReplayModule.hpp"
 #include "FsyncSystemCallTraceReplayModule.hpp"
 #include "MknodSystemCallTraceReplayModule.hpp"
@@ -236,6 +237,7 @@ int main(int argc, char *argv[]) {
   system_calls.push_back("chmod");
   system_calls.push_back("chown");
   system_calls.push_back("readv");
+  system_calls.push_back("writev");
   system_calls.push_back("lstat");
   system_calls.push_back("fstat");
   system_calls.push_back("utimes");
@@ -396,9 +398,15 @@ int main(int argc, char *argv[]) {
   ReadvSystemCallTraceReplayModule *readv_module =
     new ReadvSystemCallTraceReplayModule(
 				 *prefetch_buffer_modules[module_index++],
-                                 verbose,
-                                 verify,
-                                 warn_level);
+				 verbose,
+				 verify,
+				 warn_level);
+  WritevSystemCallTraceReplayModule *writev_module =
+    new WritevSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 warn_level,
+				 pattern_data);
   LStatSystemCallTraceReplayModule *lstat_module =
     new LStatSystemCallTraceReplayModule(
 				 *prefetch_buffer_modules[module_index++],
@@ -477,6 +485,7 @@ int main(int argc, char *argv[]) {
   system_call_trace_replay_modules.push_back(chmod_module);
   system_call_trace_replay_modules.push_back(chown_module);
   system_call_trace_replay_modules.push_back(readv_module);
+  system_call_trace_replay_modules.push_back(writev_module);
   system_call_trace_replay_modules.push_back(lstat_module);
   system_call_trace_replay_modules.push_back(fstat_module);
   system_call_trace_replay_modules.push_back(utimes_module);

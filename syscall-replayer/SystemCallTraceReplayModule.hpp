@@ -250,6 +250,15 @@ public:
    * @return: the corresponding timeval
    */
   struct timeval Tfrac_to_timeval(uint64_t time);
+
+  /*
+   * For system calls such as write, pwrite and writev, replayer has
+   * an option to fill buffers with zeros, any pattern or random values.
+   * If pattern is set as random, this function will randomly generate
+   * numbers using standard rand() and srand() library functions to
+   * fill the buffer.
+   */
+  char *random_fill_buffer(char *buffer, size_t nbytes);
 };
 
 #endif /* SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */
