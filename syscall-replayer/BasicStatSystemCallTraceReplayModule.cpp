@@ -236,7 +236,7 @@ void FStatSystemCallTraceReplayModule::print_specific_fields() {
 
 void FStatSystemCallTraceReplayModule::processRow() {
   struct stat stat_buf;
-  int descriptor = descriptor_.val();
+  int descriptor = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
 
   // replay the fstat system call
   replayed_ret_val_ = fstat(descriptor, &stat_buf);
