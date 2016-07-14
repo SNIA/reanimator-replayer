@@ -93,6 +93,7 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
   std::map<std::string, void *> sys_call_args_map;
   struct timeval tv_time_recorded;
   u_int var32_len;
+  uint64_t time_called_Tfrac, time_returned_Tfrac;
 
   sys_call_args_map["unique_id"] = &record_num_;
   /*
@@ -103,18 +104,32 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
    */
 
   // Convert tv_time_called and tv_time_returned to Tfracs
-  uint64_t time_called_Tfrac = timeval_to_Tfrac(
+  time_called_Tfrac = timeval_to_Tfrac(
     *(struct timeval *) common_fields[DS_COMMON_FIELD_TIME_CALLED]);
-  uint64_t time_returned_Tfrac = timeval_to_Tfrac(
-    *(struct timeval *) common_fields[DS_COMMON_FIELD_TIME_RETURNED]);
+
+  /*
+   * Since exit system call do not return, we do not have time
+   * returned value for exit system call.
+   */
+  if (strcmp(extent_name, "exit") != 0)
+    time_returned_Tfrac = timeval_to_Tfrac(
+      *(struct timeval *) common_fields[DS_COMMON_FIELD_TIME_RETURNED]);
 
   // Add the common field values to the map
   sys_call_args_map["time_called"] = &time_called_Tfrac;
-  sys_call_args_map["time_returned"] = &time_returned_Tfrac;
-  sys_call_args_map["return_value"] =
-    common_fields[DS_COMMON_FIELD_RETURN_VALUE];
-  sys_call_args_map["errno_number"] =
-    common_fields[DS_COMMON_FIELD_ERRNO_NUMBER];
+
+  /*
+   * Since exit system calls do not return so we do not set
+   * time_returned, return_value and errno_number fields in
+   * our replayer.
+   */
+  if (strcmp(extent_name, "exit") != 0) {
+    sys_call_args_map["time_returned"] = &time_returned_Tfrac;
+    sys_call_args_map["return_value"] =
+      common_fields[DS_COMMON_FIELD_RETURN_VALUE];
+    sys_call_args_map["errno_number"] =
+      common_fields[DS_COMMON_FIELD_ERRNO_NUMBER];
+  }
   sys_call_args_map["executing_pid"] =
     common_fields[DS_COMMON_FIELD_EXECUTING_PID];
 
@@ -1358,7 +1373,6 @@ void DataSeriesOutputModule::makeExitArgsMap(std::map<std::string,
 					     void *> &args_map,
 					     long *args,
 					     void **v_args) {
-  std::cerr << "exit_map called\n";
   args_map["exit_status"] = &args[0];
   args_map["generated"] = v_args[0];
 }

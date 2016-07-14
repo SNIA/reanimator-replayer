@@ -48,8 +48,8 @@ void ExitSystemCallTraceReplayModule::processRow() {
   }
 
   /*
-   * Replay the exit system call.
-   * NOTE: If exit() is called, our replayer will terminate.
+   * Replay the exit system call. On replaying our
+   * replayer will terminate.
    */
   std::cout << "+++ replayer exited with exit code ("
 	    << status << ") +++" << std::endl;
