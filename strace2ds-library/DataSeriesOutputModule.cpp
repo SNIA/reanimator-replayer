@@ -94,6 +94,7 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
   std::map<std::string, void *> sys_call_args_map;
   struct timeval tv_time_recorded;
   u_int var32_len;
+  uint64_t time_called_Tfrac, time_returned_Tfrac;
 
   sys_call_args_map["unique_id"] = &record_num_;
   /*
@@ -103,21 +104,31 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
    * field.  Otherwise set it to null.
    */
 
-  // Convert tv_time_called and tv_time_returned to Tfracs
-  uint64_t time_called_Tfrac = timeval_to_Tfrac(
+  // Convert tv_time_called to Tfracs
+  time_called_Tfrac = timeval_to_Tfrac(
     *(struct timeval *) common_fields[DS_COMMON_FIELD_TIME_CALLED]);
-  uint64_t time_returned_Tfrac = timeval_to_Tfrac(
-    *(struct timeval *) common_fields[DS_COMMON_FIELD_TIME_RETURNED]);
 
   // Add the common field values to the map
   sys_call_args_map["time_called"] = &time_called_Tfrac;
-  sys_call_args_map["time_returned"] = &time_returned_Tfrac;
-  sys_call_args_map["return_value"] =
-    common_fields[DS_COMMON_FIELD_RETURN_VALUE];
-  sys_call_args_map["errno_number"] =
-    common_fields[DS_COMMON_FIELD_ERRNO_NUMBER];
   sys_call_args_map["executing_pid"] =
     common_fields[DS_COMMON_FIELD_EXECUTING_PID];
+
+  /*
+   * Since exit system calls do not return, we do not have
+   * time returned value. Hence for exit(2), we do not set
+   * time_returned, return_value and errno_number fields in
+   * our replayer.
+   */
+  if (strcmp(extent_name, "exit") != 0) {
+    // Convert tv_time_returned to Tfracs
+    time_returned_Tfrac = timeval_to_Tfrac(
+      *(struct timeval *) common_fields[DS_COMMON_FIELD_TIME_RETURNED]);
+    sys_call_args_map["time_returned"] = &time_returned_Tfrac;
+    sys_call_args_map["return_value"] =
+      common_fields[DS_COMMON_FIELD_RETURN_VALUE];
+    sys_call_args_map["errno_number"] =
+      common_fields[DS_COMMON_FIELD_ERRNO_NUMBER];
+  }
 
   if (strcmp(extent_name, "close") == 0) {
     makeCloseArgsMap(sys_call_args_map, args);
@@ -185,6 +196,8 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
     makeDup2ArgsMap(sys_call_args_map, args);
   } else if (strcmp(extent_name, "fcntl") == 0) {
     makeFcntlArgsMap(sys_call_args_map, args, v_args);
+  } else if (strcmp(extent_name, "exit") == 0) {
+    makeExitArgsMap(sys_call_args_map, args, v_args);
   }
 
   // Create a new record to write
@@ -1717,4 +1730,12 @@ u_int DataSeriesOutputModule::processFcntlNotify(std::map<std::string,
    * as zero.
    */
   return notify_value;
+}
+
+void DataSeriesOutputModule::makeExitArgsMap(std::map<std::string,
+					     void *> &args_map,
+					     long *args,
+					     void **v_args) {
+  args_map["exit_status"] = &args[0];
+  args_map["generated"] = v_args[0];
 }

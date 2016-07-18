@@ -356,6 +356,11 @@ private:
   u_int processFcntlNotify(std::map<std::string,
 			   void *> &args_map,
 			   long *args);
+
+  // Maps Exit System Call <field, value> pairs
+  void makeExitArgsMap(std::map<std::string, void*> &args_map,
+		       long *args,
+		       void **v_args);
 };
 
 #endif // DATA_SERIES_OUTPUT_MODULE_HPP

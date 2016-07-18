@@ -55,6 +55,7 @@
 #include "DupSystemCallTraceReplayModule.hpp"
 #include "Dup2SystemCallTraceReplayModule.hpp"
 #include "FcntlSystemCallTraceReplayModule.hpp"
+#include "ExitSystemCallTraceReplayModule.hpp"
 
 /*
  * min heap uses this function to sort elements in the tree.
@@ -250,6 +251,7 @@ int main(int argc, char *argv[]) {
   system_calls.push_back("dup");
   system_calls.push_back("dup2");
   system_calls.push_back("fcntl");
+  system_calls.push_back("exit");
 
   std::vector<TypeIndexModule *> type_index_modules;
 
@@ -464,6 +466,11 @@ int main(int argc, char *argv[]) {
 				 *prefetch_buffer_modules[module_index++],
 				 verbose,
 				 warn_level);
+  ExitSystemCallTraceReplayModule *exit_module =
+    new ExitSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 warn_level);
 
   /*
    * This vector is going to used to load replaying modules.
@@ -504,6 +511,7 @@ int main(int argc, char *argv[]) {
   system_call_trace_replay_modules.push_back(dup_module);
   system_call_trace_replay_modules.push_back(dup2_module);
   system_call_trace_replay_modules.push_back(fcntl_module);
+  system_call_trace_replay_modules.push_back(exit_module);
 
   // Double check to make sure all replaying modules are loaded.
   if (system_call_trace_replay_modules.size() != system_calls.size()) {

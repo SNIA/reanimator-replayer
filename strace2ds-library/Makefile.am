@@ -15,6 +15,7 @@ XML_FILES=			\
 	xml/dup.xml		\
 	xml/dup2.xml		\
 	xml/execve.xml		\
+	xml/exit.xml		\
 	xml/fcntl.xml		\
 	xml/fork.xml		\
 	xml/fstat.xml		\
