@@ -1,41 +1,42 @@
 Note: there are many more system calls. However, SNIA document only lists the following 38 system calls. We may support more system calls if we expand our replayer to support all of the following.
 The POSIX system calls considered applicable to I/O tracing:
-1. read - support
-2. write - support
-3. lseek - support
+1. read - supported
+2. write - supported
+3. lseek - supported
 4. mmap - NOT supported
-5. fstat - support
-6. pread - support
-7. pwrite - support
-8. readv - support
-9. writev - support
-10. fcntl - support
+5. fstat - supported
+6. pread - supported
+7. pwrite - supported
+8. readv - supported
+9. writev - supported
+10. fcntl - supported
 11. ioctl - NOT supported - (full semantics not provided in SNIA)
-12. fsync - support
-13. open - support
-14. close - support
-15. stat - support
-16. lstat - support
-17. access - support
+12. fsync - supported
+13. open - supported
+14. close - supported
+15. stat - supported
+16. lstat - supported
+17. access - supported
 18. execve - NOT supported
-19. truncate - support
-20. chdir - support
-21. mkdir - support
-22. rmdir - support
-23. creat - support
-24. link - support
-25. unlink - support
-26. symlink - support
-27. readlink - support
-28. chmod - support
-29. chown - support
-30. utime - support
-31. utimes - support
-32. mknod - support
+19. truncate - supported
+20. chdir - supported
+21. mkdir - supported
+22. rmdir - supported
+23. creat - supported
+24. link - supported
+25. unlink - supported
+26. symlink - supported
+27. readlink - supported
+28. chmod - supported
+29. chown - supported
+30. utime - supported
+31. utimes - supported
+32. mknod - supported
 33. munmap - NOT supported
-34. pipe - support
+34. pipe - supported
 35. fork - NOT supported
 36. exit - NOT supported
-37. dup - support
-38. dup2 - support
-39. rename - support
+37. dup - supported
+38. dup2 - supported
+39. rename - supported
+40. unlinkat - supported
