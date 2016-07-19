@@ -95,7 +95,6 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
   u_int var32_len;
   uint64_t time_called_Tfrac, time_returned_Tfrac;
 
-  sys_call_args_map["unique_id"] = &record_num_;
   /*
    * Create a map from field names to field values.
    * Iterate through every possible fields (via table_).
@@ -103,28 +102,44 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
    * field.  Otherwise set it to null.
    */
 
-  // Convert tv_time_called to Tfracs
-  time_called_Tfrac = timeval_to_Tfrac(
-    *(struct timeval *) common_fields[DS_COMMON_FIELD_TIME_CALLED]);
-
-  // Add the common field values to the map
-  sys_call_args_map["time_called"] = &time_called_Tfrac;
-  sys_call_args_map["executing_pid"] =
-    common_fields[DS_COMMON_FIELD_EXECUTING_PID];
-
+  sys_call_args_map["unique_id"] = &record_num_;
   /*
-   * Since exit system calls do not return, we do not have
-   * time returned value. Hence for exit(2), we do not set
-   * time_returned, return_value and errno_number fields in
-   * our replayer.
+   * Add common field values to the map.
+   * NOTE: Some system calls such as _exit(2) do not have
+   * time_returned, errno and return values. So we do not
+   * set these values into the map.
    */
-  if (strcmp(extent_name, "exit") != 0) {
+
+  /* set time called field */
+  if (common_fields[DS_COMMON_FIELD_TIME_CALLED] != NULL) {
+    // Convert tv_time_called to Tfracs
+    time_called_Tfrac = timeval_to_Tfrac(
+      *(struct timeval *) common_fields[DS_COMMON_FIELD_TIME_CALLED]);
+    sys_call_args_map["time_called"] = &time_called_Tfrac;
+  }
+
+  /* set time returned field */
+  if (common_fields[DS_COMMON_FIELD_TIME_RETURNED] != NULL) {
     // Convert tv_time_returned to Tfracs
     time_returned_Tfrac = timeval_to_Tfrac(
       *(struct timeval *) common_fields[DS_COMMON_FIELD_TIME_RETURNED]);
     sys_call_args_map["time_returned"] = &time_returned_Tfrac;
+  }
+
+  /* set executing pid field */
+  if (common_fields[DS_COMMON_FIELD_EXECUTING_PID] != NULL) {
+    sys_call_args_map["executing_pid"] =
+      common_fields[DS_COMMON_FIELD_EXECUTING_PID];
+  }
+
+  /* set return value field */
+  if (common_fields[DS_COMMON_FIELD_RETURN_VALUE] != NULL) {
     sys_call_args_map["return_value"] =
       common_fields[DS_COMMON_FIELD_RETURN_VALUE];
+  }
+
+  /* set errno number field */
+  if (common_fields[DS_COMMON_FIELD_ERRNO_NUMBER] != NULL) {
     sys_call_args_map["errno_number"] =
       common_fields[DS_COMMON_FIELD_ERRNO_NUMBER];
   }
@@ -195,6 +210,8 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
     makeDup2ArgsMap(sys_call_args_map, args);
   } else if (strcmp(extent_name, "exit") == 0) {
     makeExitArgsMap(sys_call_args_map, args, v_args);
+  } else if (strcmp(extent_name, "execve") == 0) {
+    makeExecveArgsMap(sys_call_args_map, v_args);
   }
 
   // Create a new record to write
@@ -1371,4 +1388,50 @@ void DataSeriesOutputModule::makeExitArgsMap(std::map<std::string,
 					     void **v_args) {
   args_map["exit_status"] = &args[0];
   args_map["generated"] = v_args[0];
+}
+
+void DataSeriesOutputModule::makeExecveArgsMap(std::map<std::string,
+					       void *> &args_map,
+					       void **v_args) {
+  int continuation_number = *(int *) v_args[0];
+  args_map["continuation_number"] = v_args[0];
+
+  /*
+   * Continuation number equal to '0' denotes the first record of
+   * single execve system call. For first record, we only save the
+   * continuation number and given pathname fields.
+   */
+  if (continuation_number == 0) {
+    if (v_args[1] != NULL)
+      args_map["given_pathname"] = &v_args[1];
+    else
+      std::cerr << "Execve: Pathname is set as NULL!!" << std::endl;
+  } else if (continuation_number > 0) {
+    /*
+     * If continuation number is greater than '0', then add
+     * record to set the argument or environment variables.
+     */
+    char *arg_env = (char *) v_args[2];
+    if (strcmp(arg_env, "arg") == 0) {
+      /*
+       * If arg_env is equal to "arg", then we only save the
+       * continuation number and argument fields in the new
+       * record.
+       */
+      if (v_args[1] != NULL)
+	args_map["argument"] = &v_args[1];
+      else
+	std::cerr << "Execve: Argument is set as NULL!!" << std::endl;
+    } else if (strcmp(arg_env, "env") == 0) {
+      /*
+       * If arg_env is equal to "env", then we only save the
+       * continuation number and environment fields in the
+       * new record.
+       */
+      if (v_args[1] != NULL)
+	args_map["environment"] = &v_args[1];
+      else
+	std::cerr << "Execve : Environment is set as NULL!!" << std::endl;
+    }
+  }
 }
