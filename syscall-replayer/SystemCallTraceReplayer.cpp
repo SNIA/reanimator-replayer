@@ -230,6 +230,7 @@ int main(int argc, char *argv[]) {
   system_calls.push_back("creat");
   system_calls.push_back("link");
   system_calls.push_back("unlink");
+  system_calls.push_back("unlinkat");
   system_calls.push_back("symlink");
   system_calls.push_back("rmdir");
   system_calls.push_back("mkdir");
@@ -347,6 +348,11 @@ int main(int argc, char *argv[]) {
 				 warn_level);
   UnlinkSystemCallTraceReplayModule *unlink_module =
     new UnlinkSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 warn_level);
+  UnlinkatSystemCallTraceReplayModule *unlinkat_module =
+    new UnlinkatSystemCallTraceReplayModule(
 				 *prefetch_buffer_modules[module_index++],
 				 verbose,
 				 warn_level);
@@ -490,6 +496,7 @@ int main(int argc, char *argv[]) {
   system_call_trace_replay_modules.push_back(creat_module);
   system_call_trace_replay_modules.push_back(link_module);
   system_call_trace_replay_modules.push_back(unlink_module);
+  system_call_trace_replay_modules.push_back(unlinkat_module);
   system_call_trace_replay_modules.push_back(symlink_module);
   system_call_trace_replay_modules.push_back(rmdir_module);
   system_call_trace_replay_modules.push_back(mkdir_module);

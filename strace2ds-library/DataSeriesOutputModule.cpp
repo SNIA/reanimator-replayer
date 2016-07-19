@@ -144,6 +144,8 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
     makeRmdirArgsMap(sys_call_args_map, v_args);
   } else if (strcmp(extent_name, "unlink") == 0) {
     makeUnlinkArgsMap(sys_call_args_map, v_args);
+  } else if (strcmp(extent_name, "unlinkat") == 0) {
+    makeUnlinkatArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "mkdir") == 0) {
     makeMkdirArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "creat") == 0) {
@@ -784,6 +786,34 @@ void DataSeriesOutputModule::makeUnlinkArgsMap(std::map<std::string,
     args_map["given_pathname"] = &v_args[0];
   } else {
     std::cerr << "Unlink: Pathname is set as NULL!!" << std::endl;
+  }
+}
+
+void DataSeriesOutputModule::makeUnlinkatArgsMap(std::map<std::string,
+						 void *> &args_map,
+						 long *args,
+						 void **v_args) {
+  static bool true_ = true;
+
+  initArgsMap(args_map, "unlinkat");
+
+  args_map["descriptor"] = &args[0];
+  if (args[0] == AT_FDCWD) {
+    args_map["descriptor_current_working_directory"] = &true_;
+  }
+  if (v_args[0] != NULL) {
+    args_map["given_pathname"] = &v_args[0];
+  } else {
+    std::cerr << "Unlinkat: Pathname is set as NULL!!" << std::endl;
+  }
+
+  args_map["flag_value"] = &args[2];
+  u_int flag = args[2];
+  process_Flag_and_Mode_Args(args_map, flag, AT_REMOVEDIR,
+			     "flag_remove_directory");
+  if (flag != 0) {
+    std::cerr << "Unlinkat: These flags are not processed/unknown->"
+	      << std::hex << flag << std::dec << std::endl;
   }
 }
 

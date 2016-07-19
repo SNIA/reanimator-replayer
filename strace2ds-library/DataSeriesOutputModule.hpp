@@ -181,6 +181,11 @@ private:
   void makeUnlinkArgsMap(std::map<std::string, void *> &args_map,
 				   void **v_args);
 
+  // Maps Unlinkat System Call <field, value> pairs
+  void makeUnlinkatArgsMap(std::map<std::string, void *> &args_map,
+			   long *args,
+			   void **v_args);
+
   // Maps Mkdir System Call <field, value> pairs
   void makeMkdirArgsMap(std::map<std::string, void *> &args_map,
 				  long *args,

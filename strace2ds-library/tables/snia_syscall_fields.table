@@ -322,3 +322,9 @@ rename	given_oldname	0	variable32
 rename	full_oldname	1	variable32
 rename	given_newname	0	variable32
 rename	full_newname	1	variable32
+unlinkat	descriptor	0	int32
+unlinkat	descriptor_current_directory	0	bool
+unlinkat	given_pathname	0	variable32
+unlinkat	full_pathname	1	variable32
+unlinkat	flag_value	1	int32
+unlinkat	flag_remove_directory	0	bool

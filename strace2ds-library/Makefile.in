@@ -380,6 +380,7 @@ XML_FILES = \
 	xml/symlink.xml		\
 	xml/truncate.xml	\
 	xml/unlink.xml		\
+	xml/unlinkat.xml		\
 	xml/utime.xml		\
 	xml/utimes.xml		\
 	xml/write.xml		\
