@@ -111,7 +111,8 @@ bool SystemCallTraceReplayModule::cur_extent_has_more_record() {
 }
 
 void SystemCallTraceReplayModule::execute() {
-  processRow();
+  if (isReplayable())
+    processRow();
   completeProcessing();
 }
 
@@ -216,4 +217,14 @@ char *SystemCallTraceReplayModule::random_fill_buffer(char *buffer,
     memcpy(buffer + i, &num, size);
   }
   return buffer;
+}
+
+bool SystemCallTraceReplayModule::isReplayable() {
+  if (sys_call_name_ != "exit" &&
+      sys_call_name_ != "execve" &&
+      sys_call_name_ != "mmap" &&
+      sys_call_name_ != "munmap" &&
+      sys_call_name_ != "fork")
+    return true;
+  return false;
 }

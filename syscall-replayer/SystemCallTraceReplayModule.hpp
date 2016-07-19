@@ -259,6 +259,13 @@ public:
    * fill the buffer.
    */
   char *random_fill_buffer(char *buffer, size_t nbytes);
+
+  /*
+   * Some system calls such as exit, execve, mmap, munmap and fork
+   * will not be replayed by our syscall-replayer as it is not
+   * appropriate to replay these system calls.
+   */
+  bool isReplayable();
 };
 
 #endif /* SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

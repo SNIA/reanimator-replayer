@@ -29,29 +29,14 @@ ExitSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void ExitSystemCallTraceReplayModule::print_specific_fields() {
-  std::cout << "System call 'exit' was executed with following arguments:\n";
-  std::cout << sys_call_name_ << ": " << std::endl;
-  std::cout << "time_called(" << Tfrac_to_sec(time_called()) << "), ";
-  std::cout << "executing pid(" << executing_pid() << "), ";
-  std::cout << "unique_id(" << unique_id_.val() << "), ";
   std::cout << "exit_status(" << exit_status_.val() << "), ";
   std::cout << "generated(" << generated_.val() << ")" << std::endl;
 }
 
 void ExitSystemCallTraceReplayModule::processRow() {
-  // Get exit status
-  int status = exit_status_.val();
-
-  // In verbose mode, display the exit system call fields
-  if (verbose_mode()) {
-    print_specific_fields();
-  }
-
   /*
-   * Replay the exit system call. On replaying our
-   * replayer will terminate.
+   * NOTE: On replaying exit system call, our replayer will terminate.
+   * Hence we do not replay exit system call.
    */
-  std::cout << "+++ replayer exited with exit code ("
-	    << status << ") +++" << std::endl;
-  exit(status);
+  return;
 }
