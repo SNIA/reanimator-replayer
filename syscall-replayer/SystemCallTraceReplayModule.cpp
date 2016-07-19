@@ -89,8 +89,8 @@ Extent::Ptr SystemCallTraceReplayModule::getSharedExtent() {
     series.setExtent(e);
     if (!prepared) {
       std::cout << "----- '" << sys_call_name_ << "' "
-                << "System Call Replayer has started replaying...-----\n"
-                << std::endl;
+		<< "System Call Replayer has started replaying...-----\n"
+		<< std::endl;
       prepared = true;
     }
   } else if (prepared) {

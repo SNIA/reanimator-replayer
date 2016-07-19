@@ -492,7 +492,9 @@ u_int DataSeriesOutputModule::getVariable32FieldLength(std::map<std::string,
 	(field_name == "given_newpathname") ||
 	(field_name == "target_pathname") ||
 	(field_name == "given_oldname") ||
-	(field_name == "given_newname")){
+	(field_name == "given_newname") ||
+	(field_name == "argument") ||
+	(field_name == "environment")) {
       void *field_value = args_map[field_name];
       length = strlen(*(char **) field_value);
     /*
