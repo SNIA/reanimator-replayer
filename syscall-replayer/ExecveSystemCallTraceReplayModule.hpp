@@ -35,7 +35,7 @@ private:
 
   /*
    * Print execve common and sys call field values
-   * This function is overloaded from its base class
+   * This function is overridden from its base class
    * SystemCallTraceReplayModule as common field values
    * are not set in the first record.
    */
