@@ -220,6 +220,7 @@ int main(int argc, char *argv[]) {
    */
   std::vector<std::string> system_calls;
   system_calls.push_back("open");
+  system_calls.push_back("openat");
   system_calls.push_back("close");
   system_calls.push_back("read");
   system_calls.push_back("write");
@@ -291,6 +292,11 @@ int main(int argc, char *argv[]) {
   int module_index = 0;
   OpenSystemCallTraceReplayModule *open_module =
     new OpenSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 warn_level);
+  OpenatSystemCallTraceReplayModule *openat_module =
+    new OpenatSystemCallTraceReplayModule(
 				 *prefetch_buffer_modules[module_index++],
 				 verbose,
 				 warn_level);
@@ -493,6 +499,7 @@ int main(int argc, char *argv[]) {
    */
   std::vector<SystemCallTraceReplayModule *> system_call_trace_replay_modules;
   system_call_trace_replay_modules.push_back(open_module);
+  system_call_trace_replay_modules.push_back(openat_module);
   system_call_trace_replay_modules.push_back(close_module);
   system_call_trace_replay_modules.push_back(read_module);
   system_call_trace_replay_modules.push_back(write_module);
