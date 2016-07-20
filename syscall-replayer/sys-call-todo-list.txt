@@ -1,4 +1,9 @@
-Note: there are many more system calls. However, SNIA document only lists the following 38 system calls. We may support more system calls if we expand our replayer to support all of the following.
+NOTE: There are many more system calls. However, SNIA document only lists the
+system calls numbered below from 1 to 38. We have extended the trace-replayer
+to add support for rename, getdents and openat system calls. The trace-replayer
+can be easily extended to support more system calls.
+
+We support following system calls in the trace-replayer.
 The POSIX system calls considered applicable to I/O tracing:
 
 ============================================================
