@@ -50,10 +50,10 @@ void GetdentsSystemCallTraceReplayModule::processRow() {
       // Data aren't same
       std::cerr << "Verification of data in getdents failed.\n";
       if (!default_mode()) {
-	std::cout << "time called:" << std::fixed
+	std::cout << "time called: " << std::fixed
                   <<  Tfrac_to_sec(time_called()) << std::endl;
 	std::cout << "Captured getdents data is different from replayed \
-getdents data"
+getdents data."
                   << std::endl;
         if (abort_mode()) {
           abort();
