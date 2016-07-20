@@ -366,6 +366,12 @@ private:
   void makeExitArgsMap(std::map<std::string, void*> &args_map,
 		       long *args,
 		       void **v_args);
+
+  // Maps Getdents System Call <field, value> pairs
+  void makeGetdentsArgsMap(std::map<std::string,
+						   void *> &args_map,
+						   long *args,
+						   void **v_args);
 };
 
 #endif // DATA_SERIES_OUTPUT_MODULE_HPP

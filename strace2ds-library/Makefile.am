@@ -20,6 +20,7 @@ XML_FILES=			\
 	xml/fork.xml		\
 	xml/fstat.xml		\
 	xml/fsync.xml		\
+	xml/getdents.xml	\
 	xml/ioctl.xml		\
 	xml/link.xml		\
 	xml/lseek.xml		\
@@ -41,7 +42,7 @@ XML_FILES=			\
 	xml/symlink.xml		\
 	xml/truncate.xml	\
 	xml/unlink.xml		\
-	xml/unlinkat.xml		\
+	xml/unlinkat.xml	\
 	xml/utime.xml		\
 	xml/utimes.xml		\
 	xml/write.xml		\

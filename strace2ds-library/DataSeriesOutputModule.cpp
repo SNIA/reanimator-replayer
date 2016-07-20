@@ -200,6 +200,8 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
     makeFcntlArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "exit") == 0) {
     makeExitArgsMap(sys_call_args_map, args, v_args);
+  } else if (strcmp(extent_name, "getdents") == 0) {
+    makeGetdentsArgsMap(sys_call_args_map, args, v_args);
   }
 
   // Create a new record to write
@@ -232,6 +234,7 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
       if (extents_[extent_name][field_name].second == ExtentType::ft_variable32)
 	var32_len = getVariable32FieldLength(sys_call_args_map, field_name);
       setField(extent_name, field_name, field_value, var32_len);
+
       continue;
     } else {
       if (nullable) {
@@ -489,7 +492,8 @@ u_int DataSeriesOutputModule::getVariable32FieldLength(std::map<std::string,
      */
     } else if ((field_name == "data_read") ||
 	       (field_name == "data_written") ||
-	       (field_name == "link_value"))
+	       (field_name == "link_value") ||
+	       (field_name == "dirent_buffer"))
       length = *(int *)(args_map["return_value"]);
   } else {
     std::cerr << "WARNING: field_name = " << field_name << " ";
@@ -1768,4 +1772,17 @@ void DataSeriesOutputModule::makeExitArgsMap(std::map<std::string,
 					     void **v_args) {
   args_map["exit_status"] = &args[0];
   args_map["generated"] = v_args[0];
+}
+
+void DataSeriesOutputModule::makeGetdentsArgsMap(std::map<std::string,
+						 void *> &args_map,
+						 long *args,
+						 void **v_args) {
+  args_map["descriptor"] = &args[0];
+  if (v_args[0] != NULL) {
+    args_map["dirent_buffer"] = &v_args[0];
+  } else {
+    std::cerr << "Getdents: Dirent buffer is set as NULL!!" << std::endl;
+  }
+  args_map["count"] = &args[2];
 }
