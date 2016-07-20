@@ -134,6 +134,8 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
     makeCloseArgsMap(sys_call_args_map, args);
   } else if (strcmp(extent_name, "open") == 0) {
     makeOpenArgsMap(sys_call_args_map, args, v_args);
+  } else if (strcmp(extent_name, "openat") == 0) {
+    makeOpenatArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "read") == 0) {
     makeReadArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "write") == 0) {
@@ -476,7 +478,8 @@ u_int DataSeriesOutputModule::getVariable32FieldLength(std::map<std::string,
     /*
      * If field_name refers to the pathname passed as an argument to
      * the system call, string length function can be used to determine
-     * the length.
+     * the length.  Strlen does not count the terminating null character,
+     * so we add 1 to its return value to get the full length of the pathname.
      */
     if ((field_name == "given_pathname") ||
 	(field_name == "given_oldpathname") ||
@@ -485,7 +488,7 @@ u_int DataSeriesOutputModule::getVariable32FieldLength(std::map<std::string,
 	(field_name == "given_oldname") ||
 	(field_name == "given_newname")){
       void *field_value = args_map[field_name];
-      length = strlen(*(char **) field_value);
+      length = strlen(*(char **) field_value) + 1;
     /*
      * If field_name refers to the actual data read or written, then length
      * of buffer must be the return value of that corresponding system call.
@@ -555,6 +558,48 @@ void DataSeriesOutputModule::makeOpenArgsMap(std::map<std::string,
     mode_t mode = processMode(args_map, args, offset + 2);
     if (mode != 0) {
       std::cerr << "Open: These modes are not processed/unknown->0";
+      std::cerr << std::oct << mode << std::dec << std::endl;
+    }
+  }
+}
+
+void DataSeriesOutputModule::makeOpenatArgsMap(std::map<std::string,
+					       void *> &args_map,
+					       long *args,
+					       void **v_args) {
+  static bool true_ = true;
+  int offset = 1;
+
+  // Initialize all non-nullable boolean fields to False.
+  initArgsMap(args_map, "openat");
+
+  args_map["descriptor"] = &args[0];
+  if (args[0] == AT_FDCWD) {
+    args_map["descriptor_current_working_directory"] = &true_;
+  }
+
+  if (v_args[0] != NULL) {
+    args_map["given_pathname"] = &v_args[0];
+  } else {
+    std::cerr << "Openat: Pathname is set as NULL!!" << std::endl;
+  }
+
+  /* Setting flag values */
+  args_map["open_value"] = &args[offset + 1];
+  u_int flag = processOpenFlags(args_map, args[offset + 1]);
+  if (flag != 0) {
+    std::cerr << "Openat: These flags are not processed/unknown->0x";
+    std::cerr << std::hex << flag << std::dec << std::endl;
+  }
+
+  /*
+   * If openat is called with 4 arguments, set the corresponding
+   * mode value and mode bits as True.
+   */
+  if (args[offset + 1] & O_CREAT) {
+    mode_t mode = processMode(args_map, args, offset + 2);
+    if (mode != 0) {
+      std::cerr << "Openat: These modes are not processed/unknown->0";
       std::cerr << std::oct << mode << std::dec << std::endl;
     }
   }

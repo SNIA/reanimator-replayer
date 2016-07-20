@@ -30,6 +30,7 @@ XML_FILES=			\
 	xml/mmap.xml		\
 	xml/munmap.xml		\
 	xml/open.xml		\
+	xml/openat.xml		\
 	xml/pipe.xml		\
 	xml/pread.xml		\
 	xml/pwrite.xml		\

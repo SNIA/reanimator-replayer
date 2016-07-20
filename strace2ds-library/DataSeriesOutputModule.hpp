@@ -133,6 +133,11 @@ private:
 		       long *args,
 		       void **v_args);
 
+  // Maps Openat System Call <field, value> pairs
+  void makeOpenatArgsMap(std::map<std::string, void *> &args_map,
+			 long *args,
+			 void **v_args);
+
   // Processes individual flag and mode bits
   void process_Flag_and_Mode_Args(std::map<std::string, void *> &args_map,
 				  unsigned int &num,
