@@ -21,7 +21,7 @@ SNo.	System_call_name	Status		IsReplayable
 15. 	stat			supported	Yes
 16. 	lstat			supported	Yes
 17. 	access			supported	Yes
-18. 	execve			supported	No
+18. 	execve			In Progress	No
 19. 	truncate		supported	Yes
 20. 	chdir			supported	Yes
 21. 	mkdir			supported	Yes
@@ -44,3 +44,4 @@ SNo.	System_call_name	Status		IsReplayable
 38. 	dup2			supported	Yes
 39. 	rename			supported	Yes
 40.	getdents		supported	Yes
+41.	openat			In Progress	Yes
