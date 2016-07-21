@@ -41,3 +41,4 @@ The POSIX system calls considered applicable to I/O tracing:
 39. rename - supported
 40. unlinkat - supported
 41. getdents - supported
+42. openat - supported

@@ -212,11 +212,11 @@ int main(int argc, char *argv[]) {
 		  verify, warn_level, pattern_data,
 		  input_files);
 
-// Initialize standard map values (STDIN, STDOUT, STDERR, AT_FDCWD)
-SystemCallTraceReplayModule::fd_map_[STDIN_FILENO] = STDIN_FILENO;
-SystemCallTraceReplayModule::fd_map_[STDOUT_FILENO] = STDOUT_FILENO;
-SystemCallTraceReplayModule::fd_map_[STDERR_FILENO] = STDERR_FILENO;
-SystemCallTraceReplayModule::fd_map_[AT_FDCWD] = AT_FDCWD;
+  // Initialize standard map values (STDIN, STDOUT, STDERR, AT_FDCWD)
+  SystemCallTraceReplayModule::fd_map_[STDIN_FILENO] = STDIN_FILENO;
+  SystemCallTraceReplayModule::fd_map_[STDOUT_FILENO] = STDOUT_FILENO;
+  SystemCallTraceReplayModule::fd_map_[STDERR_FILENO] = STDERR_FILENO;
+  SystemCallTraceReplayModule::fd_map_[AT_FDCWD] = AT_FDCWD;
 
   // This is the prefix extent type of all system calls.
   const std::string kExtentTypePrefix = "IOTTAFSL::Trace::Syscall::";
