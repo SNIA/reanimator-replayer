@@ -60,6 +60,8 @@ SYSTEM_CALL_REPLAY_MODULE_OBJECTS = SystemCallTraceReplayer.o SystemCallTraceRep
 				    PipeSystemCallTraceReplayModule.o \
 				    DupSystemCallTraceReplayModule.o \
 				    Dup2SystemCallTraceReplayModule.o \
+				    ExitSystemCallTraceReplayModule.o \
+				    ExecveSystemCallTraceReplayModule.o \
 				    FcntlSystemCallTraceReplayModule.o \
 				    ExitSystemCallTraceReplayModule.o \
 				    GetdentsSystemCallTraceReplayModule.o

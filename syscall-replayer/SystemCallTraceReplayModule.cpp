@@ -90,8 +90,8 @@ Extent::Ptr SystemCallTraceReplayModule::getSharedExtent() {
     series.setExtent(e);
     if (!prepared) {
       std::cout << "----- '" << sys_call_name_ << "' "
-                << "System Call Replayer has started replaying...-----\n"
-                << std::endl;
+		<< "System Call Replayer has started replaying...-----\n"
+		<< std::endl;
       prepared = true;
     }
   } else if (prepared) {
@@ -127,6 +127,7 @@ void SystemCallTraceReplayModule::after_sys_call() {
   if (verbose_mode()) {
     std::cout << "System call '" << sys_call_name_ <<
       "' was executed with following arguments:" << std::endl;
+    std::cout << sys_call_name_ << ": " << std::endl;
     print_sys_call_fields();
     std::cout << std::endl;
   }
@@ -144,8 +145,8 @@ void SystemCallTraceReplayModule::print_common_fields() {
   double time_called_val = Tfrac_to_sec(time_called());
   double time_returned_val = Tfrac_to_sec(time_returned());
   double time_recorded_val = Tfrac_to_sec(time_recorded());
+
   // Print the common fields and their values
-  std::cout << sys_call_name_ << ": " << std::endl;
   std::cout.precision(25);
   std::cout << "time called(" << std::fixed << time_called_val << "), "
 	    << std::endl;
@@ -167,6 +168,7 @@ void SystemCallTraceReplayModule::compare_retval_and_errno() {
   }
 
   if (return_value() != replayed_ret_val_) {
+    std::cout << sys_call_name_ << ": " << std::endl;
     print_sys_call_fields();
     std::cout << "Warning: Return values are different.\n";
     if (abort_mode()) {
@@ -174,6 +176,7 @@ void SystemCallTraceReplayModule::compare_retval_and_errno() {
     }
   } else if (replayed_ret_val_ == -1) {
     if (errno != errno_number()) {
+      std::cout << sys_call_name_ << ": " << std::endl;
       print_sys_call_fields();
       std::cout << "Warning: Errno numbers are different.\n";
       if (abort_mode()) {

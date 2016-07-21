@@ -54,7 +54,7 @@ protected:
   /*
    * Print common and specific sys call field values in a nice format
    */
-  void print_sys_call_fields();
+  virtual void print_sys_call_fields();
 
   /*
    * Print common sys call field values in a nice format

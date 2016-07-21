@@ -37,8 +37,8 @@ private:
   void print_specific_fields();
 
   /*
-   * This function will gather arguments in the trace file
-   * and replay an exit system call with those arguments
+   * This function will simply return without replaying
+   * exit system call.
    */
   void processRow();
 
