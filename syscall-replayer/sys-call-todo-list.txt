@@ -12,7 +12,7 @@ SNo.	System_call_name	Status		IsReplayable
 1.	read			supported	Yes
 2. 	write			supported	Yes
 3. 	lseek			supported	Yes
-4. 	mmap			NOT supported	No
+4. 	mmap			supported	No
 5. 	fstat			supported	Yes
 6. 	pread			supported	Yes
 7. 	pwrite			supported	Yes
