@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2016 Nina Brown
  * Copyright (c) 2015-2016 Leixiang Wu
  * Copyright (c) 2015-2016 Erez Zadok
  * Copyright (c) 2015-2016 Stony Brook University
@@ -132,6 +133,11 @@ private:
 		       long *args,
 		       void **v_args);
 
+  // Maps Openat System Call <field, value> pairs
+  void makeOpenatArgsMap(std::map<std::string, void *> &args_map,
+			 long *args,
+			 void **v_args);
+
   // Processes individual flag and mode bits
   void process_Flag_and_Mode_Args(std::map<std::string, void *> &args_map,
 				  unsigned int &num,
@@ -179,6 +185,11 @@ private:
   // Maps Unlink System Call <field, value> pairs
   void makeUnlinkArgsMap(std::map<std::string, void *> &args_map,
 				   void **v_args);
+
+  // Maps Unlinkat System Call <field, value> pairs
+  void makeUnlinkatArgsMap(std::map<std::string, void *> &args_map,
+			   long *args,
+			   void **v_args);
 
   // Maps Mkdir System Call <field, value> pairs
   void makeMkdirArgsMap(std::map<std::string, void *> &args_map,
@@ -301,6 +312,61 @@ private:
   void makeDup2ArgsMap(std::map<std::string, void *> &args_map,
 		       long *args);
 
+  // Maps Fcntl System Call <field, value> pairs
+  void makeFcntlArgsMap(std::map<std::string, void *> &args_map,
+			long *args,
+			void **v_args);
+
+  /*
+   * Maps the status flag value passed to an Fcntl system call with the
+   * F_SETFL command to the corresponding map fields
+   */
+  u_int processFcntlStatusFlags(std::map<std::string,
+				void *> &args_map,
+				u_int status_flag);
+
+  /*
+   * Maps the values in an flock structure passed to an Fcntl system call
+   * with a F_SETLK, F_SETLKW, or F_GETLK command to the corresponding
+   * map fields
+   */
+  void processFcntlFlock(std::map<std::string,
+			 void *> &args_map,
+			 struct flock *lock);
+
+  /*
+   * Processes the type value in an flock structure passed to an Fcntl
+   * system call and sets the corresponding map field to True
+   */
+  void processFcntlFlockType(std::map<std::string,
+			     void *> &args_map,
+			     struct flock *lock);
+
+  /*
+   * Processes the whence value in an flock structure passed to an Fcntl
+   * system call and sets the corresponding map field to True
+   */
+  void processFcntlFlockWhence(std::map<std::string,
+			       void *> &args_map,
+			       struct flock *lock);
+
+  /*
+   * Processes the lease argument passed to an Fcntl system call with a
+   * F_SETLEASE or F_GETLEASE command and sets the corresponding map
+   * field to True
+   */
+  void processFcntlLease(std::map<std::string,
+			 void *> &args_map,
+			 int lease);
+
+  /*
+   * Processes the notify argument passed to an Fcntl system call with
+   * a F_NOTIFY command to the corresponding map fields
+   */
+  u_int processFcntlNotify(std::map<std::string,
+			   void *> &args_map,
+			   long *args);
+
   // Maps Exit System Call <field, value> pairs
   void makeExitArgsMap(std::map<std::string, void*> &args_map,
 		       long *args,
@@ -309,6 +375,12 @@ private:
   // Maps Execve System Call <field, value> pairs
   void makeExecveArgsMap(std::map<std::string, void*> &args_map,
 			 void **v_args);
+
+  // Maps Getdents System Call <field, value> pairs
+  void makeGetdentsArgsMap(std::map<std::string,
+			   void *> &args_map,
+			   long *args,
+			   void **v_args);
 };
 
 #endif // DATA_SERIES_OUTPUT_MODULE_HPP

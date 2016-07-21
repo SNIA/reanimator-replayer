@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2016 Nina Brown
  * Copyright (c) 2015-2016 Leixiang Wu
  * Copyright (c) 2015-2016 Shubhi Rani
  * Copyright (c) 2015-2016 Sonam Mandal
@@ -43,6 +44,33 @@ void OpenSystemCallTraceReplayModule::processRow() {
 
   // replay the open system call
   replayed_ret_val_ = open(pathname, flags, mode);
+  // Add a mapping from fd in trace file to actual replayed fd
+  SystemCallTraceReplayModule::fd_map_[return_value] = replayed_ret_val_;
+}
+
+OpenatSystemCallTraceReplayModule::
+OpenatSystemCallTraceReplayModule(DataSeriesModule &source,
+				  bool verbose_flag,
+				  int warn_level_flag):
+  OpenSystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+  descriptor_(series, "descriptor") {
+  sys_call_name_ = "openat";
+}
+
+void OpenatSystemCallTraceReplayModule::print_specific_fields() {
+  std::cout << "descriptor(" << descriptor_.val() << "), ";
+  OpenSystemCallTraceReplayModule::print_specific_fields();
+}
+
+void OpenatSystemCallTraceReplayModule::processRow() {
+  int dirfd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
+  const char *pathname = (char *)given_pathname_.val();
+  int flags = open_value_.val();
+  mode_t mode = mode_value_.val();
+  int return_value = (int)return_value_.val();
+
+  // replay the openat system call
+  replayed_ret_val_ = openat(dirfd, pathname, flags, mode);
   // Add a mapping from fd in trace file to actual replayed fd
   SystemCallTraceReplayModule::fd_map_[return_value] = replayed_ret_val_;
 }

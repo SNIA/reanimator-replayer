@@ -10,19 +10,19 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
- * This header file provides members and functions for implementing chmod
+ * This header file provides members and functions for implementing fcntl
  * system call.
  *
- * ChmodSystemCallTraceReplayerModule is a class/module that
- * has members and functions of replaying chmod system call.
+ * FcntlSystemCallTraceReplayerModule is a class/module that
+ * has members and functions of replaying fcntl system call.
  *
  * USAGE
  * A main program could initialize this class with a dataseries file
  * and call execute() function until all extents are processed.
  *
  */
-#ifndef CHMOD_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
-#define CHMOD_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
+#ifndef FCNTL_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
+#define FCNTL_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 
 #include "SystemCallTraceReplayModule.hpp"
 
@@ -30,28 +30,34 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-class ChmodSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
+class FcntlSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 private:
-  /* Open System Call Trace Fields in Dataseries file */
-  Variable32Field given_pathname_;
-  Int32Field mode_value_;
+  /* Fcntl System Call Trace Fields in Dataseries file */
+  Int32Field descriptor_;
+  Int32Field command_value_;
+  Int32Field argument_value_;
+  Int32Field lock_type_;
+  Int32Field lock_whence_;
+  Int32Field lock_start_;
+  Int32Field lock_length_;
+  Int32Field lock_pid_;
 
   /*
-   * Print open sys call field values in a nice format
+   * Print fcntl sys call field values in a nice format
    */
   void print_specific_fields();
 
   /*
    * This function will gather arguments in the trace file
-   * and replay an chmod system call with those arguments.
+   * and replay an fcntl system call with those arguments.
    */
   void processRow();
 
 public:
-  ChmodSystemCallTraceReplayModule(DataSeriesModule &source,
+  FcntlSystemCallTraceReplayModule(DataSeriesModule &source,
 				   bool verbose_flag,
 				   int warn_level_flag);
 
 };
 
-#endif /* CHMOD_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */
+#endif /* FCNTL_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

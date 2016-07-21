@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2016 Nina Brown
  * Copyright (c) 2015-2016 Leixiang Wu
  * Copyright (c) 2015-2016 Erez Zadok
  * Copyright (c) 2015-2016 Stony Brook University
@@ -148,6 +149,8 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
     makeCloseArgsMap(sys_call_args_map, args);
   } else if (strcmp(extent_name, "open") == 0) {
     makeOpenArgsMap(sys_call_args_map, args, v_args);
+  } else if (strcmp(extent_name, "openat") == 0) {
+    makeOpenatArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "read") == 0) {
     makeReadArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "write") == 0) {
@@ -158,6 +161,8 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
     makeRmdirArgsMap(sys_call_args_map, v_args);
   } else if (strcmp(extent_name, "unlink") == 0) {
     makeUnlinkArgsMap(sys_call_args_map, v_args);
+  } else if (strcmp(extent_name, "unlinkat") == 0) {
+    makeUnlinkatArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "mkdir") == 0) {
     makeMkdirArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "creat") == 0) {
@@ -208,10 +213,14 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
     makeDupArgsMap(sys_call_args_map, args);
   } else if (strcmp(extent_name, "dup2") == 0) {
     makeDup2ArgsMap(sys_call_args_map, args);
+  } else if (strcmp(extent_name, "fcntl") == 0) {
+    makeFcntlArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "exit") == 0) {
     makeExitArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "execve") == 0) {
     makeExecveArgsMap(sys_call_args_map, v_args);
+  } else if (strcmp(extent_name, "getdents") == 0) {
+    makeGetdentsArgsMap(sys_call_args_map, args, v_args);
   }
 
   // Create a new record to write
@@ -244,6 +253,7 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
       if (extents_[extent_name][field_name].second == ExtentType::ft_variable32)
 	var32_len = getVariable32FieldLength(sys_call_args_map, field_name);
       setField(extent_name, field_name, field_value, var32_len);
+
       continue;
     } else {
       if (nullable) {
@@ -485,7 +495,8 @@ u_int DataSeriesOutputModule::getVariable32FieldLength(std::map<std::string,
     /*
      * If field_name refers to the pathname passed as an argument to
      * the system call, string length function can be used to determine
-     * the length.
+     * the length.  Strlen does not count the terminating null character,
+     * so we add 1 to its return value to get the full length of the pathname.
      */
     if ((field_name == "given_pathname") ||
 	(field_name == "given_oldpathname") ||
@@ -496,14 +507,15 @@ u_int DataSeriesOutputModule::getVariable32FieldLength(std::map<std::string,
 	(field_name == "argument") ||
 	(field_name == "environment")) {
       void *field_value = args_map[field_name];
-      length = strlen(*(char **) field_value);
+      length = strlen(*(char **) field_value) + 1;
     /*
      * If field_name refers to the actual data read or written, then length
      * of buffer must be the return value of that corresponding system call.
      */
     } else if ((field_name == "data_read") ||
 	       (field_name == "data_written") ||
-	       (field_name == "link_value"))
+	       (field_name == "link_value") ||
+	       (field_name == "dirent_buffer"))
       length = *(int *)(args_map["return_value"]);
   } else {
     std::cerr << "WARNING: field_name = " << field_name << " ";
@@ -565,6 +577,48 @@ void DataSeriesOutputModule::makeOpenArgsMap(std::map<std::string,
     mode_t mode = processMode(args_map, args, offset + 2);
     if (mode != 0) {
       std::cerr << "Open: These modes are not processed/unknown->0";
+      std::cerr << std::oct << mode << std::dec << std::endl;
+    }
+  }
+}
+
+void DataSeriesOutputModule::makeOpenatArgsMap(std::map<std::string,
+					       void *> &args_map,
+					       long *args,
+					       void **v_args) {
+  static bool true_ = true;
+  int offset = 1;
+
+  // Initialize all non-nullable boolean fields to False.
+  initArgsMap(args_map, "openat");
+
+  args_map["descriptor"] = &args[0];
+  if (args[0] == AT_FDCWD) {
+    args_map["descriptor_current_working_directory"] = &true_;
+  }
+
+  if (v_args[0] != NULL) {
+    args_map["given_pathname"] = &v_args[0];
+  } else {
+    std::cerr << "Openat: Pathname is set as NULL!!" << std::endl;
+  }
+
+  /* Setting flag values */
+  args_map["open_value"] = &args[offset + 1];
+  u_int flag = processOpenFlags(args_map, args[offset + 1]);
+  if (flag != 0) {
+    std::cerr << "Openat: These flags are not processed/unknown->0x";
+    std::cerr << std::hex << flag << std::dec << std::endl;
+  }
+
+  /*
+   * If openat is called with 4 arguments, set the corresponding
+   * mode value and mode bits as True.
+   */
+  if (args[offset + 1] & O_CREAT) {
+    mode_t mode = processMode(args_map, args, offset + 2);
+    if (mode != 0) {
+      std::cerr << "Openat: These modes are not processed/unknown->0";
       std::cerr << std::oct << mode << std::dec << std::endl;
     }
   }
@@ -800,6 +854,34 @@ void DataSeriesOutputModule::makeUnlinkArgsMap(std::map<std::string,
     args_map["given_pathname"] = &v_args[0];
   } else {
     std::cerr << "Unlink: Pathname is set as NULL!!" << std::endl;
+  }
+}
+
+void DataSeriesOutputModule::makeUnlinkatArgsMap(std::map<std::string,
+						 void *> &args_map,
+						 long *args,
+						 void **v_args) {
+  static bool true_ = true;
+
+  initArgsMap(args_map, "unlinkat");
+
+  args_map["descriptor"] = &args[0];
+  if (args[0] == AT_FDCWD) {
+    args_map["descriptor_current_working_directory"] = &true_;
+  }
+  if (v_args[0] != NULL) {
+    args_map["given_pathname"] = &v_args[0];
+  } else {
+    std::cerr << "Unlinkat: Pathname is set as NULL!!" << std::endl;
+  }
+
+  args_map["flag_value"] = &args[2];
+  u_int flag = args[2];
+  process_Flag_and_Mode_Args(args_map, flag, AT_REMOVEDIR,
+			     "flag_remove_directory");
+  if (flag != 0) {
+    std::cerr << "Unlinkat: These flags are not processed/unknown->"
+	      << std::hex << flag << std::dec << std::endl;
   }
 }
 
@@ -1384,6 +1466,370 @@ void DataSeriesOutputModule::makeDup2ArgsMap(std::map<std::string,
   args_map["new_descriptor"] = &args[1];
 }
 
+void DataSeriesOutputModule::makeFcntlArgsMap(std::map<std::string,
+					      void *> &args_map,
+					      long *args,
+					      void **v_args) {
+  // Set all non-nullable boolean fields to false
+  initArgsMap(args_map, "fcntl");
+
+  // Save the descriptor and command value to the map
+  args_map["descriptor"] = &args[0];
+  args_map["command_value"] = &args[1];
+
+  int command = args[1];
+  static bool true_ = true;
+  /*
+   * Check the command argument passed to fcntl and set the corresponding
+   * fields in the map
+   */
+  switch (command) {
+
+  // File descriptor dup command
+  case F_DUPFD:
+    args_map["command_dup"] = &true_;
+    args_map["argument_value"] = &args[2];
+    break;
+
+  // Get file descriptor flags command
+  case F_GETFD:
+    args_map["command_get_descriptor_flags"] = &true_;
+    break;
+
+  // Set file descriptor flags command
+  case F_SETFD: {
+    args_map["command_set_descriptor_flags"] = &true_;
+    args_map["argument_value"] = &args[2];
+    u_int fd_flag = (u_int) args[2];
+    process_Flag_and_Mode_Args(args_map, fd_flag, FD_CLOEXEC,
+			       "argument_descriptor_flag_exec_close");
+    if (fd_flag != 0) {
+      std::cerr << "Fcntl: SETFD: These flags are not processed/unknown->0x"
+		<< std::hex << fd_flag << std::dec << std::endl;
+    }
+    break;
+  }
+  // Get file status flags command
+  case F_GETFL:
+    args_map["command_get_status_flags"] = &true_;
+    break;
+
+  // Set file status flags command
+  case F_SETFL: {
+    args_map["command_set_status_flags"] = &true_;
+    args_map["argument_value"] = &args[2];
+    u_int status_flag = processFcntlStatusFlags(args_map, args[2]);
+    if (status_flag != 0) {
+      std::cerr << "Fcntl: SETFL: These flags are not processed/unknown->0x"
+		<< std::hex << status_flag << std::dec << std::endl;
+    }
+    break;
+  }
+  // Set lock command
+  case F_SETLK:
+    args_map["command_set_lock"] = &true_;
+    processFcntlFlock(args_map, (struct flock *) v_args[0]);
+    break;
+
+  // Set lock wait command
+  case F_SETLKW:
+    args_map["command_set_lock_wait"] = &true_;
+    processFcntlFlock(args_map, (struct flock *) v_args[0]);
+    break;
+
+  // Get lock command
+  case F_GETLK:
+    args_map["command_get_lock"] = &true_;
+    processFcntlFlock(args_map, (struct flock *) v_args[0]);
+    break;
+
+  // Get process id command
+  case F_GETOWN:
+    args_map["command_get_process_id"] = &true_;
+    break;
+
+  // Set process id command
+  case F_SETOWN:
+    args_map["command_set_process_id"] = &true_;
+    args_map["argument_value"] = &args[2];
+    break;
+
+  // Get signal command
+  case F_GETSIG:
+    args_map["command_get_signal"] = &true_;
+    break;
+
+  // Set signal command
+  case F_SETSIG:
+    args_map["command_set_signal"] = &true_;
+    args_map["argument_value"] = &args[2];
+    break;
+
+  // Get lease command
+  case F_GETLEASE: {
+    args_map["command_get_lease"] = &true_;
+    int return_value = *(int *) args_map["return_value"];
+    processFcntlLease(args_map, return_value);
+    break;
+  }
+  // Set lease command
+  case F_SETLEASE:
+    args_map["command_set_lease"] = &true_;
+    args_map["argument_value"] = &args[2];
+    processFcntlLease(args_map, args[2]);
+    break;
+
+  // Notify command
+  case F_NOTIFY: {
+    args_map["command_notify"] = &true_;
+    args_map["argument_value"] = &args[2];
+    u_int notify_value = processFcntlNotify(args_map, args);
+    if (notify_value != 0) {
+      std::cerr << "Fcntl: F_NOTIFY: These flags are not processed/unknown->"
+		<< std::hex << notify_value << std::dec << std::endl;
+    }
+    break;
+  }
+  /*
+   * If the command value doesn't match a known command, print
+   * a warning message
+   */
+  default:
+    std::cerr << "Fcntl: Command is unknown->" << command << std::endl;
+    args_map["argument_value"] = &args[2];
+  }
+}
+
+/*
+ * This function unwraps the flag value passed as an argument to the
+ * fcntl system call with the F_SETFL command and sets the corresponding
+ * flag values as True.
+ *
+ * @param args_map: stores mapping of <field, value> pairs.
+ *
+ * @param status_flag: represents the flag value passed as an argument
+ *                   to the fcntl system call.
+ */
+u_int DataSeriesOutputModule::processFcntlStatusFlags(std::map<std::string,
+						      void *> &args_map,
+						      u_int status_flag) {
+
+  /*
+   * Process each individual flag bit that has been set
+   * in the argument status_flag.
+   */
+  // set append flag
+  process_Flag_and_Mode_Args(args_map, status_flag, O_APPEND,
+			     "argument_status_flag_append");
+  // set async flag
+  process_Flag_and_Mode_Args(args_map, status_flag, O_ASYNC,
+			     "argument_status_flag_async");
+  // set create flag
+  process_Flag_and_Mode_Args(args_map, status_flag, O_CREAT,
+			     "argument_status_flag_create");
+  // set direct flag
+  process_Flag_and_Mode_Args(args_map, status_flag, O_DIRECT,
+			     "argument_status_flag_direct");
+  // set directory flag
+  process_Flag_and_Mode_Args(args_map, status_flag, O_DIRECTORY,
+			     "argument_status_flag_directory");
+  // set exclusive flag
+  process_Flag_and_Mode_Args(args_map, status_flag, O_EXCL,
+			     "argument_status_flag_exclusive");
+  // set largefile flag
+  process_Flag_and_Mode_Args(args_map, status_flag, O_LARGEFILE,
+			     "argument_status_flag_largefile");
+  // set last access time flag
+  process_Flag_and_Mode_Args(args_map, status_flag, O_NOATIME,
+			     "argument_status_flag_no_access_time");
+  // set controlling terminal flag
+  process_Flag_and_Mode_Args(args_map, status_flag, O_NOCTTY,
+			     "argument_status_flag_no_controlling_terminal");
+  // set no_follow flag (in case of symbolic link)
+  process_Flag_and_Mode_Args(args_map, status_flag, O_NOFOLLOW,
+			     "argument_status_flag_no_follow");
+  // set non blocking mode flag
+  process_Flag_and_Mode_Args(args_map, status_flag, O_NONBLOCK,
+			     "argument_status_flag_no_blocking_mode");
+  // set no delay flag
+  process_Flag_and_Mode_Args(args_map, status_flag, O_NDELAY,
+			     "argument_status_flag_no_delay");
+  // set synchronized IO flag
+  process_Flag_and_Mode_Args(args_map, status_flag, O_SYNC,
+			     "argument_status_flag_synchronous");
+  // set truncate mode flag
+  process_Flag_and_Mode_Args(args_map, status_flag, O_TRUNC,
+			     "argument_status_flag_truncate");
+
+  /*
+   * Return remaining unprocessed flags so that caller can
+   * warn of unknown flags if the status_flag value is not set
+   * as zero.
+   */
+  return status_flag;
+}
+
+/*
+ * This function saves the values in the flock structure passed to
+ * Fcntl with command F_SETLK, F_SETLKW, or F_GETLK into the map
+ */
+void DataSeriesOutputModule::processFcntlFlock(std::map<std::string,
+					       void *> &args_map,
+					       struct flock *lock) {
+  if (lock != NULL) {
+    // Save the values in the flock structure to the map
+    processFcntlFlockType(args_map, lock);
+    processFcntlFlockWhence(args_map, lock);
+    args_map["lock_start"] = &lock->l_start;
+    args_map["lock_length"] = &lock->l_len;
+    args_map["lock_pid"] = &lock->l_pid;
+  } else {
+    /*
+     * If the flock passed to Fcntl was NULL, then print a warning message.
+     * The int32 fields lock_type, lock_whence, lock_start, lock_length,
+     * and lock_pid will be set to 0 by default.
+     */
+    std::cerr << "Flock: Struct flock is set as NULL!!" << std::endl;
+  }
+}
+
+/*
+ * This function processes the l_type member of an flock structure
+ * and sets the corresponding field in the map
+ */
+void DataSeriesOutputModule::processFcntlFlockType(std::map<std::string,
+						   void *> &args_map,
+						   struct flock *lock) {
+  // Save the lock type value into the map
+  args_map["lock_type"] = &lock->l_type;
+  u_int type = lock->l_type;
+  static bool true_ = true;
+
+  /*
+   * If the type value matches one of the possible types, set the
+   * corresponding field in the map to True
+   */
+  switch (type) {
+  // set read lock field
+  case F_RDLCK:
+    args_map["lock_type_read"] = &true_;
+    break;
+  // set write lock field
+  case F_WRLCK:
+    args_map["lock_type_write"] = &true_;
+    break;
+  // set unlocked field
+  case F_UNLCK:
+    args_map["lock_type_unlocked"] = &true_;
+    break;
+  // If the type value isn't a known type, print a warning message
+  default:
+    std::cerr << "Fcntl: Lock type is unknown->" << lock << std::endl;
+  }
+}
+
+/*
+ * This function processes the l_whence member of an flock structure
+ * and sets the corresponding field in the map
+ */
+void DataSeriesOutputModule::processFcntlFlockWhence(std::map<std::string,
+						     void *> &args_map,
+						     struct flock *lock) {
+  // Save the lock whence value into the map
+  args_map["lock_whence"] = &lock->l_whence;
+  u_int whence = lock->l_whence;
+  static bool true_ = true;
+
+  /*
+   * If the whence value matches one of the possible values, set the
+   * corresponding field in the map to True
+   */
+  switch (whence) {
+  // set SEEK_SET whence field
+  case SEEK_SET:
+    args_map["lock_whence_start"] = &true_;
+    break;
+  // set SEEK_CUR whence field
+  case SEEK_CUR:
+    args_map["lock_whence_current"] = &true_;
+    break;
+  // set SEEK_END whence field
+  case SEEK_END:
+    args_map["lock_whence_end"] = &true_;
+    break;
+  // If the whence value isn't a known whence value, print a warning message
+  default:
+    std:: cerr << "Fcntl: Lock whence is unknown->" << whence << std::endl;
+  }
+}
+
+/*
+ * This function processes the lease value passed to an Fcntl system call with
+ * an F_SETLEASE command or returned from an F_GETLEASE command
+ */
+void DataSeriesOutputModule::processFcntlLease(std::map<std::string,
+					       void *> &args_map,
+					       int lease) {
+  static bool true_ = true;
+  /*
+   * If the lease argument matches one of the possible values, set the
+   * corresponding field in the map to True
+   */
+  switch (lease) {
+  // set read lock lease field
+  case F_RDLCK:
+    args_map["argument_lease_read"] = &true_;
+    break;
+  // set write lock lease field
+  case F_WRLCK:
+    args_map["argument_lease_write"] = &true_;
+    break;
+  // set unlocked lease field
+  case F_UNLCK:
+    args_map["argument_lease_remove"] = &true_;
+    break;
+  // If the lease argument isn't a known lease, print a warning message
+  default:
+    std::cerr << "Fcntl: Lease argument is unknown->" << lease << std::endl;
+  }
+}
+
+/*
+ * This function processes the notify value passed to an Fcntl system call
+ * with an F_NOTIFY command.  It returns any unprocessed notify_value bits.
+ */
+u_int DataSeriesOutputModule::processFcntlNotify(std::map<std::string,
+						void *> &args_map,
+						long *args) {
+  u_int notify_value = args[2];
+
+  // set access argument bit
+  process_Flag_and_Mode_Args(args_map, notify_value, DN_ACCESS,
+			     "argument_notify_access");
+  // set access argument bit
+  process_Flag_and_Mode_Args(args_map, notify_value, DN_MODIFY,
+			     "argument_notify_modify");
+  // set access argument bit
+  process_Flag_and_Mode_Args(args_map, notify_value, DN_CREATE,
+			     "argument_notify_create");
+  // set access argument bit
+  process_Flag_and_Mode_Args(args_map, notify_value, DN_DELETE,
+			     "argument_notify_delete");
+  // set access argument bit
+  process_Flag_and_Mode_Args(args_map, notify_value, DN_RENAME,
+			     "argument_notify_rename");
+  // set access argument bit
+  process_Flag_and_Mode_Args(args_map, notify_value, DN_ATTRIB,
+			     "argument_notify_attribute");
+
+  /*
+   * Return remaining notify flags so that caller can
+   * warn of unknown flags if the notify_value is not set
+   * as zero.
+   */
+  return notify_value;
+}
+
 void DataSeriesOutputModule::makeExitArgsMap(std::map<std::string,
 					     void *> &args_map,
 					     long *args,
@@ -1436,4 +1882,17 @@ void DataSeriesOutputModule::makeExecveArgsMap(std::map<std::string,
 	std::cerr << "Execve : Environment is set as NULL!!" << std::endl;
     }
   }
+}
+
+void DataSeriesOutputModule::makeGetdentsArgsMap(std::map<std::string,
+						 void *> &args_map,
+						 long *args,
+						 void **v_args) {
+  args_map["descriptor"] = &args[0];
+  if (v_args[0] != NULL) {
+    args_map["dirent_buffer"] = &v_args[0];
+  } else {
+    std::cerr << "Getdents: Dirent buffer is set as NULL!!" << std::endl;
+  }
+  args_map["count"] = &args[2];
 }
