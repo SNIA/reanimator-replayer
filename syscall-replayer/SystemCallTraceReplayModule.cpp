@@ -123,7 +123,13 @@ void SystemCallTraceReplayModule::completeProcessing() {
 }
 
 void SystemCallTraceReplayModule::after_sys_call() {
-  compare_retval_and_errno();
+  /*
+   * If a system call is being replayed by the syscall-replayer
+   * program, then compare the errno numbers and return values,
+   * else skip comparing them.
+   */
+  if (isReplayable())
+    compare_retval_and_errno();
   if (verbose_mode()) {
     std::cout << "System call '" << sys_call_name_ <<
       "' was executed with following arguments:" << std::endl;
@@ -220,4 +226,13 @@ char *SystemCallTraceReplayModule::random_fill_buffer(char *buffer,
     memcpy(buffer + i, &num, size);
   }
   return buffer;
+}
+
+bool SystemCallTraceReplayModule::isReplayable() {
+  if (sys_call_name_ != "exit" &&
+      sys_call_name_ != "execve" &&
+      sys_call_name_ != "mmap" &&
+      sys_call_name_ != "munmap")
+    return true;
+  return false;
 }

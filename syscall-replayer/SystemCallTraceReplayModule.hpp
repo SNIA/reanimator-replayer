@@ -260,6 +260,15 @@ public:
    * fill the buffer.
    */
   char *random_fill_buffer(char *buffer, size_t nbytes);
+
+  /*
+   * Some system calls such as _exit, execve, mmap and munmap are not
+   * appropriate to replay. So we do not replay in our replayer.
+   *
+   * @return: returns true if the system call is replayable, else it
+   *	      returns false.
+   */
+  bool isReplayable();
 };
 
 #endif /* SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */
