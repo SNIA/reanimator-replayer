@@ -71,7 +71,7 @@ EXAMPLE: ./system-call-replayer foo.ds
 
 COMMAND LINE OPTIONS OF SYSCALL REPLAYER
 ===============================================================================
-The syscall-replayer supports following options:
+The syscall-replayer supports following optional command line options:
 
 1. -V [ --version ]      print version of system call replayer
 2. -h [ --help ]         produce help message
@@ -88,7 +88,8 @@ WARN LEVELS OF SYSCALL REPLAYER
 The syscall-replayer program has 3 modes:
 
 1. DEFAULT MODE (0)
-In this mode, program ignorres any error or warning messages while running.
+In this mode, program ignores any error or warning messages while running.
+This is the default to run the syscall-replayer program.
 
 USAGE: ./system-call-replayer -w 0 foo.ds
 USAGE: ./system-call-replayer foo.ds
