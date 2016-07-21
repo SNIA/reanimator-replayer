@@ -63,17 +63,11 @@ void OpenatSystemCallTraceReplayModule::print_specific_fields() {
 }
 
 void OpenatSystemCallTraceReplayModule::processRow() {
-  int dirfd = descriptor_.val();
+  int dirfd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
   const char *pathname = (char *)given_pathname_.val();
   int flags = open_value_.val();
   mode_t mode = mode_value_.val();
   int return_value = (int)return_value_.val();
-
-  if (descriptor_.val() == AT_FDCWD) {
-    dirfd = descriptor_.val();
-  } else {
-    dirfd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
-  }
 
   // replay the openat system call
   replayed_ret_val_ = openat(dirfd, pathname, flags, mode);

@@ -56,15 +56,9 @@ void UnlinkatSystemCallTraceReplayModule::print_specific_fields() {
 }
 
 void UnlinkatSystemCallTraceReplayModule::processRow() {
-  int dirfd;
+  int dirfd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
   char *path = (char *) given_pathname_.val();
   int flags = flag_value_.val();
-
-  if (descriptor_.val() == AT_FDCWD) {
-    dirfd = descriptor_.val();
-  } else {
-    dirfd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
-  }
 
   // Replay the unlinkat system call
   replayed_ret_val_ = unlinkat(dirfd, path, flags);
