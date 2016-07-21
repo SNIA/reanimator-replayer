@@ -46,6 +46,7 @@
 #include <fcntl.h>
 #include <utime.h>
 #include <sys/stat.h>
+#include <sys/mman.h>
 
 /* map<fieldname, pair<nullable, ExtentType> */
 typedef std::map<std::string,
@@ -375,6 +376,23 @@ private:
   // Maps Execve System Call <field, value> pairs
   void makeExecveArgsMap(std::map<std::string, void*> &args_map,
 			 void **v_args);
+
+  // Maps Mmap System Call <field, value> pairs
+  void makeMmapArgsMap(std::map<std::string, void*> &args_map,
+		       long *args);
+
+  /*
+   * Maps individual protection bits for Mmap system call to its corresponding
+   * field name.
+   */
+  u_int processMmapProtectionArgs(std::map<std::string, void *> &args_map,
+				  u_int mmap_prot_args);
+
+  /*
+   * Maps individual flag value for Mmap system call to its corresponding
+   * field name.
+   */
+  u_int processMmapFlags(std::map<std::string, void *> &args_map, u_int flag);
 
   // Maps Getdents System Call <field, value> pairs
   void makeGetdentsArgsMap(std::map<std::string,

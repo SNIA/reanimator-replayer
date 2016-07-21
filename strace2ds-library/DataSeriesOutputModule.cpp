@@ -219,6 +219,8 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
     makeExitArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "execve") == 0) {
     makeExecveArgsMap(sys_call_args_map, v_args);
+  } else if (strcmp(extent_name, "mmap") == 0) {
+    makeMmapArgsMap(sys_call_args_map, args);
   } else if (strcmp(extent_name, "getdents") == 0) {
     makeGetdentsArgsMap(sys_call_args_map, args, v_args);
   }
@@ -1882,6 +1884,88 @@ void DataSeriesOutputModule::makeExecveArgsMap(std::map<std::string,
 	std::cerr << "Execve : Environment is set as NULL!!" << std::endl;
     }
   }
+}
+
+void DataSeriesOutputModule::makeMmapArgsMap(std::map<std::string,
+					     void *> &args_map,
+					     long *args) {
+  // Initialize all non-nullable boolean fields to False.
+  initArgsMap(args_map, "mmap");
+
+  args_map["start_address"] = &args[0];
+  args_map["length"] = &args[1];
+
+  args_map["protection_value"] = &args[2];
+  // Set individual mmap protection bits
+  u_int prot_args = processMmapProtectionArgs(args_map, args[2]);
+  if (prot_args != 0) {
+    std::cerr << "Mmap: These protection flags are not processed/unknown->0x";
+    std::cerr << std::hex << prot_args << std::dec << std::endl;
+  }
+
+  // Set individual mmap flag bits
+  args_map["flags_value"] = &args[3];
+  u_int flag = processMmapFlags(args_map, args[3]);
+  if (flag != 0) {
+    std::cerr << "Mmap: These flag are not processed/unknown->0x";
+    std::cerr << std::hex << flag << std::dec << std::endl;
+  }
+
+  args_map["descriptor"] = &args[4];
+  args_map["offset"] = &args[5];
+}
+
+u_int DataSeriesOutputModule::processMmapProtectionArgs(std::map<std::string,
+							void *> &args_map,
+							u_int mmap_prot_args) {
+  /*
+   * Process each individual mmap protection bit that has been set
+   * in the argument mmap_prot_args.
+   */
+  // set exec protection flag
+  process_Flag_and_Mode_Args(args_map, mmap_prot_args, PROT_EXEC,
+			     "protection_exec");
+  // set read protection flag
+  process_Flag_and_Mode_Args(args_map, mmap_prot_args, PROT_READ,
+			     "protection_read");
+  // set write protection flag
+  process_Flag_and_Mode_Args(args_map, mmap_prot_args, PROT_WRITE,
+			     "protection_write");
+  // set none protection flag
+  process_Flag_and_Mode_Args(args_map, mmap_prot_args, PROT_NONE,
+			     "protection_none");
+
+  /*
+   * Return remaining mmap protection flags so that caller can
+   * warn of unknown flags if the mmap_prot_args is not set
+   * as zero.
+   */
+  return mmap_prot_args;
+}
+
+u_int DataSeriesOutputModule::processMmapFlags(std::map<std::string,
+					       void *> &args_map,
+					       u_int mmap_flags) {
+  /*
+   * Process each individual mmap flag bit that has been set
+   * in the argument mmap_flags.
+   */
+  // set map fixed flag
+  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_FIXED,
+			     "flag_fixed");
+  // set map shared flag
+  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_SHARED,
+			     "flag_shared");
+  // set map private flag
+  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_PRIVATE,
+			     "flag_private");
+
+  /*
+   * Return remaining mmap flags so that caller can
+   * warn of unknown flags if the mmap_flags is not set
+   * as zero.
+   */
+  return mmap_flags;
 }
 
 void DataSeriesOutputModule::makeGetdentsArgsMap(std::map<std::string,
