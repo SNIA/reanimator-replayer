@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2016 Nina Brown
  * Copyright (c) 2015-2016 Leixiang Wu
  * Copyright (c) 2015-2016 Shubhi Rani
  * Copyright (c) 2015-2016 Sonam Mandal
@@ -236,7 +237,7 @@ void FStatSystemCallTraceReplayModule::print_specific_fields() {
 
 void FStatSystemCallTraceReplayModule::processRow() {
   struct stat stat_buf;
-  int descriptor = descriptor_.val();
+  int descriptor = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
 
   // replay the fstat system call
   replayed_ret_val_ = fstat(descriptor, &stat_buf);

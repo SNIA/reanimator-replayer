@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2016 Nina Brown
  * Copyright (c) 2015-2016 Leixiang Wu
  * Copyright (c) 2015-2016 Shubhi Rani
  * Copyright (c) 2015-2016 Sonam Mandal
@@ -10,10 +11,10 @@
  * published by the Free Software Foundation.
  *
  * This header file provides members and functions for implementing open
- * system call.
+ * and openat system calls.
  *
  * OpenSystemCallTraceReplayerModule is a class/module that
- * has members and functions of replaying open system call.
+ * has members and functions of replaying open and openat system calls.
  *
  * USAGE
  * A main program could initialize this class with a dataseries file
@@ -30,7 +31,7 @@
 #include <fcntl.h>
 
 class OpenSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-private:
+protected:
   /* Open System Call Trace Fields in Dataseries file */
   Variable32Field given_pathname_;
   Int32Field open_value_;
@@ -49,6 +50,30 @@ private:
 
 public:
   OpenSystemCallTraceReplayModule(DataSeriesModule &source,
+				  bool verbose_flag,
+				  int warn_level_flag);
+
+};
+
+class OpenatSystemCallTraceReplayModule :
+  public OpenSystemCallTraceReplayModule {
+private:
+  /* Openat System Call Trace Fields in Dataseries file */
+  Int32Field descriptor_;
+
+  /*
+   * Print openat sys call field values in a nice format
+   */
+  void print_specific_fields();
+
+  /*
+   * This function will gather arguments in the trace file
+   * and replay an openat system call with those arguments.
+   */
+  void processRow();
+
+public:
+  OpenatSystemCallTraceReplayModule(DataSeriesModule &source,
 				  bool verbose_flag,
 				  int warn_level_flag);
 

@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2016 Nina Brown
 # Copyright (c) 2015-2016 Leixiang Wu
 # Copyright (c) 2015-2016 Erez Zadok
 # Copyright (c) 2015-2016 Geoff Kuenning
@@ -60,7 +61,10 @@ SYSTEM_CALL_REPLAY_MODULE_OBJECTS = SystemCallTraceReplayer.o SystemCallTraceRep
 				    DupSystemCallTraceReplayModule.o \
 				    Dup2SystemCallTraceReplayModule.o \
 				    ExitSystemCallTraceReplayModule.o \
-				    ExecveSystemCallTraceReplayModule.o
+				    ExecveSystemCallTraceReplayModule.o \
+				    FcntlSystemCallTraceReplayModule.o \
+				    ExitSystemCallTraceReplayModule.o \
+				    GetdentsSystemCallTraceReplayModule.o
 
 # Modify following variables if the path of your replayer is different.
 SYS_CALL_REPLAYER_DIR=$(HOME)/trace2model/syscall-replayer

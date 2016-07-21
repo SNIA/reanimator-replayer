@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2016 Nina Brown
  * Copyright (c) 2015-2016 Leixiang Wu
  * Copyright (c) 2015-2016 Shubhi Rani
  * Copyright (c) 2015-2016 Sonam Mandal
@@ -53,8 +54,10 @@
 #include "PipeSystemCallTraceReplayModule.hpp"
 #include "DupSystemCallTraceReplayModule.hpp"
 #include "Dup2SystemCallTraceReplayModule.hpp"
+#include "FcntlSystemCallTraceReplayModule.hpp"
 #include "ExitSystemCallTraceReplayModule.hpp"
 #include "ExecveSystemCallTraceReplayModule.hpp"
+#include "GetdentsSystemCallTraceReplayModule.hpp"
 
 /*
  * min heap uses this function to sort elements in the tree.
@@ -210,6 +213,12 @@ int main(int argc, char *argv[]) {
 		  verify, warn_level, pattern_data,
 		  input_files);
 
+  // Initialize standard map values (STDIN, STDOUT, STDERR, AT_FDCWD)
+  SystemCallTraceReplayModule::fd_map_[STDIN_FILENO] = STDIN_FILENO;
+  SystemCallTraceReplayModule::fd_map_[STDOUT_FILENO] = STDOUT_FILENO;
+  SystemCallTraceReplayModule::fd_map_[STDERR_FILENO] = STDERR_FILENO;
+  SystemCallTraceReplayModule::fd_map_[AT_FDCWD] = AT_FDCWD;
+
   // This is the prefix extent type of all system calls.
   const std::string kExtentTypePrefix = "IOTTAFSL::Trace::Syscall::";
 
@@ -218,6 +227,7 @@ int main(int argc, char *argv[]) {
    */
   std::vector<std::string> system_calls;
   system_calls.push_back("open");
+  system_calls.push_back("openat");
   system_calls.push_back("close");
   system_calls.push_back("read");
   system_calls.push_back("write");
@@ -229,6 +239,7 @@ int main(int argc, char *argv[]) {
   system_calls.push_back("creat");
   system_calls.push_back("link");
   system_calls.push_back("unlink");
+  system_calls.push_back("unlinkat");
   system_calls.push_back("symlink");
   system_calls.push_back("rmdir");
   system_calls.push_back("mkdir");
@@ -249,8 +260,10 @@ int main(int argc, char *argv[]) {
   system_calls.push_back("pipe");
   system_calls.push_back("dup");
   system_calls.push_back("dup2");
+  system_calls.push_back("fcntl");
   system_calls.push_back("exit");
   system_calls.push_back("execve");
+  system_calls.push_back("getdents");
 
   std::vector<TypeIndexModule *> type_index_modules;
 
@@ -287,6 +300,11 @@ int main(int argc, char *argv[]) {
   int module_index = 0;
   OpenSystemCallTraceReplayModule *open_module =
     new OpenSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 warn_level);
+  OpenatSystemCallTraceReplayModule *openat_module =
+    new OpenatSystemCallTraceReplayModule(
 				 *prefetch_buffer_modules[module_index++],
 				 verbose,
 				 warn_level);
@@ -346,6 +364,11 @@ int main(int argc, char *argv[]) {
 				 warn_level);
   UnlinkSystemCallTraceReplayModule *unlink_module =
     new UnlinkSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 warn_level);
+  UnlinkatSystemCallTraceReplayModule *unlinkat_module =
+    new UnlinkatSystemCallTraceReplayModule(
 				 *prefetch_buffer_modules[module_index++],
 				 verbose,
 				 warn_level);
@@ -460,6 +483,11 @@ int main(int argc, char *argv[]) {
 				 *prefetch_buffer_modules[module_index++],
 				 verbose,
 				 warn_level);
+  FcntlSystemCallTraceReplayModule *fcntl_module =
+    new FcntlSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 warn_level);
   ExitSystemCallTraceReplayModule *exit_module =
     new ExitSystemCallTraceReplayModule(
 				 *prefetch_buffer_modules[module_index++],
@@ -470,6 +498,12 @@ int main(int argc, char *argv[]) {
 				 *prefetch_buffer_modules[module_index++],
 				 verbose,
 				 warn_level);
+  GetdentsSystemCallTraceReplayModule *getdents_module =
+    new GetdentsSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 verify,
+				 warn_level);
 
   /*
    * This vector is going to used to load replaying modules.
@@ -478,6 +512,7 @@ int main(int argc, char *argv[]) {
    */
   std::vector<SystemCallTraceReplayModule *> system_call_trace_replay_modules;
   system_call_trace_replay_modules.push_back(open_module);
+  system_call_trace_replay_modules.push_back(openat_module);
   system_call_trace_replay_modules.push_back(close_module);
   system_call_trace_replay_modules.push_back(read_module);
   system_call_trace_replay_modules.push_back(write_module);
@@ -489,6 +524,7 @@ int main(int argc, char *argv[]) {
   system_call_trace_replay_modules.push_back(creat_module);
   system_call_trace_replay_modules.push_back(link_module);
   system_call_trace_replay_modules.push_back(unlink_module);
+  system_call_trace_replay_modules.push_back(unlinkat_module);
   system_call_trace_replay_modules.push_back(symlink_module);
   system_call_trace_replay_modules.push_back(rmdir_module);
   system_call_trace_replay_modules.push_back(mkdir_module);
@@ -509,8 +545,10 @@ int main(int argc, char *argv[]) {
   system_call_trace_replay_modules.push_back(pipe_module);
   system_call_trace_replay_modules.push_back(dup_module);
   system_call_trace_replay_modules.push_back(dup2_module);
+  system_call_trace_replay_modules.push_back(fcntl_module);
   system_call_trace_replay_modules.push_back(exit_module);
   system_call_trace_replay_modules.push_back(execve_module);
+  system_call_trace_replay_modules.push_back(getdents_module);
 
   // Double check to make sure all replaying modules are loaded.
   if (system_call_trace_replay_modules.size() != system_calls.size()) {
