@@ -386,7 +386,7 @@ private:
    * field name.
    */
   u_int processMmapProtectionArgs(std::map<std::string, void *> &args_map,
-				  u_int mmap_prot_args);
+				  u_int mmap_prot_flags);
 
   /*
    * Maps individual flag value for Mmap system call to its corresponding

@@ -21,6 +21,18 @@
   <field name="flag_fixed" type="bool" opt_nullable="no"/>
   <field name="flag_shared" type="bool" opt_nullable="no"/>
   <field name="flag_private" type="bool" opt_nullable="no"/>
+  <field name="flag_32bit" type="bool" opt_nullable="no"/>
+  <field name="flag_anonymous" type="bool" opt_nullable="no"/>
+  <field name="flag_denywrite" type="bool" opt_nullable="no"/>
+  <field name="flag_executable" type="bool" opt_nullable="no"/>
+  <field name="flag_file" type="bool" opt_nullable="no"/>
+  <field name="flag_grows_down" type="bool" opt_nullable="no"/>
+  <field name="flag_huge_tlb" type="bool" opt_nullable="no"/>
+  <field name="flag_locked" type="bool" opt_nullable="no"/>
+  <field name="flag_non_block" type="bool" opt_nullable="no"/>
+  <field name="flag_no_reserve" type="bool" opt_nullable="no"/>
+  <field name="flag_populate" type="bool" opt_nullable="no"/>
+  <field name="flag_stack" type="bool" opt_nullable="no"/>
   <field name="descriptor" type="int32" opt_nullable="no"/>
   <field name="offset" type="int64" opt_nullable="no"/>
 </ExtentType>
