@@ -27,7 +27,7 @@
 
 class MmapSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 private:
-  /* DataSeries Exit System Call Trace Fields */
+  /* DataSeries Mmap System Call Trace Fields */
   Int64Field start_address_;
   Int64Field length_;
   Int32Field protection_value_;
@@ -36,13 +36,13 @@ private:
   Int64Field offset_;
 
   /*
-   * Print exit sys call field values in a nice format
+   * Print mmap sys call field values in a nice format
    */
   void print_specific_fields();
 
   /*
    * This function will simply return without replaying
-   * exit system call.
+   * mmap system call.
    */
   void processRow();
 
