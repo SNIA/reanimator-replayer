@@ -91,7 +91,7 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
 					 *common_fields[DS_NUM_COMMON_FIELDS],
 					 void **v_args) {
 
-  std::map<std::string, void *> sys_call_args_map;
+  SysCallArgsMap sys_call_args_map;
   struct timeval tv_time_recorded;
   u_int var32_len;
   uint64_t time_called_Tfrac, time_returned_Tfrac;
@@ -487,12 +487,11 @@ void DataSeriesOutputModule::doSetField(const std::string &extent_name,
  * NOTE: This function should be extended according to the field name of
  * system call as described in SNIA document.
  */
-u_int DataSeriesOutputModule::getVariable32FieldLength(std::map<std::string,
-						       void *> &args_map,
+u_int DataSeriesOutputModule::getVariable32FieldLength(SysCallArgsMap &args_map,
 						       const std::string
 						       &field_name) {
   u_int length = 0;
-  std::map<std::string, void *>::iterator it = args_map.find(field_name);
+  SysCallArgsMap::iterator it = args_map.find(field_name);
   if (it != args_map.end()) {
     /*
      * If field_name refers to the pathname passed as an argument to
@@ -527,8 +526,7 @@ u_int DataSeriesOutputModule::getVariable32FieldLength(std::map<std::string,
 }
 
 // Initialize all non-nullable boolean fields as False of given extent_name.
-void DataSeriesOutputModule::initArgsMap(std::map<std::string,
-					 void *> &args_map,
+void DataSeriesOutputModule::initArgsMap(SysCallArgsMap &args_map,
 					 const char *extent_name) {
   for (config_table_entry_type::iterator iter =
 	config_table_[extent_name].begin();
@@ -542,15 +540,13 @@ void DataSeriesOutputModule::initArgsMap(std::map<std::string,
   }
 }
 
-void DataSeriesOutputModule::makeCloseArgsMap(std::map<std::string,
-					      void *> &args_map,
+void DataSeriesOutputModule::makeCloseArgsMap(SysCallArgsMap &args_map,
 					      long *args,
 					      void **v_args) {
   args_map["descriptor"] = &args[0];
 }
 
-void DataSeriesOutputModule::makeOpenArgsMap(std::map<std::string,
-					     void *> &args_map,
+void DataSeriesOutputModule::makeOpenArgsMap(SysCallArgsMap &args_map,
 					     long *args,
 					     void **v_args) {
   int offset = 0;
@@ -585,8 +581,7 @@ void DataSeriesOutputModule::makeOpenArgsMap(std::map<std::string,
   }
 }
 
-void DataSeriesOutputModule::makeOpenatArgsMap(std::map<std::string,
-					       void *> &args_map,
+void DataSeriesOutputModule::makeOpenatArgsMap(SysCallArgsMap &args_map,
 					       long *args,
 					       void **v_args) {
   static bool true_ = true;
@@ -641,8 +636,7 @@ void DataSeriesOutputModule::makeOpenatArgsMap(std::map<std::string,
  * @param field_name: denotes the field name for individual flag/mode bits.
  *                    Ex: "flag_read_only", "mode_R_user".
  */
-void DataSeriesOutputModule::process_Flag_and_Mode_Args(std::map<std::string,
-							void *> &args_map,
+void DataSeriesOutputModule::process_Flag_and_Mode_Args(SysCallArgsMap &args_map,
 							u_int &num,
 							int value,
 							std::string field_name) {
@@ -661,8 +655,7 @@ void DataSeriesOutputModule::process_Flag_and_Mode_Args(std::map<std::string,
  * @param open_flag: represents the flag value passed as an argument
  *                   to the open system call.
  */
-u_int DataSeriesOutputModule::processOpenFlags(std::map<std::string,
-					       void *> &args_map,
+u_int DataSeriesOutputModule::processOpenFlags(SysCallArgsMap &args_map,
 					       u_int open_flag) {
 
   /*
@@ -743,8 +736,7 @@ u_int DataSeriesOutputModule::processOpenFlags(std::map<std::string,
  * @param mode_offset: represents index of mode value in the actual
  *		       system call.
  */
-mode_t DataSeriesOutputModule::processMode(std::map<std::string,
-					   void *> &args_map,
+mode_t DataSeriesOutputModule::processMode(SysCallArgsMap &args_map,
 					   long *args,
 					   u_int mode_offset) {
   // Save the mode argument with mode_value file in map
@@ -800,8 +792,7 @@ uint64_t DataSeriesOutputModule::timespec_to_Tfrac(struct timespec ts) {
   return time_Tfracs;
 }
 
-void DataSeriesOutputModule::makeReadArgsMap(std::map<std::string,
-					     void *> &args_map,
+void DataSeriesOutputModule::makeReadArgsMap(SysCallArgsMap &args_map,
 					     long *args,
 					     void **v_args) {
   args_map["descriptor"] = &args[0];
@@ -815,8 +806,7 @@ void DataSeriesOutputModule::makeReadArgsMap(std::map<std::string,
   args_map["bytes_requested"] = &args[2];
 }
 
-void DataSeriesOutputModule::makeWriteArgsMap(std::map<std::string,
-					      void *> &args_map,
+void DataSeriesOutputModule::makeWriteArgsMap(SysCallArgsMap &args_map,
 					      long *args,
 					      void **v_args) {
   args_map["descriptor"] = &args[0];
@@ -830,8 +820,7 @@ void DataSeriesOutputModule::makeWriteArgsMap(std::map<std::string,
   args_map["bytes_requested"] = &args[2];
 }
 
-void DataSeriesOutputModule::makeChdirArgsMap(std::map<std::string,
-					      void *> &args_map,
+void DataSeriesOutputModule::makeChdirArgsMap(SysCallArgsMap &args_map,
 					      long *args,
 					      void **v_args) {
   if (v_args[0] != NULL) {
@@ -841,8 +830,7 @@ void DataSeriesOutputModule::makeChdirArgsMap(std::map<std::string,
   }
 }
 
-void DataSeriesOutputModule::makeRmdirArgsMap(std::map<std::string,
-					      void *> &args_map,
+void DataSeriesOutputModule::makeRmdirArgsMap(SysCallArgsMap &args_map,
 					      long *args,
 					      void **v_args) {
   if (v_args[0] != NULL) {
@@ -852,8 +840,7 @@ void DataSeriesOutputModule::makeRmdirArgsMap(std::map<std::string,
   }
 }
 
-void DataSeriesOutputModule::makeUnlinkArgsMap(std::map<std::string,
-					       void *> &args_map,
+void DataSeriesOutputModule::makeUnlinkArgsMap(SysCallArgsMap &args_map,
 					       long *args,
 					       void **v_args) {
   if (v_args[0] != NULL) {
@@ -863,8 +850,7 @@ void DataSeriesOutputModule::makeUnlinkArgsMap(std::map<std::string,
   }
 }
 
-void DataSeriesOutputModule::makeUnlinkatArgsMap(std::map<std::string,
-						 void *> &args_map,
+void DataSeriesOutputModule::makeUnlinkatArgsMap(SysCallArgsMap &args_map,
 						 long *args,
 						 void **v_args) {
   static bool true_ = true;
@@ -891,8 +877,7 @@ void DataSeriesOutputModule::makeUnlinkatArgsMap(std::map<std::string,
   }
 }
 
-void DataSeriesOutputModule::makeMkdirArgsMap(std::map<std::string,
-					      void *> &args_map,
+void DataSeriesOutputModule::makeMkdirArgsMap(SysCallArgsMap &args_map,
 					      long *args,
 					      void **v_args) {
   initArgsMap(args_map, "mkdir");
@@ -909,8 +894,7 @@ void DataSeriesOutputModule::makeMkdirArgsMap(std::map<std::string,
   }
 }
 
-void DataSeriesOutputModule::makeCreatArgsMap(std::map<std::string,
-					      void *> &args_map,
+void DataSeriesOutputModule::makeCreatArgsMap(SysCallArgsMap &args_map,
 					      long *args,
 					      void **v_args) {
   initArgsMap(args_map, "creat");
@@ -927,8 +911,7 @@ void DataSeriesOutputModule::makeCreatArgsMap(std::map<std::string,
   }
 }
 
-void DataSeriesOutputModule::makeChmodArgsMap(std::map<std::string,
-					      void *> &args_map,
+void DataSeriesOutputModule::makeChmodArgsMap(SysCallArgsMap &args_map,
 					      long *args,
 					      void **v_args) {
   initArgsMap(args_map, "chmod");
@@ -945,8 +928,7 @@ void DataSeriesOutputModule::makeChmodArgsMap(std::map<std::string,
   }
 }
 
-void DataSeriesOutputModule::makeLinkArgsMap(std::map<std::string,
-					     void *> &args_map,
+void DataSeriesOutputModule::makeLinkArgsMap(SysCallArgsMap &args_map,
 					     long *args,
 					     void **v_args) {
   if (v_args[0] != NULL) {
@@ -961,8 +943,7 @@ void DataSeriesOutputModule::makeLinkArgsMap(std::map<std::string,
   }
 }
 
-void DataSeriesOutputModule::makeSymlinkArgsMap(std::map<std::string,
-						void *> &args_map,
+void DataSeriesOutputModule::makeSymlinkArgsMap(SysCallArgsMap &args_map,
 						long *args,
 						void **v_args) {
   if (v_args[0] != NULL) {
@@ -977,8 +958,7 @@ void DataSeriesOutputModule::makeSymlinkArgsMap(std::map<std::string,
   }
 }
 
-void DataSeriesOutputModule::makeTruncateArgsMap(std::map<std::string,
-						 void *> &args_map,
+void DataSeriesOutputModule::makeTruncateArgsMap(SysCallArgsMap &args_map,
 						 long *args,
 						 void **v_args) {
   if (v_args[0] != NULL) {
@@ -989,8 +969,7 @@ void DataSeriesOutputModule::makeTruncateArgsMap(std::map<std::string,
   args_map["truncate_length"] = &args[1];
 }
 
-void DataSeriesOutputModule::makeAccessArgsMap(std::map<std::string,
-					       void *> &args_map,
+void DataSeriesOutputModule::makeAccessArgsMap(SysCallArgsMap &args_map,
 					       long *args,
 					       void **v_args) {
   // Initialize all non-nullable boolean fields to False.
@@ -1022,8 +1001,7 @@ void DataSeriesOutputModule::makeAccessArgsMap(std::map<std::string,
  * @param mode_offset: represents index of mode value in the actual
  *		       system call.
  */
-mode_t DataSeriesOutputModule::processAccessMode(std::map<std::string,
-						 void *> &args_map,
+mode_t DataSeriesOutputModule::processAccessMode(SysCallArgsMap &args_map,
 						 long *args,
 						 u_int mode_offset) {
   // Save the mode argument with mode_value field in the map
@@ -1046,8 +1024,7 @@ mode_t DataSeriesOutputModule::processAccessMode(std::map<std::string,
   return mode;
 }
 
-void DataSeriesOutputModule::makeLSeekArgsMap(std::map<std::string,
-					      void *> &args_map,
+void DataSeriesOutputModule::makeLSeekArgsMap(SysCallArgsMap &args_map,
 					      long *args,
 					      void **v_args) {
   args_map["descriptor"] = &args[0];
@@ -1055,8 +1032,7 @@ void DataSeriesOutputModule::makeLSeekArgsMap(std::map<std::string,
   args_map["whence"] = &args[2];
 }
 
-void DataSeriesOutputModule::makePReadArgsMap(std::map<std::string,
-					      void *> &args_map,
+void DataSeriesOutputModule::makePReadArgsMap(SysCallArgsMap &args_map,
 					      long *args,
 					      void **v_args) {
   args_map["descriptor"] = &args[0];
@@ -1071,8 +1047,7 @@ void DataSeriesOutputModule::makePReadArgsMap(std::map<std::string,
   args_map["offset"] = &args[3];
 }
 
-void DataSeriesOutputModule::makePWriteArgsMap(std::map<std::string,
-					       void *> &args_map,
+void DataSeriesOutputModule::makePWriteArgsMap(SysCallArgsMap &args_map,
 					       long *args,
 					       void **v_args) {
   args_map["descriptor"] = &args[0];
@@ -1087,8 +1062,7 @@ void DataSeriesOutputModule::makePWriteArgsMap(std::map<std::string,
   args_map["offset"] = &args[3];
 }
 
-void DataSeriesOutputModule::makeStatArgsMap(std::map<std::string,
-					     void *> &args_map,
+void DataSeriesOutputModule::makeStatArgsMap(SysCallArgsMap &args_map,
 					     long *args,
 					     void **v_args) {
   if (v_args[0] != NULL) {
@@ -1126,8 +1100,7 @@ void DataSeriesOutputModule::makeStatArgsMap(std::map<std::string,
   }
 }
 
-void DataSeriesOutputModule::makeChownArgsMap(std::map<std::string,
-					      void *> &args_map,
+void DataSeriesOutputModule::makeChownArgsMap(SysCallArgsMap &args_map,
 					      long *args,
 					      void **v_args) {
   if (v_args[0] != NULL) {
@@ -1140,8 +1113,7 @@ void DataSeriesOutputModule::makeChownArgsMap(std::map<std::string,
   args_map["new_group"] = &args[2];
 }
 
-void DataSeriesOutputModule::makeReadlinkArgsMap(std::map<std::string,
-						 void *> &args_map,
+void DataSeriesOutputModule::makeReadlinkArgsMap(SysCallArgsMap &args_map,
 						 long *args,
 						 void **v_args) {
   if (v_args[0] != NULL) {
@@ -1159,8 +1131,7 @@ void DataSeriesOutputModule::makeReadlinkArgsMap(std::map<std::string,
   args_map["buffer_size"] = &args[2];
 }
 
-void DataSeriesOutputModule::makeReadvArgsMap(std::map<std::string,
-					      void *> &args_map,
+void DataSeriesOutputModule::makeReadvArgsMap(SysCallArgsMap &args_map,
 					      long *args,
 					      void **v_args) {
   int iov_number = *(int *) v_args[0];
@@ -1191,8 +1162,7 @@ void DataSeriesOutputModule::makeReadvArgsMap(std::map<std::string,
   }
 }
 
-void DataSeriesOutputModule::makeWritevArgsMap(std::map<std::string,
-					       void *> &args_map,
+void DataSeriesOutputModule::makeWritevArgsMap(SysCallArgsMap &args_map,
 					       long *args,
 					       void **v_args) {
   int iov_number = *(int *) v_args[0];
@@ -1223,8 +1193,7 @@ void DataSeriesOutputModule::makeWritevArgsMap(std::map<std::string,
   }
 }
 
-void DataSeriesOutputModule::makeUtimeArgsMap(std::map<std::string,
-					      void *> &args_map,
+void DataSeriesOutputModule::makeUtimeArgsMap(SysCallArgsMap &args_map,
 					      long *args,
 					      void **v_args) {
   static uint64_t access_time_Tfrac;
@@ -1251,8 +1220,7 @@ void DataSeriesOutputModule::makeUtimeArgsMap(std::map<std::string,
   args_map["mod_time"] = &mod_time_Tfrac;
 }
 
-void DataSeriesOutputModule::makeLStatArgsMap(std::map<std::string,
-					      void *> &args_map,
+void DataSeriesOutputModule::makeLStatArgsMap(SysCallArgsMap &args_map,
 					      long *args,
 					      void **v_args) {
   if (v_args[0] != NULL) {
@@ -1290,8 +1258,7 @@ void DataSeriesOutputModule::makeLStatArgsMap(std::map<std::string,
   }
 }
 
-void DataSeriesOutputModule::makeFStatArgsMap(std::map<std::string,
-					      void *> &args_map,
+void DataSeriesOutputModule::makeFStatArgsMap(SysCallArgsMap &args_map,
 					      long *args,
 					      void **v_args) {
   args_map["descriptor"] = &args[0];
@@ -1325,8 +1292,7 @@ void DataSeriesOutputModule::makeFStatArgsMap(std::map<std::string,
   }
 }
 
-void DataSeriesOutputModule::makeUtimesArgsMap(std::map<std::string,
-					       void *> &args_map,
+void DataSeriesOutputModule::makeUtimesArgsMap(SysCallArgsMap &args_map,
 					       long *args,
 					       void **v_args) {
   static uint64_t access_time_Tfrac;
@@ -1356,8 +1322,7 @@ void DataSeriesOutputModule::makeUtimesArgsMap(std::map<std::string,
   args_map["mod_time"] = &mod_time_Tfrac;
 }
 
-void DataSeriesOutputModule::makeRenameArgsMap(std::map<std::string,
-					       void *> &args_map,
+void DataSeriesOutputModule::makeRenameArgsMap(SysCallArgsMap &args_map,
 					       long *args,
 					       void **v_args) {
   if (v_args[0] != NULL) {
@@ -1373,15 +1338,13 @@ void DataSeriesOutputModule::makeRenameArgsMap(std::map<std::string,
   }
 }
 
-void DataSeriesOutputModule::makeFsyncArgsMap(std::map<std::string,
-					      void *> &args_map,
+void DataSeriesOutputModule::makeFsyncArgsMap(SysCallArgsMap &args_map,
 					      long *args,
 					      void **v_args) {
   args_map["descriptor"] = &args[0];
 }
 
-void DataSeriesOutputModule::makeMknodArgsMap(std::map<std::string,
-					      void *> &args_map,
+void DataSeriesOutputModule::makeMknodArgsMap(SysCallArgsMap &args_map,
 					      long *args,
 					      void **v_args) {
   static int32_t dev;
@@ -1407,9 +1370,8 @@ void DataSeriesOutputModule::makeMknodArgsMap(std::map<std::string,
   }
 }
 
-mode_t DataSeriesOutputModule::processMknodType(std::map<std::string,
-					      void *> &args_map,
-					      mode_t mode) {
+mode_t DataSeriesOutputModule::processMknodType(SysCallArgsMap &args_map,
+						mode_t mode) {
   static u_int type;
 
   /*
@@ -1446,8 +1408,7 @@ mode_t DataSeriesOutputModule::processMknodType(std::map<std::string,
   return mode;
 }
 
-void DataSeriesOutputModule::makePipeArgsMap(std::map<std::string,
-					     void *> &args_map,
+void DataSeriesOutputModule::makePipeArgsMap(SysCallArgsMap &args_map,
 					     long *args,
 					     void **v_args) {
   static int pipefd[2];
@@ -1469,23 +1430,20 @@ void DataSeriesOutputModule::makePipeArgsMap(std::map<std::string,
   args_map["write_descriptor"] = &pipefd[1];
 }
 
-void DataSeriesOutputModule::makeDupArgsMap(std::map<std::string,
-					    void *> &args_map,
+void DataSeriesOutputModule::makeDupArgsMap(SysCallArgsMap &args_map,
 					    long *args,
 					    void **v_args) {
   args_map["descriptor"] = &args[0];
 }
 
-void DataSeriesOutputModule::makeDup2ArgsMap(std::map<std::string,
-					     void *> &args_map,
+void DataSeriesOutputModule::makeDup2ArgsMap(SysCallArgsMap &args_map,
 					     long *args,
 					     void **v_args) {
   args_map["old_descriptor"] = &args[0];
   args_map["new_descriptor"] = &args[1];
 }
 
-void DataSeriesOutputModule::makeFcntlArgsMap(std::map<std::string,
-					      void *> &args_map,
+void DataSeriesOutputModule::makeFcntlArgsMap(SysCallArgsMap &args_map,
 					      long *args,
 					      void **v_args) {
   // Set all non-nullable boolean fields to false
@@ -1628,8 +1586,7 @@ void DataSeriesOutputModule::makeFcntlArgsMap(std::map<std::string,
  * @param status_flag: represents the flag value passed as an argument
  *                   to the fcntl system call.
  */
-u_int DataSeriesOutputModule::processFcntlStatusFlags(std::map<std::string,
-						      void *> &args_map,
+u_int DataSeriesOutputModule::processFcntlStatusFlags(SysCallArgsMap &args_map,
 						      u_int status_flag) {
 
   /*
@@ -1691,8 +1648,7 @@ u_int DataSeriesOutputModule::processFcntlStatusFlags(std::map<std::string,
  * This function saves the values in the flock structure passed to
  * Fcntl with command F_SETLK, F_SETLKW, or F_GETLK into the map
  */
-void DataSeriesOutputModule::processFcntlFlock(std::map<std::string,
-					       void *> &args_map,
+void DataSeriesOutputModule::processFcntlFlock(SysCallArgsMap &args_map,
 					       struct flock *lock) {
   if (lock != NULL) {
     // Save the values in the flock structure to the map
@@ -1715,8 +1671,7 @@ void DataSeriesOutputModule::processFcntlFlock(std::map<std::string,
  * This function processes the l_type member of an flock structure
  * and sets the corresponding field in the map
  */
-void DataSeriesOutputModule::processFcntlFlockType(std::map<std::string,
-						   void *> &args_map,
+void DataSeriesOutputModule::processFcntlFlockType(SysCallArgsMap &args_map,
 						   struct flock *lock) {
   // Save the lock type value into the map
   args_map["lock_type"] = &lock->l_type;
@@ -1750,8 +1705,7 @@ void DataSeriesOutputModule::processFcntlFlockType(std::map<std::string,
  * This function processes the l_whence member of an flock structure
  * and sets the corresponding field in the map
  */
-void DataSeriesOutputModule::processFcntlFlockWhence(std::map<std::string,
-						     void *> &args_map,
+void DataSeriesOutputModule::processFcntlFlockWhence(SysCallArgsMap &args_map,
 						     struct flock *lock) {
   // Save the lock whence value into the map
   args_map["lock_whence"] = &lock->l_whence;
@@ -1785,8 +1739,7 @@ void DataSeriesOutputModule::processFcntlFlockWhence(std::map<std::string,
  * This function processes the lease value passed to an Fcntl system call with
  * an F_SETLEASE command or returned from an F_GETLEASE command
  */
-void DataSeriesOutputModule::processFcntlLease(std::map<std::string,
-					       void *> &args_map,
+void DataSeriesOutputModule::processFcntlLease(SysCallArgsMap &args_map,
 					       int lease) {
   static bool true_ = true;
   /*
@@ -1816,9 +1769,8 @@ void DataSeriesOutputModule::processFcntlLease(std::map<std::string,
  * This function processes the notify value passed to an Fcntl system call
  * with an F_NOTIFY command.  It returns any unprocessed notify_value bits.
  */
-u_int DataSeriesOutputModule::processFcntlNotify(std::map<std::string,
-						void *> &args_map,
-						long *args) {
+u_int DataSeriesOutputModule::processFcntlNotify(SysCallArgsMap &args_map,
+						 long *args) {
   u_int notify_value = args[2];
 
   // set access argument bit
@@ -1848,16 +1800,14 @@ u_int DataSeriesOutputModule::processFcntlNotify(std::map<std::string,
   return notify_value;
 }
 
-void DataSeriesOutputModule::makeExitArgsMap(std::map<std::string,
-					     void *> &args_map,
+void DataSeriesOutputModule::makeExitArgsMap(SysCallArgsMap &args_map,
 					     long *args,
 					     void **v_args) {
   args_map["exit_status"] = &args[0];
   args_map["generated"] = v_args[0];
 }
 
-void DataSeriesOutputModule::makeExecveArgsMap(std::map<std::string,
-					       void *> &args_map,
+void DataSeriesOutputModule::makeExecveArgsMap(SysCallArgsMap &args_map,
 					       long *args,
 					       void **v_args) {
   int continuation_number = *(int *) v_args[0];
@@ -1903,8 +1853,7 @@ void DataSeriesOutputModule::makeExecveArgsMap(std::map<std::string,
   }
 }
 
-void DataSeriesOutputModule::makeMmapArgsMap(std::map<std::string,
-					     void *> &args_map,
+void DataSeriesOutputModule::makeMmapArgsMap(SysCallArgsMap &args_map,
 					     long *args,
 					     void **v_args) {
   // Initialize all non-nullable boolean fields to False.
@@ -1933,8 +1882,7 @@ void DataSeriesOutputModule::makeMmapArgsMap(std::map<std::string,
   args_map["offset"] = &args[5];
 }
 
-u_int DataSeriesOutputModule::processMmapProtectionArgs(std::map<std::string,
-							void *> &args_map,
+u_int DataSeriesOutputModule::processMmapProtectionArgs(SysCallArgsMap &args_map,
 							u_int mmap_prot_flags) {
   /*
    * Process each individual mmap protection bit that has been set
@@ -1961,8 +1909,7 @@ u_int DataSeriesOutputModule::processMmapProtectionArgs(std::map<std::string,
   return mmap_prot_flags;
 }
 
-u_int DataSeriesOutputModule::processMmapFlags(std::map<std::string,
-					       void *> &args_map,
+u_int DataSeriesOutputModule::processMmapFlags(SysCallArgsMap &args_map,
 					       u_int mmap_flags) {
   /*
    * Process each individual mmap flag bit that has been set
@@ -2022,8 +1969,7 @@ u_int DataSeriesOutputModule::processMmapFlags(std::map<std::string,
   return mmap_flags;
 }
 
-void DataSeriesOutputModule::makeGetdentsArgsMap(std::map<std::string,
-						 void *> &args_map,
+void DataSeriesOutputModule::makeGetdentsArgsMap(SysCallArgsMap &args_map,
 						 long *args,
 						 void **v_args) {
   args_map["descriptor"] = &args[0];
