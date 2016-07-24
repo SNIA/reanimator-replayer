@@ -146,7 +146,7 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
   }
 
   if (strcmp(extent_name, "close") == 0) {
-    makeCloseArgsMap(sys_call_args_map, args);
+    makeCloseArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "open") == 0) {
     makeOpenArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "openat") == 0) {
@@ -156,11 +156,11 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
   } else if (strcmp(extent_name, "write") == 0) {
     makeWriteArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "chdir") == 0) {
-    makeChdirArgsMap(sys_call_args_map, v_args);
+    makeChdirArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "rmdir") == 0) {
-    makeRmdirArgsMap(sys_call_args_map, v_args);
+    makeRmdirArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "unlink") == 0) {
-    makeUnlinkArgsMap(sys_call_args_map, v_args);
+    makeUnlinkArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "unlinkat") == 0) {
     makeUnlinkatArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "mkdir") == 0) {
@@ -170,21 +170,21 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
   } else if (strcmp(extent_name, "chmod") == 0) {
     makeChmodArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "link") == 0) {
-    makeLinkArgsMap(sys_call_args_map, v_args);
+    makeLinkArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "symlink") == 0) {
-    makeSymlinkArgsMap(sys_call_args_map, v_args);
+    makeSymlinkArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "truncate") == 0) {
     makeTruncateArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "access") == 0) {
     makeAccessArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "lseek") == 0) {
-    makeLSeekArgsMap(sys_call_args_map, args);
+    makeLSeekArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "pread") == 0) {
     makePReadArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "pwrite") == 0) {
     makePWriteArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "stat") == 0) {
-    makeStatArgsMap(sys_call_args_map, v_args);
+    makeStatArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "chown") == 0) {
     makeChownArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "readlink") == 0) {
@@ -194,33 +194,33 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
   } else if (strcmp(extent_name, "writev") == 0) {
     makeWritevArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "utime") == 0) {
-    makeUtimeArgsMap(sys_call_args_map, v_args);
+    makeUtimeArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "lstat") == 0) {
-    makeLStatArgsMap(sys_call_args_map, v_args);
+    makeLStatArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "fstat") == 0) {
     makeFStatArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "utimes") == 0) {
-    makeUtimesArgsMap(sys_call_args_map, v_args);
+    makeUtimesArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "rename") == 0) {
-    makeRenameArgsMap(sys_call_args_map, v_args);
+    makeRenameArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "fsync") == 0) {
-    makeFsyncArgsMap(sys_call_args_map, args);
+    makeFsyncArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "mknod") == 0) {
     makeMknodArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "pipe") == 0) {
-    makePipeArgsMap(sys_call_args_map, v_args);
+    makePipeArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "dup") == 0) {
-    makeDupArgsMap(sys_call_args_map, args);
+    makeDupArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "dup2") == 0) {
-    makeDup2ArgsMap(sys_call_args_map, args);
+    makeDup2ArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "fcntl") == 0) {
     makeFcntlArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "exit") == 0) {
     makeExitArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "execve") == 0) {
-    makeExecveArgsMap(sys_call_args_map, v_args);
+    makeExecveArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "mmap") == 0) {
-    makeMmapArgsMap(sys_call_args_map, args);
+    makeMmapArgsMap(sys_call_args_map, args, v_args);
   } else if (strcmp(extent_name, "getdents") == 0) {
     makeGetdentsArgsMap(sys_call_args_map, args, v_args);
   }
@@ -544,7 +544,8 @@ void DataSeriesOutputModule::initArgsMap(std::map<std::string,
 
 void DataSeriesOutputModule::makeCloseArgsMap(std::map<std::string,
 					      void *> &args_map,
-					      long *args) {
+					      long *args,
+					      void **v_args) {
   args_map["descriptor"] = &args[0];
 }
 
@@ -831,6 +832,7 @@ void DataSeriesOutputModule::makeWriteArgsMap(std::map<std::string,
 
 void DataSeriesOutputModule::makeChdirArgsMap(std::map<std::string,
 					      void *> &args_map,
+					      long *args,
 					      void **v_args) {
   if (v_args[0] != NULL) {
     args_map["given_pathname"] = &v_args[0];
@@ -841,6 +843,7 @@ void DataSeriesOutputModule::makeChdirArgsMap(std::map<std::string,
 
 void DataSeriesOutputModule::makeRmdirArgsMap(std::map<std::string,
 					      void *> &args_map,
+					      long *args,
 					      void **v_args) {
   if (v_args[0] != NULL) {
     args_map["given_pathname"] = &v_args[0];
@@ -850,8 +853,9 @@ void DataSeriesOutputModule::makeRmdirArgsMap(std::map<std::string,
 }
 
 void DataSeriesOutputModule::makeUnlinkArgsMap(std::map<std::string,
-							 void *> &args_map,
-							 void **v_args) {
+					       void *> &args_map,
+					       long *args,
+					       void **v_args) {
   if (v_args[0] != NULL) {
     args_map["given_pathname"] = &v_args[0];
   } else {
@@ -943,6 +947,7 @@ void DataSeriesOutputModule::makeChmodArgsMap(std::map<std::string,
 
 void DataSeriesOutputModule::makeLinkArgsMap(std::map<std::string,
 					     void *> &args_map,
+					     long *args,
 					     void **v_args) {
   if (v_args[0] != NULL) {
     args_map["given_oldpathname"] = &v_args[0];
@@ -958,6 +963,7 @@ void DataSeriesOutputModule::makeLinkArgsMap(std::map<std::string,
 
 void DataSeriesOutputModule::makeSymlinkArgsMap(std::map<std::string,
 						void *> &args_map,
+						long *args,
 						void **v_args) {
   if (v_args[0] != NULL) {
     args_map["target_pathname"] = &v_args[0];
@@ -1042,7 +1048,8 @@ mode_t DataSeriesOutputModule::processAccessMode(std::map<std::string,
 
 void DataSeriesOutputModule::makeLSeekArgsMap(std::map<std::string,
 					      void *> &args_map,
-					      long *args) {
+					      long *args,
+					      void **v_args) {
   args_map["descriptor"] = &args[0];
   args_map["offset"] = &args[1];
   args_map["whence"] = &args[2];
@@ -1082,6 +1089,7 @@ void DataSeriesOutputModule::makePWriteArgsMap(std::map<std::string,
 
 void DataSeriesOutputModule::makeStatArgsMap(std::map<std::string,
 					     void *> &args_map,
+					     long *args,
 					     void **v_args) {
   if (v_args[0] != NULL) {
     args_map["given_pathname"] = &v_args[0];
@@ -1217,6 +1225,7 @@ void DataSeriesOutputModule::makeWritevArgsMap(std::map<std::string,
 
 void DataSeriesOutputModule::makeUtimeArgsMap(std::map<std::string,
 					      void *> &args_map,
+					      long *args,
 					      void **v_args) {
   static uint64_t access_time_Tfrac;
   static uint64_t mod_time_Tfrac;
@@ -1243,8 +1252,9 @@ void DataSeriesOutputModule::makeUtimeArgsMap(std::map<std::string,
 }
 
 void DataSeriesOutputModule::makeLStatArgsMap(std::map<std::string,
-					     void *> &args_map,
-					     void **v_args) {
+					      void *> &args_map,
+					      long *args,
+					      void **v_args) {
   if (v_args[0] != NULL) {
     args_map["given_pathname"] = &v_args[0];
   } else {
@@ -1317,6 +1327,7 @@ void DataSeriesOutputModule::makeFStatArgsMap(std::map<std::string,
 
 void DataSeriesOutputModule::makeUtimesArgsMap(std::map<std::string,
 					       void *> &args_map,
+					       long *args,
 					       void **v_args) {
   static uint64_t access_time_Tfrac;
   static uint64_t mod_time_Tfrac;
@@ -1347,6 +1358,7 @@ void DataSeriesOutputModule::makeUtimesArgsMap(std::map<std::string,
 
 void DataSeriesOutputModule::makeRenameArgsMap(std::map<std::string,
 					       void *> &args_map,
+					       long *args,
 					       void **v_args) {
   if (v_args[0] != NULL) {
     args_map["given_oldname"] = &v_args[0];
@@ -1363,7 +1375,8 @@ void DataSeriesOutputModule::makeRenameArgsMap(std::map<std::string,
 
 void DataSeriesOutputModule::makeFsyncArgsMap(std::map<std::string,
 					      void *> &args_map,
-					      long *args) {
+					      long *args,
+					      void **v_args) {
   args_map["descriptor"] = &args[0];
 }
 
@@ -1435,6 +1448,7 @@ mode_t DataSeriesOutputModule::processMknodType(std::map<std::string,
 
 void DataSeriesOutputModule::makePipeArgsMap(std::map<std::string,
 					     void *> &args_map,
+					     long *args,
 					     void **v_args) {
   static int pipefd[2];
 
@@ -1457,13 +1471,15 @@ void DataSeriesOutputModule::makePipeArgsMap(std::map<std::string,
 
 void DataSeriesOutputModule::makeDupArgsMap(std::map<std::string,
 					    void *> &args_map,
-					    long *args) {
+					    long *args,
+					    void **v_args) {
   args_map["descriptor"] = &args[0];
 }
 
 void DataSeriesOutputModule::makeDup2ArgsMap(std::map<std::string,
 					     void *> &args_map,
-					     long *args) {
+					     long *args,
+					     void **v_args) {
   args_map["old_descriptor"] = &args[0];
   args_map["new_descriptor"] = &args[1];
 }
@@ -1842,6 +1858,7 @@ void DataSeriesOutputModule::makeExitArgsMap(std::map<std::string,
 
 void DataSeriesOutputModule::makeExecveArgsMap(std::map<std::string,
 					       void *> &args_map,
+					       long *args,
 					       void **v_args) {
   int continuation_number = *(int *) v_args[0];
   args_map["continuation_number"] = v_args[0];
@@ -1888,7 +1905,8 @@ void DataSeriesOutputModule::makeExecveArgsMap(std::map<std::string,
 
 void DataSeriesOutputModule::makeMmapArgsMap(std::map<std::string,
 					     void *> &args_map,
-					     long *args) {
+					     long *args,
+					     void **v_args) {
   // Initialize all non-nullable boolean fields to False.
   initArgsMap(args_map, "mmap");
 

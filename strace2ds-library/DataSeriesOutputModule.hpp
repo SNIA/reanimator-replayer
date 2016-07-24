@@ -127,7 +127,9 @@ private:
 		   const char *extent_name);
 
   // Maps Close System Call <field, value> pairs
-  void makeCloseArgsMap(std::map<std::string, void *> &args_map, long *args);
+  void makeCloseArgsMap(std::map<std::string, void *> &args_map,
+			long *args,
+			void **v_args);
 
   // Maps Open System Call <field, value> pairs
   void makeOpenArgsMap(std::map<std::string, void *> &args_map,
@@ -177,15 +179,18 @@ private:
 
   // Maps Chdir System Call <field, value> pairs
   void makeChdirArgsMap(std::map<std::string, void *> &args_map,
-				   void **v_args);
+			long *args,
+			void **v_args);
 
   // Maps Rmdir System Call <field, value> pairs
   void makeRmdirArgsMap(std::map<std::string, void *> &args_map,
-				   void **v_args);
+			long *args,
+			void **v_args);
 
   // Maps Unlink System Call <field, value> pairs
   void makeUnlinkArgsMap(std::map<std::string, void *> &args_map,
-				   void **v_args);
+			 long *args,
+			 void **v_args);
 
   // Maps Unlinkat System Call <field, value> pairs
   void makeUnlinkatArgsMap(std::map<std::string, void *> &args_map,
@@ -194,25 +199,27 @@ private:
 
   // Maps Mkdir System Call <field, value> pairs
   void makeMkdirArgsMap(std::map<std::string, void *> &args_map,
-				  long *args,
-				  void **v_args);
+			long *args,
+			void **v_args);
 
   // Maps Creat System Call <field, value> pairs
   void makeCreatArgsMap(std::map<std::string, void *> &args_map,
-				  long *args,
-				  void **v_args);
+			long *args,
+			void **v_args);
 
   // Maps Chmod System Calls <field, value> pairs
   void makeChmodArgsMap(std::map<std::string, void *> &args_map,
-				  long *args,
-				  void **v_args);
+			long *args,
+			void **v_args);
 
   // Maps Link System Call <field, value> pairs
   void makeLinkArgsMap(std::map<std::string, void *> &args_map,
+		       long *args,
 		       void **v_args);
 
   // Maps Symlink System Call <field, value> pairs
   void makeSymlinkArgsMap(std::map<std::string, void *> &args_map,
+			  long *args,
 			  void **v_args);
 
   // Maps Truncate System Call <field, value> pairs
@@ -231,7 +238,9 @@ private:
 			   u_int mode_offset);
 
   // Maps LSeek System Call <field, value> pairs
-  void makeLSeekArgsMap(std::map<std::string, void *> &args_map, long *args);
+  void makeLSeekArgsMap(std::map<std::string, void *> &args_map,
+			long *args,
+			void **v_args);
 
   // Maps PRead System Call <field, value> pairs
   void makePReadArgsMap(std::map<std::string, void *> &args_map,
@@ -245,6 +254,7 @@ private:
 
   // Maps Stat System Call <field, value> pairs
   void makeStatArgsMap(std::map<std::string, void *> &args_map,
+		       long *args,
 		       void **v_args);
 
   // Maps Chown System Call <field, value> pairs
@@ -269,11 +279,13 @@ private:
 
   // Maps Utime System Call <field, value> pairs
   void makeUtimeArgsMap(std::map<std::string, void *> &args_map,
+			long *args,
 			void **v_args);
 
   // Maps LStat System Call <field, value> pairs
   void makeLStatArgsMap(std::map<std::string, void *> &args_map,
-		       void **v_args);
+			long *args,
+			void **v_args);
 
   // Maps FStat System Call <field, value> pairs
   void makeFStatArgsMap(std::map<std::string, void *> &args_map,
@@ -282,15 +294,18 @@ private:
 
   // Maps Utimes System Call <field, value> pairs
   void makeUtimesArgsMap(std::map<std::string, void *> &args_map,
+			 long *args,
 			 void **v_args);
 
   // Maps Rename System Call <field, value> pairs
   void makeRenameArgsMap(std::map<std::string, void *> &args_map,
+			 long *args,
 			 void **v_args);
 
   // Maps Fsync System Call <field, value> pairs
   void makeFsyncArgsMap(std::map<std::string, void *> &args_map,
-			long *args);
+			long *args,
+			void **v_args);
 
   // Maps Mknod System Call <field, value> pairs
   void makeMknodArgsMap(std::map<std::string, void *> &args_map,
@@ -303,15 +318,18 @@ private:
 
   // Maps Pipe System Call <field, value> pairs
   void makePipeArgsMap(std::map<std::string, void *> &args_map,
+		       long *args,
 		       void **v_args);
 
   // Maps Dup System Call <field, value> pairs
   void makeDupArgsMap(std::map<std::string, void *> &args_map,
-		      long *args);
+		      long *args,
+		      void **v_args);
 
   // Maps Dup2 System Call <field, value> pairs
   void makeDup2ArgsMap(std::map<std::string, void *> &args_map,
-		       long *args);
+		       long *args,
+		       void **v_args);
 
   // Maps Fcntl System Call <field, value> pairs
   void makeFcntlArgsMap(std::map<std::string, void *> &args_map,
@@ -375,11 +393,13 @@ private:
 
   // Maps Execve System Call <field, value> pairs
   void makeExecveArgsMap(std::map<std::string, void*> &args_map,
+			 long *args,
 			 void **v_args);
 
   // Maps Mmap System Call <field, value> pairs
   void makeMmapArgsMap(std::map<std::string, void*> &args_map,
-		       long *args);
+		       long *args,
+		       void **v_args);
 
   /*
    * Maps individual protection bits for Mmap system call to its corresponding
