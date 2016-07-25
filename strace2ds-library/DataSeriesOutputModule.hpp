@@ -101,8 +101,8 @@ private:
   u_int record_num_;
 
   /*
-   * Map which holds mapping of sys call name with its corresponding
-   * sys call args map function
+   * Map which holds mapping of sys call name with the address
+   * of its corresponding sys call args map function
    */
   FuncPtrMap func_ptr_map_;
 
@@ -136,8 +136,11 @@ private:
 		  const std::string &field_name,
 		  void *field_value);
 
-  // Creates mapping of sys call name with its corresponding args map function
-  void makeArgsMapFuncPtrTable();
+  /*
+   * Creates mapping of sys call name with the address
+   * of it corresponding args map function
+   */
+  void initArgsMapFuncPtr();
 
   // Returns the length for field of type variable32
   u_int getVariable32FieldLength(SysCallArgsMap &args_map,

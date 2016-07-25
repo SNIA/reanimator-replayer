@@ -72,15 +72,15 @@ DataSeriesOutputModule::DataSeriesOutputModule(std::ifstream &table_stream,
   // Write out the extent type extent.
   ds_sink_.writeExtentLibrary(extent_type_library);
 
-  // Creates mapping of sys call name to its corresponding args map function
-  makeArgsMapFuncPtrTable();
+  // Initialize function pointer map
+  initArgsMapFuncPtr();
 }
 
 /*
  * Inserts <syscall_name, address of syscall_args_map_func> pair
  * into func_ptr_map_.
  */
-void DataSeriesOutputModule::makeArgsMapFuncPtrTable() {
+void DataSeriesOutputModule::initArgsMapFuncPtr() {
   // access system call
   func_ptr_map_["access"] = &DataSeriesOutputModule::makeAccessArgsMap;
   // chdir system call
