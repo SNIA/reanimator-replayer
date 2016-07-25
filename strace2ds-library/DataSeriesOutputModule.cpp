@@ -102,6 +102,7 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
    * If the field is in the map, then set value of the
    * field.  Otherwise set it to null.
    */
+
   sys_call_args_map["unique_id"] = &record_num_;
   /*
    * Add common field values to the map.
