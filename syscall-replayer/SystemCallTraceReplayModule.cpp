@@ -228,11 +228,18 @@ char *SystemCallTraceReplayModule::random_fill_buffer(char *buffer,
   return buffer;
 }
 
+/*
+ * Some system calls such as _exit, execve, mmap and munmap are not
+ * appropriate to replay. So we do not replay in our replayer.
+ *
+ * @return: returns true if the system call is replayable, else it
+ *	      returns false.
+ */
 bool SystemCallTraceReplayModule::isReplayable() {
-  if (sys_call_name_ != "exit" &&
-      sys_call_name_ != "execve" &&
-      sys_call_name_ != "mmap" &&
-      sys_call_name_ != "munmap")
-    return true;
-  return false;
+  if (sys_call_name_ == "exit" ||
+      sys_call_name_ == "execve" ||
+      sys_call_name_ == "mmap" ||
+      sys_call_name_ == "munmap")
+    return false;
+  return true;
 }
