@@ -2016,8 +2016,7 @@ void DataSeriesOutputModule::makeGetdentsArgsMap(SysCallArgsMap &args_map,
   args_map["count"] = &args[2];
 }
 
-void DataSeriesOutputModule::makeIoctlArgsMap(std::map<std::string,
-					      void *> &args_map,
+void DataSeriesOutputModule::makeIoctlArgsMap(SysCallArgsMap &args_map,
 					      long *args,
 					      void **v_args) {
   args_map["descriptor"] = &args[0];
