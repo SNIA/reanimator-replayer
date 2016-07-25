@@ -19,7 +19,7 @@ SNo.	System_call_name	Status		IsReplayable
 8. 	readv			supported	Yes
 9. 	writev			supported	Yes
 10. 	fcntl			supported	Yes
-11. 	ioctl			NOT supported	Yes
+11. 	ioctl			In progress	Yes
 12. 	fsync			supported	Yes
 13. 	open			supported	Yes
 14. 	close			supported	Yes

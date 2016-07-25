@@ -109,6 +109,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["fsync"] = &DataSeriesOutputModule::makeFsyncArgsMap;
   // getdents system call
   func_ptr_map_["getdents"] = &DataSeriesOutputModule::makeGetdentsArgsMap;
+  // ioctl system call
+  func_ptr_map_["ioctl"] = &DataSeriesOutputModule::makeIoctlArgsMap;
   // link system call
   func_ptr_map_["link"] = &DataSeriesOutputModule::makeLinkArgsMap;
   // lseek system call
@@ -240,7 +242,6 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
   if (iter != func_ptr_map_.end()) {
     SysCallArgsMapFuncPtr fxn = func_ptr_map_[extent_name];
     (this->*fxn)(sys_call_args_map, args, v_args);
-  }
 
   // Create a new record to write
   modules_[extent_name]->newRecord();
@@ -288,6 +289,14 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
 
   // Update record number
   record_num_++;
+}
+
+void DataSeriesOutputModule::setIoctlSize(uint64_t size) {
+  ioctl_size_ = size;
+}
+
+uint64_t DataSeriesOutputModule::getIoctlSize() {
+  return ioctl_size_;
 }
 
 // Destructor to delete the module
@@ -535,6 +544,8 @@ u_int DataSeriesOutputModule::getVariable32FieldLength(SysCallArgsMap &args_map,
 	       (field_name == "link_value") ||
 	       (field_name == "dirent_buffer"))
       length = *(int *)(args_map["return_value"]);
+    else if (field_name == "ioctl_buffer")
+      length = ioctl_size_;
   } else {
     std::cerr << "WARNING: field_name = " << field_name << " ";
     std::cerr << "is not set in the arguments map";
@@ -2003,4 +2014,19 @@ void DataSeriesOutputModule::makeGetdentsArgsMap(SysCallArgsMap &args_map,
     std::cerr << "Getdents: Dirent buffer is set as NULL!!" << std::endl;
   }
   args_map["count"] = &args[2];
+}
+
+void DataSeriesOutputModule::makeIoctlArgsMap(std::map<std::string,
+					      void *> &args_map,
+					      long *args,
+					      void **v_args) {
+  args_map["descriptor"] = &args[0];
+  args_map["request"] = &args[1];
+  args_map["parameter"] = &args[2];
+  if (v_args[0] != NULL) {
+    args_map["ioctl_buffer"] = &v_args[0];
+  } else {
+    std::cerr << "Ioctl: Ioctl buffer is set as NULL!!" << std::endl;
+  }
+  args_map["buffer_size"] = &ioctl_size_;
 }

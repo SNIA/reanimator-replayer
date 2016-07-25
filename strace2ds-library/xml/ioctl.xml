@@ -13,4 +13,6 @@
   <field name="descriptor" type="int32" opt_nullable="no"/>
   <field name="request" type="int32" opt_nullable="no"/>
   <field name="parameter" type="int64" opt_nullable="yes"/>
+  <field name="ioctl_buffer" type="variable32" opt_nullable="yes"/>
+  <field name="buffer_size" type="int64" opt_nullable="no"/>
 </ExtentType>
