@@ -71,6 +71,94 @@ DataSeriesOutputModule::DataSeriesOutputModule(std::ifstream &table_stream,
 
   // Write out the extent type extent.
   ds_sink_.writeExtentLibrary(extent_type_library);
+
+  // Creates mapping of sys call name to its corresponding args map function
+  makeArgsMapFuncPtrTable();
+}
+
+/*
+ * Inserts <syscall_name, address of syscall_args_map_func> pair
+ * into func_ptr_map_.
+ */
+void DataSeriesOutputModule::makeArgsMapFuncPtrTable() {
+  // access system call
+  func_ptr_map_["access"] = &DataSeriesOutputModule::makeAccessArgsMap;
+  // chdir system call
+  func_ptr_map_["chdir"] = &DataSeriesOutputModule::makeChdirArgsMap;
+  // chmod system call
+  func_ptr_map_["chmod"] = &DataSeriesOutputModule::makeChmodArgsMap;
+  // chown system call
+  func_ptr_map_["chown"] = &DataSeriesOutputModule::makeChownArgsMap;
+  // close system call
+  func_ptr_map_["close"] = &DataSeriesOutputModule::makeCloseArgsMap;
+  // creat system call
+  func_ptr_map_["creat"] = &DataSeriesOutputModule::makeCreatArgsMap;
+  // dup system call
+  func_ptr_map_["dup"] = &DataSeriesOutputModule::makeDupArgsMap;
+  // dup2 system call
+  func_ptr_map_["dup2"] = &DataSeriesOutputModule::makeDup2ArgsMap;
+  // execve system call
+  func_ptr_map_["execve"] = &DataSeriesOutputModule::makeExecveArgsMap;
+  // _exit system call
+  func_ptr_map_["exit"] = &DataSeriesOutputModule::makeExitArgsMap;
+  // fcntl system call
+  func_ptr_map_["fcntl"] = &DataSeriesOutputModule::makeFcntlArgsMap;
+  // fstat system call
+  func_ptr_map_["fstat"] = &DataSeriesOutputModule::makeFStatArgsMap;
+  // fsync system call
+  func_ptr_map_["fsync"] = &DataSeriesOutputModule::makeFsyncArgsMap;
+  // getdents system call
+  func_ptr_map_["getdents"] = &DataSeriesOutputModule::makeGetdentsArgsMap;
+  // link system call
+  func_ptr_map_["link"] = &DataSeriesOutputModule::makeLinkArgsMap;
+  // lseek system call
+  func_ptr_map_["lseek"] = &DataSeriesOutputModule::makeLSeekArgsMap;
+  // lstat system call
+  func_ptr_map_["lstat"] = &DataSeriesOutputModule::makeLStatArgsMap;
+  // mkdir system call
+  func_ptr_map_["mkdir"] = &DataSeriesOutputModule::makeMkdirArgsMap;
+  // mknod system call
+  func_ptr_map_["mknod"] = &DataSeriesOutputModule::makeMknodArgsMap;
+  // mmap system call
+  func_ptr_map_["mmap"] = &DataSeriesOutputModule::makeMmapArgsMap;
+  // open system call
+  func_ptr_map_["open"] = &DataSeriesOutputModule::makeOpenArgsMap;
+  // openat system call
+  func_ptr_map_["openat"] = &DataSeriesOutputModule::makeOpenatArgsMap;
+  // pipe system call
+  func_ptr_map_["pipe"] = &DataSeriesOutputModule::makePipeArgsMap;
+  // pread system call
+  func_ptr_map_["pread"] = &DataSeriesOutputModule::makePReadArgsMap;
+  // pwrite system call
+  func_ptr_map_["pwrite"] = &DataSeriesOutputModule::makePWriteArgsMap;
+  // read system call
+  func_ptr_map_["read"] = &DataSeriesOutputModule::makeReadArgsMap;
+  // readlink system call
+  func_ptr_map_["readlink"] = &DataSeriesOutputModule::makeReadlinkArgsMap;
+  // readv system call
+  func_ptr_map_["readv"] = &DataSeriesOutputModule::makeReadvArgsMap;
+  // rename system call
+  func_ptr_map_["rename"] = &DataSeriesOutputModule::makeRenameArgsMap;
+  // rmdir system call
+  func_ptr_map_["rmdir"] = &DataSeriesOutputModule::makeRmdirArgsMap;
+  // stat system call
+  func_ptr_map_["stat"] = &DataSeriesOutputModule::makeStatArgsMap;
+  // symlink system call
+  func_ptr_map_["symlink"] = &DataSeriesOutputModule::makeSymlinkArgsMap;
+  // truncate system call
+  func_ptr_map_["truncate"] = &DataSeriesOutputModule::makeTruncateArgsMap;
+  // unlink system call
+  func_ptr_map_["unlink"] = &DataSeriesOutputModule::makeUnlinkArgsMap;
+  // unlinkat system call
+  func_ptr_map_["unlinkat"] = &DataSeriesOutputModule::makeUnlinkatArgsMap;
+  // utime system call
+  func_ptr_map_["utime"] = &DataSeriesOutputModule::makeUtimeArgsMap;
+  // utimes system call
+  func_ptr_map_["utimes"] = &DataSeriesOutputModule::makeUtimesArgsMap;
+  // write system call
+  func_ptr_map_["write"] = &DataSeriesOutputModule::makeWriteArgsMap;
+  // writev system call
+  func_ptr_map_["writev"] = &DataSeriesOutputModule::makeWritevArgsMap;
 }
 
 /*
@@ -145,84 +233,11 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
       common_fields[DS_COMMON_FIELD_ERRNO_NUMBER];
   }
 
-  if (strcmp(extent_name, "close") == 0) {
-    makeCloseArgsMap(sys_call_args_map, args, v_args);
-  } else if (strcmp(extent_name, "open") == 0) {
-    makeOpenArgsMap(sys_call_args_map, args, v_args);
-  } else if (strcmp(extent_name, "openat") == 0) {
-    makeOpenatArgsMap(sys_call_args_map, args, v_args);
-  } else if (strcmp(extent_name, "read") == 0) {
-    makeReadArgsMap(sys_call_args_map, args, v_args);
-  } else if (strcmp(extent_name, "write") == 0) {
-    makeWriteArgsMap(sys_call_args_map, args, v_args);
-  } else if (strcmp(extent_name, "chdir") == 0) {
-    makeChdirArgsMap(sys_call_args_map, args, v_args);
-  } else if (strcmp(extent_name, "rmdir") == 0) {
-    makeRmdirArgsMap(sys_call_args_map, args, v_args);
-  } else if (strcmp(extent_name, "unlink") == 0) {
-    makeUnlinkArgsMap(sys_call_args_map, args, v_args);
-  } else if (strcmp(extent_name, "unlinkat") == 0) {
-    makeUnlinkatArgsMap(sys_call_args_map, args, v_args);
-  } else if (strcmp(extent_name, "mkdir") == 0) {
-    makeMkdirArgsMap(sys_call_args_map, args, v_args);
-  } else if (strcmp(extent_name, "creat") == 0) {
-    makeCreatArgsMap(sys_call_args_map, args, v_args);
-  } else if (strcmp(extent_name, "chmod") == 0) {
-    makeChmodArgsMap(sys_call_args_map, args, v_args);
-  } else if (strcmp(extent_name, "link") == 0) {
-    makeLinkArgsMap(sys_call_args_map, args, v_args);
-  } else if (strcmp(extent_name, "symlink") == 0) {
-    makeSymlinkArgsMap(sys_call_args_map, args, v_args);
-  } else if (strcmp(extent_name, "truncate") == 0) {
-    makeTruncateArgsMap(sys_call_args_map, args, v_args);
-  } else if (strcmp(extent_name, "access") == 0) {
-    makeAccessArgsMap(sys_call_args_map, args, v_args);
-  } else if (strcmp(extent_name, "lseek") == 0) {
-    makeLSeekArgsMap(sys_call_args_map, args, v_args);
-  } else if (strcmp(extent_name, "pread") == 0) {
-    makePReadArgsMap(sys_call_args_map, args, v_args);
-  } else if (strcmp(extent_name, "pwrite") == 0) {
-    makePWriteArgsMap(sys_call_args_map, args, v_args);
-  } else if (strcmp(extent_name, "stat") == 0) {
-    makeStatArgsMap(sys_call_args_map, args, v_args);
-  } else if (strcmp(extent_name, "chown") == 0) {
-    makeChownArgsMap(sys_call_args_map, args, v_args);
-  } else if (strcmp(extent_name, "readlink") == 0) {
-    makeReadlinkArgsMap(sys_call_args_map, args, v_args);
-  } else if (strcmp(extent_name, "readv") == 0) {
-    makeReadvArgsMap(sys_call_args_map, args, v_args);
-  } else if (strcmp(extent_name, "writev") == 0) {
-    makeWritevArgsMap(sys_call_args_map, args, v_args);
-  } else if (strcmp(extent_name, "utime") == 0) {
-    makeUtimeArgsMap(sys_call_args_map, args, v_args);
-  } else if (strcmp(extent_name, "lstat") == 0) {
-    makeLStatArgsMap(sys_call_args_map, args, v_args);
-  } else if (strcmp(extent_name, "fstat") == 0) {
-    makeFStatArgsMap(sys_call_args_map, args, v_args);
-  } else if (strcmp(extent_name, "utimes") == 0) {
-    makeUtimesArgsMap(sys_call_args_map, args, v_args);
-  } else if (strcmp(extent_name, "rename") == 0) {
-    makeRenameArgsMap(sys_call_args_map, args, v_args);
-  } else if (strcmp(extent_name, "fsync") == 0) {
-    makeFsyncArgsMap(sys_call_args_map, args, v_args);
-  } else if (strcmp(extent_name, "mknod") == 0) {
-    makeMknodArgsMap(sys_call_args_map, args, v_args);
-  } else if (strcmp(extent_name, "pipe") == 0) {
-    makePipeArgsMap(sys_call_args_map, args, v_args);
-  } else if (strcmp(extent_name, "dup") == 0) {
-    makeDupArgsMap(sys_call_args_map, args, v_args);
-  } else if (strcmp(extent_name, "dup2") == 0) {
-    makeDup2ArgsMap(sys_call_args_map, args, v_args);
-  } else if (strcmp(extent_name, "fcntl") == 0) {
-    makeFcntlArgsMap(sys_call_args_map, args, v_args);
-  } else if (strcmp(extent_name, "exit") == 0) {
-    makeExitArgsMap(sys_call_args_map, args, v_args);
-  } else if (strcmp(extent_name, "execve") == 0) {
-    makeExecveArgsMap(sys_call_args_map, args, v_args);
-  } else if (strcmp(extent_name, "mmap") == 0) {
-    makeMmapArgsMap(sys_call_args_map, args, v_args);
-  } else if (strcmp(extent_name, "getdents") == 0) {
-    makeGetdentsArgsMap(sys_call_args_map, args, v_args);
+  /* set system call specific field */
+  FuncPtrMap::iterator iter = func_ptr_map_.find(extent_name);
+  if (iter != func_ptr_map_.end()) {
+    SysCallArgsMapFuncPtr fxn = func_ptr_map_[extent_name];
+    (this->*fxn)(sys_call_args_map, args, v_args);
   }
 
   // Create a new record to write

@@ -48,6 +48,8 @@
 #include <sys/stat.h>
 #include <sys/mman.h>
 
+class DataSeriesOutputModule;
+
 /* map<fieldname, pair<nullable, ExtentType> */
 typedef std::map<std::string,
 		 std::pair<bool, ExtentType::fieldType>
@@ -68,6 +70,13 @@ typedef std::map<std::string, OutputModule*> OutputModuleMap;
 
 // map<extent name, void *>
 typedef std::map<std::string, void *> SysCallArgsMap;
+
+// function pointer type for system call args map
+typedef void (DataSeriesOutputModule::*SysCallArgsMapFuncPtr)(SysCallArgsMap &,
+							      long *,
+							      void **);
+// map<extent_name, SysCallArgsMapFuncPtr>
+typedef std::map<std::string, SysCallArgsMapFuncPtr> FuncPtrMap;
 
 class DataSeriesOutputModule {
 public:
@@ -90,6 +99,12 @@ private:
   DataSeriesSink ds_sink_;
   config_table_type config_table_;
   u_int record_num_;
+
+  /*
+   * Map which holds mapping of sys call name with its corresponding
+   * sys call args map function
+   */
+  FuncPtrMap func_ptr_map_;
 
   // Disable copy constructor
   DataSeriesOutputModule(const DataSeriesOutputModule&);
@@ -120,6 +135,9 @@ private:
   void doSetField(const std::string &extent_name,
 		  const std::string &field_name,
 		  void *field_value);
+
+  // Creates mapping of sys call name with its corresponding args map function
+  void makeArgsMapFuncPtrTable();
 
   // Returns the length for field of type variable32
   u_int getVariable32FieldLength(SysCallArgsMap &args_map,
