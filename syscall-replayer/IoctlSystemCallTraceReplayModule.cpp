@@ -41,10 +41,17 @@ void IoctlSystemCallTraceReplayModule::processRow() {
   int fd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
   u_long request = request_.val();
   void *buf = malloc(buffer_size_.val());
-  memcpy(buf, ioctl_buffer_.val(), buffer_size_.val());
+  int parameter;
 
-  // Replay the ioctl system call
-  replayed_ret_val_ = ioctl(fd, request, buf);
-
+  // If there is no buffer data, pass the parameter value as the third argument
+  if (ioctl_buffer_.isNull()) {
+    parameter = parameter_.val();
+    replayed_ret_val_ = ioctl(fd, request, parameter);
+  } else {
+    // Copy the traced buffer data to the buffer
+    memcpy(buf, ioctl_buffer_.val(), buffer_size_.val());
+    // Replay the ioctl system call
+    replayed_ret_val_ = ioctl(fd, request, buf);
+  }
   free(buf);
 }
