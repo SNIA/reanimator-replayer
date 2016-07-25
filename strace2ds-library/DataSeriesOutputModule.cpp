@@ -119,6 +119,8 @@ void DataSeriesOutputModule::makeArgsMapFuncPtrTable() {
   func_ptr_map_["mkdir"] = &DataSeriesOutputModule::makeMkdirArgsMap;
   // mknod system call
   func_ptr_map_["mknod"] = &DataSeriesOutputModule::makeMknodArgsMap;
+  // mmap system call
+  func_ptr_map_["mmap"] = &DataSeriesOutputModule::makeMmapArgsMap;
   // open system call
   func_ptr_map_["open"] = &DataSeriesOutputModule::makeOpenArgsMap;
   // openat system call
@@ -1864,6 +1866,122 @@ void DataSeriesOutputModule::makeExecveArgsMap(SysCallArgsMap &args_map,
 	std::cerr << "Execve : Environment is set as NULL!!" << std::endl;
     }
   }
+}
+
+void DataSeriesOutputModule::makeMmapArgsMap(SysCallArgsMap &args_map,
+					     long *args,
+					     void **v_args) {
+  // Initialize all non-nullable boolean fields to False.
+  initArgsMap(args_map, "mmap");
+
+  args_map["start_address"] = &args[0];
+  args_map["length"] = &args[1];
+
+  args_map["protection_value"] = &args[2];
+  // Set individual mmap protection bits
+  u_int prot_flags = processMmapProtectionArgs(args_map, args[2]);
+  if (prot_flags != 0) {
+    std::cerr << "Mmap: These protection flags are not processed/unknown->0x";
+    std::cerr << std::hex << prot_flags << std::dec << std::endl;
+  }
+
+  args_map["flags_value"] = &args[3];
+  // Set individual mmap flag bits
+  u_int flag = processMmapFlags(args_map, args[3]);
+  if (flag != 0) {
+    std::cerr << "Mmap: These flag are not processed/unknown->0x";
+    std::cerr << std::hex << flag << std::dec << std::endl;
+  }
+
+  args_map["descriptor"] = &args[4];
+  args_map["offset"] = &args[5];
+}
+
+u_int DataSeriesOutputModule::processMmapProtectionArgs(SysCallArgsMap &args_map,
+							u_int mmap_prot_flags) {
+  /*
+   * Process each individual mmap protection bit that has been set
+   * in the argument mmap_prot_flags.
+   */
+  // set exec protection flag
+  process_Flag_and_Mode_Args(args_map, mmap_prot_flags, PROT_EXEC,
+			     "protection_exec");
+  // set read protection flag
+  process_Flag_and_Mode_Args(args_map, mmap_prot_flags, PROT_READ,
+			     "protection_read");
+  // set write protection flag
+  process_Flag_and_Mode_Args(args_map, mmap_prot_flags, PROT_WRITE,
+			     "protection_write");
+  // set none protection flag
+  process_Flag_and_Mode_Args(args_map, mmap_prot_flags, PROT_NONE,
+			     "protection_none");
+
+  /*
+   * Return remaining mmap protection flags so that caller can
+   * warn of unknown flags if the mmap_prot_flags is not set
+   * as zero.
+   */
+  return mmap_prot_flags;
+}
+
+u_int DataSeriesOutputModule::processMmapFlags(SysCallArgsMap &args_map,
+					       u_int mmap_flags) {
+  /*
+   * Process each individual mmap flag bit that has been set
+   * in the argument mmap_flags.
+   */
+  // set mmap fixed flag
+  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_FIXED,
+			     "flag_fixed");
+  // set mmap shared flag
+  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_SHARED,
+			     "flag_shared");
+  // set mmap private flag
+  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_PRIVATE,
+			     "flag_private");
+  // set mmap 32bit flag
+  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_32BIT,
+			     "flag_32bit");
+  // set mmap anonymous flag
+  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_ANONYMOUS,
+			     "flag_anonymous");
+  // set mmap denywrite flag
+  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_DENYWRITE,
+			     "flag_denywrite");
+  // set mmap executable flag
+  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_EXECUTABLE,
+			     "flag_executable");
+  // set mmap file flag
+  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_FILE,
+			     "flag_file");
+  // set mmap grows_down flag
+  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_GROWSDOWN,
+			     "flag_grows_down");
+  // set mmap huge TLB flag
+  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_HUGETLB,
+			     "flag_huge_tlb");
+  // set mmap locked flag
+  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_LOCKED,
+			     "flag_locked");
+  // set mmap non-blocking flag
+  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_NONBLOCK,
+			     "flag_non_block");
+  // set mmap no reserve flag
+  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_NORESERVE,
+			     "flag_no_reserve");
+  // set mmap populate flag
+  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_POPULATE,
+			     "flag_populate");
+  // set mmap stack flag
+  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_STACK,
+			     "flag_stack");
+
+  /*
+   * Return remaining mmap flags so that caller can
+   * warn of unknown flags if the mmap_flags is not set
+   * as zero.
+   */
+  return mmap_flags;
 }
 
 void DataSeriesOutputModule::makeGetdentsArgsMap(SysCallArgsMap &args_map,

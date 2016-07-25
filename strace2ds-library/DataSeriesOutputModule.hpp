@@ -46,6 +46,7 @@
 #include <fcntl.h>
 #include <utime.h>
 #include <sys/stat.h>
+#include <sys/mman.h>
 
 class DataSeriesOutputModule;
 
@@ -325,6 +326,21 @@ private:
 
   // Maps Execve System Call <field, value> pairs
   void makeExecveArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+
+  // Maps Mmap System Call <field, value> pairs
+  void makeMmapArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+
+  /*
+   * Maps individual protection bits for Mmap system call to its corresponding
+   * field name.
+   */
+  u_int processMmapProtectionArgs(SysCallArgsMap &args_map, u_int mmap_prot_flags);
+
+  /*
+   * Maps individual flag value for Mmap system call to its corresponding
+   * field name.
+   */
+  u_int processMmapFlags(SysCallArgsMap &args_map, u_int flag);
 
   // Maps Getdents System Call <field, value> pairs
   void makeGetdentsArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
