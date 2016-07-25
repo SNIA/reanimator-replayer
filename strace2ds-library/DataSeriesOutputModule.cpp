@@ -242,6 +242,7 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
   if (iter != func_ptr_map_.end()) {
     SysCallArgsMapFuncPtr fxn = func_ptr_map_[extent_name];
     (this->*fxn)(sys_call_args_map, args, v_args);
+  }
 
   // Create a new record to write
   modules_[extent_name]->newRecord();
