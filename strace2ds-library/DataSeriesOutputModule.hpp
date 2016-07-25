@@ -345,6 +345,9 @@ private:
    */
   u_int processMmapFlags(SysCallArgsMap &args_map, u_int flag);
 
+  // Maps Munmap System Call <field, value> pairs
+  void makeMunmapArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+
   // Maps Getdents System Call <field, value> pairs
   void makeGetdentsArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 };

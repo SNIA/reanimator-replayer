@@ -121,6 +121,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["mknod"] = &DataSeriesOutputModule::makeMknodArgsMap;
   // mmap system call
   func_ptr_map_["mmap"] = &DataSeriesOutputModule::makeMmapArgsMap;
+  // munmap system call
+  func_ptr_map_["munmap"] = &DataSeriesOutputModule::makeMunmapArgsMap;
   // open system call
   func_ptr_map_["open"] = &DataSeriesOutputModule::makeOpenArgsMap;
   // openat system call
@@ -1982,6 +1984,13 @@ u_int DataSeriesOutputModule::processMmapFlags(SysCallArgsMap &args_map,
    * as zero.
    */
   return mmap_flags;
+}
+
+void DataSeriesOutputModule::makeMunmapArgsMap(SysCallArgsMap &args_map,
+					       long *args,
+					       void **v_args) {
+  args_map["start_address"] = &args[0];
+  args_map["length"] = &args[1];
 }
 
 void DataSeriesOutputModule::makeGetdentsArgsMap(SysCallArgsMap &args_map,
