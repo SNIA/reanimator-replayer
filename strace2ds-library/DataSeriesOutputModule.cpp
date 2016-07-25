@@ -102,7 +102,6 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
    * If the field is in the map, then set value of the
    * field.  Otherwise set it to null.
    */
-
   sys_call_args_map["unique_id"] = &record_num_;
   /*
    * Add common field values to the map.
@@ -221,6 +220,8 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
     makeExecveArgsMap(sys_call_args_map, v_args);
   } else if (strcmp(extent_name, "getdents") == 0) {
     makeGetdentsArgsMap(sys_call_args_map, args, v_args);
+  } else if (strcmp(extent_name, "ioctl") == 0) {
+    makeIoctlArgsMap(sys_call_args_map, args, v_args);
   }
 
   // Create a new record to write
@@ -269,6 +270,14 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
 
   // Update record number
   record_num_++;
+}
+
+void DataSeriesOutputModule::setIoctlSize(uint64_t size) {
+  ioctl_size_ = size;
+}
+
+uint64_t DataSeriesOutputModule::getIoctlSize() {
+  return ioctl_size_;
 }
 
 // Destructor to delete the module
@@ -517,6 +526,8 @@ u_int DataSeriesOutputModule::getVariable32FieldLength(std::map<std::string,
 	       (field_name == "link_value") ||
 	       (field_name == "dirent_buffer"))
       length = *(int *)(args_map["return_value"]);
+    else if (field_name == "ioctl_buffer")
+      length = ioctl_size_;
   } else {
     std::cerr << "WARNING: field_name = " << field_name << " ";
     std::cerr << "is not set in the arguments map";
@@ -1895,4 +1906,19 @@ void DataSeriesOutputModule::makeGetdentsArgsMap(std::map<std::string,
     std::cerr << "Getdents: Dirent buffer is set as NULL!!" << std::endl;
   }
   args_map["count"] = &args[2];
+}
+
+void DataSeriesOutputModule::makeIoctlArgsMap(std::map<std::string,
+					      void *> &args_map,
+					      long *args,
+					      void **v_args) {
+  args_map["descriptor"] = &args[0];
+  args_map["request"] = &args[1];
+  args_map["parameter"] = &args[2];
+  if (v_args[0] != NULL) {
+    args_map["ioctl_buffer"] = &v_args[0];
+  } else {
+    std::cerr << "Ioctl: Ioctl buffer is set as NULL!!" << std::endl;
+  }
+  args_map["buffer_size"] = &ioctl_size_;
 }

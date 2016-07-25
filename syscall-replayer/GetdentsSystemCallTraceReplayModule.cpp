@@ -65,5 +65,5 @@ getdents data."
       }
     }
   }
-  free (buffer);
+  free(buffer);
 }

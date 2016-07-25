@@ -1,7 +1,7 @@
 NOTE: There are many more system calls. However, SNIA document only lists the
 system calls numbered below from 1 to 38. We have extended the trace-replayer
-to add support for rename, getdents and openat system calls. The trace-replayer
-can be easily extended to support more system calls.
+to add support for rename, getdents, openat, and unlinkat system calls.
+The trace-replayer can be easily extended to support more system calls.
 
 We support following system calls in the trace-replayer.
 The POSIX system calls considered applicable to I/O tracing:
@@ -19,7 +19,7 @@ SNo.	System_call_name	Status		IsReplayable
 8. 	readv			supported	Yes
 9. 	writev			supported	Yes
 10. 	fcntl			supported	Yes
-11. 	ioctl			NOT supported	Yes
+11. 	ioctl			In progress	Yes
 12. 	fsync			supported	Yes
 13. 	open			supported	Yes
 14. 	close			supported	Yes
@@ -50,3 +50,4 @@ SNo.	System_call_name	Status		IsReplayable
 39. 	rename			supported	Yes
 40.	getdents		supported	Yes
 41.	openat			supported	Yes
+42.	unlinkat		supported	Yes

@@ -58,6 +58,7 @@
 #include "ExitSystemCallTraceReplayModule.hpp"
 #include "ExecveSystemCallTraceReplayModule.hpp"
 #include "GetdentsSystemCallTraceReplayModule.hpp"
+#include "IoctlSystemCallTraceReplayModule.hpp"
 
 /*
  * min heap uses this function to sort elements in the tree.
@@ -264,6 +265,7 @@ int main(int argc, char *argv[]) {
   system_calls.push_back("exit");
   system_calls.push_back("execve");
   system_calls.push_back("getdents");
+  system_calls.push_back("ioctl");
 
   std::vector<TypeIndexModule *> type_index_modules;
 
@@ -504,6 +506,11 @@ int main(int argc, char *argv[]) {
 				 verbose,
 				 verify,
 				 warn_level);
+  IoctlSystemCallTraceReplayModule *ioctl_module =
+    new IoctlSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 warn_level);
 
   /*
    * This vector is going to used to load replaying modules.
@@ -549,6 +556,7 @@ int main(int argc, char *argv[]) {
   system_call_trace_replay_modules.push_back(exit_module);
   system_call_trace_replay_modules.push_back(execve_module);
   system_call_trace_replay_modules.push_back(getdents_module);
+  system_call_trace_replay_modules.push_back(ioctl_module);
 
   // Double check to make sure all replaying modules are loaded.
   if (system_call_trace_replay_modules.size() != system_calls.size()) {

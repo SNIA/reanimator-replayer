@@ -129,6 +129,8 @@ fcntl	argument_notify_attribute	0	bool
 ioctl	descriptor	0	int32
 ioctl	request	0	int32
 ioctl	parameter	1	int64
+ioctl	ioctl_buffer	1	variable32
+ioctl	buffer_size	0	int64
 fsync	descriptor	0	int32
 open	given_pathname	0	variable32
 open	full_pathname	1	variable32

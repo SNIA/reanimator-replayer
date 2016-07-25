@@ -78,6 +78,21 @@ void ds_print_warning(const char *sys_call_name, long sys_call_number) {
 }
 
 /*
+ * Record the size of the buffer passed to an ioctl system call
+ */
+void ds_set_ioctl_size(DataSeriesOutputModule *ds_module, int size) {
+  ((DataSeriesOutputModule *) ds_module)->setIoctlSize(size);
+}
+
+/*
+ * Return the size of the buffer passed to an ioctl system call
+ */
+int ds_get_ioctl_size(DataSeriesOutputModule *ds_module) {
+  ((DataSeriesOutputModule *) ds_module)->getIoctlSize();
+}
+
+
+/*
  * Free the module and flush all the records
  */
 void ds_destroy_module(DataSeriesOutputModule *ds_module) {

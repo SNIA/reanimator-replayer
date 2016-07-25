@@ -76,6 +76,12 @@ public:
   bool writeRecord(const char *extent_name, long *args,
 		   void *common_fields[DS_NUM_COMMON_FIELDS], void **v_args);
 
+  // Sets the ioctl_size_ variable for an Ioctl System Call
+  void setIoctlSize(uint64_t size);
+
+  // Gets the ioctl_size_ variable for an Ioctl System Call
+  uint64_t getIoctlSize();
+
   // Destructor to delete the module
   ~DataSeriesOutputModule();
 
@@ -86,6 +92,8 @@ private:
   DataSeriesSink ds_sink_;
   config_table_type config_table_;
   u_int record_num_;
+  // ioctl_size_ is the size of a buffer passed to an ioctl system call
+  uint64_t ioctl_size_;
 
   // Disable copy constructor
   DataSeriesOutputModule(const DataSeriesOutputModule&);
@@ -381,5 +389,11 @@ private:
 			   void *> &args_map,
 			   long *args,
 			   void **v_args);
+
+  // Maps Ioctl System Call <field, value> pairs
+  void makeIoctlArgsMap(std::map<std::string,
+			void *> &args_map,
+			long *args,
+			void **v_args);
 };
 #endif // DATA_SERIES_OUTPUT_MODULE_HPP
