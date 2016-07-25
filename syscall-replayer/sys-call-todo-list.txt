@@ -41,7 +41,7 @@ SNo.	System_call_name	Status		IsReplayable
 30. 	utime			supported	Yes
 31. 	utimes			supported	Yes
 32. 	mknod			supported	Yes
-33. 	munmap			NOT supported	No
+33. 	munmap			supported	No
 34. 	pipe			supported	Yes
 35. 	fork			NOT supported
 36. 	exit			supported	No

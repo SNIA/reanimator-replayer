@@ -58,6 +58,7 @@
 #include "ExitSystemCallTraceReplayModule.hpp"
 #include "ExecveSystemCallTraceReplayModule.hpp"
 #include "MmapSystemCallTraceReplayModule.hpp"
+#include "MunmapSystemCallTraceReplayModule.hpp"
 #include "GetdentsSystemCallTraceReplayModule.hpp"
 
 /*
@@ -265,6 +266,7 @@ int main(int argc, char *argv[]) {
   system_calls.push_back("exit");
   system_calls.push_back("execve");
   system_calls.push_back("mmap");
+  system_calls.push_back("munmap");
   system_calls.push_back("getdents");
 
   std::vector<TypeIndexModule *> type_index_modules;
@@ -505,6 +507,11 @@ int main(int argc, char *argv[]) {
 				 *prefetch_buffer_modules[module_index++],
 				 verbose,
 				 warn_level);
+  MunmapSystemCallTraceReplayModule *munmap_module =
+    new MunmapSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 warn_level);
   GetdentsSystemCallTraceReplayModule *getdents_module =
     new GetdentsSystemCallTraceReplayModule(
 				 *prefetch_buffer_modules[module_index++],
@@ -556,6 +563,7 @@ int main(int argc, char *argv[]) {
   system_call_trace_replay_modules.push_back(exit_module);
   system_call_trace_replay_modules.push_back(execve_module);
   system_call_trace_replay_modules.push_back(mmap_module);
+  system_call_trace_replay_modules.push_back(munmap_module);
   system_call_trace_replay_modules.push_back(getdents_module);
 
   // Double check to make sure all replaying modules are loaded.
