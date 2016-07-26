@@ -1,6 +1,7 @@
 #
 # Copyright (c) 2016 Nina Brown
 # Copyright (c) 2015-2016 Leixiang Wu
+# Copyright (c) 2015-2016 Shubhi Rani
 # Copyright (c) 2015-2016 Erez Zadok
 # Copyright (c) 2015-2016 Geoff Kuenning
 # Copyright (c) 2015-2016 Stony Brook University
