@@ -91,6 +91,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["execve"] = &DataSeriesOutputModule::makeExecveArgsMap;
   // _exit system call
   func_ptr_map_["exit"] = &DataSeriesOutputModule::makeExitArgsMap;
+  // fchmod system call
+  func_ptr_map_["fchmod"] = &DataSeriesOutputModule::makeFChmodArgsMap;
   // fcntl system call
   func_ptr_map_["fcntl"] = &DataSeriesOutputModule::makeFcntlArgsMap;
   // fstat system call
@@ -945,6 +947,19 @@ void DataSeriesOutputModule::makeChmodArgsMap(SysCallArgsMap &args_map,
   mode_t mode = processMode(args_map, args, 1);
   if (mode != 0) {
     std::cerr << "Chmod: These modes are not processed/unknown->0";
+    std::cerr << std::oct << mode << std::dec << std::endl;
+  }
+}
+
+void DataSeriesOutputModule::makeFChmodArgsMap(SysCallArgsMap &args_map,
+					       long *args,
+					       void **v_args) {
+  initArgsMap(args_map, "fchmod");
+  int mode_offset = 1;
+  args_map["descriptor"] = &args[0];
+  mode_t mode = processMode(args_map, args, 1);
+  if (mode != 0) {
+    std::cerr << "FChmod: These modes are not processed/unknown->0";
     std::cerr << std::oct << mode << std::dec << std::endl;
   }
 }

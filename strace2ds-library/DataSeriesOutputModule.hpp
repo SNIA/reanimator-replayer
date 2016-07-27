@@ -214,6 +214,9 @@ private:
   // Maps Chmod System Calls <field, value> pairs
   void makeChmodArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
+  // Maps FChmod System Calls <field, value> pairs
+  void makeFChmodArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+
   // Maps Link System Call <field, value> pairs
   void makeLinkArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
