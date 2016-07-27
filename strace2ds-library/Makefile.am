@@ -23,6 +23,7 @@ XML_FILES=			\
 	xml/getdents.xml	\
 	xml/ioctl.xml		\
 	xml/link.xml		\
+	xml/linkat.xml		\
 	xml/lseek.xml		\
 	xml/lstat.xml		\
 	xml/mkdir.xml		\

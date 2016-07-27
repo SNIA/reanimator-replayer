@@ -241,6 +241,7 @@ int main(int argc, char *argv[]) {
   system_calls.push_back("truncate");
   system_calls.push_back("creat");
   system_calls.push_back("link");
+  system_calls.push_back("linkat");
   system_calls.push_back("unlink");
   system_calls.push_back("unlinkat");
   system_calls.push_back("symlink");
@@ -365,6 +366,11 @@ int main(int argc, char *argv[]) {
 				 warn_level);
   LinkSystemCallTraceReplayModule *link_module =
     new LinkSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 warn_level);
+  LinkatSystemCallTraceReplayModule *linkat_module =
+    new LinkatSystemCallTraceReplayModule(
 				 *prefetch_buffer_modules[module_index++],
 				 verbose,
 				 warn_level);
@@ -544,6 +550,7 @@ int main(int argc, char *argv[]) {
   system_call_trace_replay_modules.push_back(truncate_module);
   system_call_trace_replay_modules.push_back(creat_module);
   system_call_trace_replay_modules.push_back(link_module);
+  system_call_trace_replay_modules.push_back(linkat_module);
   system_call_trace_replay_modules.push_back(unlink_module);
   system_call_trace_replay_modules.push_back(unlinkat_module);
   system_call_trace_replay_modules.push_back(symlink_module);

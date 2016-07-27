@@ -217,6 +217,9 @@ private:
   // Maps Link System Call <field, value> pairs
   void makeLinkArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
+  // Maps Linkat System Call <field, value> pairs
+  void makeLinkatArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+
   // Maps Symlink System Call <field, value> pairs
   void makeSymlinkArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 

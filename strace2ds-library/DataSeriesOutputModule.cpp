@@ -103,6 +103,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["ioctl"] = &DataSeriesOutputModule::makeIoctlArgsMap;
   // link system call
   func_ptr_map_["link"] = &DataSeriesOutputModule::makeLinkArgsMap;
+  // linkat system call
+  func_ptr_map_["linkat"] = &DataSeriesOutputModule::makeLinkatArgsMap;
   // lseek system call
   func_ptr_map_["lseek"] = &DataSeriesOutputModule::makeLSeekArgsMap;
   // lstat system call
@@ -959,6 +961,46 @@ void DataSeriesOutputModule::makeLinkArgsMap(SysCallArgsMap &args_map,
     args_map["given_newpathname"] = &v_args[1];
   } else {
     std::cerr << "Link: New Pathname is set as NULL!!" << std::endl;
+  }
+}
+
+void DataSeriesOutputModule::makeLinkatArgsMap(SysCallArgsMap &args_map,
+					     long *args,
+					     void **v_args) {
+  static bool true_ = true;
+
+  initArgsMap(args_map, "linkat");
+
+  args_map["old_descriptor"] = &args[0];
+  if (args[0] == AT_FDCWD) {
+    args_map["old_descriptor_current_working_directory"] = &true_;
+  }
+
+  args_map["new_descriptor"] = &args[2];
+  if (args[2] == AT_FDCWD) {
+    args_map["new_descriptor_current_working_directory"] = &true_;
+  }
+
+  if (v_args[0] != NULL) {
+    args_map["given_oldpathname"] = &v_args[0];
+  } else {
+    std::cerr << "Linkat: Old Pathname is set as NULL!!" << std::endl;
+  }
+  if (v_args[1] != NULL) {
+    args_map["given_newpathname"] = &v_args[1];
+  } else {
+    std::cerr << "Linkat: New Pathname is set as NULL!!" << std::endl;
+  }
+
+  args_map["flag_value"] = &args[4];
+  u_int flag = args[4];
+  process_Flag_and_Mode_Args(args_map, flag, AT_EMPTY_PATH,
+			     "flag_empty_path");
+  process_Flag_and_Mode_Args(args_map, flag, AT_SYMLINK_FOLLOW,
+			     "flag_symlink_follow");
+  if (flag != 0) {
+    std::cerr << "Linkat: These flags are not processed/unknown->"
+	      << std::hex << flag << std::dec << std::endl;
   }
 }
 

@@ -40,3 +40,35 @@ void LinkSystemCallTraceReplayModule::processRow() {
   // Replay the link system call
   replayed_ret_val_ = link(old_path_name, new_path_name);
 }
+
+LinkatSystemCallTraceReplayModule::
+LinkatSystemCallTraceReplayModule(DataSeriesModule &source,
+				  bool verbose_flag,
+				  int warn_level_flag):
+  LinkSystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+  old_descriptor_(series, "old_descriptor"),
+  new_descriptor_(series, "new_descriptor"),
+  flag_value_(series, "flag_value", Field::flag_nullable) {
+  sys_call_name_ = "linkat";
+}
+
+void LinkatSystemCallTraceReplayModule::print_specific_fields() {
+  std::cout << "old descriptor(" << old_descriptor_.val() << "), ";
+  std::cout << "new descriptor(" << new_descriptor_.val() << "), ";
+  LinkSystemCallTraceReplayModule::print_specific_fields();
+  std::cout << ", ";
+  std::cout << "flags(" << flag_value_.val() << ")";
+}
+
+void LinkatSystemCallTraceReplayModule::processRow() {
+  int old_fd = SystemCallTraceReplayModule::fd_map_[old_descriptor_.val()];
+  int new_fd = SystemCallTraceReplayModule::fd_map_[new_descriptor_.val()];
+  const char *old_path_name = (const char *)given_oldpathname_.val();
+  const char *new_path_name = (const char *)given_newpathname_.val();
+  int flags = flag_value_.val();
+
+  // Replay the linkat system call
+  replayed_ret_val_ = linkat(old_fd, old_path_name,
+			     new_fd, new_path_name,
+			     flags);
+}

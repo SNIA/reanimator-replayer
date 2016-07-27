@@ -381,3 +381,14 @@ openat	mode_X_group	0	bool
 openat	mode_R_others	0	bool
 openat	mode_W_others	0	bool
 openat	mode_X_others	0	bool
+linkat	old_descriptor	0	int32
+linkat	old_descriptor_current_working_directory	0	bool
+linkat	given_oldpathname	0	variable32
+linkat	full_oldpathname	1	variable32
+linkat	new_descriptor	0	int32
+linkat	new_descriptor_current_working_directory	0	bool
+linkat	given_newpathname	0	variable32
+linkat	full_newpathname	1	variable32
+linkat	flag_value	1	int32
+linkat	flag_empty_path	0	bool
+linkat	flag_symlink_follow	0	bool
