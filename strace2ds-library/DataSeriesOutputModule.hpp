@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2016 Nina Brown
  * Copyright (c) 2015-2016 Leixiang Wu
+ * Copyright (c) 2015-2016 Shubhi Rani
  * Copyright (c) 2015-2016 Erez Zadok
  * Copyright (c) 2015-2016 Stony Brook University
  *
@@ -8,22 +9,18 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
- * FIX ME: fix following comments
- * 2ds.
- * This program is similar to DataSeries's csv2ds utility, but handles
- * extents with different types and nullable fields and is primarily used
- * for converting system call csv traces.
+ * This program contains the DataSeries API's which converts the strace
+ * trace to the DataSeries binary format. These API's are called from
+ * the strace code which creates a new DataSeries file, sets extents and
+ * field value, adds record to the DataSeries file and finally flush
+ * extents to the output DataSeries file.
  *
- * Usage: ./csv2ds <outputfile> <tablefile> <spec_string_file>
- *        <xml directory> <inputfiles...>
- *
- * <outputfile>: name of the dataseries output file
- * <tablefile>: name of the table file to refer to
- * <spec_string_file>: name of the file that contains a string
- *                    that specifies the format of the input file
- * <xml directory>: directory path that contains extent xml.
- *                 Remember to '/' should be the last character.
- * <inputfiles...>: input CSV files
+ * INITALIZATION AND USAGE
+ * The constructor of this class takes three arguments:
+ * 1. tablefile: the path of table file which contains information about
+ *		 extent name, field name and field type.
+ * 2. xml directory: created using script from tablefile name.
+ * 3. outputfile : name of the output dataseries file
  */
 
 #ifndef DATA_SERIES_OUTPUT_MODULE_HPP

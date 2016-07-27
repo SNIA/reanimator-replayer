@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2016 Nina Brown
  * Copyright (c) 2015-2016 Leixiang Wu
+ * Copyright (c) 2015-2016 Shubhi Rani
  * Copyright (c) 2015-2016 Erez Zadok
  * Copyright (c) 2015-2016 Stony Brook University
  *
@@ -8,22 +9,11 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
- * FIX ME: fix following comments
- * 2ds.
- * This program is similar to DataSeries's csv2ds utility, but handles
- * extents with different types and nullable fields and is primarily used
- * for converting system call csv traces.
+ * This file implements all the functions in the DataSeriesOutputModule.hpp
+ * header file.
  *
- * Usage: ./csv2ds <outputfile> <tablefile> <spec_string_file>
- *        <xml directory> <inputfiles...>
- *
- * <outputfile>: name of the dataseries output file
- * <tablefile>: name of the table file to refer to
- * <spec_string_file>: name of the file that contains a string
- *                    that specifies the format of the input file
- * <xml directory>: directory path that contains extent xml.
- *                 Remember to '/' should be the last character.
- * <inputfiles...>: input CSV files
+ * Read the DataSeriesOutputModule.hpp file for more information about this
+ * class.
  */
 
 #include "DataSeriesOutputModule.hpp"
@@ -243,6 +233,7 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
     SysCallArgsMapFuncPtr fxn = func_ptr_map_[extent_name];
     (this->*fxn)(sys_call_args_map, args, v_args);
   }
+
   // Create a new record to write
   modules_[extent_name]->newRecord();
 
@@ -2016,8 +2007,7 @@ void DataSeriesOutputModule::makeGetdentsArgsMap(SysCallArgsMap &args_map,
   args_map["count"] = &args[2];
 }
 
-void DataSeriesOutputModule::makeIoctlArgsMap(std::map<std::string,
-					      void *> &args_map,
+void DataSeriesOutputModule::makeIoctlArgsMap(SysCallArgsMap &args_map,
 					      long *args,
 					      void **v_args) {
   args_map["descriptor"] = &args[0];
