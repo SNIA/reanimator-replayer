@@ -10,19 +10,19 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
- * This header file provides members and functions for implementing chmod
+ * This header file provides members and functions for implementing fchmod
  * system call.
  *
- * ChmodSystemCallTraceReplayerModule is a class/module that
- * has members and functions of replaying chmod system call.
+ * FChmodSystemCallTraceReplayerModule is a class/module that
+ * has members and functions of replaying fchmod system call.
  *
  * USAGE
  * A main program could initialize this class with a dataseries file
  * and call execute() function until all extents are processed.
  *
  */
-#ifndef CHMOD_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
-#define CHMOD_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
+#ifndef FCHMOD_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
+#define FCHMOD_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 
 #include "SystemCallTraceReplayModule.hpp"
 
@@ -30,28 +30,28 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-class ChmodSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
+class FChmodSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 private:
-  /* Chmod System Call Trace Fields in Dataseries file */
-  Variable32Field given_pathname_;
+  /* FChmod System Call Trace Fields in Dataseries file */
+  Int32Field descriptor_;
   Int32Field mode_value_;
 
   /*
-   * Print chmod sys call field values in a nice format
+   * Print fchmod sys call field values in a nice format
    */
   void print_specific_fields();
 
   /*
    * This function will gather arguments in the trace file
-   * and replay a chmod system call with those arguments.
+   * and replay an fchmod  system call with those arguments.
    */
   void processRow();
 
 public:
-  ChmodSystemCallTraceReplayModule(DataSeriesModule &source,
-				   bool verbose_flag,
-				   int warn_level_flag);
+  FChmodSystemCallTraceReplayModule(DataSeriesModule &source,
+                                   bool verbose_flag,
+                                   int warn_level_flag);
 
 };
 
-#endif /* CHMOD_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */
+#endif /* FCHMOD_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

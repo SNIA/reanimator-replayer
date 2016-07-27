@@ -45,6 +45,7 @@
 #include "ReadlinkSystemCallTraceReplayModule.hpp"
 #include "UtimeSystemCallTraceReplayModule.hpp"
 #include "ChmodSystemCallTraceReplayModule.hpp"
+#include "FChmodSystemCallTraceReplayModule.hpp"
 #include "ChownSystemCallTraceReplayModule.hpp"
 #include "ReadvSystemCallTraceReplayModule.hpp"
 #include "WritevSystemCallTraceReplayModule.hpp"
@@ -252,6 +253,7 @@ int main(int argc, char *argv[]) {
   system_calls.push_back("readlink");
   system_calls.push_back("utime");
   system_calls.push_back("chmod");
+  system_calls.push_back("fchmod");
   system_calls.push_back("chown");
   system_calls.push_back("readv");
   system_calls.push_back("writev");
@@ -429,6 +431,11 @@ int main(int argc, char *argv[]) {
 				 *prefetch_buffer_modules[module_index++],
 				 verbose,
 				 warn_level);
+  FChmodSystemCallTraceReplayModule *fchmod_module =
+    new FChmodSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 warn_level);
   ChownSystemCallTraceReplayModule *chown_module =
     new ChownSystemCallTraceReplayModule(
 				 *prefetch_buffer_modules[module_index++],
@@ -561,6 +568,7 @@ int main(int argc, char *argv[]) {
   system_call_trace_replay_modules.push_back(readlink_module);
   system_call_trace_replay_modules.push_back(utime_module);
   system_call_trace_replay_modules.push_back(chmod_module);
+  system_call_trace_replay_modules.push_back(fchmod_module);
   system_call_trace_replay_modules.push_back(chown_module);
   system_call_trace_replay_modules.push_back(readv_module);
   system_call_trace_replay_modules.push_back(writev_module);
