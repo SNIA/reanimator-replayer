@@ -11,7 +11,7 @@
   <field name="return_value" type="int64" opt_nullable="yes"/>
   <field name="unique_id" type="int64" opt_nullable="no"/>
   <field name="descriptor" type="int32" opt_nullable="no"/>
-  <field name="descriptor_current_directory" type="bool" opt_nullable="no"/>
+  <field name="descriptor_current_working_directory" type="bool" opt_nullable="no"/>
   <field name="given_pathname" type="variable32" opt_nullable="no"/>
   <field name="full_pathname" type="variable32" opt_nullable="yes"/>
   <field name="flag_value" type="int32" opt_nullable="yes"/>

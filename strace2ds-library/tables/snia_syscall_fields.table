@@ -337,7 +337,7 @@ rename	full_oldname	1	variable32
 rename	given_newname	0	variable32
 rename	full_newname	1	variable32
 unlinkat	descriptor	0	int32
-unlinkat	descriptor_current_directory	0	bool
+unlinkat	descriptor_current_working_directory	0	bool
 unlinkat	given_pathname	0	variable32
 unlinkat	full_pathname	1	variable32
 unlinkat	flag_value	1	int32
@@ -346,7 +346,7 @@ getdents	descriptor	0	int32
 getdents	dirent_buffer	1	variable32
 getdents	count	0	int32
 openat	descriptor	0	int32
-openat	descriptor_current_directory	0	bool
+openat	descriptor_current_working_directory	0	bool
 openat	given_pathname	0	variable32
 openat	full_pathname	1	variable32
 openat	open_value	1	int32
