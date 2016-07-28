@@ -253,6 +253,14 @@ public:
   struct timeval Tfrac_to_timeval(uint64_t time);
 
   /*
+   * Convert a time value stored in Tfrac units (2^32 Tfracs = 1 sec)
+   * (as a uint64_t) to a struct timespec (for the utimensat system call)
+   *
+   * @return: the corresponding timespec
+   */
+  struct timespec Tfrac_to_timespec(uint64_t time);
+
+  /*
    * For system calls such as write, pwrite and writev, replayer has
    * an option to fill buffers with zeros, any pattern or random values.
    * If pattern is set as random, this function will randomly generate

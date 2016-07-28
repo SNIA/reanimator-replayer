@@ -260,6 +260,7 @@ int main(int argc, char *argv[]) {
   system_calls.push_back("lstat");
   system_calls.push_back("fstat");
   system_calls.push_back("utimes");
+  system_calls.push_back("utimensat");
   system_calls.push_back("rename");
   system_calls.push_back("fsync");
   system_calls.push_back("mknod");
@@ -471,6 +472,12 @@ int main(int argc, char *argv[]) {
 				 verbose,
 				 verify,
 				 warn_level);
+  UtimensatSystemCallTraceReplayModule *utimensat_module =
+    new UtimensatSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 verify,
+				 warn_level);
   RenameSystemCallTraceReplayModule *rename_module =
     new RenameSystemCallTraceReplayModule(
 				 *prefetch_buffer_modules[module_index++],
@@ -575,6 +582,7 @@ int main(int argc, char *argv[]) {
   system_call_trace_replay_modules.push_back(lstat_module);
   system_call_trace_replay_modules.push_back(fstat_module);
   system_call_trace_replay_modules.push_back(utimes_module);
+  system_call_trace_replay_modules.push_back(utimensat_module);
   system_call_trace_replay_modules.push_back(rename_module);
   system_call_trace_replay_modules.push_back(fsync_module);
   system_call_trace_replay_modules.push_back(mknod_module);

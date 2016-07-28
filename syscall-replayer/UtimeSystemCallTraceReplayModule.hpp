@@ -25,6 +25,8 @@
 
 #include <unistd.h>
 #include <utime.h>
+#include <sys/stat.h>
+#include <sys/syscall.h>
 #include "SystemCallTraceReplayModule.hpp"
 
 class UtimeSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
@@ -67,5 +69,30 @@ public:
 				    bool verbose_flag,
 				    bool verify_flag,
 				    int warn_level_flag);
+};
+
+class UtimensatSystemCallTraceReplayModule :
+  public UtimeSystemCallTraceReplayModule {
+private:
+  /* Utimensat System Call Trace Fields in Dataseries file */
+  Int32Field descriptor_;
+  Int32Field flag_value_;
+
+  /*
+   * Print utimensat sys call field values in a nice format
+   */
+  void print_specific_fields();
+
+  /*
+   * This function will gather arguments in the trace file
+   * and then replay utimensats system call with those arguments.
+   */
+  void processRow();
+
+public:
+  UtimensatSystemCallTraceReplayModule(DataSeriesModule &source,
+				       bool verbose_flag,
+				       bool verify_flag,
+				       int warn_level_flag);
 };
 #endif /* UTIME_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

@@ -26,7 +26,7 @@ UtimeSystemCallTraceReplayModule(DataSeriesModule &source,
 				 int warn_level_flag):
   SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
   verify_(verify_flag),
-  given_pathname_(series, "given_pathname"),
+  given_pathname_(series, "given_pathname", Field::flag_nullable),
   access_time_(series, "access_time"),
   mod_time_(series, "mod_time") {
   sys_call_name_ = "utime";
@@ -94,4 +94,56 @@ It will assign the current time to the file's access_time and mod_time."
   }
   else
     replayed_ret_val_ = utimes(pathname, tv);
+}
+
+UtimensatSystemCallTraceReplayModule::
+UtimensatSystemCallTraceReplayModule(DataSeriesModule &source,
+				     bool verbose_flag,
+				     bool verify_flag,
+				     int warn_level_flag):
+  UtimeSystemCallTraceReplayModule(source, verbose_flag, verify_flag,
+				   warn_level_flag),
+  descriptor_(series, "descriptor"),
+  flag_value_(series, "flag_value", Field::flag_nullable) {
+  sys_call_name_ = "utimensat";
+}
+
+void UtimensatSystemCallTraceReplayModule::print_specific_fields() {
+  std::cout << "descriptor(" << descriptor_.val() << "), ";
+  UtimeSystemCallTraceReplayModule::print_specific_fields();
+  std::cout << ", ";
+  std::cout << "flags(" << flag_value_.val() << ")";
+}
+
+void UtimensatSystemCallTraceReplayModule::processRow() {
+  // Get replaying file given_pathname and make timespec array.
+  int dirfd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
+  struct timespec ts[2];
+  const char *pathname;
+  if (given_pathname_.isNull())
+    pathname = NULL;
+  else
+    pathname = (char *) given_pathname_.val();
+  struct timespec ts_access_time = Tfrac_to_timespec(access_time_.val());
+  struct timespec ts_mod_time = Tfrac_to_timespec(mod_time_.val());
+  ts[0] = ts_access_time;
+  ts[1] = ts_mod_time;
+  int flags = flag_value_.val();
+
+  // Replay the utimensat system call.
+  if ((access_time_.val() == 0) && (mod_time_.val() == 0)) {
+    /*
+     * If access_time and mod_time are both 0, then assume the timespec
+     * array is NULL.
+     */
+    if (verify_) {
+      std::cout << "Utimensat was passed NULL as its third argument."
+		<< std::endl;
+      std::cout << "It will assign the current time to the file's access_time\
+ and mod_time." << std::endl;
+    }
+    replayed_ret_val_ = syscall(SYS_utimensat, dirfd, pathname, NULL, flags);
+  }
+  else
+    replayed_ret_val_ = syscall(SYS_utimensat, dirfd, pathname, ts, flags);
 }
