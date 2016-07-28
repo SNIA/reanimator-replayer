@@ -406,3 +406,13 @@ fchmod	mode_X_group	0	bool
 fchmod	mode_R_others	0	bool
 fchmod	mode_W_others	0	bool
 fchmod	mode_X_others	0	bool
+utimensat	descriptor	0	int32
+utimensat	descriptor_current_working_directory	1	bool
+utimensat	given_pathname	1	variable32
+utimensat	full_pathname	1	variable32
+utimensat	access_time	0	int64
+utimensat	mod_time	0	int64
+utimensat	flag_value	1	int32
+utimensat	flag_symlink_nofollow	0	bool
+utimensat	utime_now	0	bool
+utimensat	utime_omit	0	bool

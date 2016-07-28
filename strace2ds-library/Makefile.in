@@ -386,6 +386,7 @@ XML_FILES = \
 	xml/unlink.xml		\
 	xml/unlinkat.xml	\
 	xml/utime.xml		\
+	xml/utimensat.xml	\
 	xml/utimes.xml		\
 	xml/write.xml		\
 	xml/writev.xml

@@ -151,6 +151,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["unlinkat"] = &DataSeriesOutputModule::makeUnlinkatArgsMap;
   // utime system call
   func_ptr_map_["utime"] = &DataSeriesOutputModule::makeUtimeArgsMap;
+  // utimensat system call
+  func_ptr_map_["utimensat"] = &DataSeriesOutputModule::makeUtimensatArgsMap;
   // utimes system call
   func_ptr_map_["utimes"] = &DataSeriesOutputModule::makeUtimesArgsMap;
   // write system call
@@ -1396,6 +1398,58 @@ void DataSeriesOutputModule::makeUtimesArgsMap(SysCallArgsMap &args_map,
   }
   args_map["access_time"] = &access_time_Tfrac;
   args_map["mod_time"] = &mod_time_Tfrac;
+}
+
+void DataSeriesOutputModule::makeUtimensatArgsMap(SysCallArgsMap &args_map,
+						  long *args,
+						  void **v_args) {
+  static uint64_t access_time_Tfrac;
+  static uint64_t mod_time_Tfrac;
+  static bool true_ = true;
+  initArgsMap(args_map, "utimensat");
+
+  args_map["descriptor"] = &args[0];
+  if (args[0] == AT_FDCWD) {
+    args_map["descriptor_current_working_directory"] = &true_;
+  }
+
+  if (v_args[0] != NULL) {
+    args_map["given_pathname"] = &v_args[0];
+  } else {
+    std::cerr << "Utimensat: Pathname is set as NULL!!" << std::endl;
+  }
+
+  if (v_args[1] != NULL) {
+    struct timespec *ts = (struct timespec *) v_args[1];
+
+    // Check for the special values UTIME_NOW and UTIME_OMIT
+    if ((ts[0].tv_nsec == UTIME_NOW) || (ts[1].tv_nsec == UTIME_NOW))
+      args_map["utime_now"] = &true_;
+    if ((ts[0].tv_nsec == UTIME_OMIT) || (ts[1].tv_nsec == UTIME_OMIT))
+      args_map["utime_omit"] = &true_;
+
+    // Convert timespec arguments to Tfracs (uint64_t)
+    access_time_Tfrac = timespec_to_Tfrac(ts[0]);
+    mod_time_Tfrac = timespec_to_Tfrac(ts[1]);
+  } else {
+    /*
+     * In the case of a NULL timespec array, set access_time and
+     * mod_time equal to 0.
+     */
+    access_time_Tfrac = 0;
+    mod_time_Tfrac = 0;
+  }
+  args_map["access_time"] = &access_time_Tfrac;
+  args_map["mod_time"] = &mod_time_Tfrac;
+
+  args_map["flag_value"] = &args[3];
+  u_int flag = args[3];
+  process_Flag_and_Mode_Args(args_map, flag, AT_SYMLINK_NOFOLLOW,
+			     "flag_symlink_nofollow");
+  if (flag != 0) {
+    std::cerr << "Utimensat: These flags are not processed/unknown->"
+	      << std::hex << flag << std::dec << std::endl;
+  }
 }
 
 void DataSeriesOutputModule::makeRenameArgsMap(SysCallArgsMap &args_map,

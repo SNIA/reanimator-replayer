@@ -273,6 +273,9 @@ private:
   // Maps Utimes System Call <field, value> pairs
   void makeUtimesArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
+  // Maps Utimensat System Call <field, value> pairs
+  void makeUtimensatArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+
   // Maps Rename System Call <field, value> pairs
   void makeRenameArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
