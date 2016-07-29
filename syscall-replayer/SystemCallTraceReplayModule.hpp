@@ -30,6 +30,7 @@
 
 #include <string>
 #include <map>
+#include <iostream>
 #include <errno.h>
 
 #define DEFAULT_MODE 0
@@ -108,6 +109,8 @@ protected:
 public:
   // A mapping of file descriptors in the trace file to actual file descriptors
   static std::map<int, int> fd_map_;
+  // An input file stream for reading random data from /dev/urandom
+  static std::ifstream random_file_;
 
   /*
    * Basic Constructor

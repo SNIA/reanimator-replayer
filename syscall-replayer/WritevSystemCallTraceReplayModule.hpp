@@ -31,7 +31,6 @@
 class WritevSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 private:
   std::string pattern_data_;
-  std::ifstream random_file_;
   /* Writev System Call Trace Fields in Dataseries file */
   Int32Field descriptor_;
   Int32Field count_;

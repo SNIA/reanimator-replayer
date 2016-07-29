@@ -202,6 +202,8 @@ void process_options(int argc, char *argv[],
 
 // Define the static fd_map_ in SystemCallTraceReplayModule
 std::map<int, int> SystemCallTraceReplayModule::fd_map_;
+// Define the input file stream random_file_ in SystemCallTraceReplayModule
+std::ifstream SystemCallTraceReplayModule::random_file_;
 
 int main(int argc, char *argv[]) {
   int ret = EXIT_SUCCESS;
@@ -588,6 +590,15 @@ int main(int argc, char *argv[]) {
     abort();
   }
 
+  // If pattern data is equal to urandom, then open /dev/urandom file
+  if (pattern_data == "urandom") {
+    SystemCallTraceReplayModule::random_file_.open("/dev/urandom");
+    if (!SystemCallTraceReplayModule::random_file_.is_open()) {
+      std::cerr << "Unable to open file '/dev/urandom'.\n";
+      exit(EXIT_FAILURE);
+    }
+  }
+
   /*
    * Define a min heap that stores each module. The heap is ordered
    * by unique_id field.
@@ -619,6 +630,11 @@ int main(int argc, char *argv[]) {
       // No, there are more extents, so we add it to min_heap
       replayers_heap.push(execute_replayer);
     }
+  }
+
+  // Close /dev/urandom file
+  if (pattern_data == "urandom") {
+    SystemCallTraceReplayModule::random_file_.close();
   }
 
   return ret;
