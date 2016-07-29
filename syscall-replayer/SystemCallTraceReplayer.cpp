@@ -249,6 +249,7 @@ int main(int argc, char *argv[]) {
   system_calls.push_back("symlink");
   system_calls.push_back("rmdir");
   system_calls.push_back("mkdir");
+  system_calls.push_back("mkdirat");
   system_calls.push_back("stat");
   system_calls.push_back("pwrite");
   system_calls.push_back("readlink");
@@ -398,6 +399,11 @@ int main(int argc, char *argv[]) {
 				 warn_level);
   MkdirSystemCallTraceReplayModule *mkdir_module =
     new MkdirSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 warn_level);
+  MkdiratSystemCallTraceReplayModule *mkdirat_module =
+    new MkdiratSystemCallTraceReplayModule(
 				 *prefetch_buffer_modules[module_index++],
 				 verbose,
 				 warn_level);
@@ -558,6 +564,7 @@ int main(int argc, char *argv[]) {
   system_call_trace_replay_modules.push_back(symlink_module);
   system_call_trace_replay_modules.push_back(rmdir_module);
   system_call_trace_replay_modules.push_back(mkdir_module);
+  system_call_trace_replay_modules.push_back(mkdirat_module);
   system_call_trace_replay_modules.push_back(stat_module);
   system_call_trace_replay_modules.push_back(pwrite_module);
   system_call_trace_replay_modules.push_back(readlink_module);

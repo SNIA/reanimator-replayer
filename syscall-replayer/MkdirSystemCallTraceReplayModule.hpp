@@ -10,10 +10,10 @@
  * published by the Free Software Foundation.
  *
  * This header file provides members and functions for implementing mkdir
- * system call.
+ * and mkdirat system call.
  *
  * MkdirSystemCallTraceReplayerModule is a class/module that
- * has members and functions of replaying mkdir system call.
+ * has members and functions of replaying mkdir and mkdirat system call.
  *
  * USAGE
  * A main program could initialize this class with a dataseries file
@@ -30,13 +30,13 @@
 #include <fcntl.h>
 
 class MkdirSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-private:
-  /* Open System Call Trace Fields in Dataseries file */
+protected:
+  /* Mkdir System Call Trace Fields in Dataseries file */
   Variable32Field given_pathname_;
   Int32Field mode_value_;
 
   /*
-   * Print open sys call field values in a nice format
+   * Print mkdir sys call field values in a nice format
    */
   void print_specific_fields();
 
@@ -50,6 +50,30 @@ public:
   MkdirSystemCallTraceReplayModule(DataSeriesModule &source,
 				   bool verbose_flag,
 				   int warn_level_flag);
+
+};
+
+class MkdiratSystemCallTraceReplayModule :
+  public MkdirSystemCallTraceReplayModule {
+private:
+  /* Mkdirat System Call Trace Fields in Dataseries file */
+  Int32Field descriptor_;
+
+  /*
+   * Print mkdirat sys call field values in a nice format
+   */
+  void print_specific_fields();
+
+  /*
+   * This function will gather arguments in the trace file
+   * and replay a mkdirat system call with those arguments.
+   */
+  void processRow();
+
+public:
+  MkdiratSystemCallTraceReplayModule(DataSeriesModule &source,
+				     bool verbose_flag,
+				     int warn_level_flag);
 
 };
 

@@ -40,3 +40,26 @@ void MkdirSystemCallTraceReplayModule::processRow() {
   // Replay the mkdir system call
   replayed_ret_val_ = mkdir(pathname, mode);
 }
+
+MkdiratSystemCallTraceReplayModule::
+MkdiratSystemCallTraceReplayModule(DataSeriesModule &source,
+				   bool verbose_flag,
+				   int warn_level_flag):
+  MkdirSystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+  descriptor_(series, "descriptor") {
+  sys_call_name_ = "openat";
+}
+
+void MkdiratSystemCallTraceReplayModule::print_specific_fields() {
+  std::cout << "descriptor(" << descriptor_.val() << "), ";
+  MkdirSystemCallTraceReplayModule::print_specific_fields();
+}
+
+void MkdiratSystemCallTraceReplayModule::processRow() {
+  int dirfd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
+  const char *pathname = (char *)given_pathname_.val();
+  mode_t mode = mode_value_.val();
+
+  // Replay the mkdirat system call
+  replayed_ret_val_ = mkdirat(dirfd, pathname, mode);
+}
