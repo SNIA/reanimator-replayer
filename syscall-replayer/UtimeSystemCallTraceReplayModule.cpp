@@ -154,7 +154,7 @@ void UtimensatSystemCallTraceReplayModule::processRow() {
      * if the pathname is NULL, while, for the system call itself,
      * NULL is a valid pathname in some situations.  Calling the wrapper
      * resulted in errors replaying a cp -a command, so we call the 
-     * utimensat system call directly.
+     * utimensat system call directly. - Nina
      */
     replayed_ret_val_ = syscall(SYS_utimensat, dirfd, pathname, NULL, flags);
   } else {
