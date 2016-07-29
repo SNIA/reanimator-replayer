@@ -47,7 +47,7 @@ MkdiratSystemCallTraceReplayModule(DataSeriesModule &source,
 				   int warn_level_flag):
   MkdirSystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
   descriptor_(series, "descriptor") {
-  sys_call_name_ = "openat";
+  sys_call_name_ = "mkdirat";
 }
 
 void MkdiratSystemCallTraceReplayModule::print_specific_fields() {
