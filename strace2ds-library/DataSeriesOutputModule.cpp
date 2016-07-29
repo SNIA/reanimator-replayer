@@ -1739,6 +1739,15 @@ u_int DataSeriesOutputModule::processFcntlStatusFlags(SysCallArgsMap &args_map,
    * Process each individual flag bit that has been set
    * in the argument status_flag.
    */
+  // set read only flag
+  process_Flag_and_Mode_Args(args_map, status_flag, O_RDONLY,
+			     "argument_status_flag_read_only");
+  // set write only flag
+  process_Flag_and_Mode_Args(args_map, status_flag, O_WRONLY,
+			     "argument_status_flag_write_only");
+  // set read and write flag
+  process_Flag_and_Mode_Args(args_map, status_flag, O_RDWR,
+			     "argument_status_flag_read_and_write");
   // set append flag
   process_Flag_and_Mode_Args(args_map, status_flag, O_APPEND,
 			     "argument_status_flag_append");

@@ -93,6 +93,9 @@ fcntl	command_set_descriptor_flags	0	bool
 fcntl	argument_descriptor_flag_exec_close	0	bool
 fcntl	command_get_status_flags	0	bool
 fcntl	command_set_status_flags	0	bool
+fcntl	argument_status_flag_read_only	0	bool
+fcntl	argument_status_flag_write_only	0	bool
+fcntl	argument_status_flag_read_and_write	0	bool
 fcntl	argument_status_flag_append	0	bool
 fcntl	argument_status_flag_async	0	bool
 fcntl	argument_status_flag_create	0	bool
