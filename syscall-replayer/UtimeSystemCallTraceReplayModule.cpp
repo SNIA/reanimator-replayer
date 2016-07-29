@@ -26,9 +26,15 @@ UtimeSystemCallTraceReplayModule(DataSeriesModule &source,
 				 int warn_level_flag):
   SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
   verify_(verify_flag),
+  /*
+   * Pathname is nullable for utimensat, but not for utime and utimes.
+   * However, making it nullable here does not affect the performance
+   * of utime and utimes as long as it is non-nullable in the
+   * strace2ds library.
+   */
   given_pathname_(series, "given_pathname", Field::flag_nullable),
-  access_time_(series, "access_time"),
-  mod_time_(series, "mod_time") {
+  access_time_(series, "access_time", Field::flag_nullable),
+  mod_time_(series, "mod_time", Field::flag_nullable) {
   sys_call_name_ = "utime";
 }
 
@@ -42,12 +48,13 @@ void UtimeSystemCallTraceReplayModule::processRow() {
   // Get replaying file given_pathname.
   struct utimbuf utimebuf;
   const char *pathname = (char *) given_pathname_.val();
-  utimebuf.actime = Tfrac_to_sec(access_time_.val());
-  utimebuf.modtime = Tfrac_to_sec(mod_time_.val());
 
   // Replay the utime system call.
-  if ((access_time_.val() == 0) && (mod_time_.val() == 0)) {
-    // If access_time and mod_time are both 0, then assume the utimbuf is NULL.
+  if ((access_time_.isNull()) && (mod_time_.isNull())) {
+    /*
+     * If access_time and mod_time are both null, then assume the utimbuf
+     * is NULL.
+     */
     if (verify_) {
       std::cout << "Utime was passed NULL as its second argument."
 		<< std::endl;
@@ -55,9 +62,12 @@ void UtimeSystemCallTraceReplayModule::processRow() {
  and mod_time." << std::endl;
     }
     replayed_ret_val_ = utime(pathname, NULL);
-  }
-  else
+  } else {
+    utimebuf.actime = Tfrac_to_sec(access_time_.val());
+    utimebuf.modtime = Tfrac_to_sec(mod_time_.val());
+
     replayed_ret_val_ = utime(pathname, &utimebuf);
+  }
 }
 
 UtimesSystemCallTraceReplayModule::
@@ -74,15 +84,11 @@ void UtimesSystemCallTraceReplayModule::processRow() {
   // Get replaying file given_pathname and make timeval array.
   struct timeval tv[2];
   const char *pathname = (char *) given_pathname_.val();
-  struct timeval tv_access_time = Tfrac_to_timeval(access_time_.val());
-  struct timeval tv_mod_time = Tfrac_to_timeval(mod_time_.val());
-  tv[0] = tv_access_time;
-  tv[1] = tv_mod_time;
 
   // Replay the utimes system call.
-  if ((access_time_.val() == 0) && (mod_time_.val() == 0)) {
+  if ((access_time_.isNull()) && (mod_time_.isNull())) {
     /*
-     * If access_time and mod_time are both 0, then assume the timeval
+     * If access_time and mod_time are both null, then assume the timeval
      * array is NULL.
      */
     if (verify_) {
@@ -91,9 +97,14 @@ It will assign the current time to the file's access_time and mod_time."
 		<< std::endl;
     }
     replayed_ret_val_ = utimes(pathname, NULL);
-  }
-  else
+  } else {
+    struct timeval tv_access_time = Tfrac_to_timeval(access_time_.val());
+    struct timeval tv_mod_time = Tfrac_to_timeval(mod_time_.val());
+    tv[0] = tv_access_time;
+    tv[1] = tv_mod_time;
+
     replayed_ret_val_ = utimes(pathname, tv);
+  }
 }
 
 UtimensatSystemCallTraceReplayModule::
@@ -124,16 +135,12 @@ void UtimensatSystemCallTraceReplayModule::processRow() {
     pathname = NULL;
   else
     pathname = (char *) given_pathname_.val();
-  struct timespec ts_access_time = Tfrac_to_timespec(access_time_.val());
-  struct timespec ts_mod_time = Tfrac_to_timespec(mod_time_.val());
-  ts[0] = ts_access_time;
-  ts[1] = ts_mod_time;
   int flags = flag_value_.val();
 
   // Replay the utimensat system call.
-  if ((access_time_.val() == 0) && (mod_time_.val() == 0)) {
+  if ((access_time_.isNull()) && (mod_time_.isNull())) {
     /*
-     * If access_time and mod_time are both 0, then assume the timespec
+     * If access_time and mod_time are both null, then assume the timespec
      * array is NULL.
      */
     if (verify_) {
@@ -142,8 +149,20 @@ void UtimensatSystemCallTraceReplayModule::processRow() {
       std::cout << "It will assign the current time to the file's access_time\
  and mod_time." << std::endl;
     }
+    /*
+     * XXX: The glibc wrapper for utimensat will give the error EINVAL
+     * if the pathname is NULL, while, for the system call itself,
+     * NULL is a valid pathname in some situations.  Calling the wrapper
+     * resulted in errors replaying a cp -a command, so we call the 
+     * utimensat system call directly.
+     */
     replayed_ret_val_ = syscall(SYS_utimensat, dirfd, pathname, NULL, flags);
-  }
-  else
+  } else {
+    struct timespec ts_access_time = Tfrac_to_timespec(access_time_.val());
+    struct timespec ts_mod_time = Tfrac_to_timespec(mod_time_.val());
+    ts[0] = ts_access_time;
+    ts[1] = ts_mod_time;
+
     replayed_ret_val_ = syscall(SYS_utimensat, dirfd, pathname, ts, flags);
+  }
 }

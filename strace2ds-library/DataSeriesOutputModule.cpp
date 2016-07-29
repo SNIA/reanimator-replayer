@@ -1283,19 +1283,17 @@ void DataSeriesOutputModule::makeUtimeArgsMap(SysCallArgsMap &args_map,
     std::cerr << "Utime: Pathname is set as NULL!!" << std::endl;
   }
 
+  // If the utimbuf is not NULL, set the corresponding values in the map
   if (v_args[1] != NULL) {
     struct utimbuf *times = (struct utimbuf *) v_args[1];
 
     // Convert the time_t members of the struct utimbuf to Tfracs (uint64_t)
     access_time_Tfrac = sec_to_Tfrac(times->actime);
     mod_time_Tfrac = sec_to_Tfrac(times->modtime);
-  } else {
-    // In the case of a NULL utimbuf, set access_time and mod_time equal to 0
-    access_time_Tfrac = 0;
-    mod_time_Tfrac = 0;
+
+    args_map["access_time"] = &access_time_Tfrac;
+    args_map["mod_time"] = &mod_time_Tfrac;
   }
-  args_map["access_time"] = &access_time_Tfrac;
-  args_map["mod_time"] = &mod_time_Tfrac;
 }
 
 void DataSeriesOutputModule::makeLStatArgsMap(SysCallArgsMap &args_map,
@@ -1382,22 +1380,17 @@ void DataSeriesOutputModule::makeUtimesArgsMap(SysCallArgsMap &args_map,
     std::cerr << "Utimes: Pathname is set as NULL!!" << std::endl;
   }
 
+  // If the timeval array is not NULL, set the corresponding values in the map
   if (v_args[1] != NULL) {
     struct timeval *tv = (struct timeval *) v_args[1];
 
     // Convert timeval arguments to Tfracs (uint64_t)
     access_time_Tfrac = timeval_to_Tfrac(tv[0]);
     mod_time_Tfrac = timeval_to_Tfrac(tv[1]);
-  } else {
-    /*
-     * In the case of a NULL timeval array, set access_time and
-     * mod_time equal to 0.
-     */
-    access_time_Tfrac = 0;
-    mod_time_Tfrac = 0;
+
+    args_map["access_time"] = &access_time_Tfrac;
+    args_map["mod_time"] = &mod_time_Tfrac;
   }
-  args_map["access_time"] = &access_time_Tfrac;
-  args_map["mod_time"] = &mod_time_Tfrac;
 }
 
 void DataSeriesOutputModule::makeUtimensatArgsMap(SysCallArgsMap &args_map,
@@ -1419,6 +1412,7 @@ void DataSeriesOutputModule::makeUtimensatArgsMap(SysCallArgsMap &args_map,
     std::cerr << "Utimensat: Pathname is set as NULL!!" << std::endl;
   }
 
+  // If the timespec array is not NULL, set the corresponding values in the map
   if (v_args[1] != NULL) {
     struct timespec *ts = (struct timespec *) v_args[1];
 
@@ -1431,16 +1425,10 @@ void DataSeriesOutputModule::makeUtimensatArgsMap(SysCallArgsMap &args_map,
     // Convert timespec arguments to Tfracs (uint64_t)
     access_time_Tfrac = timespec_to_Tfrac(ts[0]);
     mod_time_Tfrac = timespec_to_Tfrac(ts[1]);
-  } else {
-    /*
-     * In the case of a NULL timespec array, set access_time and
-     * mod_time equal to 0.
-     */
-    access_time_Tfrac = 0;
-    mod_time_Tfrac = 0;
+
+    args_map["access_time"] = &access_time_Tfrac;
+    args_map["mod_time"] = &mod_time_Tfrac;
   }
-  args_map["access_time"] = &access_time_Tfrac;
-  args_map["mod_time"] = &mod_time_Tfrac;
 
   args_map["flag_value"] = &args[3];
   u_int flag = args[3];

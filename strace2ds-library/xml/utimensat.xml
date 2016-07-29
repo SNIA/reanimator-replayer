@@ -14,8 +14,8 @@
   <field name="descriptor_current_working_directory" type="bool" opt_nullable="yes"/>
   <field name="given_pathname" type="variable32" opt_nullable="yes"/>
   <field name="full_pathname" type="variable32" opt_nullable="yes"/>
-  <field name="access_time" type="int64" opt_nullable="no"/>
-  <field name="mod_time" type="int64" opt_nullable="no"/>
+  <field name="access_time" type="int64" opt_nullable="yes"/>
+  <field name="mod_time" type="int64" opt_nullable="yes"/>
   <field name="flag_value" type="int32" opt_nullable="yes"/>
   <field name="flag_symlink_nofollow" type="bool" opt_nullable="no"/>
   <field name="utime_now" type="bool" opt_nullable="no"/>
