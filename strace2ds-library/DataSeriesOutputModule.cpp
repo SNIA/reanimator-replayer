@@ -111,6 +111,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["lstat"] = &DataSeriesOutputModule::makeLStatArgsMap;
   // mkdir system call
   func_ptr_map_["mkdir"] = &DataSeriesOutputModule::makeMkdirArgsMap;
+  // mkdirat system call
+  func_ptr_map_["mkdirat"] = &DataSeriesOutputModule::makeMkdiratArgsMap;
   // mknod system call
   func_ptr_map_["mknod"] = &DataSeriesOutputModule::makeMknodArgsMap;
   // mmap system call
@@ -911,6 +913,32 @@ void DataSeriesOutputModule::makeMkdirArgsMap(SysCallArgsMap &args_map,
   mode_t mode = processMode(args_map, args, 1);
   if (mode != 0) {
     std::cerr << "Mkdir: These modes are not processed/unknown->0";
+    std::cerr << std::oct << mode << std::dec << std::endl;
+  }
+}
+
+void DataSeriesOutputModule::makeMkdiratArgsMap(SysCallArgsMap &args_map,
+						long *args,
+						void **v_args) {
+  int mode_offset = 2;
+  static bool true_ = true;
+
+  // Initialize all non-nullable boolean fields
+  initArgsMap(args_map, "mkdirat");
+
+  args_map["descriptor"] = &args[0];
+  if (args[0] == AT_FDCWD) {
+    args_map["descriptor_current_working_directory"] = &true_;
+  }
+
+  if (v_args[0] != NULL) {
+    args_map["given_pathname"] = &v_args[0];
+  } else {
+    std::cerr << "Mkdirat: Pathname is set as NULL!!" << std::endl;
+  }
+  mode_t mode = processMode(args_map, args, mode_offset);
+  if (mode != 0) {
+    std::cerr << "Mkdirat: These modes are not processed/unknown->0";
     std::cerr << std::oct << mode << std::dec << std::endl;
   }
 }

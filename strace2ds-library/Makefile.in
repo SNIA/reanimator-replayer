@@ -366,6 +366,7 @@ XML_FILES = \
 	xml/lseek.xml		\
 	xml/lstat.xml		\
 	xml/mkdir.xml		\
+	xml/mkdirat.xml		\
 	xml/mknod.xml		\
 	xml/mmap.xml		\
 	xml/munmap.xml		\

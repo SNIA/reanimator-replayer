@@ -208,6 +208,9 @@ private:
   // Maps Mkdir System Call <field, value> pairs
   void makeMkdirArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
+  // Maps Mkdirat System Call <field, value> pairs
+  void makeMkdiratArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+
   // Maps Creat System Call <field, value> pairs
   void makeCreatArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
