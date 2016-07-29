@@ -12,6 +12,6 @@
   <field name="unique_id" type="int64" opt_nullable="no"/>
   <field name="given_pathname" type="variable32" opt_nullable="no"/>
   <field name="full_pathname" type="variable32" opt_nullable="yes"/>
-  <field name="access_time" type="int64" opt_nullable="no"/>
-  <field name="mod_time" type="int64" opt_nullable="no"/>
+  <field name="access_time" type="int64" opt_nullable="yes"/>
+  <field name="mod_time" type="int64" opt_nullable="yes"/>
 </ExtentType>

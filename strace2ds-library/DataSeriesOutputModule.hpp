@@ -217,6 +217,9 @@ private:
   // Maps Chmod System Calls <field, value> pairs
   void makeChmodArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
+  // Maps FChmod System Calls <field, value> pairs
+  void makeFChmodArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+
   // Maps Link System Call <field, value> pairs
   void makeLinkArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
@@ -272,6 +275,9 @@ private:
 
   // Maps Utimes System Call <field, value> pairs
   void makeUtimesArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+
+  // Maps Utimensat System Call <field, value> pairs
+  void makeUtimensatArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
   // Maps Rename System Call <field, value> pairs
   void makeRenameArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);

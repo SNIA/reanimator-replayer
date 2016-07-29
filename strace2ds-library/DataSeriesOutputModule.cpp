@@ -91,6 +91,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["execve"] = &DataSeriesOutputModule::makeExecveArgsMap;
   // _exit system call
   func_ptr_map_["exit"] = &DataSeriesOutputModule::makeExitArgsMap;
+  // fchmod system call
+  func_ptr_map_["fchmod"] = &DataSeriesOutputModule::makeFChmodArgsMap;
   // fcntl system call
   func_ptr_map_["fcntl"] = &DataSeriesOutputModule::makeFcntlArgsMap;
   // fstat system call
@@ -151,6 +153,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["unlinkat"] = &DataSeriesOutputModule::makeUnlinkatArgsMap;
   // utime system call
   func_ptr_map_["utime"] = &DataSeriesOutputModule::makeUtimeArgsMap;
+  // utimensat system call
+  func_ptr_map_["utimensat"] = &DataSeriesOutputModule::makeUtimensatArgsMap;
   // utimes system call
   func_ptr_map_["utimes"] = &DataSeriesOutputModule::makeUtimesArgsMap;
   // write system call
@@ -977,6 +981,19 @@ void DataSeriesOutputModule::makeChmodArgsMap(SysCallArgsMap &args_map,
   }
 }
 
+void DataSeriesOutputModule::makeFChmodArgsMap(SysCallArgsMap &args_map,
+					       long *args,
+					       void **v_args) {
+  initArgsMap(args_map, "fchmod");
+  int mode_offset = 1;
+  args_map["descriptor"] = &args[0];
+  mode_t mode = processMode(args_map, args, 1);
+  if (mode != 0) {
+    std::cerr << "FChmod: These modes are not processed/unknown->0";
+    std::cerr << std::oct << mode << std::dec << std::endl;
+  }
+}
+
 void DataSeriesOutputModule::makeLinkArgsMap(SysCallArgsMap &args_map,
 					     long *args,
 					     void **v_args) {
@@ -1294,19 +1311,17 @@ void DataSeriesOutputModule::makeUtimeArgsMap(SysCallArgsMap &args_map,
     std::cerr << "Utime: Pathname is set as NULL!!" << std::endl;
   }
 
+  // If the utimbuf is not NULL, set the corresponding values in the map
   if (v_args[1] != NULL) {
     struct utimbuf *times = (struct utimbuf *) v_args[1];
 
     // Convert the time_t members of the struct utimbuf to Tfracs (uint64_t)
     access_time_Tfrac = sec_to_Tfrac(times->actime);
     mod_time_Tfrac = sec_to_Tfrac(times->modtime);
-  } else {
-    // In the case of a NULL utimbuf, set access_time and mod_time equal to 0
-    access_time_Tfrac = 0;
-    mod_time_Tfrac = 0;
+
+    args_map["access_time"] = &access_time_Tfrac;
+    args_map["mod_time"] = &mod_time_Tfrac;
   }
-  args_map["access_time"] = &access_time_Tfrac;
-  args_map["mod_time"] = &mod_time_Tfrac;
 }
 
 void DataSeriesOutputModule::makeLStatArgsMap(SysCallArgsMap &args_map,
@@ -1393,22 +1408,64 @@ void DataSeriesOutputModule::makeUtimesArgsMap(SysCallArgsMap &args_map,
     std::cerr << "Utimes: Pathname is set as NULL!!" << std::endl;
   }
 
+  // If the timeval array is not NULL, set the corresponding values in the map
   if (v_args[1] != NULL) {
     struct timeval *tv = (struct timeval *) v_args[1];
 
     // Convert timeval arguments to Tfracs (uint64_t)
     access_time_Tfrac = timeval_to_Tfrac(tv[0]);
     mod_time_Tfrac = timeval_to_Tfrac(tv[1]);
-  } else {
-    /*
-     * In the case of a NULL timeval array, set access_time and
-     * mod_time equal to 0.
-     */
-    access_time_Tfrac = 0;
-    mod_time_Tfrac = 0;
+
+    args_map["access_time"] = &access_time_Tfrac;
+    args_map["mod_time"] = &mod_time_Tfrac;
   }
-  args_map["access_time"] = &access_time_Tfrac;
-  args_map["mod_time"] = &mod_time_Tfrac;
+}
+
+void DataSeriesOutputModule::makeUtimensatArgsMap(SysCallArgsMap &args_map,
+						  long *args,
+						  void **v_args) {
+  static uint64_t access_time_Tfrac;
+  static uint64_t mod_time_Tfrac;
+  static bool true_ = true;
+  initArgsMap(args_map, "utimensat");
+
+  args_map["descriptor"] = &args[0];
+  if (args[0] == AT_FDCWD) {
+    args_map["descriptor_current_working_directory"] = &true_;
+  }
+
+  if (v_args[0] != NULL) {
+    args_map["given_pathname"] = &v_args[0];
+  } else {
+    std::cerr << "Utimensat: Pathname is set as NULL!!" << std::endl;
+  }
+
+  // If the timespec array is not NULL, set the corresponding values in the map
+  if (v_args[1] != NULL) {
+    struct timespec *ts = (struct timespec *) v_args[1];
+
+    // Check for the special values UTIME_NOW and UTIME_OMIT
+    if ((ts[0].tv_nsec == UTIME_NOW) || (ts[1].tv_nsec == UTIME_NOW))
+      args_map["utime_now"] = &true_;
+    if ((ts[0].tv_nsec == UTIME_OMIT) || (ts[1].tv_nsec == UTIME_OMIT))
+      args_map["utime_omit"] = &true_;
+
+    // Convert timespec arguments to Tfracs (uint64_t)
+    access_time_Tfrac = timespec_to_Tfrac(ts[0]);
+    mod_time_Tfrac = timespec_to_Tfrac(ts[1]);
+
+    args_map["access_time"] = &access_time_Tfrac;
+    args_map["mod_time"] = &mod_time_Tfrac;
+  }
+
+  args_map["flag_value"] = &args[3];
+  u_int flag = args[3];
+  process_Flag_and_Mode_Args(args_map, flag, AT_SYMLINK_NOFOLLOW,
+			     "flag_symlink_nofollow");
+  if (flag != 0) {
+    std::cerr << "Utimensat: These flags are not processed/unknown->"
+	      << std::hex << flag << std::dec << std::endl;
+  }
 }
 
 void DataSeriesOutputModule::makeRenameArgsMap(SysCallArgsMap &args_map,

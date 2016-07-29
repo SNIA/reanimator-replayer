@@ -16,6 +16,7 @@ XML_FILES=			\
 	xml/dup2.xml		\
 	xml/execve.xml		\
 	xml/exit.xml		\
+	xml/fchmod.xml		\
 	xml/fcntl.xml		\
 	xml/fork.xml		\
 	xml/fstat.xml		\
@@ -47,6 +48,7 @@ XML_FILES=			\
 	xml/unlink.xml		\
 	xml/unlinkat.xml	\
 	xml/utime.xml		\
+	xml/utimensat.xml	\
 	xml/utimes.xml		\
 	xml/write.xml		\
 	xml/writev.xml
