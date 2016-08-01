@@ -42,6 +42,7 @@
 #include "RmdirSystemCallTraceReplayModule.hpp"
 #include "MkdirSystemCallTraceReplayModule.hpp"
 #include "BasicStatSystemCallTraceReplayModule.hpp"
+#include "BasicStatfsSystemCallTraceReplayModule.hpp"
 #include "ReadlinkSystemCallTraceReplayModule.hpp"
 #include "UtimeSystemCallTraceReplayModule.hpp"
 #include "ChmodSystemCallTraceReplayModule.hpp"
@@ -252,6 +253,7 @@ int main(int argc, char *argv[]) {
   system_calls.push_back("mkdir");
   system_calls.push_back("mkdirat");
   system_calls.push_back("stat");
+  system_calls.push_back("statfs");
   system_calls.push_back("pwrite");
   system_calls.push_back("readlink");
   system_calls.push_back("utime");
@@ -412,6 +414,12 @@ int main(int argc, char *argv[]) {
 				 warn_level);
   StatSystemCallTraceReplayModule *stat_module =
     new StatSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 verify,
+				 warn_level);
+  StatfsSystemCallTraceReplayModule *statfs_module =
+    new StatfsSystemCallTraceReplayModule(
 				 *prefetch_buffer_modules[module_index++],
 				 verbose,
 				 verify,
@@ -580,6 +588,7 @@ int main(int argc, char *argv[]) {
   system_call_trace_replay_modules.push_back(mkdir_module);
   system_call_trace_replay_modules.push_back(mkdirat_module);
   system_call_trace_replay_modules.push_back(stat_module);
+  system_call_trace_replay_modules.push_back(statfs_module);
   system_call_trace_replay_modules.push_back(pwrite_module);
   system_call_trace_replay_modules.push_back(readlink_module);
   system_call_trace_replay_modules.push_back(utime_module);

@@ -19,7 +19,7 @@ SNo.	System_call_name	Status		IsReplayable
 8. 	readv			supported	Yes
 9. 	writev			supported	Yes
 10. 	fcntl			supported	Yes
-11. 	ioctl			In progress	Yes
+11. 	ioctl			supported	Yes
 12. 	fsync			supported	Yes
 13. 	open			supported	Yes
 14. 	close			supported	Yes
@@ -51,3 +51,8 @@ SNo.	System_call_name	Status		IsReplayable
 40.	getdents		supported	Yes
 41.	openat			supported	Yes
 42.	unlinkat		supported	Yes
+43.	linkat			supported	YES
+44.	fchmod			supported	YES
+45.	utimensat		supported	YES
+46.	mkdirat			supported	YES
+47.	statfs			supported	YES
