@@ -43,6 +43,7 @@ XML_FILES=			\
 	xml/rename.xml		\
 	xml/rmdir.xml		\
 	xml/stat.xml		\
+	xml/statfs.xml		\
 	xml/symlink.xml		\
 	xml/truncate.xml	\
 	xml/unlink.xml		\

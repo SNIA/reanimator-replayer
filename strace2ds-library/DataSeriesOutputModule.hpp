@@ -44,6 +44,8 @@
 #include <utime.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
+#include <sys/statfs.h>
+#include <sys/statvfs.h>
 
 class DataSeriesOutputModule;
 
@@ -251,6 +253,15 @@ private:
 
   // Maps Stat System Call <field, value> pairs
   void makeStatArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+
+  // Maps Statfs System Call <field, value> pairs
+  void makeStatfsArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+
+  /*
+   * Maps individual mount option flags for statfs system call to its
+   * corresponding field name
+   */
+  u_int processStatfsFlags(SysCallArgsMap &args_map, u_int statfs_flags);
 
   // Maps Chown System Call <field, value> pairs
   void makeChownArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
