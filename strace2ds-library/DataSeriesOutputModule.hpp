@@ -263,6 +263,9 @@ private:
    */
   u_int processStatfsFlags(SysCallArgsMap &args_map, u_int statfs_flags);
 
+  // Maps FStatfs System Call <field, value> pairs
+  void makeFStatfsArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+
   // Maps Chown System Call <field, value> pairs
   void makeChownArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 

@@ -20,6 +20,7 @@ XML_FILES=			\
 	xml/fcntl.xml		\
 	xml/fork.xml		\
 	xml/fstat.xml		\
+	xml/fstatfs.xml		\
 	xml/fsync.xml		\
 	xml/getdents.xml	\
 	xml/ioctl.xml		\

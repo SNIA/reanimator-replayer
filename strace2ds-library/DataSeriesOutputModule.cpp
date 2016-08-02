@@ -97,6 +97,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["fcntl"] = &DataSeriesOutputModule::makeFcntlArgsMap;
   // fstat system call
   func_ptr_map_["fstat"] = &DataSeriesOutputModule::makeFStatArgsMap;
+  // fstatfs system call
+  func_ptr_map_["fstatfs"] = &DataSeriesOutputModule::makeFStatfsArgsMap;
   // fsync system call
   func_ptr_map_["fsync"] = &DataSeriesOutputModule::makeFsyncArgsMap;
   // getdents system call
@@ -1243,7 +1245,39 @@ void DataSeriesOutputModule::makeStatfsArgsMap(SysCallArgsMap &args_map,
   } else {
     std::cerr << "Statfs: Struct statfs is set as NULL!!" << std::endl;
   }
+}
 
+void DataSeriesOutputModule::makeFStatfsArgsMap(SysCallArgsMap &args_map,
+						long *args,
+						void **v_args) {
+  // Initialize all non-nullable boolean fields to False.
+  initArgsMap(args_map, "fstatfs");
+
+  args_map["descriptor"] = &args[0];
+
+  if (v_args[0] != NULL) {
+    struct statfs *statfsbuf = (struct statfs *) v_args[0];
+
+    args_map["statfs_result_type"] = &statfsbuf->f_type;
+    args_map["statfs_result_bsize"] = &statfsbuf->f_bsize;
+    args_map["statfs_result_blocks"] = &statfsbuf->f_blocks;
+    args_map["statfs_result_bfree"] = &statfsbuf->f_bfree;
+    args_map["statfs_result_bavail"] = &statfsbuf->f_bavail;
+    args_map["statfs_result_files"] = &statfsbuf->f_files;
+    args_map["statfs_result_ffree"] = &statfsbuf->f_ffree;
+    args_map["statfs_result_fsid"] = &statfsbuf->f_fsid;
+    args_map["statfs_result_namelen"] = &statfsbuf->f_namelen;
+    args_map["statfs_result_frsize"] = &statfsbuf->f_frsize;
+    args_map["statfs_result_flags"] = &statfsbuf->f_flags;
+
+    u_int flag = processStatfsFlags(args_map, statfsbuf->f_flags);
+    if (flag != 0) {
+      std::cerr << "FStatfs: These flags are not processed/unknown->0x";
+      std::cerr << std::hex << flag << std::dec << std::endl;
+    }
+  } else {
+    std::cerr << "FStatfs: Struct statfs is set as NULL!!" << std::endl;
+  }
 }
 
 u_int DataSeriesOutputModule::processStatfsFlags(SysCallArgsMap &args_map,
