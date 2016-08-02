@@ -149,8 +149,36 @@ void StatfsSystemCallTraceReplayModule::processRow() {
   struct statfs statfs_buf;
   char *pathname = (char *) given_pathname_.val();
 
-  // replay the stat system call
+  // replay the statfs system call
   replayed_ret_val_ = statfs(pathname, &statfs_buf);
+
+  if (verify_ == true) {
+    BasicStatfsSystemCallTraceReplayModule::verifyResult(statfs_buf);
+  }
+}
+
+FStatfsSystemCallTraceReplayModule::
+FStatfsSystemCallTraceReplayModule(DataSeriesModule &source,
+				   bool verbose_flag,
+				   bool verify_flag,
+				   int warn_level_flag):
+  BasicStatfsSystemCallTraceReplayModule(source, verbose_flag, verify_flag,
+					 warn_level_flag),
+  descriptor_(series, "descriptor") {
+  sys_call_name_ = "fstatfs";
+}
+
+void FStatfsSystemCallTraceReplayModule::print_specific_fields() {
+  std::cout << "descriptor(" << descriptor_.val() << "), ";
+  BasicStatfsSystemCallTraceReplayModule::print_specific_fields();
+}
+
+void FStatfsSystemCallTraceReplayModule::processRow() {
+  struct statfs statfs_buf;
+  int fd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
+
+  // replay the fstatfs system call
+  replayed_ret_val_ = fstatfs(fd, &statfs_buf);
 
   if (verify_ == true) {
     BasicStatfsSystemCallTraceReplayModule::verifyResult(statfs_buf);

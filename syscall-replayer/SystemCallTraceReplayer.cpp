@@ -254,6 +254,7 @@ int main(int argc, char *argv[]) {
   system_calls.push_back("mkdirat");
   system_calls.push_back("stat");
   system_calls.push_back("statfs");
+  system_calls.push_back("fstatfs");
   system_calls.push_back("pwrite");
   system_calls.push_back("readlink");
   system_calls.push_back("utime");
@@ -424,6 +425,12 @@ int main(int argc, char *argv[]) {
 				 verbose,
 				 verify,
 				 warn_level);
+  FStatfsSystemCallTraceReplayModule *fstatfs_module =
+    new FStatfsSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 verify,
+				 warn_level);
   PWriteSystemCallTraceReplayModule *pwrite_module =
     new PWriteSystemCallTraceReplayModule(
 				 *prefetch_buffer_modules[module_index++],
@@ -589,6 +596,7 @@ int main(int argc, char *argv[]) {
   system_call_trace_replay_modules.push_back(mkdirat_module);
   system_call_trace_replay_modules.push_back(stat_module);
   system_call_trace_replay_modules.push_back(statfs_module);
+  system_call_trace_replay_modules.push_back(fstatfs_module);
   system_call_trace_replay_modules.push_back(pwrite_module);
   system_call_trace_replay_modules.push_back(readlink_module);
   system_call_trace_replay_modules.push_back(utime_module);

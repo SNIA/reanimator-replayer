@@ -56,3 +56,4 @@ SNo.	System_call_name	Status		IsReplayable
 45.	utimensat		supported	YES
 46.	mkdirat			supported	YES
 47.	statfs			supported	YES
+48.	fstatfs			supported	YES
