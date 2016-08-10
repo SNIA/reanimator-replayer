@@ -38,9 +38,9 @@ void ReadlinkSystemCallTraceReplayModule::print_specific_fields() {
 }
 
 void ReadlinkSystemCallTraceReplayModule::processRow() {
-  char *pathname = (char*)given_pathname_.val();
-  char nbytes = (int)buffer_size_.val();
-  int return_value = (int)return_value_.val();
+  char *pathname = (char*) given_pathname_.val();
+  int nbytes = (int) buffer_size_.val();
+  int return_value = (int) return_value_.val();
   char target_path[nbytes];
 
   // replay the readlink system call

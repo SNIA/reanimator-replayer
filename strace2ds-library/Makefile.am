@@ -20,6 +20,7 @@ XML_FILES=			\
 	xml/fcntl.xml		\
 	xml/fork.xml		\
 	xml/fstat.xml		\
+	xml/fstatfs.xml		\
 	xml/fsync.xml		\
 	xml/getdents.xml	\
 	xml/ioctl.xml		\
@@ -28,6 +29,7 @@ XML_FILES=			\
 	xml/lseek.xml		\
 	xml/lstat.xml		\
 	xml/mkdir.xml		\
+	xml/mkdirat.xml		\
 	xml/mknod.xml		\
 	xml/mmap.xml		\
 	xml/munmap.xml		\
@@ -42,6 +44,7 @@ XML_FILES=			\
 	xml/rename.xml		\
 	xml/rmdir.xml		\
 	xml/stat.xml		\
+	xml/statfs.xml		\
 	xml/symlink.xml		\
 	xml/truncate.xml	\
 	xml/unlink.xml		\

@@ -44,40 +44,28 @@ void WriteSystemCallTraceReplayModule::processRow() {
   int fd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
   char *data_buffer;
 
-  if (pattern_data_ == "random") {
-#ifdef DEV_URANDOM
-    // Pattern is random, so open urandom device
-    random_file_.open("/dev/urandom");
-    if (!random_file_.is_open()) {
-      std::cerr << "Unable to open file '/dev/urandom/'.\n";
-      exit(EXIT_FAILURE);
-    }
-#endif
-  }
-
-  // Check to see if write data was in DS and user didn't specify pattern
-  if (data_written_.isNull() && pattern_data_.empty()) {
-    // Let's write zeros.
-    pattern_data_ = "0x0";
-  }
-
   // Check to see if user wants to use pattern
   if (!pattern_data_.empty()) {
     data_buffer = new char[nbytes];
     if (pattern_data_ == "random") {
-#ifdef DEV_URANDOM
-      random_file_.read(data_buffer, nbytes);
-#else
+      // Fill write buffer using rand()
       data_buffer = random_fill_buffer(data_buffer, nbytes);
-#endif
+    } else if (pattern_data_ == "urandom") {
+      // Fill write buffer using data generated from /dev/urandom
+      SystemCallTraceReplayModule::random_file_.read(data_buffer, nbytes);
     } else {
-      int pattern_hex;
-      std::stringstream pattern_stream;
-      pattern_stream << std::hex << pattern_data_;
-      pattern_stream >> pattern_hex;
-      memset(data_buffer, pattern_hex, nbytes);
+      // Write zeros or pattern specified in pattern_data
+      unsigned char pattern = pattern_data_[0];
+
+      /*
+       * XXX FUTURE WORK: Currently we support pattern of one byte.
+       * For multi byte pattern data, we have to modify the
+       * implementation of filling data_buffer.
+       */
+      memset(data_buffer, pattern, nbytes);
     }
   } else {
+    // Write the traced data
     data_buffer = (char *)data_written_.val();
   }
 
@@ -86,13 +74,6 @@ void WriteSystemCallTraceReplayModule::processRow() {
   // Free the buffer
   if (!pattern_data_.empty()){
     delete[] data_buffer;
-  }
-
-  if (pattern_data_ == "random") {
-#ifdef DEV_URANDOM
-    // Close the urandom device
-    random_file_.close();
-#endif
   }
 }
 
@@ -119,17 +100,6 @@ void PWriteSystemCallTraceReplayModule::processRow() {
   size_t nbytes = bytes_requested_.val();
   char *data_buffer;
 
-  if (pattern_data_ == "random") {
-#ifdef DEV_URANDOM
-    // Pattern is random, so open urandom device
-    random_file_.open("/dev/urandom");
-    if (!random_file_.is_open()) {
-      std::cerr << "Unable to open file '/dev/urandom/'.\n";
-      exit(EXIT_FAILURE);
-    }
-#endif
-  }
-
   // Check to see if write data is NULL in DS or user didn't specify pattern
   if (data_written_.isNull() && pattern_data_.empty() ) {
     // Let's write zeros.
@@ -140,19 +110,24 @@ void PWriteSystemCallTraceReplayModule::processRow() {
   if (!pattern_data_.empty()) {
     data_buffer = new char[nbytes];
     if (pattern_data_ == "random") {
-#ifdef DEV_URANDOM
-      random_file_.read(data_buffer, nbytes);
-#else
+      // Fill write buffer using rand()
       data_buffer = random_fill_buffer(data_buffer, nbytes);
-#endif
+    } else if (pattern_data_ == "urandom") {
+      // Fill write buffer using data generated from /dev/urandom
+      SystemCallTraceReplayModule::random_file_.read(data_buffer, nbytes);
     } else {
-      int pattern_hex;
-      std::stringstream pattern_stream;
-      pattern_stream << std::hex << pattern_data_;
-      pattern_stream >> pattern_hex;
-      memset(data_buffer, pattern_hex, nbytes);
+      // Write zeros or pattern specified in pattern_data
+      unsigned char pattern = pattern_data_[0];
+
+      /*
+       * XXX FUTURE WORK: Currently we support pattern of one byte.
+       * For multi byte pattern data, we have to modify the
+       * implementation of filling data_buffer.
+       */
+      memset(data_buffer, pattern, nbytes);
     }
   } else {
+    // Write the traced data
     data_buffer = (char *)data_written_.val();
   }
 
@@ -162,11 +137,4 @@ void PWriteSystemCallTraceReplayModule::processRow() {
   // Free the buffer
   if (!pattern_data_.empty())
     delete[] data_buffer;
-
-  if (pattern_data_ == "random") {
-#ifdef DEV_URANDOM
-    // Close the urandom device
-    random_file_.close();
-#endif
-  }
 }

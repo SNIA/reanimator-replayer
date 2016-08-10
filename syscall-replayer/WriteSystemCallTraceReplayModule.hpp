@@ -22,15 +22,12 @@
 #ifndef WRITE_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define WRITE_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 
-#include <iostream>
-
 #include "SystemCallTraceReplayModule.hpp"
 
 class WriteSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 protected:
   bool verify_;
   std::string pattern_data_;
-  std::ifstream random_file_;
   /* Write System Call Trace Fields in Dataseries file */
   Int32Field descriptor_;
   Variable32Field data_written_;

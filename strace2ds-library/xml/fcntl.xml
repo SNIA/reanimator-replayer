@@ -19,6 +19,9 @@
   <field name="argument_descriptor_flag_exec_close" type="bool" opt_nullable="no"/>
   <field name="command_get_status_flags" type="bool" opt_nullable="no"/>
   <field name="command_set_status_flags" type="bool" opt_nullable="no"/>
+  <field name="argument_status_flag_read_only" type="bool" opt_nullable="no"/>
+  <field name="argument_status_flag_write_only" type="bool" opt_nullable="no"/>
+  <field name="argument_status_flag_read_and_write" type="bool" opt_nullable="no"/>
   <field name="argument_status_flag_append" type="bool" opt_nullable="no"/>
   <field name="argument_status_flag_async" type="bool" opt_nullable="no"/>
   <field name="argument_status_flag_create" type="bool" opt_nullable="no"/>

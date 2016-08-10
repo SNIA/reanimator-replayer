@@ -42,6 +42,7 @@
 #include "RmdirSystemCallTraceReplayModule.hpp"
 #include "MkdirSystemCallTraceReplayModule.hpp"
 #include "BasicStatSystemCallTraceReplayModule.hpp"
+#include "BasicStatfsSystemCallTraceReplayModule.hpp"
 #include "ReadlinkSystemCallTraceReplayModule.hpp"
 #include "UtimeSystemCallTraceReplayModule.hpp"
 #include "ChmodSystemCallTraceReplayModule.hpp"
@@ -203,6 +204,8 @@ void process_options(int argc, char *argv[],
 
 // Define the static fd_map_ in SystemCallTraceReplayModule
 std::map<int, int> SystemCallTraceReplayModule::fd_map_;
+// Define the input file stream random_file_ in SystemCallTraceReplayModule
+std::ifstream SystemCallTraceReplayModule::random_file_;
 
 int main(int argc, char *argv[]) {
   int ret = EXIT_SUCCESS;
@@ -248,7 +251,10 @@ int main(int argc, char *argv[]) {
   system_calls.push_back("symlink");
   system_calls.push_back("rmdir");
   system_calls.push_back("mkdir");
+  system_calls.push_back("mkdirat");
   system_calls.push_back("stat");
+  system_calls.push_back("statfs");
+  system_calls.push_back("fstatfs");
   system_calls.push_back("pwrite");
   system_calls.push_back("readlink");
   system_calls.push_back("utime");
@@ -402,8 +408,25 @@ int main(int argc, char *argv[]) {
 				 *prefetch_buffer_modules[module_index++],
 				 verbose,
 				 warn_level);
+  MkdiratSystemCallTraceReplayModule *mkdirat_module =
+    new MkdiratSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 warn_level);
   StatSystemCallTraceReplayModule *stat_module =
     new StatSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 verify,
+				 warn_level);
+  StatfsSystemCallTraceReplayModule *statfs_module =
+    new StatfsSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 verify,
+				 warn_level);
+  FStatfsSystemCallTraceReplayModule *fstatfs_module =
+    new FStatfsSystemCallTraceReplayModule(
 				 *prefetch_buffer_modules[module_index++],
 				 verbose,
 				 verify,
@@ -570,7 +593,10 @@ int main(int argc, char *argv[]) {
   system_call_trace_replay_modules.push_back(symlink_module);
   system_call_trace_replay_modules.push_back(rmdir_module);
   system_call_trace_replay_modules.push_back(mkdir_module);
+  system_call_trace_replay_modules.push_back(mkdirat_module);
   system_call_trace_replay_modules.push_back(stat_module);
+  system_call_trace_replay_modules.push_back(statfs_module);
+  system_call_trace_replay_modules.push_back(fstatfs_module);
   system_call_trace_replay_modules.push_back(pwrite_module);
   system_call_trace_replay_modules.push_back(readlink_module);
   system_call_trace_replay_modules.push_back(utime_module);
@@ -604,6 +630,15 @@ int main(int argc, char *argv[]) {
     abort();
   }
 
+  // If pattern data is equal to urandom, then open /dev/urandom file
+  if (pattern_data == "urandom") {
+    SystemCallTraceReplayModule::random_file_.open("/dev/urandom");
+    if (!SystemCallTraceReplayModule::random_file_.is_open()) {
+      std::cerr << "Unable to open file '/dev/urandom'.\n";
+      exit(EXIT_FAILURE);
+    }
+  }
+
   /*
    * Define a min heap that stores each module. The heap is ordered
    * by unique_id field.
@@ -635,6 +670,11 @@ int main(int argc, char *argv[]) {
       // No, there are more extents, so we add it to min_heap
       replayers_heap.push(execute_replayer);
     }
+  }
+
+  // Close /dev/urandom file
+  if (pattern_data == "urandom") {
+    SystemCallTraceReplayModule::random_file_.close();
   }
 
   return ret;

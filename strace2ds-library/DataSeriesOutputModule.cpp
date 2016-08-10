@@ -97,6 +97,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["fcntl"] = &DataSeriesOutputModule::makeFcntlArgsMap;
   // fstat system call
   func_ptr_map_["fstat"] = &DataSeriesOutputModule::makeFStatArgsMap;
+  // fstatfs system call
+  func_ptr_map_["fstatfs"] = &DataSeriesOutputModule::makeFStatfsArgsMap;
   // fsync system call
   func_ptr_map_["fsync"] = &DataSeriesOutputModule::makeFsyncArgsMap;
   // getdents system call
@@ -113,6 +115,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["lstat"] = &DataSeriesOutputModule::makeLStatArgsMap;
   // mkdir system call
   func_ptr_map_["mkdir"] = &DataSeriesOutputModule::makeMkdirArgsMap;
+  // mkdirat system call
+  func_ptr_map_["mkdirat"] = &DataSeriesOutputModule::makeMkdiratArgsMap;
   // mknod system call
   func_ptr_map_["mknod"] = &DataSeriesOutputModule::makeMknodArgsMap;
   // mmap system call
@@ -141,6 +145,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["rmdir"] = &DataSeriesOutputModule::makeRmdirArgsMap;
   // stat system call
   func_ptr_map_["stat"] = &DataSeriesOutputModule::makeStatArgsMap;
+  // statfs system call
+  func_ptr_map_["statfs"] = &DataSeriesOutputModule::makeStatfsArgsMap;
   // symlink system call
   func_ptr_map_["symlink"] = &DataSeriesOutputModule::makeSymlinkArgsMap;
   // truncate system call
@@ -919,6 +925,32 @@ void DataSeriesOutputModule::makeMkdirArgsMap(SysCallArgsMap &args_map,
   }
 }
 
+void DataSeriesOutputModule::makeMkdiratArgsMap(SysCallArgsMap &args_map,
+						long *args,
+						void **v_args) {
+  int mode_offset = 2;
+  static bool true_ = true;
+
+  // Initialize all non-nullable boolean fields
+  initArgsMap(args_map, "mkdirat");
+
+  args_map["descriptor"] = &args[0];
+  if (args[0] == AT_FDCWD) {
+    args_map["descriptor_current_working_directory"] = &true_;
+  }
+
+  if (v_args[0] != NULL) {
+    args_map["given_pathname"] = &v_args[0];
+  } else {
+    std::cerr << "Mkdirat: Pathname is set as NULL!!" << std::endl;
+  }
+  mode_t mode = processMode(args_map, args, mode_offset);
+  if (mode != 0) {
+    std::cerr << "Mkdirat: These modes are not processed/unknown->0";
+    std::cerr << std::oct << mode << std::dec << std::endl;
+  }
+}
+
 void DataSeriesOutputModule::makeCreatArgsMap(SysCallArgsMap &args_map,
 					      long *args,
 					      void **v_args) {
@@ -1176,6 +1208,118 @@ void DataSeriesOutputModule::makeStatArgsMap(SysCallArgsMap &args_map,
   } else {
     std::cerr << "Stat: Struct stat buffer is set as NULL!!" << std::endl;
   }
+}
+
+void DataSeriesOutputModule::makeStatfsArgsMap(SysCallArgsMap &args_map,
+					       long *args,
+					       void **v_args) {
+  // Initialize all non-nullable boolean fields to False.
+  initArgsMap(args_map, "statfs");
+
+  if (v_args[0] != NULL) {
+    args_map["given_pathname"] = &v_args[0];
+  } else {
+    std::cerr << "Statfs: Pathname is set as NULL!!" << std::endl;
+  }
+
+  if (v_args[1] != NULL) {
+    struct statfs *statfsbuf = (struct statfs *) v_args[1];
+
+    args_map["statfs_result_type"] = &statfsbuf->f_type;
+    args_map["statfs_result_bsize"] = &statfsbuf->f_bsize;
+    args_map["statfs_result_blocks"] = &statfsbuf->f_blocks;
+    args_map["statfs_result_bfree"] = &statfsbuf->f_bfree;
+    args_map["statfs_result_bavail"] = &statfsbuf->f_bavail;
+    args_map["statfs_result_files"] = &statfsbuf->f_files;
+    args_map["statfs_result_ffree"] = &statfsbuf->f_ffree;
+    args_map["statfs_result_fsid"] = &statfsbuf->f_fsid;
+    args_map["statfs_result_namelen"] = &statfsbuf->f_namelen;
+    args_map["statfs_result_frsize"] = &statfsbuf->f_frsize;
+    args_map["statfs_result_flags"] = &statfsbuf->f_flags;
+
+    u_int flag = processStatfsFlags(args_map, statfsbuf->f_flags);
+    if (flag != 0) {
+      std::cerr << "Statfs: These flag are not processed/unknown->0x";
+      std::cerr << std::hex << flag << std::dec << std::endl;
+    }
+  } else {
+    std::cerr << "Statfs: Struct statfs is set as NULL!!" << std::endl;
+  }
+}
+
+void DataSeriesOutputModule::makeFStatfsArgsMap(SysCallArgsMap &args_map,
+						long *args,
+						void **v_args) {
+  // Initialize all non-nullable boolean fields to False.
+  initArgsMap(args_map, "fstatfs");
+
+  args_map["descriptor"] = &args[0];
+
+  if (v_args[0] != NULL) {
+    struct statfs *statfsbuf = (struct statfs *) v_args[0];
+
+    args_map["statfs_result_type"] = &statfsbuf->f_type;
+    args_map["statfs_result_bsize"] = &statfsbuf->f_bsize;
+    args_map["statfs_result_blocks"] = &statfsbuf->f_blocks;
+    args_map["statfs_result_bfree"] = &statfsbuf->f_bfree;
+    args_map["statfs_result_bavail"] = &statfsbuf->f_bavail;
+    args_map["statfs_result_files"] = &statfsbuf->f_files;
+    args_map["statfs_result_ffree"] = &statfsbuf->f_ffree;
+    args_map["statfs_result_fsid"] = &statfsbuf->f_fsid;
+    args_map["statfs_result_namelen"] = &statfsbuf->f_namelen;
+    args_map["statfs_result_frsize"] = &statfsbuf->f_frsize;
+    args_map["statfs_result_flags"] = &statfsbuf->f_flags;
+
+    u_int flag = processStatfsFlags(args_map, statfsbuf->f_flags);
+    if (flag != 0) {
+      std::cerr << "FStatfs: These flags are not processed/unknown->0x";
+      std::cerr << std::hex << flag << std::dec << std::endl;
+    }
+  } else {
+    std::cerr << "FStatfs: Struct statfs is set as NULL!!" << std::endl;
+  }
+}
+
+u_int DataSeriesOutputModule::processStatfsFlags(SysCallArgsMap &args_map,
+						 u_int statfs_flags) {
+  /*
+   * Process each individual statfs flag bit that has been set
+   * in the argument stafs_flags.
+   */
+  // set mandatory lock flag
+  process_Flag_and_Mode_Args(args_map, statfs_flags, ST_MANDLOCK,
+			     "flags_mandatory_lock");
+  // set no access time flag
+  process_Flag_and_Mode_Args(args_map, statfs_flags, ST_NOATIME,
+			     "flags_no_access_time");
+  // set no dev flag
+  process_Flag_and_Mode_Args(args_map, statfs_flags, ST_NODEV,
+			     "flags_no_dev");
+  // set no directory access time flag
+  process_Flag_and_Mode_Args(args_map, statfs_flags, ST_NODIRATIME,
+			     "flags_no_directory_access_time");
+  // set no exec flag
+  process_Flag_and_Mode_Args(args_map, statfs_flags, ST_NOEXEC,
+			     "flags_no_exec");
+  // set no set uid flag
+  process_Flag_and_Mode_Args(args_map, statfs_flags, ST_NOSUID,
+			     "flags_no_set_uid");
+  // set read only flag
+  process_Flag_and_Mode_Args(args_map, statfs_flags, ST_RDONLY,
+			     "flags_read_only");
+  // set relative access time flag
+  process_Flag_and_Mode_Args(args_map, statfs_flags, ST_RELATIME,
+			     "flags_relative_access_time");
+  // set synchronous flag
+  process_Flag_and_Mode_Args(args_map, statfs_flags, ST_SYNCHRONOUS,
+			     "flags_synchronous");
+
+  /*
+   * Return remaining statfs flags so that caller can
+   * warn of unknown flags if the statfs_flags is not set
+   * as zero.
+   */
+  return statfs_flags;
 }
 
 void DataSeriesOutputModule::makeChownArgsMap(SysCallArgsMap &args_map,
@@ -1711,6 +1855,15 @@ u_int DataSeriesOutputModule::processFcntlStatusFlags(SysCallArgsMap &args_map,
    * Process each individual flag bit that has been set
    * in the argument status_flag.
    */
+  // set read only flag
+  process_Flag_and_Mode_Args(args_map, status_flag, O_RDONLY,
+			     "argument_status_flag_read_only");
+  // set write only flag
+  process_Flag_and_Mode_Args(args_map, status_flag, O_WRONLY,
+			     "argument_status_flag_write_only");
+  // set read and write flag
+  process_Flag_and_Mode_Args(args_map, status_flag, O_RDWR,
+			     "argument_status_flag_read_and_write");
   // set append flag
   process_Flag_and_Mode_Args(args_map, status_flag, O_APPEND,
 			     "argument_status_flag_append");

@@ -1,0 +1,30 @@
+<ExtentType name="IOTTAFSL::Trace::Syscall::mkdirat" namespace="iotta.snia.org.fsl.cs.sunysb.edu" version="1.00">
+  <field name="time_called" type="int64" opt_nullable="yes"/>
+  <field name="time_returned" type="int64" opt_nullable="yes"/>
+  <field name="time_recorded" type="int64" opt_nullable="yes"/>
+  <field name="executing_pid" type="int32" opt_nullable="yes"/>
+  <field name="executing_tid" type="int32" opt_nullable="yes"/>
+  <field name="executing_ppid" type="int32" opt_nullable="yes"/>
+  <field name="executing_uid" type="int32" opt_nullable="yes"/>
+  <field name="errno_number" type="int32" opt_nullable="yes"/>
+  <field name="errno_string" type="variable32" opt_nullable="yes"/>
+  <field name="return_value" type="int64" opt_nullable="yes"/>
+  <field name="unique_id" type="int64" opt_nullable="no"/>
+  <field name="descriptor" type="int32" opt_nullable="no"/>
+  <field name="descriptor_current_working_directory" type="bool" opt_nullable="no"/>
+  <field name="given_pathname" type="variable32" opt_nullable="no"/>
+  <field name="full_pathname" type="variable32" opt_nullable="yes"/>
+  <field name="mode_value" type="int32" opt_nullable="yes"/>
+  <field name="mode_uid" type="bool" opt_nullable="no"/>
+  <field name="mode_gid" type="bool" opt_nullable="no"/>
+  <field name="mode_sticky_bit" type="bool" opt_nullable="no"/>
+  <field name="mode_R_user" type="bool" opt_nullable="no"/>
+  <field name="mode_W_user" type="bool" opt_nullable="no"/>
+  <field name="mode_X_user" type="bool" opt_nullable="no"/>
+  <field name="mode_R_group" type="bool" opt_nullable="no"/>
+  <field name="mode_W_group" type="bool" opt_nullable="no"/>
+  <field name="mode_X_group" type="bool" opt_nullable="no"/>
+  <field name="mode_R_others" type="bool" opt_nullable="no"/>
+  <field name="mode_W_others" type="bool" opt_nullable="no"/>
+  <field name="mode_X_others" type="bool" opt_nullable="no"/>
+</ExtentType>

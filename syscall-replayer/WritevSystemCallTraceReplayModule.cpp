@@ -85,17 +85,6 @@ void WritevSystemCallTraceReplayModule::processRow() {
 
   struct iovec iov[count];
 
-  if (pattern_data_ == "random") {
-#ifdef DEV_URANDOM
-    // Pattern is random, so open urandom device
-    random_file_.open("/dev/urandom");
-    if (!random_file_.is_open()) {
-      std::cerr << "Unable to open file '/dev/urandom/'.\n";
-      exit(EXIT_FAILURE);
-    }
-#endif
-  }
-
   /*
    * If iov number is equal to '-1', this means it is first record of
    * single writev system call.
@@ -112,36 +101,37 @@ void WritevSystemCallTraceReplayModule::processRow() {
       int iov_num = iov_number_.val();
       size_t bytes_requested = bytes_requested_.val();
 
-      if (data_written_.isNull() && pattern_data_.empty()) {
-	//Let's write zeros.
-	pattern_data_ = "0x0";
-      }
-
-      /*
-       * Allocate memory and copy the actual buffer.
-       * XXX NOTE: ***** FUTURE WORK *****
-       * Instead of allocating individual buffer, we can allocate
-       * one single buffer.
-       */
-       data_buffer[iov_num] = new char[bytes_requested];
-
+      // Check to see if user wants to use pattern
       if (!pattern_data_.empty()) {
+	/*
+	 * Allocate memory and copy the actual buffer.
+	 * XXX NOTE: ***** FUTURE WORK *****
+	 * Instead of allocating individual buffer, we can allocate
+	 * one single buffer.
+	 */
+	data_buffer[iov_num] = new char[bytes_requested];
 	if (pattern_data_ == "random") {
-#ifdef DEV_URANDOM
-	  random_file_.read(data_buffer[iov_num], bytes_requested);
-#else
+	  // Fill write buffer using rand()
 	  data_buffer[iov_num] = random_fill_buffer(data_buffer[iov_num],
 						    bytes_requested);
-#endif
+	} else if (pattern_data_ == "urandom") {
+	  // Fill write buffer using data generated from /dev/urandom
+	  SystemCallTraceReplayModule::random_file_.read(data_buffer[iov_num],
+							 bytes_requested);
 	} else {
-	  int pattern_hex;
-	  std::stringstream pattern_stream;
-	  pattern_stream << std::hex << pattern_data_;
-	  pattern_stream >> pattern_hex;
-	  memset(data_buffer[iov_num], pattern_hex, bytes_requested);
+	  // Write zeros or pattern specified in pattern_data
+	  unsigned char pattern = pattern_data_[0];
+
+	  /*
+	   * XXX FUTURE WORK: Currently we support pattern of one byte.
+	   * For multi byte pattern data, we have to modify the
+	   * implementation of filling data_buffer.
+	   */
+	  memset(data_buffer[iov_num], pattern, bytes_requested);
 	}
       } else {
-	memcpy(data_buffer[iov_num], data_written_.val(), bytes_requested);
+	// Write the traced data
+	data_buffer[iov_num] = (char *)data_written_.val();
       }
 
       /*
@@ -163,7 +153,8 @@ void WritevSystemCallTraceReplayModule::processRow() {
    * Free data buffer.
    */
   for (int iovcnt_ = 0; iovcnt_ < count; iovcnt_++) {
-    delete[] data_buffer[iovcnt_];
+    if (!pattern_data_.empty())
+      delete[] data_buffer[iovcnt_];
   }
 
   /*
@@ -171,11 +162,4 @@ void WritevSystemCallTraceReplayModule::processRow() {
    * pointer in the Extent Series to the first record.
    */
   series.setCurPos(first_record_pos);
-
-  if (pattern_data_ == "random") {
-#ifdef DEV_URANDOM
-    // Close the urandom device
-    random_file_.close();
-#endif
-  }
 }
