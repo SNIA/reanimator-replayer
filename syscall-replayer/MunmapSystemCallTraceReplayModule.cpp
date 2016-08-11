@@ -29,8 +29,8 @@ MunmapSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void MunmapSystemCallTraceReplayModule::print_specific_fields() {
-  std::cout << "start_address(0x" << std::hex << start_address_.val() << "), ";
-  std::cout << "length(" << std::dec << length_.val() << ")" << std::endl;
+  LOG_INFO("start_address(0x" << std::hex << start_address_.val() << "), " \
+	   << "length(" << std::dec << length_.val() << ")");
 }
 
 void MunmapSystemCallTraceReplayModule::processRow() {

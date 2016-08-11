@@ -37,17 +37,16 @@ BasicStatfsSystemCallTraceReplayModule(DataSeriesModule &source,
   statfs_result_flags_(series, "statfs_result_flags", Field::flag_nullable) { }
 
 void BasicStatfsSystemCallTraceReplayModule::print_specific_fields() {
-  std::cout << "file system type(" << statfs_result_type_.val() << "), ";
-  std::cout << "block size(" << statfs_result_bsize_.val() << "), ";
-  std::cout << "total blocks(" << statfs_result_blocks_.val() << "), ";
-  std::cout << "free blocks(" << statfs_result_bfree_.val() << "), ";
-  std::cout << "available blocks(" << statfs_result_bavail_.val() << "), ";
-  std::cout << "total file nodes(" << statfs_result_files_.val() << "), ";
-  std::cout << "free file nodes(" << statfs_result_ffree_.val() << "), ";
-  std::cout << "Maximum namelength(" << statfs_result_namelen_.val() << ") ";
-  std::cout << "fragment size(" << statfs_result_frsize_.val() << ") ";
-  std::cout << "mount flags(" << statfs_result_flags_.val() << ")"
-	    << std::endl;
+  LOG_INFO("file system type(" << statfs_result_type_.val() << "), " \
+  << "block size(" << statfs_result_bsize_.val() << "), " \
+  << "total blocks(" << statfs_result_blocks_.val() << "), " \
+  << "free blocks(" << statfs_result_bfree_.val() << "), " \
+  << "available blocks(" << statfs_result_bavail_.val() << "), " \
+  << "total file nodes(" << statfs_result_files_.val() << "), " \
+  << "free file nodes(" << statfs_result_ffree_.val() << "), " \
+  << "Maximum namelength(" << statfs_result_namelen_.val() << ") " \
+  << "fragment size(" << statfs_result_frsize_.val() << ") " \
+  << "mount flags(" << statfs_result_flags_.val() << ")");
 }
 
 void BasicStatfsSystemCallTraceReplayModule::verifyResult(
@@ -78,44 +77,36 @@ void BasicStatfsSystemCallTraceReplayModule::verifyResult(
       statfs_result_flags != (u_long) replayed_statfs_buf.f_flags) {
 
       // Statfs buffers aren't same
-      std::cerr << "Verification of " << sys_call_name_
-		<< " buffer content failed.\n";
+      LOG_ERR("Verification of " << sys_call_name_ \
+	      << " buffer content failed.");
       if (!default_mode()) {
-	std::cout << "time called:" << std::fixed
-		  << Tfrac_to_sec(time_called()) << std::endl;
-	std::cout << "Captured " << sys_call_name_
-		  << " content is different from replayed "
-		  << sys_call_name_ << " content" << std::endl;
-	std::cout << "Captured file system type: " << statfs_result_type << ", ";
-	std::cout << "Replayed file system type: " << replayed_statfs_buf.f_type
-		  << std::endl;
-	std::cout << "Captured block size: " << statfs_result_bsize << ", ";
-	std::cout << "Replayed block size: " << replayed_statfs_buf.f_bsize;
-	std::cout << std::endl;
-	std::cout << "Captured total blocks: " << statfs_result_blocks << ", ";
-	std::cout << "Replayed total blocks: " << replayed_statfs_buf.f_blocks
-		  << std::endl;
-	std::cout << "Captured free blocks: " << statfs_result_bfree << ", ";
-	std::cout << "Replayed free blocks: " << replayed_statfs_buf.f_bfree
-		  << std::endl;
-	std::cout << "Captured available blocks: " << statfs_result_bavail << ", ";
-	std::cout << "Replayed available blocks: "
-		  << replayed_statfs_buf.f_bavail << std::endl;
-	std::cout << "Captured total file inodes: " << statfs_result_files << ", ";
-	std::cout << "Replayed total file inodes: "
-		  << replayed_statfs_buf.f_files << std::endl;
-	std::cout << "Captured free file nodes: " << statfs_result_ffree << ", ";
-	std::cout << "Replayed free file nodes: " << replayed_statfs_buf.f_ffree
-		  << std::endl;
-	std::cout << "Captured maximum namelength: " << statfs_result_namelen << ", ";
-	std::cout << "Replayed maximum namelength: "
-		  << replayed_statfs_buf.f_namelen << std::endl;
-	std::cout << "Captured fragment size: " << statfs_result_frsize << ", ";
-	std::cout << "Replayed fragment size: " << replayed_statfs_buf.f_frsize
-		  << std::endl;
-	std::cout << "Captured mount flags: " << statfs_result_flags << ", ";
-	std::cout << "Replayed mount flags: " << replayed_statfs_buf.f_flags
-		  << std::endl;
+	LOG_WARN("time called:" << std::fixed << Tfrac_to_sec(time_called()) \
+		 << "Captured " << sys_call_name_ \
+		 << " content is different from replayed " \
+		 << sys_call_name_ << " content");
+	LOG_WARN("Captured file system type: " << statfs_result_type << ", " \
+		 << "Replayed file system type: " << replayed_statfs_buf.f_type);
+	LOG_WARN("Captured block size: " << statfs_result_bsize << ", " \
+		 << "Replayed block size: " << replayed_statfs_buf.f_bsize);
+	LOG_WARN("Captured total blocks: " << statfs_result_blocks << ", " \
+		 << "Replayed total blocks: " << replayed_statfs_buf.f_blocks);
+	LOG_WARN("Captured free blocks: " << statfs_result_bfree << ", " \
+		 << "Replayed free blocks: " << replayed_statfs_buf.f_bfree);
+	LOG_WARN("Captured available blocks: " << statfs_result_bavail << ", " \
+		 << "Replayed available blocks: " \
+		 << replayed_statfs_buf.f_bavail);
+	LOG_WARN("Captured total file inodes: " << statfs_result_files << ", " \
+		 << "Replayed total file inodes: " \
+		 << replayed_statfs_buf.f_files);
+	LOG_WARN("Captured free file nodes: " << statfs_result_ffree << ", " \
+		 << "Replayed free file nodes: " << replayed_statfs_buf.f_ffree);
+	LOG_WARN("Captured maximum namelength: " << statfs_result_namelen << ", " \
+		 << "Replayed maximum namelength: " \
+		 << replayed_statfs_buf.f_namelen);
+	LOG_WARN("Captured fragment size: " << statfs_result_frsize << ", " \
+		 << "Replayed fragment size: " << replayed_statfs_buf.f_frsize);
+	LOG_WARN("Captured mount flags: " << statfs_result_flags << ", " \
+		 << "Replayed mount flags: " << replayed_statfs_buf.f_flags);
 
 	if (abort_mode()) {
 	  abort();
@@ -123,8 +114,8 @@ void BasicStatfsSystemCallTraceReplayModule::verifyResult(
       }
     } else {
       if (verbose_mode()) {
-	std::cout << "Verification of " << sys_call_name_
-		  << " buffer succeeded.\n";
+	LOG_INFO("Verification of " << sys_call_name_ \
+		 << " buffer succeeded.");
       }
   }
 }
@@ -141,7 +132,7 @@ StatfsSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void StatfsSystemCallTraceReplayModule::print_specific_fields() {
-  std::cout << "pathname(" << given_pathname_.val() << "), ";
+  LOG_INFO("pathname(" << given_pathname_.val() << "),");
   BasicStatfsSystemCallTraceReplayModule::print_specific_fields();
 }
 
@@ -169,7 +160,7 @@ FStatfsSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void FStatfsSystemCallTraceReplayModule::print_specific_fields() {
-  std::cout << "descriptor(" << descriptor_.val() << "), ";
+  LOG_INFO("descriptor(" << descriptor_.val() << "),");
   BasicStatfsSystemCallTraceReplayModule::print_specific_fields();
 }
 

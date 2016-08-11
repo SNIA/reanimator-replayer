@@ -89,15 +89,13 @@ Extent::Ptr SystemCallTraceReplayModule::getSharedExtent() {
     newExtentHook(*e);
     series.setExtent(e);
     if (!prepared) {
-      std::cout << "----- '" << sys_call_name_ << "' "
-		<< "System Call Replayer has started replaying...-----\n"
-		<< std::endl;
+      LOG_INFO("---'" << sys_call_name_ << \
+	       "' System Call Replayer has started replaying---");
       prepared = true;
     }
   } else if (prepared) {
-      std::cout << "----- '" << sys_call_name_ << "' "
-		<< "System Call Replayer finished replaying...-----\n"
-		<< std::endl;
+      LOG_INFO("---'" << sys_call_name_ << \
+	       "' System Call Replayer has finished replaying---");
   }
   return e;
 }
@@ -131,19 +129,16 @@ void SystemCallTraceReplayModule::after_sys_call() {
   if (isReplayable())
     compare_retval_and_errno();
   if (verbose_mode()) {
-    std::cout << "System call '" << sys_call_name_ <<
-      "' was executed with following arguments:" << std::endl;
-    std::cout << sys_call_name_ << ": " << std::endl;
+    LOG_INFO("System call '" << sys_call_name_ << \
+	     "' was executed with following arguments:" << \
+	     sys_call_name_ << ": ");
     print_sys_call_fields();
-    std::cout << std::endl;
   }
 }
 
 void SystemCallTraceReplayModule::print_sys_call_fields() {
   print_common_fields();
-  std::cout << ", " << std::endl;
   print_specific_fields();
-  std::cout << std::endl;
 }
 
 void SystemCallTraceReplayModule::print_common_fields() {
@@ -153,19 +148,15 @@ void SystemCallTraceReplayModule::print_common_fields() {
   double time_recorded_val = Tfrac_to_sec(time_recorded());
 
   // Print the common fields and their values
-  std::cout.precision(25);
-  std::cout << "time called(" << std::fixed << time_called_val << "), "
-	    << std::endl;
-  std::cout << "time returned(" << std::fixed << time_returned_val << "), "
-	    << std::endl;
-  std::cout << "time recorded(" << std::fixed << time_recorded_val << "), "
-	    << std::endl;
-  std::cout << "executing pid(" << executing_pid() << "), " << std::endl;
-  std::cout << "errno(" << errno_number() << "), " << std::endl;
-  std::cout << "return value(" << return_value() << "), " << std::endl;
-  std::cout << "replayed return value(" << replayed_ret_val_ << "), "
-	    << std::endl;
-  std::cout << "unique id(" << unique_id_.val() << ")";
+  SystemCallTraceReplayModule::logFile_.precision(25);
+  LOG_INFO("time called(" << std::fixed << time_called_val << "), " \
+	   << "time returned(" << std::fixed << time_returned_val << "), " \
+	   << "time recorded(" << std::fixed << time_recorded_val << "), " \
+	   << "executing pid(" << executing_pid() << "), " \
+	   << "errno(" << errno_number() << "), " \
+	   << "return value(" << return_value() << "), " \
+	   << "replayed return value(" << replayed_ret_val_ << "), " \
+	   << "unique id(" << unique_id_.val() << ")");
 }
 
 void SystemCallTraceReplayModule::compare_retval_and_errno() {
@@ -174,17 +165,17 @@ void SystemCallTraceReplayModule::compare_retval_and_errno() {
   }
 
   if (return_value() != replayed_ret_val_) {
-    std::cout << sys_call_name_ << ": " << std::endl;
+    LOG_WARN(sys_call_name_ << ": ");
     print_sys_call_fields();
-    std::cout << "Warning: Return values are different.\n";
+    LOG_WARN("Return values are different.");
     if (abort_mode()) {
       abort();
     }
   } else if (replayed_ret_val_ == -1) {
     if (errno != errno_number()) {
-      std::cout << sys_call_name_ << ": " << std::endl;
+      LOG_WARN(sys_call_name_ << ": ");
       print_sys_call_fields();
-      std::cout << "Warning: Errno numbers are different.\n";
+      LOG_WARN("Errno numbers are different.");
       if (abort_mode()) {
 	abort();
       }
@@ -253,4 +244,23 @@ bool SystemCallTraceReplayModule::isReplayable() {
       sys_call_name_ == "munmap")
     return false;
   return true;
+}
+
+/*
+ * This function is used to print the current time to the log file
+ * while appending logs to the log file.
+ *
+ * @return: returns buffer having timestamp in the format
+ *          YYYY-MM-DD HH:MM:SS
+ */
+char *SystemCallTraceReplayModule::print_time() {
+  static char buffer[TIMESTAMP_BUFFER_SIZE];
+  time_t rawtime;
+  struct tm *curr_time;
+
+  time(&rawtime);
+  curr_time = localtime(&rawtime);
+
+  strftime(buffer, TIMESTAMP_BUFFER_SIZE, "%Y-%m-%d %H:%M:%S", curr_time);
+  return buffer;
 }

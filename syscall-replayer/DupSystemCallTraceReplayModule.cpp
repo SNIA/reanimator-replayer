@@ -29,7 +29,7 @@ DupSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void DupSystemCallTraceReplayModule::print_specific_fields() {
-  std::cout << "descriptor(" << descriptor_.val() << ")";
+  LOG_INFO("descriptor(" << descriptor_.val() << ")");
 }
 
 void DupSystemCallTraceReplayModule::processRow() {

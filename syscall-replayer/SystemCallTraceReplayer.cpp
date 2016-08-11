@@ -110,6 +110,8 @@ boost::program_options::variables_map get_options(int argc,
     ("warn,w", po::value<int>(), "system call replays in warn mode")
     ("pattern,p", po::value<std::string>(),
      "write repeated pattern data in write system call")
+    ("logger,l", po::value<std::string>(),
+     "write the replayer logs in specified filename")
     ;
 
   /*
@@ -166,6 +168,7 @@ boost::program_options::variables_map get_options(int argc,
 void process_options(int argc, char *argv[],
 		     bool &verbose, bool &verify,
 		     int &warn_level, std::string &pattern_data,
+		     std::string &log_filename,
 		     std::vector<std::string> &input_files) {
   boost::program_options::variables_map options_vm = get_options(argc, argv);
 
@@ -194,6 +197,10 @@ void process_options(int argc, char *argv[],
     pattern_data = options_vm["pattern"].as<std::string>();
   }
 
+  if (options_vm.count("logger")){
+    log_filename = options_vm["logger"].as<std::string>();
+  }
+
   if (options_vm.count("input-files")) {
     input_files = options_vm["input-files"].as<std::vector<std::string> >();
   } else {
@@ -206,6 +213,8 @@ void process_options(int argc, char *argv[],
 std::map<int, int> SystemCallTraceReplayModule::fd_map_;
 // Define the input file stream random_file_ in SystemCallTraceReplayModule
 std::ifstream SystemCallTraceReplayModule::random_file_;
+// Define the log file
+std::ofstream SystemCallTraceReplayModule::logFile_;
 
 int main(int argc, char *argv[]) {
   int ret = EXIT_SUCCESS;
@@ -213,12 +222,13 @@ int main(int argc, char *argv[]) {
   bool verify = false;
   int warn_level = DEFAULT_MODE;
   std::string pattern_data = "";
+  std::string log_filename = "";
   std::vector<std::string> input_files;
 
   // Process options found on the command line.
   process_options(argc, argv, verbose,
 		  verify, warn_level, pattern_data,
-		  input_files);
+		  log_filename, input_files);
 
   // Initialize standard map values (STDIN, STDOUT, STDERR, AT_FDCWD)
   SystemCallTraceReplayModule::fd_map_[STDIN_FILENO] = STDIN_FILENO;
@@ -623,6 +633,13 @@ int main(int argc, char *argv[]) {
   system_call_trace_replay_modules.push_back(getdents_module);
   system_call_trace_replay_modules.push_back(ioctl_module);
 
+  // Open log file to write replayer logs
+  SystemCallTraceReplayModule::logFile_.open(log_filename.c_str());
+  if (SystemCallTraceReplayModule::logFile_.is_open() < 0) {
+    std::cerr << "Unable to open log file" << std::endl;
+    exit(EXIT_FAILURE);
+  }
+
   // Double check to make sure all replaying modules are loaded.
   if (system_call_trace_replay_modules.size() != system_calls.size()) {
     std::cerr << "The number of loaded replaying modules is not same"
@@ -676,6 +693,9 @@ int main(int argc, char *argv[]) {
   if (pattern_data == "urandom") {
     SystemCallTraceReplayModule::random_file_.close();
   }
+
+  // Close the log file
+  SystemCallTraceReplayModule::logFile_.close();
 
   return ret;
 }

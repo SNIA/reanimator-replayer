@@ -32,9 +32,9 @@ ReadlinkSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void ReadlinkSystemCallTraceReplayModule::print_specific_fields() {
-  std::cout << "link path(" << given_pathname_.val() << "), ";
-  std::cout << "target path(" << (char*)link_value_.val() << "), " ;
-  std::cout << "buffer size(" << buffer_size_.val() << "), " << std::endl;
+  LOG_INFO("link path(" << given_pathname_.val() << "), " \
+	   << "target path(" << (char*)link_value_.val() << "), " \
+	   << "buffer size(" << buffer_size_.val() << ")");
 }
 
 void ReadlinkSystemCallTraceReplayModule::processRow() {
@@ -50,23 +50,22 @@ void ReadlinkSystemCallTraceReplayModule::processRow() {
     // Verify readlink buffer and buffer in the trace file are same
     if (memcmp(link_value_.val(), target_path, return_value) != 0){
       // Target path aren't same
-      std::cerr << "Verification of path in readlink failed.\n";
+      LOG_ERR("Verification of path in readlink failed.");
       if (!default_mode()) {
-	std::cout << "time called:" << std::fixed << time_called()
-		  << std::endl;
-	std::cout << "Captured readlink path is different from replayed\
-		      readlink path" << std::endl;
-	std::cout << "Captured readlink path: "
-		  << (char*)link_value_.val() << ", ";
-	std::cout << "Replayed readlink path: "
-		  << (char*)target_path << std::endl;
+	LOG_WARN("time called:" << std::fixed << time_called() \
+		 << ", Captured readlink path is different from" \
+		 << " replayed readlink path");
+	LOG_WARN("Captured readlink path: " \
+		 << (char*)link_value_.val() << ", " \
+		 << "Replayed readlink path: " \
+		 << (char*)target_path);
 	if (abort_mode()) {
 	  abort();
 	}
       }
     } else {
       if (verbose_mode()) {
-	std::cout << "Verification of path in readlink success.\n";
+	LOG_INFO("Verification of path in readlink success.");
       }
     }
   }

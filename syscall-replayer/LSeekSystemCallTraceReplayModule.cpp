@@ -30,9 +30,9 @@ LSeekSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void LSeekSystemCallTraceReplayModule::print_specific_fields() {
-  std::cout << "descriptor(" << descriptor_.val() << "), ";
-  std::cout << "offset(" << offset_.val() << "), ";
-  std::cout << "whence(" << (unsigned) whence_.val() << ")";
+  LOG_INFO("descriptor(" << descriptor_.val() << "), " \
+	   << "offset(" << offset_.val() << "), " \
+	   << "whence(" << (unsigned) whence_.val() << ")");
 }
 
 void LSeekSystemCallTraceReplayModule::processRow() {
