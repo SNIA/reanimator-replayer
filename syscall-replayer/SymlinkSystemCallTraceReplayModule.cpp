@@ -29,8 +29,8 @@ SymlinkSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void SymlinkSystemCallTraceReplayModule::print_specific_fields() {
-  std::cout << "target path(" << target_pathname_.val() << "), ";
-  std::cout << "link path(" << given_pathname_.val() << ")";
+  LOG_INFO("target path(" << target_pathname_.val() << "), " \
+	   << "link path(" << given_pathname_.val() << ")");
 }
 
 void SymlinkSystemCallTraceReplayModule::processRow() {

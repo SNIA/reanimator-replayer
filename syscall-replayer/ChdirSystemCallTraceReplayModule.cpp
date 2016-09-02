@@ -28,7 +28,7 @@ ChdirSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void ChdirSystemCallTraceReplayModule::print_specific_fields() {
-  std::cout << "pathname(" << given_pathname_.val() << ")";
+  LOG_INFO("pathname(" << given_pathname_.val() << ")");
 }
 
 void ChdirSystemCallTraceReplayModule::processRow() {

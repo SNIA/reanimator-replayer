@@ -30,8 +30,8 @@ FChmodSystemCallTraceReplayModule::FChmodSystemCallTraceReplayModule(
 }
 
 void FChmodSystemCallTraceReplayModule::print_specific_fields() {
-  std::cout << "descriptor(" << descriptor_.val() << "), ";
-  std::cout << "mode(" << mode_value_.val() << ")";
+  LOG_INFO("descriptor(" << descriptor_.val() << "), " \
+	   << "mode(" << mode_value_.val() << ")");
 }
 
 void FChmodSystemCallTraceReplayModule::processRow() {

@@ -31,9 +31,9 @@ OpenSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void OpenSystemCallTraceReplayModule::print_specific_fields() {
-  std::cout << "pathname(" << given_pathname_.val() << "), ";
-  std::cout << "flags(" << open_value_.val() << "), ";
-  std::cout << "mode(" << mode_value_.val() << ")";
+  LOG_INFO("pathname(" << given_pathname_.val() << "), " \
+	   << "flags(" << open_value_.val() << "), " \
+	   << "mode(" << mode_value_.val() << ")");
 }
 
 void OpenSystemCallTraceReplayModule::processRow() {
@@ -58,8 +58,10 @@ OpenatSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void OpenatSystemCallTraceReplayModule::print_specific_fields() {
-  std::cout << "descriptor(" << descriptor_.val() << "), ";
-  OpenSystemCallTraceReplayModule::print_specific_fields();
+  LOG_INFO("descriptor(" << descriptor_.val() << "), " \
+	   << "pathname(" << given_pathname_.val() << "), " \
+	   << "flags(" << open_value_.val() << "), " \
+	   << "mode(" << mode_value_.val() << ")");
 }
 
 void OpenatSystemCallTraceReplayModule::processRow() {

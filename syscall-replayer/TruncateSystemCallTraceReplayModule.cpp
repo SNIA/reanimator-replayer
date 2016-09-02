@@ -32,8 +32,8 @@ TruncateSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void TruncateSystemCallTraceReplayModule::print_specific_fields() {
-  std::cout << "pathname(" << given_pathname_.val() << "), ";
-  std::cout << "length(" << truncate_length_.val() << ")";
+  LOG_INFO("pathname(" << given_pathname_.val() << "), " \
+	   << "length(" << truncate_length_.val() << ")");
 }
 
 void TruncateSystemCallTraceReplayModule::processRow() {

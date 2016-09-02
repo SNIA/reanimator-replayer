@@ -46,13 +46,13 @@ void ExecveSystemCallTraceReplayModule::print_specific_fields() {
   while (continuation_number_.val() >= 0 && series.morerecords()) {
     int continuation_num = continuation_number_.val();
     if (continuation_num == 0) {
-      std::cout << "continuation_number(" << continuation_num << ")\n";
+      LOG_INFO("continuation_number(" << continuation_num << ")");
     } else if (continuation_num > 0) {
-      std::cout << "continuation_number(" << continuation_num << "), ";
+      LOG_INFO("continuation_number(" << continuation_num << "),");
       if (environment_.isNull())
-	std::cout << "argument(" << argument_.val() << ")" << std::endl;
+	LOG_INFO("argument(" << argument_.val() << ")");
       else if (argument_.isNull())
-	std::cout << "environment(" << environment_.val() << ")" << std::endl;
+	LOG_INFO("environment(" << environment_.val() << ")");
     }
     ++series;
   }

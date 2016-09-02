@@ -31,9 +31,9 @@ ChownSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void ChownSystemCallTraceReplayModule::print_specific_fields() {
-  std::cout << "pathname(" << given_pathname_.val() << "), ";
-  std::cout << "owner(" << new_owner_.val() << "), ";
-  std::cout << "group(" << new_group_.val() << ")";
+  LOG_INFO("pathname(" << given_pathname_.val() << "), " \
+	   << "owner(" << new_owner_.val() << "), " \
+	   << "group(" << new_group_.val() << ")");
 }
 
 void ChownSystemCallTraceReplayModule::processRow() {

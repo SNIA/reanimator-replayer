@@ -29,7 +29,7 @@ FsyncSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void FsyncSystemCallTraceReplayModule::print_specific_fields() {
-  std::cout << "descriptor(" << descriptor_.val() << ")";
+  LOG_INFO("descriptor(" << descriptor_.val() << ")");
 }
 
 void FsyncSystemCallTraceReplayModule::processRow() {

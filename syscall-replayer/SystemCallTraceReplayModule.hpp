@@ -31,11 +31,27 @@
 #include <string>
 #include <map>
 #include <iostream>
+#include <fstream>
 #include <errno.h>
 
 #define DEFAULT_MODE 0
 #define WARN_MODE    1
 #define ABORT_MODE   2
+
+#define ERROR_MSG "ERROR"
+#define WARN_MSG "WARN"
+#define INFO_MSG "INFO"
+
+#define TIMESTAMP_BUFFER_SIZE 20
+#define NEWLINE "\n"
+
+#define PRINT_LOG(msg, TYPE) SystemCallTraceReplayModule::logFile_ << print_time() << "[" << \
+			     TYPE << "]" << " " << __FILE__ << "(" << __LINE__ << ") " << \
+			     msg << NEWLINE
+
+#define LOG_ERR(msg) PRINT_LOG(msg, ERROR_MSG)
+#define LOG_WARN(msg) PRINT_LOG(msg, WARN_MSG)
+#define LOG_INFO(msg) PRINT_LOG(msg, INFO_MSG)
 
 class SystemCallTraceReplayModule : public RowAnalysisModule {
 protected:
@@ -111,6 +127,8 @@ public:
   static std::map<int, int> fd_map_;
   // An input file stream for reading random data from /dev/urandom
   static std::ifstream random_file_;
+  // An output file stream for writing system call replayer logs to a log file
+  static std::ofstream logFile_;
 
   /*
    * Basic Constructor
@@ -280,6 +298,15 @@ public:
    *	      returns false.
    */
   bool isReplayable();
+
+  /*
+   * This function is used to print the current time to the log file
+   * while appending logs to the log file.
+   *
+   * @return: returns buffer having timestamp in the format
+   *          YYYY-MM-DD HH:MM:SS
+   */
+  char *print_time();
 };
 
 #endif /* SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

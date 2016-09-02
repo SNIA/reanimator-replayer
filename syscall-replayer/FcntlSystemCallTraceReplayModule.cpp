@@ -36,18 +36,20 @@ FcntlSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void FcntlSystemCallTraceReplayModule::print_specific_fields() {
-  std::cout << "descriptor(" << descriptor_.val() << "), ";
-  std::cout << "command value(" << command_value_.val() << "), ";
   if ((command_value_.val() == F_SETLK) ||
       (command_value_.val() == F_SETLKW) ||
       (command_value_.val() == F_GETLK)) {
-    std::cout << "lock type(" << lock_type_.val() << "), ";
-    std::cout << "lock whence(" << lock_whence_.val() << "), ";
-    std::cout << "lock start(" << lock_start_.val() << "), ";
-    std::cout << "lock length(" << lock_length_.val() << "), ";
-    std::cout << "lock pid(" << lock_pid_.val() << ")";
+    LOG_INFO("descriptor(" << descriptor_.val() << "), " \
+    << "command value(" << command_value_.val() << "), " \
+    << "lock type(" << lock_type_.val() << "), " \
+    << "lock whence(" << lock_whence_.val() << "), " \
+    << "lock start(" << lock_start_.val() << "), " \
+    << "lock length(" << lock_length_.val() << "), " \
+    << "lock pid(" << lock_pid_.val() << ")");
   } else {
-    std::cout << "argument value(" << argument_value_.val() << ")";
+    LOG_INFO("descriptor(" << descriptor_.val() << "), " \
+    << "command value(" << command_value_.val() << "), " \
+    << "argument value(" << argument_value_.val() << ")");
   }
 }
 

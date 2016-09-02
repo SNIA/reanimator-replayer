@@ -39,7 +39,7 @@ BasicStatSystemCallTraceReplayModule(DataSeriesModule &source,
   stat_result_mtime_(series, "stat_result_mtime", Field::flag_nullable),
   stat_result_ctime_(series, "stat_result_ctime", Field::flag_nullable) { }
 
-void BasicStatSystemCallTraceReplayModule::print_mode_value(u_int st_mode) {
+int BasicStatSystemCallTraceReplayModule::print_mode_value(u_int st_mode) {
   int printable_mode = 0;
   mode_t mode = (mode_t) st_mode;
   if (mode & S_ISUID)
@@ -67,25 +67,23 @@ void BasicStatSystemCallTraceReplayModule::print_mode_value(u_int st_mode) {
   if (mode & S_IXOTH)
     printable_mode |= 0x001;
 
-  std::cout << std::hex << printable_mode << std::dec;
+  return printable_mode;
 }
 
 void BasicStatSystemCallTraceReplayModule::print_specific_fields() {
-  std::cout << "device id(" << stat_result_dev_.val() << "), ";
-  std::cout << "file inode number(" << stat_result_ino_.val() << "), ";
-  std::cout << "file mode(";
-  print_mode_value(stat_result_mode_.val());
-  std::cout << "), ";
-  std::cout << "file nlinks(" << stat_result_nlink_.val() << "), ";
-  std::cout << "file UID(" << stat_result_uid_.val() << "), ";
-  std::cout << "file GID(" << stat_result_gid_.val() << "), ";
-  std::cout << "file size(" << stat_result_size_.val() << "), ";
-  std::cout << "file blksize(" << stat_result_blksize_.val() << "), ";
-  std::cout << "file blocks(" << stat_result_blocks_.val() << ") ";
-  std::cout << "file atime(" << Tfrac_to_sec(stat_result_atime_.val()) << ") ";
-  std::cout << "file mtime(" << Tfrac_to_sec(stat_result_mtime_.val()) << ") ";
-  std::cout << "file ctime(" << Tfrac_to_sec(stat_result_ctime_.val()) << ") "
-	    << std::endl;
+  LOG_INFO("device id(" << stat_result_dev_.val() << "), " \
+  << "file inode number(" << stat_result_ino_.val() << "), " \
+  << "file mode(" << std::hex \
+  << print_mode_value(stat_result_mode_.val()) << std::dec << "), " \
+  << "file nlinks(" << stat_result_nlink_.val() << "), " \
+  << "file UID(" << stat_result_uid_.val() << "), " \
+  << "file GID(" << stat_result_gid_.val() << "), " \
+  << "file size(" << stat_result_size_.val() << "), " \
+  << "file blksize(" << stat_result_blksize_.val() << "), " \
+  << "file blocks(" << stat_result_blocks_.val() << ") " \
+  << "file atime(" << Tfrac_to_sec(stat_result_atime_.val()) << ") " \
+  << "file mtime(" << Tfrac_to_sec(stat_result_mtime_.val()) << ") " \
+  << "file ctime(" << Tfrac_to_sec(stat_result_ctime_.val()) << ") ");
 }
 
 void BasicStatSystemCallTraceReplayModule::verifyResult(
@@ -115,41 +113,31 @@ void BasicStatSystemCallTraceReplayModule::verifyResult(
       stat_result_blocks != replayed_stat_buf.st_blocks) {
 
       // Stat buffers aren't same
-    std::cerr << "Verification of " << sys_call_name_
-	      << " buffer content failed.\n";
+      LOG_ERR("Verification of " << sys_call_name_ \
+	      << " buffer content failed.");
       if (!default_mode()) {
-	std::cout << "time called:" << std::fixed
-		  << Tfrac_to_sec(time_called()) << std::endl;
-	std::cout << "Captured " << sys_call_name_
-		  << " content is different from replayed "
-		  << sys_call_name_ << " content" << std::endl;
-	std::cout << "Captured file inode: " << stat_result_ino << ", ";
-	std::cout << "Replayed file inode: " << replayed_stat_buf.st_ino
-		  << std::endl;
-        std::cout << "Captured file mode: ";
-        print_mode_value(stat_result_mode);
-        std::cout << ", ";
-	std::cout << "Replayed file mode: ";
-        print_mode_value(replayed_stat_buf.st_mode);
-        std::cout << std::endl;
-        std::cout << "Captured file nlink: " << stat_result_nlink << ", ";
-	std::cout << "Replayed file nlink: " << replayed_stat_buf.st_nlink
-		  << std::endl;
-        std::cout << "Captured file UID: " << stat_result_uid << ", ";
-	std::cout << "Replayed file UID: " << replayed_stat_buf.st_uid
-		  << std::endl;
-        std::cout << "Captured file GID: " << stat_result_gid << ", ";
-	std::cout << "Replayed file GID: " << replayed_stat_buf.st_gid
-		  << std::endl;
-        std::cout << "Captured file size: " << stat_result_size << ", ";
-	std::cout << "Replayed file size: " << replayed_stat_buf.st_size
-		  << std::endl;
-	std::cout << "Captured file blksize: " << stat_result_blksize << ", ";
-	std::cout << "Replayed file blksize: " << replayed_stat_buf.st_blksize
-		  << std::endl;
-	std::cout << "Captured file blocks: " << stat_result_blocks << ", ";
-	std::cout << "Replayed file blocks: " << replayed_stat_buf.st_blocks
-		  << std::endl;
+	LOG_WARN("time called:" << std::fixed << Tfrac_to_sec(time_called()) \
+		<< " Captured " << sys_call_name_ \
+		<< " content is different from replayed " \
+		<< sys_call_name_ << " content");
+	LOG_WARN("Captured file inode: " << stat_result_ino << ", " \
+		<< "Replayed file inode: " << replayed_stat_buf.st_ino);
+	LOG_WARN("Captured file mode: " << std::hex \
+		<< print_mode_value(stat_result_mode) << std::dec << ", " \
+		<< "Replayed file mode: " << std::hex \
+		<< print_mode_value(replayed_stat_buf.st_mode) << std::dec);
+	LOG_WARN("Captured file nlink: " << stat_result_nlink << ", " \
+		<< "Replayed file nlink: " << replayed_stat_buf.st_nlink);
+	LOG_WARN("Captured file UID: " << stat_result_uid << ", " \
+		<< "Replayed file UID: " << replayed_stat_buf.st_uid);
+	LOG_WARN("Captured file GID: " << stat_result_gid << ", " \
+		<< "Replayed file GID: " << replayed_stat_buf.st_gid);
+	LOG_WARN("Captured file size: " << stat_result_size << ", " \
+		<< "Replayed file size: " << replayed_stat_buf.st_size);
+	LOG_WARN("Captured file blksize: " << stat_result_blksize << ", " \
+		<< "Replayed file blksize: " << replayed_stat_buf.st_blksize);
+	LOG_WARN("Captured file blocks: " << stat_result_blocks << ", " \
+		<< "Replayed file blocks: " << replayed_stat_buf.st_blocks);
 
         if (abort_mode()) {
 	  abort();
@@ -157,8 +145,8 @@ void BasicStatSystemCallTraceReplayModule::verifyResult(
       }
     } else {
       if (verbose_mode()) {
-	std::cout << "Verification of " << sys_call_name_
-		  << " buffer succeeded.\n";
+	LOG_INFO("Verification of " << sys_call_name_ \
+		 << " buffer succeeded.");
       }
   }
 }
@@ -175,7 +163,7 @@ StatSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void StatSystemCallTraceReplayModule::print_specific_fields() {
-  std::cout << "pathname(" << given_pathname_.val() << "), ";
+  LOG_INFO("pathname(" << given_pathname_.val() << "),");
   BasicStatSystemCallTraceReplayModule::print_specific_fields();
 }
 
@@ -203,7 +191,7 @@ LStatSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void LStatSystemCallTraceReplayModule::print_specific_fields() {
-  std::cout << "pathname(" << given_pathname_.val() << "), ";
+  LOG_INFO("pathname(" << given_pathname_.val() << "),");
   BasicStatSystemCallTraceReplayModule::print_specific_fields();
 }
 
@@ -231,7 +219,7 @@ FStatSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void FStatSystemCallTraceReplayModule::print_specific_fields() {
-  std::cout << "descriptor(" << descriptor_.val() << "), ";
+  LOG_INFO("descriptor(" << descriptor_.val() << "),");
   BasicStatSystemCallTraceReplayModule::print_specific_fields();
 }
 

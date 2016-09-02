@@ -29,8 +29,8 @@ CreatSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void CreatSystemCallTraceReplayModule::print_specific_fields() {
-  std::cout << "pathname(" << given_pathname_.val() << "), ";
-  std::cout << "mode(" << mode_value_.val() << ")";
+  LOG_INFO("pathname(" << given_pathname_.val() << "), " \
+	   << "mode(" << mode_value_.val() << ")");
 }
 
 void CreatSystemCallTraceReplayModule::processRow() {

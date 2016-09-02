@@ -28,7 +28,7 @@ RmdirSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void RmdirSystemCallTraceReplayModule::print_specific_fields() {
-  std::cout << "given_pathname(" << given_pathname_.val() << ")";
+  LOG_INFO("given_pathname(" << given_pathname_.val() << ")");
 }
 
 void RmdirSystemCallTraceReplayModule::processRow() {

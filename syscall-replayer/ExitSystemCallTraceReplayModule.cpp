@@ -29,8 +29,8 @@ ExitSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void ExitSystemCallTraceReplayModule::print_specific_fields() {
-  std::cout << "exit_status(" << exit_status_.val() << "), ";
-  std::cout << "generated(" << generated_.val() << ")" << std::endl;
+  LOG_INFO("exit_status(" << exit_status_.val() << "), " \
+	   << "generated(" << generated_.val() << ")");
 }
 
 void ExitSystemCallTraceReplayModule::processRow() {

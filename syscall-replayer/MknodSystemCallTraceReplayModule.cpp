@@ -32,30 +32,30 @@ MknodSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void MknodSystemCallTraceReplayModule::print_specific_fields() {
-  std::cout << "pathname(" << given_pathname_.val() << "), ";
-  std::cout << "file type(";
-
+  std::string file_type = "";
   // Decode the file type field from the encoding specified by SNIA
   switch (type_.val()) {
   case DS_FILE_TYPE_REG:
-    std::cout << "regular";
+    file_type = "regular";
     break;
   case DS_FILE_TYPE_CHR:
-    std::cout << "character special";
+    file_type = "character special";
     break;
   case DS_FILE_TYPE_BLK:
-    std::cout << "block special";
+    file_type = "block special";
     break;
   case DS_FILE_TYPE_FIFO:
-    std::cout << "FIFO";
+    file_type = "FIFO";
     break;
   case DS_FILE_TYPE_SOCK:
-    std::cout << "socket";
+    file_type = "socket";
     break;
   }
-  std::cout << "), ";
-  std::cout << "mode(" << mode_value_.val() << "), ";
-  std::cout << "dev(" << dev_.val() << ")";
+
+  LOG_INFO("pathname(" << given_pathname_.val() << "), " \
+	   << "file type(" << file_type << "), " \
+	   << "mode(" << mode_value_.val() << "), " \
+	   << "dev(" << dev_.val() << ")");
 }
 
 void MknodSystemCallTraceReplayModule::processRow() {

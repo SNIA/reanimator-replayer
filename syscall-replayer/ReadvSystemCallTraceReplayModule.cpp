@@ -41,9 +41,9 @@ void ReadvSystemCallTraceReplayModule::print_specific_fields() {
    * Print the descriptor value, number of iovec and total
    * number of bytes read from the first record of dataseries file.
    */
-  std::cout << "descriptor:(" << descriptor_.val() << "), ";
-  std::cout << "count:(" << count_.val() << "), ";
-  std::cout << "bytes requested:(" << bytes_requested_.val() << ")\n";
+  LOG_INFO("descriptor:(" << descriptor_.val() << "), " \
+	   << "count:(" << count_.val() << "), " \
+	   << "bytes requested:(" << bytes_requested_.val() << ")");
 
   int count = count_.val();
 
@@ -53,8 +53,8 @@ void ReadvSystemCallTraceReplayModule::print_specific_fields() {
    */
   while (count > 0 && series.morerecords()) {
     ++series;
-    std::cout << "\niov_number:(" << iov_number_.val() << "), ";
-    std::cout << "data_read:(" << data_read_.val() << ")";
+    LOG_INFO("iov_number:(" << iov_number_.val() << "), " \
+	     << "data_read:(" << data_read_.val() << ")");
     count--;
   }
 
@@ -135,23 +135,22 @@ void ReadvSystemCallTraceReplayModule::processRow() {
 		 replayed_buffer[iovcnt_],
 		 iov[iovcnt_].iov_len) != 0) {
 	//Data aren't same
-	std::cerr << "Verification of data for iov number: "
-		  << iovcnt_ << " in readv failed.\n";
+	LOG_ERR("Verification of data for iov number: " \
+		<< iovcnt_ << " in readv failed.");
 	if (!default_mode()) {
-	  std::cout << "time called:" << std::fixed
-		    << Tfrac_to_sec(time_called()) << std::endl;
-	  std::cout << "Captured readv data is different from replayed"
-		    << "read data" << std::endl;
-	  std::cout << "Captured readv data: " << traced_buffer[iovcnt_] << ", ";
-	  std::cout << "Replayed readv data: " << replayed_buffer[iovcnt_]
-		    << std::endl;
+	  LOG_WARN("time called:" << std::fixed \
+		   << Tfrac_to_sec(time_called()) \
+		   << ", Captured readv data is different from" \
+		   << " replayed read data");
+	  LOG_WARN("Captured readv data: " << traced_buffer[iovcnt_] << ", " \
+		   << "Replayed readv data: " << replayed_buffer[iovcnt_]);
 	  if (abort_mode()) {
 	    abort();
 	  }
 	}
       } else if (verbose_mode()) {
-	std::cout << "Verification of data for iov number: "
-		  << iovcnt_ << " in readv succeeded" << std::endl;
+	LOG_INFO("Verification of data for iov number: " \
+		 << iovcnt_ << " in readv succeeded.");
       }
     }
   }

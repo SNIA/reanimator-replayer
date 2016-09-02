@@ -32,9 +32,9 @@ ReadSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void ReadSystemCallTraceReplayModule::print_specific_fields() {
-  std::cout << "descriptor:" << descriptor_.val() << "), ";
-  std::cout << "data read(" << data_read_.val() << "), ";
-  std::cout << "bytes requested(" << bytes_requested_.val() << ")";
+  LOG_INFO("descriptor:" << descriptor_.val() << "), " \
+	   << "data read(" << data_read_.val() << "), " \
+	   << "bytes requested(" << bytes_requested_.val() << ")");
 }
 
 void ReadSystemCallTraceReplayModule::processRow() {
@@ -48,21 +48,20 @@ void ReadSystemCallTraceReplayModule::processRow() {
     // Verify read data and data in the trace file are same
     if (memcmp(data_read_.val(), buffer, replayed_ret_val_) != 0){
       // Data aren't same
-      std::cerr << "Verification of data in read failed.\n";
+      LOG_ERR("Verification of data in read failed.");
       if (!default_mode()) {
-	std::cout << "time called:" << std::fixed
-		  <<  Tfrac_to_sec(time_called()) << std::endl;
-	std::cout << "Captured read data is different from replayed read data"
-		  << std::endl;
-	std::cout << "Captured read data: " << data_read_.val() << ", ";
-	std::cout << "Replayed read data: " << buffer << std::endl;
+	LOG_WARN("time called:" << std::fixed \
+		 <<  Tfrac_to_sec(time_called()) \
+		 << " Captured read data is different from replayed read data");
+	LOG_WARN("Captured read data: " << data_read_.val() << ", " \
+		 << "Replayed read data: " << buffer);
 	if (abort_mode()) {
 	  abort();
 	}
       }
     } else {
       if (verbose_mode()) {
-	std::cout << "Verification of data in read success.\n";
+	LOG_INFO("Verification of data in read success.");
       }
     }
   }
@@ -80,8 +79,10 @@ PReadSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void PReadSystemCallTraceReplayModule::print_specific_fields() {
-  ReadSystemCallTraceReplayModule::print_specific_fields();
-  std::cout << "offset(" << offset_.val() << ")";
+  LOG_INFO("descriptor:" << descriptor_.val() << "), " \
+	   << "data read(" << data_read_.val() << "), " \
+	   << "bytes requested(" << bytes_requested_.val() << "), " \
+	   << "offset(" << offset_.val() << ")");
 }
 
 void PReadSystemCallTraceReplayModule::processRow() {
@@ -96,21 +97,20 @@ void PReadSystemCallTraceReplayModule::processRow() {
     // Verify read data and data in the trace file are same
     if (memcmp(data_read_.val(), buffer, replayed_ret_val_) != 0) {
       // Data aren't same
-      std::cerr << "Verification of data in pread failed.\n";
-      if (warn_level_ != DEFAULT_MODE) {
-	std::cout << "time called:" << std::fixed
-		  <<  Tfrac_to_sec(time_called()) << std::endl;
-	std::cout << "Captured pread data is different from replayed pread data"
-		  << std::endl;
-	std::cout << "Captured pread data: " << data_read_.val() << ", ";
-	std::cout << "Replayed pread data: " << buffer << std::endl;
+      LOG_ERR("Verification of data in pread failed.");
+      if (!default_mode()) {
+	LOG_WARN("time called:" << std::fixed \
+		 <<  Tfrac_to_sec(time_called()) \
+		 << " Captured pread data is different from replayed pread data");
+	LOG_WARN("Captured pread data: " << data_read_.val() << ", " \
+		 << "Replayed pread data: " << buffer);
 	if (warn_level_ == ABORT_MODE ) {
 	  abort();
 	}
       }
     } else {
       if (verbose_) {
-	std::cout << "Verification of data in pread success.\n";
+	LOG_INFO("Verification of data in pread success.");
       }
     }
   }
