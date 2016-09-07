@@ -72,23 +72,22 @@ int BasicStatSystemCallTraceReplayModule::print_mode_value(u_int st_mode) {
 
 void BasicStatSystemCallTraceReplayModule::print_specific_fields() {
   LOG_INFO("device id(" << stat_result_dev_.val() << "), " \
-  << "file inode number(" << stat_result_ino_.val() << "), " \
-  << "file mode(" << std::hex \
-  << print_mode_value(stat_result_mode_.val()) << std::dec << "), " \
-  << "file nlinks(" << stat_result_nlink_.val() << "), " \
-  << "file UID(" << stat_result_uid_.val() << "), " \
-  << "file GID(" << stat_result_gid_.val() << "), " \
-  << "file size(" << stat_result_size_.val() << "), " \
-  << "file blksize(" << stat_result_blksize_.val() << "), " \
-  << "file blocks(" << stat_result_blocks_.val() << ") " \
-  << "file atime(" << Tfrac_to_sec(stat_result_atime_.val()) << ") " \
-  << "file mtime(" << Tfrac_to_sec(stat_result_mtime_.val()) << ") " \
-  << "file ctime(" << Tfrac_to_sec(stat_result_ctime_.val()) << ") ");
+    << "file inode number(" << stat_result_ino_.val() << "), " \
+    << "file mode(" << std::hex \
+    << print_mode_value(stat_result_mode_.val()) << std::dec << "), " \
+    << "file nlinks(" << stat_result_nlink_.val() << "), " \
+    << "file UID(" << stat_result_uid_.val() << "), " \
+    << "file GID(" << stat_result_gid_.val() << "), " \
+    << "file size(" << stat_result_size_.val() << "), " \
+    << "file blksize(" << stat_result_blksize_.val() << "), " \
+    << "file blocks(" << stat_result_blocks_.val() << ") " \
+    << "file atime(" << Tfrac_to_sec(stat_result_atime_.val()) << ") " \
+    << "file mtime(" << Tfrac_to_sec(stat_result_mtime_.val()) << ") " \
+    << "file ctime(" << Tfrac_to_sec(stat_result_ctime_.val()) << ") ");
 }
 
 void BasicStatSystemCallTraceReplayModule::verifyResult(
 					      struct stat replayed_stat_buf) {
-
   u_int stat_result_ino = (u_int) stat_result_ino_.val();
   u_int stat_result_mode = stat_result_mode_.val();
   u_int stat_result_nlink = (u_int) stat_result_nlink_.val();
@@ -116,37 +115,37 @@ void BasicStatSystemCallTraceReplayModule::verifyResult(
       LOG_ERR("Verification of " << sys_call_name_ \
 	      << " buffer content failed.");
       if (!default_mode()) {
-	LOG_WARN("time called:" << std::fixed << Tfrac_to_sec(time_called()) \
-		<< " Captured " << sys_call_name_ \
-		<< " content is different from replayed " \
-		<< sys_call_name_ << " content");
-	LOG_WARN("Captured file inode: " << stat_result_ino << ", " \
-		<< "Replayed file inode: " << replayed_stat_buf.st_ino);
-	LOG_WARN("Captured file mode: " << std::hex \
-		<< print_mode_value(stat_result_mode) << std::dec << ", " \
-		<< "Replayed file mode: " << std::hex \
-		<< print_mode_value(replayed_stat_buf.st_mode) << std::dec);
-	LOG_WARN("Captured file nlink: " << stat_result_nlink << ", " \
-		<< "Replayed file nlink: " << replayed_stat_buf.st_nlink);
-	LOG_WARN("Captured file UID: " << stat_result_uid << ", " \
-		<< "Replayed file UID: " << replayed_stat_buf.st_uid);
-	LOG_WARN("Captured file GID: " << stat_result_gid << ", " \
-		<< "Replayed file GID: " << replayed_stat_buf.st_gid);
-	LOG_WARN("Captured file size: " << stat_result_size << ", " \
-		<< "Replayed file size: " << replayed_stat_buf.st_size);
-	LOG_WARN("Captured file blksize: " << stat_result_blksize << ", " \
-		<< "Replayed file blksize: " << replayed_stat_buf.st_blksize);
-	LOG_WARN("Captured file blocks: " << stat_result_blocks << ", " \
-		<< "Replayed file blocks: " << replayed_stat_buf.st_blocks);
+      	LOG_WARN("time called:" << std::fixed << Tfrac_to_sec(time_called()) \
+      		<< " Captured " << sys_call_name_ \
+      		<< " content is different from replayed " \
+      		<< sys_call_name_ << " content");
+      	LOG_WARN("Captured file inode: " << stat_result_ino << ", " \
+      		<< "Replayed file inode: " << replayed_stat_buf.st_ino);
+      	LOG_WARN("Captured file mode: " << std::hex \
+      		<< print_mode_value(stat_result_mode) << std::dec << ", " \
+      		<< "Replayed file mode: " << std::hex \
+      		<< print_mode_value(replayed_stat_buf.st_mode) << std::dec);
+      	LOG_WARN("Captured file nlink: " << stat_result_nlink << ", " \
+      		<< "Replayed file nlink: " << replayed_stat_buf.st_nlink);
+      	LOG_WARN("Captured file UID: " << stat_result_uid << ", " \
+      		<< "Replayed file UID: " << replayed_stat_buf.st_uid);
+      	LOG_WARN("Captured file GID: " << stat_result_gid << ", " \
+      		<< "Replayed file GID: " << replayed_stat_buf.st_gid);
+      	LOG_WARN("Captured file size: " << stat_result_size << ", " \
+      		<< "Replayed file size: " << replayed_stat_buf.st_size);
+      	LOG_WARN("Captured file blksize: " << stat_result_blksize << ", " \
+      		<< "Replayed file blksize: " << replayed_stat_buf.st_blksize);
+      	LOG_WARN("Captured file blocks: " << stat_result_blocks << ", " \
+      		<< "Replayed file blocks: " << replayed_stat_buf.st_blocks);
 
         if (abort_mode()) {
-	  abort();
-	}
+          abort();
+        }
       }
     } else {
       if (verbose_mode()) {
-	LOG_INFO("Verification of " << sys_call_name_ \
-		 << " buffer succeeded.");
+        LOG_INFO("Verification of " << sys_call_name_ \
+          << " buffer succeeded.");
       }
   }
 }

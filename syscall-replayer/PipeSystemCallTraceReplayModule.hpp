@@ -46,7 +46,7 @@ private:
 
 public:
   PipeSystemCallTraceReplayModule(DataSeriesModule &source,
-				  bool verify_flag,
+                                  bool verify_flag,
                                   bool verbose_flag,
                                   int warn_level_flag);
 

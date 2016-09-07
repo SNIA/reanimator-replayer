@@ -50,9 +50,9 @@ void ExecveSystemCallTraceReplayModule::print_specific_fields() {
     } else if (continuation_num > 0) {
       LOG_INFO("continuation_number(" << continuation_num << "),");
       if (environment_.isNull())
-	LOG_INFO("argument(" << argument_.val() << ")");
+        LOG_INFO("argument(" << argument_.val() << ")");
       else if (argument_.isNull())
-	LOG_INFO("environment(" << environment_.val() << ")");
+        LOG_INFO("environment(" << environment_.val() << ")");
     }
     ++series;
   }

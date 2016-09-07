@@ -38,15 +38,15 @@ BasicStatfsSystemCallTraceReplayModule(DataSeriesModule &source,
 
 void BasicStatfsSystemCallTraceReplayModule::print_specific_fields() {
   LOG_INFO("file system type(" << statfs_result_type_.val() << "), " \
-  << "block size(" << statfs_result_bsize_.val() << "), " \
-  << "total blocks(" << statfs_result_blocks_.val() << "), " \
-  << "free blocks(" << statfs_result_bfree_.val() << "), " \
-  << "available blocks(" << statfs_result_bavail_.val() << "), " \
-  << "total file nodes(" << statfs_result_files_.val() << "), " \
-  << "free file nodes(" << statfs_result_ffree_.val() << "), " \
-  << "Maximum namelength(" << statfs_result_namelen_.val() << ") " \
-  << "fragment size(" << statfs_result_frsize_.val() << ") " \
-  << "mount flags(" << statfs_result_flags_.val() << ")");
+    << "block size(" << statfs_result_bsize_.val() << "), " \
+    << "total blocks(" << statfs_result_blocks_.val() << "), " \
+    << "free blocks(" << statfs_result_bfree_.val() << "), " \
+    << "available blocks(" << statfs_result_bavail_.val() << "), " \
+    << "total file nodes(" << statfs_result_files_.val() << "), " \
+    << "free file nodes(" << statfs_result_ffree_.val() << "), " \
+    << "Maximum namelength(" << statfs_result_namelen_.val() << ") " \
+    << "fragment size(" << statfs_result_frsize_.val() << ") " \
+    << "mount flags(" << statfs_result_flags_.val() << ")");
 }
 
 void BasicStatfsSystemCallTraceReplayModule::verifyResult(
@@ -66,57 +66,56 @@ void BasicStatfsSystemCallTraceReplayModule::verifyResult(
 
   // Verify statfs buffer contents in the trace file are same
   if (statfs_result_type != replayed_statfs_buf.f_type ||
-      statfs_result_bsize != replayed_statfs_buf.f_bsize ||
-      statfs_result_blocks != replayed_statfs_buf.f_blocks ||
-      statfs_result_bfree != replayed_statfs_buf.f_bfree ||
-      statfs_result_bavail != replayed_statfs_buf.f_bavail ||
-      statfs_result_files != replayed_statfs_buf.f_files ||
-      statfs_result_ffree != replayed_statfs_buf.f_ffree ||
-      statfs_result_namelen != (u_long) replayed_statfs_buf.f_namelen ||
-      statfs_result_frsize != (u_long) replayed_statfs_buf.f_frsize ||
-      statfs_result_flags != (u_long) replayed_statfs_buf.f_flags) {
+    statfs_result_bsize != replayed_statfs_buf.f_bsize ||
+    statfs_result_blocks != replayed_statfs_buf.f_blocks ||
+    statfs_result_bfree != replayed_statfs_buf.f_bfree ||
+    statfs_result_bavail != replayed_statfs_buf.f_bavail ||
+    statfs_result_files != replayed_statfs_buf.f_files ||
+    statfs_result_ffree != replayed_statfs_buf.f_ffree ||
+    statfs_result_namelen != (u_long) replayed_statfs_buf.f_namelen ||
+    statfs_result_frsize != (u_long) replayed_statfs_buf.f_frsize ||
+    statfs_result_flags != (u_long) replayed_statfs_buf.f_flags) {
 
-      // Statfs buffers aren't same
-      LOG_ERR("Verification of " << sys_call_name_ \
-	      << " buffer content failed.");
-      if (!default_mode()) {
-	LOG_WARN("time called:" << std::fixed << Tfrac_to_sec(time_called()) \
-		 << "Captured " << sys_call_name_ \
-		 << " content is different from replayed " \
-		 << sys_call_name_ << " content");
-	LOG_WARN("Captured file system type: " << statfs_result_type << ", " \
-		 << "Replayed file system type: " << replayed_statfs_buf.f_type);
-	LOG_WARN("Captured block size: " << statfs_result_bsize << ", " \
-		 << "Replayed block size: " << replayed_statfs_buf.f_bsize);
-	LOG_WARN("Captured total blocks: " << statfs_result_blocks << ", " \
-		 << "Replayed total blocks: " << replayed_statfs_buf.f_blocks);
-	LOG_WARN("Captured free blocks: " << statfs_result_bfree << ", " \
-		 << "Replayed free blocks: " << replayed_statfs_buf.f_bfree);
-	LOG_WARN("Captured available blocks: " << statfs_result_bavail << ", " \
-		 << "Replayed available blocks: " \
-		 << replayed_statfs_buf.f_bavail);
-	LOG_WARN("Captured total file inodes: " << statfs_result_files << ", " \
-		 << "Replayed total file inodes: " \
-		 << replayed_statfs_buf.f_files);
-	LOG_WARN("Captured free file nodes: " << statfs_result_ffree << ", " \
-		 << "Replayed free file nodes: " << replayed_statfs_buf.f_ffree);
-	LOG_WARN("Captured maximum namelength: " << statfs_result_namelen << ", " \
-		 << "Replayed maximum namelength: " \
-		 << replayed_statfs_buf.f_namelen);
-	LOG_WARN("Captured fragment size: " << statfs_result_frsize << ", " \
-		 << "Replayed fragment size: " << replayed_statfs_buf.f_frsize);
-	LOG_WARN("Captured mount flags: " << statfs_result_flags << ", " \
-		 << "Replayed mount flags: " << replayed_statfs_buf.f_flags);
-
-	if (abort_mode()) {
-	  abort();
-	}
+    // Statfs buffers aren't same
+    LOG_ERR("Verification of " << sys_call_name_ \
+      << " buffer content failed.");
+    if (!default_mode()) {
+    	LOG_WARN("time called:" << std::fixed << Tfrac_to_sec(time_called()) \
+        << "Captured " << sys_call_name_ \
+        << " content is different from replayed " \
+        << sys_call_name_ << " content");
+    	LOG_WARN("Captured file system type: " << statfs_result_type << ", " \
+        << "Replayed file system type: " << replayed_statfs_buf.f_type);
+    	LOG_WARN("Captured block size: " << statfs_result_bsize << ", " \
+        << "Replayed block size: " << replayed_statfs_buf.f_bsize);
+    	LOG_WARN("Captured total blocks: " << statfs_result_blocks << ", " \
+        << "Replayed total blocks: " << replayed_statfs_buf.f_blocks);
+    	LOG_WARN("Captured free blocks: " << statfs_result_bfree << ", " \
+        << "Replayed free blocks: " << replayed_statfs_buf.f_bfree);
+    	LOG_WARN("Captured available blocks: " << statfs_result_bavail << ", " \
+        << "Replayed available blocks: " \
+        << replayed_statfs_buf.f_bavail);
+    	LOG_WARN("Captured total file inodes: " << statfs_result_files << ", " \
+        << "Replayed total file inodes: " \
+        << replayed_statfs_buf.f_files);
+    	LOG_WARN("Captured free file nodes: " << statfs_result_ffree << ", " \
+        << "Replayed free file nodes: " << replayed_statfs_buf.f_ffree);
+    	LOG_WARN("Captured maximum namelength: " << statfs_result_namelen << ", " \
+        << "Replayed maximum namelength: " \
+        << replayed_statfs_buf.f_namelen);
+    	LOG_WARN("Captured fragment size: " << statfs_result_frsize << ", " \
+        << "Replayed fragment size: " << replayed_statfs_buf.f_frsize);
+    	LOG_WARN("Captured mount flags: " << statfs_result_flags << ", " \
+        << "Replayed mount flags: " << replayed_statfs_buf.f_flags);
+      if (abort_mode()) {
+        abort();
       }
-    } else {
-      if (verbose_mode()) {
-	LOG_INFO("Verification of " << sys_call_name_ \
-		 << " buffer succeeded.");
-      }
+    }
+  } else {
+    if (verbose_mode()) {
+      LOG_INFO("Verification of " << sys_call_name_ \
+        << " buffer succeeded.");
+    }
   }
 }
 

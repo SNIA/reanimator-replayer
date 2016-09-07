@@ -51,7 +51,7 @@ public:
 				    int warn_level_flag);
 };
 
- class UnlinkatSystemCallTraceReplayModule :
+class UnlinkatSystemCallTraceReplayModule :
   public UnlinkSystemCallTraceReplayModule {
 private:
   // Unlinkat System Call Trace Fields in Dataseries file

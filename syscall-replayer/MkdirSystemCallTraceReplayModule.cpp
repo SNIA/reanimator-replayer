@@ -52,8 +52,8 @@ MkdiratSystemCallTraceReplayModule(DataSeriesModule &source,
 
 void MkdiratSystemCallTraceReplayModule::print_specific_fields() {
   LOG_INFO("descriptor(" << descriptor_.val() << "), " \
-	   << "pathname(" << given_pathname_.val() << "), " \
-	   << "mode(" << mode_value_.val() << ")");
+    << "pathname(" << given_pathname_.val() << "), " \
+    << "mode(" << mode_value_.val() << ")");
 }
 
 void MkdiratSystemCallTraceReplayModule::processRow() {
