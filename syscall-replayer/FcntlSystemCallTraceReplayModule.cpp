@@ -40,16 +40,16 @@ void FcntlSystemCallTraceReplayModule::print_specific_fields() {
       (command_value_.val() == F_SETLKW) ||
       (command_value_.val() == F_GETLK)) {
     LOG_INFO("descriptor(" << descriptor_.val() << "), " \
-    << "command value(" << command_value_.val() << "), " \
-    << "lock type(" << lock_type_.val() << "), " \
-    << "lock whence(" << lock_whence_.val() << "), " \
-    << "lock start(" << lock_start_.val() << "), " \
-    << "lock length(" << lock_length_.val() << "), " \
-    << "lock pid(" << lock_pid_.val() << ")");
+      << "command value(" << command_value_.val() << "), " \
+      << "lock type(" << lock_type_.val() << "), " \
+      << "lock whence(" << lock_whence_.val() << "), " \
+      << "lock start(" << lock_start_.val() << "), " \
+      << "lock length(" << lock_length_.val() << "), " \
+      << "lock pid(" << lock_pid_.val() << ")");
   } else {
     LOG_INFO("descriptor(" << descriptor_.val() << "), " \
-    << "command value(" << command_value_.val() << "), " \
-    << "argument value(" << argument_value_.val() << ")");
+      << "command value(" << command_value_.val() << "), " \
+      << "argument value(" << argument_value_.val() << ")");
   }
 }
 
@@ -78,10 +78,10 @@ void FcntlSystemCallTraceReplayModule::processRow() {
      * call with NULL as the third argument
      */
     if ((lock.l_type == 0) &&
-	(lock.l_whence == 0) &&
-	(lock.l_start == 0) &&
-	(lock.l_len == 0) &&
-	(lock.l_pid == 0)) {
+    	(lock.l_whence == 0) &&
+    	(lock.l_start == 0) &&
+    	(lock.l_len == 0) &&
+    	(lock.l_pid == 0)) {
       replayed_ret_val_ = fcntl(fd, command, NULL);
     } else {
       /*

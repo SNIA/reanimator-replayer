@@ -53,9 +53,9 @@ void MknodSystemCallTraceReplayModule::print_specific_fields() {
   }
 
   LOG_INFO("pathname(" << given_pathname_.val() << "), " \
-	   << "file type(" << file_type << "), " \
-	   << "mode(" << mode_value_.val() << "), " \
-	   << "dev(" << dev_.val() << ")");
+    << "file type(" << file_type << "), " \
+    << "mode(" << mode_value_.val() << "), " \
+    << "dev(" << dev_.val() << ")");
 }
 
 void MknodSystemCallTraceReplayModule::processRow() {

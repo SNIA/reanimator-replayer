@@ -32,8 +32,8 @@ OpenSystemCallTraceReplayModule(DataSeriesModule &source,
 
 void OpenSystemCallTraceReplayModule::print_specific_fields() {
   LOG_INFO("pathname(" << given_pathname_.val() << "), " \
-	   << "flags(" << open_value_.val() << "), " \
-	   << "mode(" << mode_value_.val() << ")");
+    << "flags(" << open_value_.val() << "), " \
+    << "mode(" << mode_value_.val() << ")");
 }
 
 void OpenSystemCallTraceReplayModule::processRow() {

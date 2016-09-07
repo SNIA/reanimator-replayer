@@ -30,7 +30,7 @@ SymlinkSystemCallTraceReplayModule(DataSeriesModule &source,
 
 void SymlinkSystemCallTraceReplayModule::print_specific_fields() {
   LOG_INFO("target path(" << target_pathname_.val() << "), " \
-	   << "link path(" << given_pathname_.val() << ")");
+    << "link path(" << given_pathname_.val() << ")");
 }
 
 void SymlinkSystemCallTraceReplayModule::processRow() {

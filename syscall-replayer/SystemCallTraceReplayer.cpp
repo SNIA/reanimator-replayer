@@ -683,7 +683,7 @@ int main(int argc, char *argv[]) {
     execute_replayer->execute();
     // Check to see if all the extents in the module are processed
     if (execute_replayer->cur_extent_has_more_record() ||
-	execute_replayer->getSharedExtent() != NULL) {
+      execute_replayer->getSharedExtent() != NULL) {
       // No, there are more extents, so we add it to min_heap
       replayers_heap.push(execute_replayer);
     }

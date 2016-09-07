@@ -50,8 +50,8 @@ UnlinkatSystemCallTraceReplayModule(DataSeriesModule &source,
 
 void UnlinkatSystemCallTraceReplayModule::print_specific_fields() {
   LOG_INFO("descriptor(" << descriptor_.val() << "), " \
-	   << "pathname(" << given_pathname_.val() << "), " \
-	   << "flags(" << flag_value_.val() << ")");
+    << "pathname(" << given_pathname_.val() << "), " \
+    << "flags(" << flag_value_.val() << ")");
 }
 
 void UnlinkatSystemCallTraceReplayModule::processRow() {

@@ -46,22 +46,22 @@ void ReadSystemCallTraceReplayModule::processRow() {
 
   if (verify_ == true) {
     // Verify read data and data in the trace file are same
-    if (memcmp(data_read_.val(), buffer, replayed_ret_val_) != 0){
+    if (memcmp(data_read_.val(), buffer, replayed_ret_val_) != 0) {
       // Data aren't same
       LOG_ERR("Verification of data in read failed.");
       if (!default_mode()) {
-	LOG_WARN("time called:" << std::fixed \
-		 <<  Tfrac_to_sec(time_called()) \
-		 << " Captured read data is different from replayed read data");
-	LOG_WARN("Captured read data: " << data_read_.val() << ", " \
-		 << "Replayed read data: " << buffer);
-	if (abort_mode()) {
-	  abort();
-	}
+        LOG_WARN("time called:" << std::fixed \
+          <<  Tfrac_to_sec(time_called()) \
+          << " Captured read data is different from replayed read data");
+        LOG_WARN("Captured read data: " << data_read_.val() << ", " \
+          << "Replayed read data: " << buffer);
+        if (abort_mode()) {
+          abort();
+        }
       }
     } else {
       if (verbose_mode()) {
-	LOG_INFO("Verification of data in read success.");
+        LOG_INFO("Verification of data in read success.");
       }
     }
   }
@@ -80,9 +80,9 @@ PReadSystemCallTraceReplayModule(DataSeriesModule &source,
 
 void PReadSystemCallTraceReplayModule::print_specific_fields() {
   LOG_INFO("descriptor:" << descriptor_.val() << "), " \
-	   << "data read(" << data_read_.val() << "), " \
-	   << "bytes requested(" << bytes_requested_.val() << "), " \
-	   << "offset(" << offset_.val() << ")");
+    << "data read(" << data_read_.val() << "), " \
+    << "bytes requested(" << bytes_requested_.val() << "), " \
+    << "offset(" << offset_.val() << ")");
 }
 
 void PReadSystemCallTraceReplayModule::processRow() {
@@ -99,18 +99,18 @@ void PReadSystemCallTraceReplayModule::processRow() {
       // Data aren't same
       LOG_ERR("Verification of data in pread failed.");
       if (!default_mode()) {
-	LOG_WARN("time called:" << std::fixed \
-		 <<  Tfrac_to_sec(time_called()) \
-		 << " Captured pread data is different from replayed pread data");
-	LOG_WARN("Captured pread data: " << data_read_.val() << ", " \
-		 << "Replayed pread data: " << buffer);
-	if (warn_level_ == ABORT_MODE ) {
-	  abort();
-	}
+        LOG_WARN("time called:" << std::fixed \
+          <<  Tfrac_to_sec(time_called()) \
+          << " Captured pread data is different from replayed pread data");
+        LOG_WARN("Captured pread data: " << data_read_.val() << ", " \
+          << "Replayed pread data: " << buffer);
+        if (warn_level_ == ABORT_MODE ) {
+          abort();
+        }
       }
     } else {
       if (verbose_) {
-	LOG_INFO("Verification of data in pread success.");
+        LOG_INFO("Verification of data in pread success.");
       }
     }
   }
