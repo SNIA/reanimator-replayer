@@ -201,6 +201,18 @@ void process_options(int argc, char *argv[],
     log_filename = options_vm["logger"].as<std::string>();
   }
 
+  /*
+   * In case of verify, verbose or warn mode, user must specify the
+   * log filename in order to save replayer log messages.
+   */
+  if (verify || verbose || warn_level > DEFAULT_MODE) {
+    if (log_filename.empty()) {
+      std::cout << "Use '-l' option to provide log filename"
+		<< " to save replayer logs" << std::endl;
+      exit(EXIT_FAILURE);
+    }
+  }
+
   if (options_vm.count("input-files")) {
     input_files = options_vm["input-files"].as<std::vector<std::string> >();
   } else {
