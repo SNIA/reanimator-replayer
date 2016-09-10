@@ -90,12 +90,12 @@ Extent::Ptr SystemCallTraceReplayModule::getSharedExtent() {
     series.setExtent(e);
     if (!prepared) {
       LOG_INFO("---'" << sys_call_name_ << \
-	       "' System Call Replayer has started replaying---");
+        "' System Call Replayer has started replaying---");
       prepared = true;
     }
   } else if (prepared) {
       LOG_INFO("---'" << sys_call_name_ << \
-	       "' System Call Replayer has finished replaying---");
+        "' System Call Replayer has finished replaying---");
   }
   return e;
 }
@@ -130,8 +130,8 @@ void SystemCallTraceReplayModule::after_sys_call() {
     compare_retval_and_errno();
   if (verbose_mode()) {
     LOG_INFO("System call '" << sys_call_name_ << \
-	     "' was executed with following arguments:" << \
-	     sys_call_name_ << ": ");
+      "' was executed with following arguments:" << \
+      sys_call_name_ << ": ");
     print_sys_call_fields();
   }
 }

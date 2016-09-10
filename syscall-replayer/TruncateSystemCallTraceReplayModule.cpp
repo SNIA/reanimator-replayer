@@ -33,7 +33,7 @@ TruncateSystemCallTraceReplayModule(DataSeriesModule &source,
 
 void TruncateSystemCallTraceReplayModule::print_specific_fields() {
   LOG_INFO("pathname(" << given_pathname_.val() << "), " \
-	   << "length(" << truncate_length_.val() << ")");
+    << "length(" << truncate_length_.val() << ")");
 }
 
 void TruncateSystemCallTraceReplayModule::processRow() {

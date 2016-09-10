@@ -42,8 +42,8 @@ void ReadvSystemCallTraceReplayModule::print_specific_fields() {
    * number of bytes read from the first record of dataseries file.
    */
   LOG_INFO("descriptor:(" << descriptor_.val() << "), " \
-	   << "count:(" << count_.val() << "), " \
-	   << "bytes requested:(" << bytes_requested_.val() << ")");
+    << "count:(" << count_.val() << "), " \
+    << "bytes requested:(" << bytes_requested_.val() << ")");
 
   int count = count_.val();
 
@@ -54,7 +54,7 @@ void ReadvSystemCallTraceReplayModule::print_specific_fields() {
   while (count > 0 && series.morerecords()) {
     ++series;
     LOG_INFO("iov_number:(" << iov_number_.val() << "), " \
-	     << "data_read:(" << data_read_.val() << ")");
+      << "data_read:(" << data_read_.val() << ")");
     count--;
   }
 
@@ -132,25 +132,25 @@ void ReadvSystemCallTraceReplayModule::processRow() {
     // Verify each iovec read data and data in the trace file
     for (int iovcnt_ = 0; iovcnt_ < count; iovcnt_++) {
       if (memcmp(traced_buffer[iovcnt_],
-		 replayed_buffer[iovcnt_],
-		 iov[iovcnt_].iov_len) != 0) {
-	//Data aren't same
-	LOG_ERR("Verification of data for iov number: " \
-		<< iovcnt_ << " in readv failed.");
-	if (!default_mode()) {
-	  LOG_WARN("time called:" << std::fixed \
-		   << Tfrac_to_sec(time_called()) \
-		   << ", Captured readv data is different from" \
-		   << " replayed read data");
-	  LOG_WARN("Captured readv data: " << traced_buffer[iovcnt_] << ", " \
-		   << "Replayed readv data: " << replayed_buffer[iovcnt_]);
-	  if (abort_mode()) {
-	    abort();
-	  }
-	}
+        replayed_buffer[iovcnt_],
+        iov[iovcnt_].iov_len) != 0) {
+        //Data aren't same
+        LOG_ERR("Verification of data for iov number: " \
+          << iovcnt_ << " in readv failed.");
+        if (!default_mode()) {
+          LOG_WARN("time called:" << std::fixed \
+            << Tfrac_to_sec(time_called()) \
+            << ", Captured readv data is different from" \
+            << " replayed read data");
+          LOG_WARN("Captured readv data: " << traced_buffer[iovcnt_] << ", " \
+            << "Replayed readv data: " << replayed_buffer[iovcnt_]);
+          if (abort_mode()) {
+            abort();
+          }
+        }
       } else if (verbose_mode()) {
-	LOG_INFO("Verification of data for iov number: " \
-		 << iovcnt_ << " in readv succeeded.");
+        LOG_INFO("Verification of data for iov number: " \
+          << iovcnt_ << " in readv succeeded.");
       }
     }
   }

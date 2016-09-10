@@ -57,8 +57,8 @@ void UtimeSystemCallTraceReplayModule::processRow() {
      */
     if (verify_) {
       LOG_INFO("Utime was passed NULL as its second argument." \
-		<< " It will assign the current time to the file's" \
-		<< " access_time and mod_time.");
+		    << " It will assign the current time to the file's" \
+		    << " access_time and mod_time.");
     }
     replayed_ret_val_ = utime(pathname, NULL);
   } else {
@@ -75,7 +75,7 @@ UtimesSystemCallTraceReplayModule(DataSeriesModule &source,
 				  bool verify_flag,
 				  int warn_level_flag):
   UtimeSystemCallTraceReplayModule(source, verbose_flag, verify_flag,
-				   warn_level_flag) {
+    warn_level_flag) {
   sys_call_name_ = "utimes";
 }
 
@@ -91,9 +91,9 @@ void UtimesSystemCallTraceReplayModule::processRow() {
      * array is NULL.
      */
     if (verify_) {
-       LOG_INFO("Utimes was passed NULL as its second argument." \
-		<< " It will assign the current time to the file's" \
-		<< " access_time and mod_time.");
+      LOG_INFO("Utimes was passed NULL as its second argument." \
+        << " It will assign the current time to the file's" \
+        << " access_time and mod_time.");
     }
     replayed_ret_val_ = utimes(pathname, NULL);
   } else {
@@ -112,7 +112,7 @@ UtimensatSystemCallTraceReplayModule(DataSeriesModule &source,
 				     bool verify_flag,
 				     int warn_level_flag):
   UtimeSystemCallTraceReplayModule(source, verbose_flag, verify_flag,
-				   warn_level_flag),
+    warn_level_flag),
   descriptor_(series, "descriptor"),
   flag_value_(series, "flag_value", Field::flag_nullable) {
   sys_call_name_ = "utimensat";
@@ -120,10 +120,10 @@ UtimensatSystemCallTraceReplayModule(DataSeriesModule &source,
 
 void UtimensatSystemCallTraceReplayModule::print_specific_fields() {
   LOG_INFO("descriptor(" << descriptor_.val() << "), " \
-	   << "given_pathname(" << given_pathname_.val() << "), " \
-	   << "access_time(" << Tfrac_to_sec(access_time_.val()) << "), " \
-	   << "mod_time(" << Tfrac_to_sec(mod_time_.val()) << "), " \
-	   << "flags(" << flag_value_.val() << ")");
+    << "given_pathname(" << given_pathname_.val() << "), " \
+    << "access_time(" << Tfrac_to_sec(access_time_.val()) << "), " \
+    << "mod_time(" << Tfrac_to_sec(mod_time_.val()) << "), " \
+    << "flags(" << flag_value_.val() << ")");
 }
 
 void UtimensatSystemCallTraceReplayModule::processRow() {
@@ -133,8 +133,9 @@ void UtimensatSystemCallTraceReplayModule::processRow() {
   const char *pathname;
   if (given_pathname_.isNull())
     pathname = NULL;
-  else
+  else {
     pathname = (char *) given_pathname_.val();
+  }
   int flags = flag_value_.val();
 
   // Replay the utimensat system call.
@@ -145,8 +146,8 @@ void UtimensatSystemCallTraceReplayModule::processRow() {
      */
     if (verify_) {
       LOG_INFO("Utimensat was passed NULL as its third argument." \
-		<< " It will assign the current time to the file's" \
-		<< " access_time and mod_time.");
+        << " It will assign the current time to the file's" \
+        << " access_time and mod_time.");
     }
     /*
      * XXX: The glibc wrapper for utimensat will give the error EINVAL

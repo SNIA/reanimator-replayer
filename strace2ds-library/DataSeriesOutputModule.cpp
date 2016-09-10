@@ -273,19 +273,18 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
        * If field is of type Variable32, then retrieve the length of the
        * field that needs to be set.
        */
-      if (extents_[extent_name][field_name].second == ExtentType::ft_variable32)
-	var32_len = getVariable32FieldLength(sys_call_args_map, field_name);
+      if (extents_[extent_name][field_name].second == ExtentType::ft_variable32) {
+        var32_len = getVariable32FieldLength(sys_call_args_map, field_name);
+      }
       setField(extent_name, field_name, field_value, var32_len);
-
       continue;
     } else {
       if (nullable) {
-	setFieldNull(extent_name, field_name);
+        setFieldNull(extent_name, field_name);
       } else {
-	std::cerr << extent_name << ":" << field_name << " ";
-	std::cerr << "WARNING: Attempting to setNull to a non-nullable field. ";
-	std::cerr << "This field will take on default value instead."
-		  << std::endl;
+        std::cerr << extent_name << ":" << field_name << " ";
+        std::cerr << "WARNING: Attempting to setNull to a non-nullable field. ";
+        std::cerr << "This field will take on default value instead." << std::endl;
       }
     }
   }
@@ -529,26 +528,27 @@ u_int DataSeriesOutputModule::getVariable32FieldLength(SysCallArgsMap &args_map,
      * so we add 1 to its return value to get the full length of the pathname.
      */
     if ((field_name == "given_pathname") ||
-	(field_name == "given_oldpathname") ||
-	(field_name == "given_newpathname") ||
-	(field_name == "target_pathname") ||
-	(field_name == "given_oldname") ||
-	(field_name == "given_newname") ||
-	(field_name == "argument") ||
-	(field_name == "environment")) {
+      (field_name == "given_oldpathname") ||
+      (field_name == "given_newpathname") ||
+      (field_name == "target_pathname") ||
+      (field_name == "given_oldname") ||
+      (field_name == "given_newname") ||
+      (field_name == "argument") ||
+      (field_name == "environment")) {
       void *field_value = args_map[field_name];
       length = strlen(*(char **) field_value) + 1;
-    /*
-     * If field_name refers to the actual data read or written, then length
-     * of buffer must be the return value of that corresponding system call.
-     */
+      /*
+       * If field_name refers to the actual data read or written, then length
+       * of buffer must be the return value of that corresponding system call.
+       */
     } else if ((field_name == "data_read") ||
-	       (field_name == "data_written") ||
-	       (field_name == "link_value") ||
-	       (field_name == "dirent_buffer"))
+      (field_name == "data_written") ||
+	    (field_name == "link_value") ||
+      (field_name == "dirent_buffer")) {
       length = *(int *)(args_map["return_value"]);
-    else if (field_name == "ioctl_buffer")
+    } else if (field_name == "ioctl_buffer") {
       length = ioctl_size_;
+    }
   } else {
     std::cerr << "WARNING: field_name = " << field_name << " ";
     std::cerr << "is not set in the arguments map";
@@ -560,13 +560,12 @@ u_int DataSeriesOutputModule::getVariable32FieldLength(SysCallArgsMap &args_map,
 void DataSeriesOutputModule::initArgsMap(SysCallArgsMap &args_map,
 					 const char *extent_name) {
   for (config_table_entry_type::iterator iter =
-	config_table_[extent_name].begin();
-	iter != config_table_[extent_name].end();
-	iter++) {
+    config_table_[extent_name].begin();
+    iter != config_table_[extent_name].end();
+    iter++) {
     std::string field_name = iter->first;
     bool nullable = iter->second.first;
-    if (!nullable &&
-	extents_[extent_name][field_name].second == ExtentType::ft_bool)
+    if (!nullable && extents_[extent_name][field_name].second == ExtentType::ft_bool)
       args_map[field_name] = 0;
   }
 }

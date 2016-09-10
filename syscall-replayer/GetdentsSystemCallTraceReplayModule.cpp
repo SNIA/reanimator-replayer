@@ -34,7 +34,7 @@ GetdentsSystemCallTraceReplayModule(DataSeriesModule &source,
 
 void GetdentsSystemCallTraceReplayModule::print_specific_fields() {
   LOG_INFO("descriptor(" << descriptor_.val() << "), " \
-	   << "count(" << count_.val() << ")");
+    << "count(" << count_.val() << ")");
 }
 
 void GetdentsSystemCallTraceReplayModule::processRow() {
@@ -46,14 +46,14 @@ void GetdentsSystemCallTraceReplayModule::processRow() {
 
   if (verify_ == true) {
     // Verify dirent buffer data and data in the trace file are same
-    if (memcmp(dirent_buffer_.val(), buffer, replayed_ret_val_) != 0){
+    if (memcmp(dirent_buffer_.val(), buffer, replayed_ret_val_) != 0) {
       // Data aren't same
       LOG_ERR("Verification of data in getdents failed.");
       if (!default_mode()) {
-	LOG_WARN("time called: " << std::fixed \
-                 <<  Tfrac_to_sec(time_called()) \
-		 << "Captured getdents data is different from replayed " \
-		 << "getdents data.");
+        LOG_WARN("time called: " << std::fixed \
+          <<  Tfrac_to_sec(time_called()) \
+		      << "Captured getdents data is different from replayed " \
+		      << "getdents data.");
         if (abort_mode()) {
           abort();
         }
