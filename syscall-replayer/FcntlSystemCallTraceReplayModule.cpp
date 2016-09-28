@@ -94,4 +94,12 @@ void FcntlSystemCallTraceReplayModule::processRow() {
     // Otherwise, pass fcntl the argument value as the third argument.
     replayed_ret_val_ = fcntl(fd, command, argument);
   }
+
+  /*
+   * If command has F_DUPFD flag set, then map the returned file descriptor
+   * value to the traced return value.
+   */
+  if (command & F_DUPFD) {
+    SystemCallTraceReplayModule::fd_map_[return_value()] = replayed_ret_val_;
+  }
 }
