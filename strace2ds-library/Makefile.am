@@ -10,6 +10,7 @@ XML_FILES=			\
 	xml/chdir.xml		\
 	xml/chmod.xml		\
 	xml/chown.xml		\
+	xml/clone.xml		\
 	xml/close.xml		\
 	xml/creat.xml		\
 	xml/dup.xml		\

@@ -79,6 +79,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["chmod"] = &DataSeriesOutputModule::makeChmodArgsMap;
   // chown system call
   func_ptr_map_["chown"] = &DataSeriesOutputModule::makeChownArgsMap;
+  // clone system call
+  func_ptr_map_["clone"] = &DataSeriesOutputModule::makeCloneArgsMap;
   // close system call
   func_ptr_map_["close"] = &DataSeriesOutputModule::makeCloseArgsMap;
   // creat system call
@@ -548,6 +550,8 @@ u_int DataSeriesOutputModule::getVariable32FieldLength(SysCallArgsMap &args_map,
       length = *(int *)(args_map["return_value"]);
     } else if (field_name == "ioctl_buffer") {
       length = ioctl_size_;
+    } else if (field_name == "pt_regs") {
+      length = sizeof(struct pt_regs);
     }
   } else {
     std::cerr << "WARNING: field_name = " << field_name << " ";
@@ -2270,4 +2274,129 @@ void DataSeriesOutputModule::makeIoctlArgsMap(SysCallArgsMap &args_map,
     std::cerr << "Ioctl: Ioctl buffer is set as NULL!!" << std::endl;
   }
   args_map["buffer_size"] = &ioctl_size_;
+}
+
+void DataSeriesOutputModule::makeCloneArgsMap(SysCallArgsMap &args_map,
+					      long *args,
+					      void **v_args) {
+  initArgsMap(args_map, "clone");
+
+  args_map["flag_value"] = &args[0];
+  u_int flag = processCloneFlags(args_map, args[0]);
+  if (flag != 0) {
+    std::cerr << "Clone: These flags are not processed/unknown->0x";
+    std::cerr << std::hex << flag << std::dec << std::endl;
+  }
+
+  args_map["child_stack_address"] = &args[0];
+
+  if (v_args[0] != NULL) {
+    args_map["parent_thread_id"] = &v_args[0];
+  } else {
+    std::cerr << "Clone: Parent thread ID is set as NULL!!" << std::endl;
+  }
+
+  if (v_args[1] != NULL) {
+    args_map["child_thread_id"] = &v_args[1];
+  } else {
+    std::cerr << "Clone: Child thread ID is set as NULL!!" << std::endl;
+  }
+
+  if (v_args[2] != NULL) {
+    args_map["pt_regs"] = &v_args[2];
+  } else {
+    std::cerr << "Clone: Struct pt_regs is set as NULL!!" << std::endl;
+  }
+}
+
+u_int DataSeriesOutputModule::processCloneFlags(SysCallArgsMap &args_map,
+						u_int flag) {
+  /*
+   * Process each individual clone flag bit that has been set.
+   */
+  // set child_cleartid flag
+  process_Flag_and_Mode_Args(args_map, flag, CLONE_CHILD_CLEARTID,
+			     "flag_child_cleartid");
+
+  // set child_settid flag
+  process_Flag_and_Mode_Args(args_map, flag, CLONE_CHILD_SETTID,
+			     "flag_child_settid");
+
+  // set files flag
+  process_Flag_and_Mode_Args(args_map, flag, CLONE_FILES,
+			     "flag_files");
+
+  // set filesystem flag
+  process_Flag_and_Mode_Args(args_map, flag, CLONE_FS,
+			     "flag_filesystem");
+
+  // set I/O flag
+  process_Flag_and_Mode_Args(args_map, flag, CLONE_IO,
+			     "flag_io");
+
+  // set newipc flag
+  process_Flag_and_Mode_Args(args_map, flag, CLONE_NEWIPC,
+			     "flag_newipc");
+
+  // set newnet flag
+  process_Flag_and_Mode_Args(args_map, flag, CLONE_NEWNET,
+			     "flag_newnet");
+
+  // set newns flag
+  process_Flag_and_Mode_Args(args_map, flag, CLONE_NEWNS,
+			     "flag_newns");
+
+  // set newpid flag
+  process_Flag_and_Mode_Args(args_map, flag, CLONE_NEWPID,
+			     "flag_newpid");
+
+  // set newuser flag
+  process_Flag_and_Mode_Args(args_map, flag, CLONE_NEWUSER,
+			     "flag_newuser");
+
+  // set newuts flag
+  process_Flag_and_Mode_Args(args_map, flag, CLONE_NEWUTS,
+			     "flag_newuts");
+
+  // set parent flag
+  process_Flag_and_Mode_Args(args_map, flag, CLONE_PARENT,
+			     "flag_parent");
+
+  // set parent_settid flag
+  process_Flag_and_Mode_Args(args_map, flag, CLONE_PARENT_SETTID,
+			     "flag_parent_settid");
+
+  // set ptrace flag
+  process_Flag_and_Mode_Args(args_map, flag, CLONE_PTRACE,
+			     "flag_ptrace");
+
+  // set settls flag
+  process_Flag_and_Mode_Args(args_map, flag, CLONE_SETTLS,
+			     "flag_settls");
+
+  // set sighand flag
+  process_Flag_and_Mode_Args(args_map, flag, CLONE_SIGHAND,
+			     "flag_sighand");
+
+  // set sysvsem flag
+  process_Flag_and_Mode_Args(args_map, flag, CLONE_SYSVSEM,
+			     "flag_sysvsem");
+
+  // set thread flag
+  process_Flag_and_Mode_Args(args_map, flag, CLONE_THREAD,
+			     "flag_thread");
+
+  // set untraced flag
+  process_Flag_and_Mode_Args(args_map, flag, CLONE_UNTRACED,
+			     "flag_untraced");
+
+  // set vfork flag
+  process_Flag_and_Mode_Args(args_map, flag, CLONE_VFORK,
+			     "flag_vfork");
+
+  // set vm flag
+  process_Flag_and_Mode_Args(args_map, flag, CLONE_VM,
+			     "flag_vm");
+
+  return flag;
 }

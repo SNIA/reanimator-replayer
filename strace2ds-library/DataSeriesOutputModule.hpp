@@ -46,6 +46,8 @@
 #include <sys/mman.h>
 #include <sys/statfs.h>
 #include <sys/statvfs.h>
+#include <sched.h>
+#include <linux/ptrace.h>
 
 class DataSeriesOutputModule;
 
@@ -384,5 +386,14 @@ private:
 
   // Maps Ioctl System Call <field, value> pairs
   void makeIoctlArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+
+  // Maps Clone System Call <field, value> pairs
+  void makeCloneArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+
+  /*
+   * Maps individual flag value for Mmap system call to its corresponding
+   * field name.
+   */
+  u_int processCloneFlags(SysCallArgsMap &args_map, u_int flag);
 };
 #endif // DATA_SERIES_OUTPUT_MODULE_HPP
