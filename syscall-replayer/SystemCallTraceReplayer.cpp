@@ -211,6 +211,8 @@ void process_options(int argc, char *argv[],
 
 // Define the static fd_map_ in SystemCallTraceReplayModule
 std::map<int, int> SystemCallTraceReplayModule::fd_map_;
+FileDescriptorManager SystemCallTraceReplayModule::fd_manager_;
+
 // Define the input file stream random_file_ in SystemCallTraceReplayModule
 std::ifstream SystemCallTraceReplayModule::random_file_;
 // Define the log file

@@ -27,6 +27,7 @@
 
 #include <DataSeries/RowAnalysisModule.hpp>
 #include "strace2ds.h"
+#include "FileDescriptorManager.hpp"
 
 #include <string>
 #include <map>
@@ -125,6 +126,7 @@ protected:
 public:
   // A mapping of file descriptors in the trace file to actual file descriptors
   static std::map<int, int> fd_map_;
+  static FileDescriptorManager fd_manager_;
   // An input file stream for reading random data from /dev/urandom
   static std::ifstream random_file_;
   // An output file stream for writing system call replayer logs to a log file
