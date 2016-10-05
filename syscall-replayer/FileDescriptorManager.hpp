@@ -49,6 +49,15 @@ public:
   FileDescriptorManager();
 
   /*
+   * This function needs to be called first before
+   * using any method in this class for the following reason.
+   * When sys call replayer starts, there is no fd table
+   * for any process. We need to create the fd table for
+   * the first process before replaying.
+   */
+  void initialize(pid_t pid, std::map<int, int>& fd_map);
+
+  /*
    * This function will add a file descriptor mapping.
    * It will increase the reference count and create a file
    * descriptor if it hasn't been created yet.

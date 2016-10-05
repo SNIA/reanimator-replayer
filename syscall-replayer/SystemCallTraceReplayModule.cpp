@@ -52,6 +52,10 @@ bool SystemCallTraceReplayModule::abort_mode() const {
   return warn_level_ == ABORT_MODE;
 }
 
+std::string SystemCallTraceReplayModule::sys_call_name() const {
+  return sys_call_name_;
+}
+
 uint64_t SystemCallTraceReplayModule::time_called() const {
   return (uint64_t)time_called_.val();
 }

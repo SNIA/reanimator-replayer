@@ -173,6 +173,13 @@ public:
   bool abort_mode() const;
 
   /*
+   * Get the system call name of current system call record
+   *
+   * @return: a string that represents the system call name.
+   */
+  std::string sys_call_name() const;
+
+  /*
    * Get the execution time of current system call record
    *
    * @return: corresponding time_called field of a record that

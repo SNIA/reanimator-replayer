@@ -21,6 +21,17 @@
 FileDescriptorManager::FileDescriptorManager() {
 }
 
+void FileDescriptorManager::initialize(pid_t pid, std::map<int, int>& fd_map) {
+  for (std::map<int, int>::iterator it = fd_map.begin();
+    it != fd_map.end(); ++it) {
+    int traced_fd = it->first;
+    int replayed_fd = it->second;
+    // Flags is 0
+    fd_table_map_[pid][traced_fd] = std::make_pair(replayed_fd, 0);
+    fd_rc_[traced_fd]++;
+  }
+}
+
 void FileDescriptorManager::add_fd(pid_t pid, int traced_fd,
   int replayed_fd, int flags) {
   if (fd_table_map_.find(pid) == fd_table_map_.end()) {

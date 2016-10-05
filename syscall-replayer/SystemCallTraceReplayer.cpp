@@ -244,11 +244,21 @@ int main(int argc, char *argv[]) {
 		  verify, warn_level, pattern_data,
 		  log_filename, input_files);
 
-  // Initialize standard map values (STDIN, STDOUT, STDERR, AT_FDCWD)
-  SystemCallTraceReplayModule::fd_map_[STDIN_FILENO] = STDIN_FILENO;
-  SystemCallTraceReplayModule::fd_map_[STDOUT_FILENO] = STDOUT_FILENO;
-  SystemCallTraceReplayModule::fd_map_[STDERR_FILENO] = STDERR_FILENO;
-  SystemCallTraceReplayModule::fd_map_[AT_FDCWD] = AT_FDCWD;
+  // Open log file to write replayer logs
+  SystemCallTraceReplayModule::logFile_.open(log_filename.c_str());
+  if (SystemCallTraceReplayModule::logFile_.is_open() < 0) {
+    std::cerr << "Unable to open log file" << std::endl;
+    exit(EXIT_FAILURE);
+  }
+
+  // If pattern data is equal to urandom, then open /dev/urandom file
+  if (pattern_data == "urandom") {
+    SystemCallTraceReplayModule::random_file_.open("/dev/urandom");
+    if (!SystemCallTraceReplayModule::random_file_.is_open()) {
+      std::cerr << "Unable to open file '/dev/urandom'.\n";
+      exit(EXIT_FAILURE);
+    }
+  }
 
   // This is the prefix extent type of all system calls.
   const std::string kExtentTypePrefix = "IOTTAFSL::Trace::Syscall::";
@@ -647,27 +657,11 @@ int main(int argc, char *argv[]) {
   system_call_trace_replay_modules.push_back(getdents_module);
   system_call_trace_replay_modules.push_back(ioctl_module);
 
-  // Open log file to write replayer logs
-  SystemCallTraceReplayModule::logFile_.open(log_filename.c_str());
-  if (SystemCallTraceReplayModule::logFile_.is_open() < 0) {
-    std::cerr << "Unable to open log file" << std::endl;
-    exit(EXIT_FAILURE);
-  }
-
   // Double check to make sure all replaying modules are loaded.
   if (system_call_trace_replay_modules.size() != system_calls.size()) {
     std::cerr << "The number of loaded replaying modules is not same"
 	      << "as the number of supported system calls\n";
     abort();
-  }
-
-  // If pattern data is equal to urandom, then open /dev/urandom file
-  if (pattern_data == "urandom") {
-    SystemCallTraceReplayModule::random_file_.open("/dev/urandom");
-    if (!SystemCallTraceReplayModule::random_file_.is_open()) {
-      std::cerr << "Unable to open file '/dev/urandom'.\n";
-      exit(EXIT_FAILURE);
-    }
   }
 
   /*
@@ -686,6 +680,36 @@ int main(int argc, char *argv[]) {
     if (module->getSharedExtent()) {
       replayers_heap.push(module);
     }
+  }
+
+  pid_t first_pid = 0;
+  std::vector<SystemCallTraceReplayModule *> poped_modules;
+  // This is needed to initialize first file descriptor
+  while (first_pid == 0 && !replayers_heap.empty()) {
+    // Find first system system call that has a pid.
+    SystemCallTraceReplayModule *module = replayers_heap.top();
+    replayers_heap.pop();
+    poped_modules.push_back(module);
+    first_pid = module->executing_pid();
+  }
+  for (std::vector<SystemCallTraceReplayModule *>::iterator it = poped_modules.begin();
+    it != poped_modules.end();
+    ++it) {
+    replayers_heap.push(*it);
+  }
+
+  // We find the first system call that has a pid
+  if (first_pid >= 0) {
+    // Initialize standard map values (STDIN, STDOUT, STDERR, AT_FDCWD)
+    std::map<int, int> std_fd_map;
+    std_fd_map[STDIN_FILENO] = STDIN_FILENO;
+    std_fd_map[STDOUT_FILENO] = STDOUT_FILENO;
+    std_fd_map[STDERR_FILENO] = STDERR_FILENO;
+    std_fd_map[AT_FDCWD] = AT_FDCWD;
+    SystemCallTraceReplayModule::fd_manager_.initialize(first_pid, std_fd_map);
+  } else {
+    std::cerr << "Something is wrong with pid. Not going to replay" << std::endl;
+    abort();
   }
 
   // Process all the records in the dataseries
