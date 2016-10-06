@@ -40,7 +40,14 @@ void CloneSystemCallTraceReplayModule::print_specific_fields() {
 }
 
 void CloneSystemCallTraceReplayModule::processRow() {
-  // Create new file descriptor mapping
+  /*
+   * Here, we will create a new file descriptor mapping for
+   * the process created by clone. If the CLONE_FILES flag is not set,
+   * then the cloned process will get its own file descriptor map copied
+   * from that of the parent process. If that flag is set, then the cloned
+   * process id will be mapped to the parent process id, and the two processes 
+   * will share a file descriptor table, as they would in the kernel.
+   */
 
   /*
    * NOTE: It is inappropriate to replay clone system call.
