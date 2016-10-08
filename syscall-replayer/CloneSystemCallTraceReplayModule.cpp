@@ -28,15 +28,17 @@ CloneSystemCallTraceReplayModule(DataSeriesModule &source,
   child_stack_address_(series, "child_stack_address"),
   parent_thread_id_(series, "parent_thread_id", Field::flag_nullable),
   child_thread_id_(series, "child_thread_id", Field::flag_nullable),
-  pt_regs_(series, "pt_regs", Field::flag_nullable) {
+  new_tls_(series, "new_tls", Field::flag_nullable) {
   sys_call_name_ = "clone";
 }
 
 void CloneSystemCallTraceReplayModule::print_specific_fields() {
-  LOG_INFO("flags(" << std::hex << flag_value_.val() << "), " \
+  LOG_INFO("flags(" << std::hex << flag_value_.val() << "), "  \
 	   << "child stack address(" << child_stack_address_.val() << "), " \
+	   << std::dec \
 	   << "parent thread id(" << parent_thread_id_.val() << "), " \
-	   << "child thread id(" << child_thread_id_.val() << ")");
+	   << "child thread id(" << child_thread_id_.val() << "), " \
+	   << "new tls(" << new_tls_.val() << ")");
 }
 
 void CloneSystemCallTraceReplayModule::processRow() {

@@ -35,7 +35,7 @@ private:
   Int64Field child_stack_address_;
   Int64Field parent_thread_id_;
   Int64Field child_thread_id_;
-  Variable32Field pt_regs_;
+  Int64Field new_tls_;
 
   /*
    * Print clone sys call field values in a nice format

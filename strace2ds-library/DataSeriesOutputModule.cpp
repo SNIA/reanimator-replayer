@@ -2288,7 +2288,7 @@ void DataSeriesOutputModule::makeCloneArgsMap(SysCallArgsMap &args_map,
     std::cerr << std::hex << flag << std::dec << std::endl;
   }
 
-  args_map["child_stack_address"] = &args[0];
+  args_map["child_stack_address"] = &args[1];
 
   if (v_args[0] != NULL) {
     args_map["parent_thread_id"] = &v_args[0];
@@ -2302,11 +2302,7 @@ void DataSeriesOutputModule::makeCloneArgsMap(SysCallArgsMap &args_map,
     std::cerr << "Clone: Child thread ID is set as NULL!!" << std::endl;
   }
 
-  if (v_args[2] != NULL) {
-    args_map["pt_regs"] = &v_args[2];
-  } else {
-    std::cerr << "Clone: Struct pt_regs is set as NULL!!" << std::endl;
-  }
+  args_map["new_tls"] = &args[4];
 }
 
 u_int DataSeriesOutputModule::processCloneFlags(SysCallArgsMap &args_map,

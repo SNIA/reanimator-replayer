@@ -487,9 +487,9 @@ clone	flag_value	1	int64
 clone	child_stack_address	0	int64
 clone	parent_thread_id	1	int64
 clone	child_thread_id	1	int64
-clone	pt_regs	1	variable32
+clone	new_tls	1	int64
 clone	flag_child_cleartid	0	bool
-clone	flag_parent_cleartid	0	bool
+clone	flag_child_settid	0	bool
 clone	flag_files	0	bool
 clone	flag_filesystem	0	bool
 clone	flag_io	0	bool
