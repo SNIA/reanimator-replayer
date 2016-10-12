@@ -550,8 +550,6 @@ u_int DataSeriesOutputModule::getVariable32FieldLength(SysCallArgsMap &args_map,
       length = *(int *)(args_map["return_value"]);
     } else if (field_name == "ioctl_buffer") {
       length = ioctl_size_;
-    } else if (field_name == "pt_regs") {
-      length = sizeof(struct pt_regs);
     }
   } else {
     std::cerr << "WARNING: field_name = " << field_name << " ";

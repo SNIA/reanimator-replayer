@@ -47,7 +47,6 @@
 #include <sys/statfs.h>
 #include <sys/statvfs.h>
 #include <sched.h>
-#include <linux/ptrace.h>
 
 class DataSeriesOutputModule;
 
