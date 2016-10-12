@@ -26,7 +26,6 @@
 
 #include "SystemCallTraceReplayModule.hpp"
 #include <sched.h>
-#include <linux/ptrace.h>
 
 class CloneSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 private:
