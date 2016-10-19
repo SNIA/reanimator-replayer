@@ -24,6 +24,8 @@
 #ifndef FILE_DESCRIPTOR_MANAGER_HPP
 #define FILE_DESCRIPTOR_MANAGER_HPP
 
+#include "SystemCallTraceReplayLogger.hpp"
+
 #include <utility>
 #include <map>
 #include <unordered_set> 

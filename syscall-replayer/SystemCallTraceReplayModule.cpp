@@ -152,7 +152,7 @@ void SystemCallTraceReplayModule::print_common_fields() {
   double time_recorded_val = Tfrac_to_sec(time_recorded());
 
   // Print the common fields and their values
-  SystemCallTraceReplayModule::logFile_.precision(25);
+  SystemCallTraceReplayLogger::getInstance()->logger_file_.precision(25);
   LOG_INFO("time called(" << std::fixed << time_called_val << "), " \
 	   << "time returned(" << std::fixed << time_returned_val << "), " \
 	   << "time recorded(" << std::fixed << time_recorded_val << "), " \
@@ -248,23 +248,4 @@ bool SystemCallTraceReplayModule::isReplayable() {
       sys_call_name_ == "munmap")
     return false;
   return true;
-}
-
-/*
- * This function is used to print the current time to the log file
- * while appending logs to the log file.
- *
- * @return: returns buffer having timestamp in the format
- *          YYYY-MM-DD HH:MM:SS
- */
-char *SystemCallTraceReplayModule::print_time() {
-  static char buffer[TIMESTAMP_BUFFER_SIZE];
-  time_t rawtime;
-  struct tm *curr_time;
-
-  time(&rawtime);
-  curr_time = localtime(&rawtime);
-
-  strftime(buffer, TIMESTAMP_BUFFER_SIZE, "%Y-%m-%d %H:%M:%S", curr_time);
-  return buffer;
 }

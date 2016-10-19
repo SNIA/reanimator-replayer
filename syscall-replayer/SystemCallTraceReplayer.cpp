@@ -64,6 +64,8 @@
 #include "GetdentsSystemCallTraceReplayModule.hpp"
 #include "IoctlSystemCallTraceReplayModule.hpp"
 
+#include "SystemCallTraceReplayLogger.hpp"
+
 /*
  * min heap uses this function to sort elements in the tree.
  * The sorting key is unique id.
@@ -227,8 +229,6 @@ FileDescriptorManager SystemCallTraceReplayModule::fd_manager_;
 
 // Define the input file stream random_file_ in SystemCallTraceReplayModule
 std::ifstream SystemCallTraceReplayModule::random_file_;
-// Define the log file
-std::ofstream SystemCallTraceReplayModule::logFile_;
 
 int main(int argc, char *argv[]) {
   int ret = EXIT_SUCCESS;
@@ -245,11 +245,7 @@ int main(int argc, char *argv[]) {
 		  log_filename, input_files);
 
   // Open log file to write replayer logs
-  SystemCallTraceReplayModule::logFile_.open(log_filename.c_str());
-  if (SystemCallTraceReplayModule::logFile_.is_open() < 0) {
-    std::cerr << "Unable to open log file" << std::endl;
-    exit(EXIT_FAILURE);
-  }
+  SystemCallTraceReplayLogger::initialize(log_filename);
 
   // If pattern data is equal to urandom, then open /dev/urandom file
   if (pattern_data == "urandom") {
@@ -733,7 +729,7 @@ int main(int argc, char *argv[]) {
   }
 
   // Close the log file
-  SystemCallTraceReplayModule::logFile_.close();
+  SystemCallTraceReplayLogger::getInstance()->close_stream();
 
   return ret;
 }
