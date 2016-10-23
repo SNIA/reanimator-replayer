@@ -303,6 +303,14 @@ uint64_t DataSeriesOutputModule::getIoctlSize() {
   return ioctl_size_;
 }
 
+void DataSeriesOutputModule::setCloneCTIDIndex(u_int ctid_index) {
+  clone_ctid_index_ = ctid_index;
+}
+
+u_int DataSeriesOutputModule::getCloneCTIDIndex() {
+  return clone_ctid_index_;
+}
+
 // Destructor to delete the module
 DataSeriesOutputModule::~DataSeriesOutputModule() {
   for (OutputModuleMap::iterator iter = modules_.begin();
@@ -2300,8 +2308,12 @@ void DataSeriesOutputModule::makeCloneArgsMap(SysCallArgsMap &args_map,
     std::cerr << "Clone: Child thread ID is set as NULL!!" << std::endl;
   }
 
-  args_map["new_tls"] = &args[4];
+  if (clone_ctid_index_ == 3)
+    args_map["new_tls"] = &args[4];
+  else
+    args_map["new_tls"] = &args[3];
 }
+
 
 u_int DataSeriesOutputModule::processCloneFlags(SysCallArgsMap &args_map,
 						u_int flag) {

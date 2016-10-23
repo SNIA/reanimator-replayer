@@ -79,6 +79,23 @@ int ds_get_ioctl_size(DataSeriesOutputModule *ds_module) {
   ((DataSeriesOutputModule *) ds_module)->getIoctlSize();
 }
 
+/*
+ * Record the index of the child thread id argument passed to a clone
+ * system call, since the argument order for clone differs for different
+ * architectures
+ */
+void ds_set_clone_ctid_index(DataSeriesOutputModule *ds_module,
+			     int ctid_index) {
+  ((DataSeriesOutputModule *) ds_module)->setCloneCTIDIndex(ctid_index);
+}
+
+/*
+ * Return the index of the child thread id argument passed to a clone
+ * system call
+ */
+int ds_get_clone_ctid_index(DataSeriesOutputModule *ds_module) {
+  ((DataSeriesOutputModule *) ds_module)->getCloneCTIDIndex();
+}
 
 /*
  * Free the module and flush all the records

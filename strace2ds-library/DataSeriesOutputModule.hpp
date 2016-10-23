@@ -95,6 +95,12 @@ public:
   // Gets the ioctl_size_ variable for an Ioctl System Call
   uint64_t getIoctlSize();
 
+  // Sets the clone_ctid_index_ variable for a Clone System Call
+  void setCloneCTIDIndex(u_int size);
+
+  // Gets the clone_ctid_index_ variable for a Clone System Call
+  u_int getCloneCTIDIndex();
+
   // Destructor to delete the module
   ~DataSeriesOutputModule();
 
@@ -107,6 +113,11 @@ private:
   u_int record_num_;
   // ioctl_size_ is the size of a buffer passed to an ioctl system call
   uint64_t ioctl_size_;
+  /*
+   * clone_ctid_index_ is the index of the ctid argument passed to a clone
+   * system call
+   */
+  u_int clone_ctid_index_;
 
   /*
    * Map which holds mapping of sys call name with the address
