@@ -96,7 +96,7 @@ public:
   uint64_t getIoctlSize();
 
   // Sets the clone_ctid_index_ variable for a Clone System Call
-  void setCloneCTIDIndex(u_int size);
+  void setCloneCTIDIndex(u_int ctid_index);
 
   // Gets the clone_ctid_index_ variable for a Clone System Call
   u_int getCloneCTIDIndex();
