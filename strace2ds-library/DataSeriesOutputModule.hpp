@@ -401,9 +401,18 @@ private:
   void makeCloneArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
   /*
-   * Maps individual flag value for Mmap system call to its corresponding
+   * Maps individual flag value for Clone system call to its corresponding
    * field name.
    */
   u_int processCloneFlags(SysCallArgsMap &args_map, u_int flag);
+
+  /*
+   * Maps individual signal value for Clone system call to its corresponding
+   * field name.
+   */
+  u_int processCloneSignal(SysCallArgsMap &args_map, u_int flag);
+
+  // Maps VFork System Call <field, value> pairs
+  void makeVForkArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 };
 #endif // DATA_SERIES_OUTPUT_MODULE_HPP

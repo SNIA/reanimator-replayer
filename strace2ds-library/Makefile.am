@@ -53,6 +53,7 @@ XML_FILES=			\
 	xml/utime.xml		\
 	xml/utimensat.xml	\
 	xml/utimes.xml		\
+	xml/vfork.xml		\
 	xml/write.xml		\
 	xml/writev.xml
 

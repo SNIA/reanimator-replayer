@@ -163,6 +163,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["utimensat"] = &DataSeriesOutputModule::makeUtimensatArgsMap;
   // utimes system call
   func_ptr_map_["utimes"] = &DataSeriesOutputModule::makeUtimesArgsMap;
+  // vfork system call
+  func_ptr_map_["vfork"] = &DataSeriesOutputModule::makeVForkArgsMap;
   // write system call
   func_ptr_map_["write"] = &DataSeriesOutputModule::makeWriteArgsMap;
   // writev system call
@@ -284,9 +286,12 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
       if (nullable) {
         setFieldNull(extent_name, field_name);
       } else {
-        std::cerr << extent_name << ":" << field_name << " ";
-        std::cerr << "WARNING: Attempting to setNull to a non-nullable field. ";
-        std::cerr << "This field will take on default value instead." << std::endl;
+	// Print error message only if there is a field that is missing
+	if (!field_name.empty()) {
+	  std::cerr << extent_name << ":" << field_name << " ";
+	  std::cerr << "WARNING: Attempting to setNull to a non-nullable field. ";
+	  std::cerr << "This field will take on default value instead." << std::endl;
+	}
       }
     }
   }
@@ -2405,4 +2410,13 @@ u_int DataSeriesOutputModule::processCloneFlags(SysCallArgsMap &args_map,
 			     "flag_vm");
 
   return flag;
+}
+
+void DataSeriesOutputModule::makeVForkArgsMap(SysCallArgsMap &args_map,
+					      long *args,
+					      void **v_args) {
+  /*
+   * VFork takes no arguments, so we do not need to set any specific
+   * fields in args_map
+   */
 }

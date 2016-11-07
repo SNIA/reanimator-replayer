@@ -509,3 +509,4 @@ clone	flag_thread	0	bool
 clone	flag_untraced	0	bool
 clone	flag_vfork	0	bool
 clone	flag_vm	0	bool
+vfork			
