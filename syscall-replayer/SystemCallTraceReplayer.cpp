@@ -64,8 +64,6 @@
 #include "GetdentsSystemCallTraceReplayModule.hpp"
 #include "IoctlSystemCallTraceReplayModule.hpp"
 
-#include "SystemCallTraceReplayLogger.hpp"
-
 /*
  * min heap uses this function to sort elements in the tree.
  * The sorting key is unique id.
@@ -230,6 +228,9 @@ FileDescriptorManager SystemCallTraceReplayModule::fd_manager_;
 // Define the input file stream random_file_ in SystemCallTraceReplayModule
 std::ifstream SystemCallTraceReplayModule::random_file_;
 
+// Define the object of logger class in SystemCallTraceReplayModule
+SystemCallTraceReplayLogger *SystemCallTraceReplayModule::syscall_logger_;
+
 int main(int argc, char *argv[]) {
   int ret = EXIT_SUCCESS;
   bool verbose = false;
@@ -244,14 +245,16 @@ int main(int argc, char *argv[]) {
 		  verify, warn_level, pattern_data,
 		  log_filename, input_files);
 
-  // Open log file to write replayer logs
-  SystemCallTraceReplayLogger::initialize(log_filename);
+  // Create an instance of logger class and open log file to write replayer logs
+  SystemCallTraceReplayModule::syscall_logger_ = new SystemCallTraceReplayLogger(log_filename);
 
   // If pattern data is equal to urandom, then open /dev/urandom file
   if (pattern_data == "urandom") {
     SystemCallTraceReplayModule::random_file_.open("/dev/urandom");
     if (!SystemCallTraceReplayModule::random_file_.is_open()) {
       std::cerr << "Unable to open file '/dev/urandom'.\n";
+      // Delete the instance of logger class and close the log file
+      delete SystemCallTraceReplayModule::syscall_logger_;
       exit(EXIT_FAILURE);
     }
   }
@@ -657,6 +660,8 @@ int main(int argc, char *argv[]) {
   if (system_call_trace_replay_modules.size() != system_calls.size()) {
     std::cerr << "The number of loaded replaying modules is not same"
 	      << "as the number of supported system calls\n";
+    // Delete the instance of logger class and close the log file
+    delete SystemCallTraceReplayModule::syscall_logger_;
     abort();
   }
 
@@ -705,6 +710,8 @@ int main(int argc, char *argv[]) {
     SystemCallTraceReplayModule::fd_manager_.initialize(first_pid, std_fd_map);
   } else {
     std::cerr << "Something is wrong with pid. Not going to replay" << std::endl;
+    // Delete the instance of logger class
+    delete SystemCallTraceReplayModule::syscall_logger_;
     abort();
   }
 
@@ -728,8 +735,8 @@ int main(int argc, char *argv[]) {
     SystemCallTraceReplayModule::random_file_.close();
   }
 
-  // Close the log file
-  SystemCallTraceReplayLogger::getInstance()->close_stream();
+  // Delete the instance of logger class and close the log file
+  delete SystemCallTraceReplayModule::syscall_logger_;
 
   return ret;
 }

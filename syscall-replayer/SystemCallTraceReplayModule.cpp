@@ -93,13 +93,13 @@ Extent::Ptr SystemCallTraceReplayModule::getSharedExtent() {
     newExtentHook(*e);
     series.setExtent(e);
     if (!prepared) {
-      LOG_INFO("---'" << sys_call_name_ << \
-        "' System Call Replayer has started replaying---");
+      syscall_logger_->log_info("---'", sys_call_name_, \
+			"' System Call Replayer has started replaying---");
       prepared = true;
     }
   } else if (prepared) {
-      LOG_INFO("---'" << sys_call_name_ << \
-        "' System Call Replayer has finished replaying---");
+      syscall_logger_->log_info("---'", sys_call_name_, \
+			"' System Call Replayer has finished replaying---");
   }
   return e;
 }
@@ -133,9 +133,9 @@ void SystemCallTraceReplayModule::after_sys_call() {
   if (isReplayable())
     compare_retval_and_errno();
   if (verbose_mode()) {
-    LOG_INFO("System call '" << sys_call_name_ << \
-      "' was executed with following arguments:" << \
-      sys_call_name_ << ": ");
+    syscall_logger_->log_info("System call '", sys_call_name_, \
+		     "' was executed with following arguments:", \
+		     sys_call_name_ , ": ");
     print_sys_call_fields();
   }
 }
@@ -152,15 +152,14 @@ void SystemCallTraceReplayModule::print_common_fields() {
   double time_recorded_val = Tfrac_to_sec(time_recorded());
 
   // Print the common fields and their values
-  SystemCallTraceReplayLogger::getInstance()->logger_file_.precision(25);
-  LOG_INFO("time called(" << std::fixed << time_called_val << "), " \
-	   << "time returned(" << std::fixed << time_returned_val << "), " \
-	   << "time recorded(" << std::fixed << time_recorded_val << "), " \
-	   << "executing pid(" << executing_pid() << "), " \
-	   << "errno(" << errno_number() << "), " \
-	   << "return value(" << return_value() << "), " \
-	   << "replayed return value(" << replayed_ret_val_ << "), " \
-	   << "unique id(" << unique_id_.val() << ")");
+  syscall_logger_->log_info("time called(", time_called_val, "), ", \
+		   "time returned(", time_returned_val, "), ", \
+		   "time recorded(", time_recorded_val, "), ", \
+		   "executing pid(", executing_pid(), "), ", \
+		   "errno(", errno_number(), "), ", \
+		   "return value(", return_value(), "), ", \
+		   "replayed return value(", replayed_ret_val_, "), ", \
+		   "unique id(", unique_id_.val(), ")");
 }
 
 void SystemCallTraceReplayModule::compare_retval_and_errno() {
@@ -169,17 +168,17 @@ void SystemCallTraceReplayModule::compare_retval_and_errno() {
   }
 
   if (return_value() != replayed_ret_val_) {
-    LOG_WARN(sys_call_name_ << ": ");
+    syscall_logger_->log_warn(sys_call_name_, ": ");
     print_sys_call_fields();
-    LOG_WARN("Return values are different.");
+    syscall_logger_->log_warn("Return values are different.");
     if (abort_mode()) {
       abort();
     }
   } else if (replayed_ret_val_ == -1) {
     if (errno != errno_number()) {
-      LOG_WARN(sys_call_name_ << ": ");
+      syscall_logger_->log_warn(sys_call_name_, ": ");
       print_sys_call_fields();
-      LOG_WARN("Errno numbers are different.");
+      syscall_logger_->log_warn("Errno numbers are different.");
       if (abort_mode()) {
 	abort();
       }
@@ -248,4 +247,20 @@ bool SystemCallTraceReplayModule::isReplayable() {
       sys_call_name_ == "munmap")
     return false;
   return true;
+}
+
+/*
+ * This function takes a number and converts it to string representation
+ * of given base. This function is only used while printing the values
+ * of system call arguments.
+ */
+std::string SystemCallTraceReplayModule::int2base(int num,
+					std::ios_base &(*base)(std::ios_base&)) {
+  std::stringstream oss;
+  if (base == std::hex)
+    oss << "0x";
+  else if (base == std::oct)
+    oss << "0";
+  oss << base << num;
+  return oss.str();
 }

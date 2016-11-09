@@ -27,50 +27,27 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <errno.h>
 
-#define ERROR_MSG "ERROR"
-#define WARN_MSG "WARN"
-#define INFO_MSG "INFO"
-
 #define TIMESTAMP_BUFFER_SIZE 20
-#define NEWLINE "\n"
-
-#define PRINT_LOG(msg, TYPE) (SystemCallTraceReplayLogger::getInstance())->logger_file_ << \
-			     (SystemCallTraceReplayLogger::getInstance())->print_time() << \
-			     "[" << TYPE << "]" << " " << __FILE__ << "(" << \
-			     __LINE__ << ") " << msg << NEWLINE
-
-#define LOG_ERR(msg) PRINT_LOG(msg, ERROR_MSG)
-#define LOG_WARN(msg) PRINT_LOG(msg, WARN_MSG)
-#define LOG_INFO(msg) PRINT_LOG(msg, INFO_MSG)
 
 class SystemCallTraceReplayLogger {
 private:
-  // Constructor
-  SystemCallTraceReplayLogger();
-
-public:
-  static std::ofstream logger_file_;
-  static SystemCallTraceReplayLogger *logger;
+  std::ofstream logger_file_;
 
   /*
-   * This function initiaizes the single instance of the
-   * SystemCallTraceReplayLogger class and opens the logger
-   * file to write logs.
+   * This function actually prints the log messgae to the
+   * logger file
    */
-  static void initialize(std::string log_filename);
+  void print_logs(std::stringstream&& log_stream);
 
   /*
-   * This function returns the singleton instance of the
-   * SystemCallTraceReplayLogger class.
+   * This function calls itself recursively to combine the arguments
+   * in a stringstream.
    */
-  static SystemCallTraceReplayLogger *getInstance();
-
-  /*
-   * This function closes the logger file.
-   */
-  void close_stream();
+  template<typename First, typename...Rest>
+  void print_logs(std::stringstream&& log_stream, First&& parm1, Rest&&...parm);
 
   /*
    * This function is used to print the current time to the log file
@@ -79,7 +56,90 @@ public:
    * @return: returns buffer having timestamp in the format
    *          YYYY-MM-DD HH:MM:SS
    */
-  char *print_time();
+  std::string print_time();
+
+public:
+  /*
+   * This is the constructor of SystemCallTraceReplayLogger
+   * class which opens the logger file to write logs.
+   */
+  SystemCallTraceReplayLogger(std::string log_filename);
+
+  /*
+   * This function takes the variable number of arguments and prints
+   * the info messages to the logger file.
+   */
+  template<typename...Args>
+  void log_info(Args&&...args);
+
+  /*
+   * This function takes the variable number of arguments and prints
+   * the error messages to the logger file.
+   */
+  template<typename...Args>
+  void log_err(Args&&...args);
+
+  /*
+   * This function takes the variable number of arguments and prints
+   * the warning messages to the logger file.
+   */
+  template<typename...Args>
+  void log_warn(Args&&...args);
+
+  /*
+   * This function takes the variable number of arguments and prints
+   * the debug messages to the logger file.
+   */
+  template<typename...Args>
+  void log_debug(Args&&...args);
+
+  // Destructor
+  ~SystemCallTraceReplayLogger();
 };
+
+template<typename First, typename...Rest>
+void SystemCallTraceReplayLogger::print_logs(std::stringstream&& log_stream,
+					     First&& parm1,
+					     Rest&&...parm) {
+  log_stream << parm1;
+  this->print_logs(std::forward<std::stringstream>(log_stream),
+		   std::move(parm)...);
+}
+
+template<typename...Args>
+void SystemCallTraceReplayLogger::log_info(Args&&...args) {
+  this->logger_file_ << this->print_time() << "[INFO] ";
+  std::stringstream log_stream;
+  this->print_logs(std::forward<std::stringstream>(log_stream),
+		   std::move(args)...);
+  this->logger_file_ << std::endl;
+}
+
+template<typename...Args>
+void SystemCallTraceReplayLogger::log_err(Args&&...args) {
+  this->logger_file_ << this->print_time() << "[ERROR] ";
+  std::stringstream log_stream;
+  this->print_logs(std::forward<std::stringstream>(log_stream),
+		   std::move(args)...);
+  this->logger_file_ << std::endl;
+}
+
+template<typename...Args>
+void SystemCallTraceReplayLogger::log_warn(Args&&...args) {
+  this->logger_file_ << this->print_time() << "[WARN] ";
+  std::stringstream log_stream;
+  this->print_logs(std::forward<std::stringstream>(log_stream),
+		   std::move(args)...);
+  this->logger_file_ << std::endl;
+}
+
+template<typename...Args>
+void SystemCallTraceReplayLogger::log_debug(Args&&...args) {
+  this->logger_file_ << this->print_time() << "[DEBUG] ";
+  std::stringstream log_stream;
+  this->print_logs(std::forward<std::stringstream>(log_stream),
+		   std::move(args)...);
+  this->logger_file_ << std::endl;
+}
 
 #endif /* SYSTEM_CALL_TRACE_REPLAY_LOGGER_HPP */

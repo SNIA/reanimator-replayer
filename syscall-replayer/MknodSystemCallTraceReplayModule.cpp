@@ -52,10 +52,10 @@ void MknodSystemCallTraceReplayModule::print_specific_fields() {
     break;
   }
 
-  LOG_INFO("pathname(" << given_pathname_.val() << "), " \
-    << "file type(" << file_type << "), " \
-    << "mode(" << mode_value_.val() << "), " \
-    << "dev(" << dev_.val() << ")");
+  syscall_logger_->log_info("pathname(", given_pathname_.val(), "), ", \
+    "file type(", file_type, "), ", \
+    "mode(", mode_value_.val(), "), ", \
+    "dev(", dev_.val(), ")");
 }
 
 void MknodSystemCallTraceReplayModule::processRow() {

@@ -29,7 +29,7 @@ UnlinkSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void UnlinkSystemCallTraceReplayModule::print_specific_fields() {
-  LOG_INFO("pathname(" << given_pathname_.val() << ")");
+  syscall_logger_->log_info("pathname(", given_pathname_.val(), ")");
 }
 
 void UnlinkSystemCallTraceReplayModule::processRow() {
@@ -49,9 +49,9 @@ UnlinkatSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void UnlinkatSystemCallTraceReplayModule::print_specific_fields() {
-  LOG_INFO("descriptor(" << descriptor_.val() << "), " \
-    << "pathname(" << given_pathname_.val() << "), " \
-    << "flags(" << flag_value_.val() << ")");
+  syscall_logger_->log_info("descriptor(", descriptor_.val(), "), ", \
+    "pathname(", given_pathname_.val(), "), ", \
+    "flags(", flag_value_.val(), ")");
 }
 
 void UnlinkatSystemCallTraceReplayModule::processRow() {

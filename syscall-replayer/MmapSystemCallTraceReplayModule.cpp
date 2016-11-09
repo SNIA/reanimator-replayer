@@ -33,12 +33,13 @@ MmapSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void MmapSystemCallTraceReplayModule::print_specific_fields() {
-  LOG_INFO("start_address(0x" << std::hex << start_address_.val() << "), " \
-	   << "length(" << std::dec << length_.val() << "), " \
-	   << "protection_value(" << protection_value_.val() << "), " \
-	   << "flags_value(" << flags_value_.val() << "), " \
-	   << "descriptor(" << descriptor_.val() << "), " \
-	   << "offset(0x" << std::hex << offset_.val() << std::dec << ")");
+  syscall_logger_->log_info("start_address(", \
+	   int2base(start_address_.val(), std::hex), "), ", \
+	   "length(", std::dec, length_.val(), "), ", \
+	   "protection_value(", protection_value_.val(), "), ", \
+	   "flags_value(", flags_value_.val(), "), ", \
+	   "descriptor(", descriptor_.val(), "), ", \
+	   "offset(", int2base(offset_.val(), std::hex), ")");
 }
 
 void MmapSystemCallTraceReplayModule::processRow() {

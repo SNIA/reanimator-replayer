@@ -34,6 +34,7 @@
 #include <map>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <errno.h>
 
 #define DEFAULT_MODE 0
@@ -115,6 +116,8 @@ public:
   static FileDescriptorManager fd_manager_;
   // An input file stream for reading random data from /dev/urandom
   static std::ifstream random_file_;
+  // An object of logger class
+  static SystemCallTraceReplayLogger *syscall_logger_;
 
   /*
    * Basic Constructor
@@ -292,6 +295,12 @@ public:
    */
   bool isReplayable();
 
+  /*
+   * This function takes a number and converts it to string representation
+   * of given base. This function is only used while printing the values
+   * of system call arguments.
+   */
+   std::string int2base(int num, std::ios_base &(*base)(std::ios_base&));
 };
 
 #endif /* SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */
