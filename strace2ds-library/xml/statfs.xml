@@ -34,4 +34,5 @@
   <field name="statfs_result_flags_read_only" type="bool" opt_nullable="no"/>
   <field name="statfs_result_flags_relative_access_time" type="bool" opt_nullable="no"/>
   <field name="statfs_result_flags_synchronous" type="bool" opt_nullable="no"/>
+  <field name="statfs_result_flags_valid" type="bool" opt_nullable="no"/>
 </ExtentType>
