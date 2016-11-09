@@ -38,15 +38,15 @@ BasicStatfsSystemCallTraceReplayModule(DataSeriesModule &source,
 
 void BasicStatfsSystemCallTraceReplayModule::print_specific_fields() {
   syscall_logger_->log_info("file system type(", statfs_result_type_.val(), "), ", \
-    "block size(", statfs_result_bsize_.val(), "), ", \
-    "total blocks(", statfs_result_blocks_.val(), "), ", \
-    "free blocks(", statfs_result_bfree_.val(), "), ", \
-    "available blocks(", statfs_result_bavail_.val(), "), ", \
-    "total file nodes(", statfs_result_files_.val(), "), ", \
-    "free file nodes(", statfs_result_ffree_.val(), "), ", \
-    "Maximum namelength(", statfs_result_namelen_.val(), ") ", \
-    "fragment size(", statfs_result_frsize_.val(), ") ", \
-    "mount flags(", statfs_result_flags_.val(), ")");
+	"block size(", statfs_result_bsize_.val(), "), ", \
+	"total blocks(", statfs_result_blocks_.val(), "), ", \
+	"free blocks(", statfs_result_bfree_.val(), "), ", \
+	"available blocks(", statfs_result_bavail_.val(), "), ", \
+	"total file nodes(", statfs_result_files_.val(), "), ", \
+	"free file nodes(", statfs_result_ffree_.val(), "), ", \
+	"Maximum namelength(", statfs_result_namelen_.val(), ") ", \
+	"fragment size(", statfs_result_frsize_.val(), ") ", \
+	"mount flags(", statfs_result_flags_.val(), ")");
 }
 
 void BasicStatfsSystemCallTraceReplayModule::verifyResult(
@@ -80,7 +80,8 @@ void BasicStatfsSystemCallTraceReplayModule::verifyResult(
     syscall_logger_->log_err("Verification of ", sys_call_name_, \
       " buffer content failed.");
     if (!default_mode()) {
-    	syscall_logger_->log_warn("time called:",Tfrac_to_sec(time_called()), \
+	syscall_logger_->log_warn("time called:", \
+	val2base(Tfrac_to_sec(time_called()), std::fixed), \
         "Captured ", sys_call_name_, " content is different from replayed ", \
         sys_call_name_, " content");
     	syscall_logger_->log_warn("Captured file system type: ", statfs_result_type, ", ", \

@@ -37,7 +37,7 @@ private:
   std::ofstream logger_file_;
 
   /*
-   * This function actually prints the log messgae to the
+   * This function actually prints the log message to the
    * logger file
    */
   void print_logs(std::stringstream&& log_stream);

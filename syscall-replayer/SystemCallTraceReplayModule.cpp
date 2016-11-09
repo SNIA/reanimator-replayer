@@ -152,9 +152,9 @@ void SystemCallTraceReplayModule::print_common_fields() {
   double time_recorded_val = Tfrac_to_sec(time_recorded());
 
   // Print the common fields and their values
-  syscall_logger_->log_info("time called(", time_called_val, "), ", \
-		   "time returned(", time_returned_val, "), ", \
-		   "time recorded(", time_recorded_val, "), ", \
+  syscall_logger_->log_info("time called(", val2base(time_called_val, std::fixed), "), ", \
+		   "time returned(", val2base(time_returned_val, std::fixed), "), ", \
+		   "time recorded(", val2base(time_recorded_val, std::fixed), "), ", \
 		   "executing pid(", executing_pid(), "), ", \
 		   "errno(", errno_number(), "), ", \
 		   "return value(", return_value(), "), ", \
@@ -250,17 +250,20 @@ bool SystemCallTraceReplayModule::isReplayable() {
 }
 
 /*
- * This function takes a number and converts it to string representation
+ * This function takes a value and converts it to string representation
  * of given base. This function is only used while printing the values
  * of system call arguments.
  */
-std::string SystemCallTraceReplayModule::int2base(int num,
-					std::ios_base &(*base)(std::ios_base&)) {
+std::string SystemCallTraceReplayModule::val2base(double value,
+					std::ios_base &(base)(std::ios_base&)) {
   std::stringstream oss;
   if (base == std::hex)
     oss << "0x";
   else if (base == std::oct)
     oss << "0";
-  oss << base << num;
+  else if (base == std::fixed) {
+    oss.precision(25);
+  }
+  oss << base << value;
   return oss.str();
 }
