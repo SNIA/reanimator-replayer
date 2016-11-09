@@ -68,6 +68,8 @@ traced program and/or analyse the trace.
 USAGE: ./system-call-replayer <dataseries_input_file>
 EXAMPLE: ./system-call-replayer foo.ds
 
+NOTE: remember to add -f option if you want to trace child processes as they are
+created by currently traced processes as a result of the fork system call
 
 COMMAND LINE OPTIONS OF SYSCALL REPLAYER
 ===============================================================================
