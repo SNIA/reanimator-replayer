@@ -30,7 +30,7 @@ MunmapSystemCallTraceReplayModule(DataSeriesModule &source,
 
 void MunmapSystemCallTraceReplayModule::print_specific_fields() {
   syscall_logger_->log_info("start_address(", \
-    formatVal(start_address_.val(), std::hex), "), ", \
+    format_field_value(start_address_.val(), std::hex), "), ", \
     "length(", length_.val(), ")");
 }
 

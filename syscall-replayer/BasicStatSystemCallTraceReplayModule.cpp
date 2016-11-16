@@ -73,16 +73,16 @@ int BasicStatSystemCallTraceReplayModule::print_mode_value(u_int st_mode) {
 void BasicStatSystemCallTraceReplayModule::print_specific_fields() {
   syscall_logger_->log_info("device id(", stat_result_dev_.val(), "), ", \
 	"file inode number(", stat_result_ino_.val(), "), ", "file mode(", \
-	formatVal(print_mode_value(stat_result_mode_.val()), std::hex), "), ", \
+	format_field_value(print_mode_value(stat_result_mode_.val()), std::hex), "), ", \
 	"file nlinks(", stat_result_nlink_.val(), "), ", \
 	"file UID(", stat_result_uid_.val(), "), ", \
 	"file GID(", stat_result_gid_.val(), "), ", \
 	"file size(", stat_result_size_.val(), "), ", \
 	"file blksize(", stat_result_blksize_.val(), "), ", \
 	"file blocks(", stat_result_blocks_.val(), ") ", \
-	"file atime(", formatVal(Tfrac_to_sec(stat_result_atime_.val()), std::fixed), ") ", \
-	"file mtime(", formatVal(Tfrac_to_sec(stat_result_mtime_.val()), std::fixed), ") ", \
-	"file ctime(", formatVal(Tfrac_to_sec(stat_result_ctime_.val()), std::fixed), ") ");
+	"file atime(", format_field_value(Tfrac_to_sec(stat_result_atime_.val()), std::fixed), ") ", \
+	"file mtime(", format_field_value(Tfrac_to_sec(stat_result_mtime_.val()), std::fixed), ") ", \
+	"file ctime(", format_field_value(Tfrac_to_sec(stat_result_ctime_.val()), std::fixed), ") ");
 }
 
 void BasicStatSystemCallTraceReplayModule::verifyResult(
@@ -115,16 +115,16 @@ void BasicStatSystemCallTraceReplayModule::verifyResult(
 	      " buffer content failed.");
       if (!default_mode()) {
 	syscall_logger_->log_warn("time called:", \
-		formatVal(Tfrac_to_sec(time_called()), std::fixed), \
+		format_field_value(Tfrac_to_sec(time_called()), std::fixed), \
       		" Captured ", sys_call_name_, \
       		" content is different from replayed ", \
       		sys_call_name_, " content");
       	syscall_logger_->log_warn("Captured file inode: ", stat_result_ino, ", ", \
       		"Replayed file inode: ", replayed_stat_buf.st_ino);
       	syscall_logger_->log_warn("Captured file mode: ", \
-		formatVal(print_mode_value(stat_result_mode), std::hex), ", ", \
+		format_field_value(print_mode_value(stat_result_mode), std::hex), ", ", \
       		"Replayed file mode: ", \
-		formatVal(print_mode_value(replayed_stat_buf.st_mode), std::hex));
+		format_field_value(print_mode_value(replayed_stat_buf.st_mode), std::hex));
       	syscall_logger_->log_warn("Captured file nlink: ", stat_result_nlink, ", ", \
       		"Replayed file nlink: ", replayed_stat_buf.st_nlink);
       	syscall_logger_->log_warn("Captured file UID: ", stat_result_uid, ", ", \

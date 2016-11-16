@@ -34,7 +34,7 @@ IoctlSystemCallTraceReplayModule(DataSeriesModule &source,
 
 void IoctlSystemCallTraceReplayModule::print_specific_fields() {
   syscall_logger_->log_info("descriptor(", descriptor_.val(), "), ", \
-	   "request(", formatVal(request_.val(), std::hex), ")");
+	   "request(", format_field_value(request_.val(), std::hex), ")");
 }
 
 void IoctlSystemCallTraceReplayModule::processRow() {

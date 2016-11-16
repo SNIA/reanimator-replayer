@@ -300,7 +300,7 @@ public:
    * of given base. This function is only used while printing the values
    * of system call arguments.
    */
-   std::string formatVal(double val, std::ios_base &(base)(std::ios_base&));
+   std::string format_field_value(double val, std::ios_base &(base)(std::ios_base&));
 };
 
 #endif /* SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */
