@@ -93,6 +93,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["exit"] = &DataSeriesOutputModule::makeExitArgsMap;
   // fchmod system call
   func_ptr_map_["fchmod"] = &DataSeriesOutputModule::makeFChmodArgsMap;
+  // fchmodat system call
+  func_ptr_map_["fchmodat"] = &DataSeriesOutputModule::makeFChmodatArgsMap;
   // fcntl system call
   func_ptr_map_["fcntl"] = &DataSeriesOutputModule::makeFcntlArgsMap;
   // fstat system call
@@ -994,6 +996,30 @@ void DataSeriesOutputModule::makeFChmodArgsMap(SysCallArgsMap &args_map,
   if (mode != 0) {
     std::cerr << "FChmod: These modes are not processed/unknown->0";
     std::cerr << std::oct << mode << std::dec << std::endl;
+  }
+}
+
+void DataSeriesOutputModule::makeFChmodatArgsMap(SysCallArgsMap &args_map,
+						 long *args,
+						 void **v_args) {
+  int mode_offset = 2;
+  static bool true_ = true;
+
+  initArgsMap(args_map, "fchmodat");
+  args_map["descriptor"] = &args[0];
+  if (v_args[0] != NULL) {
+    args_map["given_pathname"] = &v_args[0];
+  } else {
+    std::cerr << "FChmodat: Pathname is set as NULL!!" << std::endl;
+  }
+  mode_t mode = processMode(args_map, args, 1);
+  if (mode != 0) {
+    std::cerr << "FChmodat: These modes are not processed/unknown->0";
+    std::cerr << std::oct << mode << std::dec << std::endl;
+  }
+  args_map["flag_value"] = &args[3];
+  if (args[3] == AT_SYMLINK_NOFOLLOW) {
+    args_map["flag_at_symlink_nofollow"] = &true_;
   }
 }
 

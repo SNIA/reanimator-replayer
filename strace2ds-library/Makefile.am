@@ -17,6 +17,7 @@ XML_FILES=			\
 	xml/execve.xml		\
 	xml/exit.xml		\
 	xml/fchmod.xml		\
+	xml/fchmodat.xml		\
 	xml/fcntl.xml		\
 	xml/fork.xml		\
 	xml/fstat.xml		\

@@ -225,6 +225,9 @@ private:
   // Maps FChmod System Calls <field, value> pairs
   void makeFChmodArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
+  // Maps FChmodat System Calls <field, value> pairs
+  void makeFChmodatArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+
   // Maps Link System Call <field, value> pairs
   void makeLinkArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
