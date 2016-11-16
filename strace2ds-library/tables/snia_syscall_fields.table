@@ -460,6 +460,7 @@ statfs	statfs_result_flags_no_set_uid	0	bool
 statfs	statfs_result_flags_read_only	0	bool
 statfs	statfs_result_flags_relative_access_time	0	bool
 statfs	statfs_result_flags_synchronous	0	bool
+statfs	statfs_result_flags_valid	0	bool
 fstatfs	descriptor	0	int32
 fstatfs	buffer_address	1	int64
 fstatfs	statfs_result_raw	1	variable32

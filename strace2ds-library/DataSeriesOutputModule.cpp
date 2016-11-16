@@ -1327,6 +1327,9 @@ u_int DataSeriesOutputModule::processStatfsFlags(SysCallArgsMap &args_map,
   // set synchronous flag
   process_Flag_and_Mode_Args(args_map, statfs_flags, ST_SYNCHRONOUS,
 			     "flags_synchronous");
+  // set valid flag (f_flags support is implemented)
+  process_Flag_and_Mode_Args(args_map, statfs_flags, ST_VALID,
+           "flags_valid");
 
   /*
    * Return remaining statfs flags so that caller can

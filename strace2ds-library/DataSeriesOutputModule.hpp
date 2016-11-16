@@ -50,6 +50,11 @@
 
 class DataSeriesOutputModule;
 
+#ifndef ST_VALID
+// some systems support this flag of statfs() but it’s missing from statfs.h
+#define ST_VALID 0x0020
+#endif /* ST_VALID */
+
 /* map<fieldname, pair<nullable, ExtentType> */
 typedef std::map<std::string,
 		 std::pair<bool, ExtentType::fieldType>
