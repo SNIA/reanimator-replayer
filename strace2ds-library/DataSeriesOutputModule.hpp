@@ -79,8 +79,8 @@ typedef std::map<std::string, SysCallArgsMapFuncPtr> FuncPtrMap;
 
 class DataSeriesOutputModule {
 public:
-  // A map of untraced syscalls and their respective counts
-  std::map<std::string, int> untraced_sys_call_;
+  // A map of untraced syscalls number and their respective counts
+  std::map<long, int> untraced_sys_call_counts_;
 
   // Constructor to set up all extents and fields
   DataSeriesOutputModule(std::ifstream &table_stream,

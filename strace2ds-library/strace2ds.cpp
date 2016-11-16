@@ -63,8 +63,8 @@ void ds_write_record(DataSeriesOutputModule *ds_module,
 void ds_print_warning(DataSeriesOutputModule *ds_module,
 		      const char *sys_call_name,
 		      long sys_call_number) {
-  ((DataSeriesOutputModule *)ds_module)->untraced_sys_call_[
-					std::string(sys_call_name)] += 1;
+  ((DataSeriesOutputModule *)ds_module)->untraced_sys_call_counts_[
+						sys_call_number] += 1;
   std::cerr << "WARNING: Attempting to trace unsupported system call: "
 	    << sys_call_name << " (" << sys_call_number << ")" << std::endl;
 }
@@ -77,15 +77,15 @@ void ds_print_warning(DataSeriesOutputModule *ds_module,
 void ds_add_to_untraced_set(DataSeriesOutputModule *ds_module,
 			    const char *sys_call_name,
 			    long sys_call_number) {
-  if (!((DataSeriesOutputModule *)ds_module)->untraced_sys_call_[
-					std::string(sys_call_name)]) {
-    ((DataSeriesOutputModule *)ds_module)->untraced_sys_call_[
-					std::string(sys_call_name)] = 1;
+  if (!((DataSeriesOutputModule *)ds_module)->untraced_sys_call_counts_[
+						sys_call_number]) {
+    ((DataSeriesOutputModule *)ds_module)->untraced_sys_call_counts_[
+						sys_call_number] = 1;
     std::cerr << "WARNING: Ignoring to replay system call: "
 	    << sys_call_name << " (" << sys_call_number << ")" << std::endl;
   } else {
-    ((DataSeriesOutputModule *)ds_module)->untraced_sys_call_[
-					std::string(sys_call_name)] += 1;
+    ((DataSeriesOutputModule *)ds_module)->untraced_sys_call_counts_[
+						sys_call_number] += 1;
   }
 }
 
