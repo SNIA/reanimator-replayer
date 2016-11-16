@@ -81,7 +81,7 @@ void BasicStatfsSystemCallTraceReplayModule::verifyResult(
       " buffer content failed.");
     if (!default_mode()) {
 	syscall_logger_->log_warn("time called:", \
-	val2base(Tfrac_to_sec(time_called()), std::fixed), \
+	formatVal(Tfrac_to_sec(time_called()), std::fixed), \
         "Captured ", sys_call_name_, " content is different from replayed ", \
         sys_call_name_, " content");
     	syscall_logger_->log_warn("Captured file system type: ", statfs_result_type, ", ", \

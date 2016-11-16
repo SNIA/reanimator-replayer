@@ -53,7 +53,7 @@ void ReadlinkSystemCallTraceReplayModule::processRow() {
       syscall_logger_->log_err("Verification of path in readlink failed.");
       if (!default_mode()) {
         syscall_logger_->log_warn("time called:", \
-	  val2base(Tfrac_to_sec(time_called()), std::fixed), \
+	  formatVal(Tfrac_to_sec(time_called()), std::fixed), \
           ", Captured readlink path is different from", \
           " replayed readlink path");
         syscall_logger_->log_warn("Captured readlink path: ", \

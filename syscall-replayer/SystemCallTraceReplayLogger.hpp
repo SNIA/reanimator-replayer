@@ -56,7 +56,7 @@ private:
    * @return: returns buffer having timestamp in the format
    *          YYYY-MM-DD HH:MM:SS
    */
-  std::string print_time();
+  std::string format_time();
 
 public:
   /*
@@ -108,7 +108,7 @@ void SystemCallTraceReplayLogger::print_logs(std::stringstream&& log_stream,
 
 template<typename...Args>
 void SystemCallTraceReplayLogger::log_info(Args&&...args) {
-  this->logger_file_ << this->print_time() << "[INFO] ";
+  this->logger_file_ << this->format_time() << "[INFO] ";
   std::stringstream log_stream;
   this->print_logs(std::forward<std::stringstream>(log_stream),
 		   std::move(args)...);
@@ -117,7 +117,7 @@ void SystemCallTraceReplayLogger::log_info(Args&&...args) {
 
 template<typename...Args>
 void SystemCallTraceReplayLogger::log_err(Args&&...args) {
-  this->logger_file_ << this->print_time() << "[ERROR] ";
+  this->logger_file_ << this->format_time() << "[ERROR] ";
   std::stringstream log_stream;
   this->print_logs(std::forward<std::stringstream>(log_stream),
 		   std::move(args)...);
@@ -126,7 +126,7 @@ void SystemCallTraceReplayLogger::log_err(Args&&...args) {
 
 template<typename...Args>
 void SystemCallTraceReplayLogger::log_warn(Args&&...args) {
-  this->logger_file_ << this->print_time() << "[WARN] ";
+  this->logger_file_ << this->format_time() << "[WARN] ";
   std::stringstream log_stream;
   this->print_logs(std::forward<std::stringstream>(log_stream),
 		   std::move(args)...);
@@ -135,7 +135,7 @@ void SystemCallTraceReplayLogger::log_warn(Args&&...args) {
 
 template<typename...Args>
 void SystemCallTraceReplayLogger::log_debug(Args&&...args) {
-  this->logger_file_ << this->print_time() << "[DEBUG] ";
+  this->logger_file_ << this->format_time() << "[DEBUG] ";
   std::stringstream log_stream;
   this->print_logs(std::forward<std::stringstream>(log_stream),
 		   std::move(args)...);

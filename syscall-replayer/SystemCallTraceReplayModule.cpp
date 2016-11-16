@@ -152,9 +152,9 @@ void SystemCallTraceReplayModule::print_common_fields() {
   double time_recorded_val = Tfrac_to_sec(time_recorded());
 
   // Print the common fields and their values
-  syscall_logger_->log_info("time called(", val2base(time_called_val, std::fixed), "), ", \
-		   "time returned(", val2base(time_returned_val, std::fixed), "), ", \
-		   "time recorded(", val2base(time_recorded_val, std::fixed), "), ", \
+  syscall_logger_->log_info("time called(", formatVal(time_called_val, std::fixed), "), ", \
+		   "time returned(", formatVal(time_returned_val, std::fixed), "), ", \
+		   "time recorded(", formatVal(time_recorded_val, std::fixed), "), ", \
 		   "executing pid(", executing_pid(), "), ", \
 		   "errno(", errno_number(), "), ", \
 		   "return value(", return_value(), "), ", \
@@ -168,7 +168,7 @@ void SystemCallTraceReplayModule::compare_retval_and_errno() {
   }
 
   if (return_value() != replayed_ret_val_) {
-    syscall_logger_->log_warn(sys_call_name_, ": ");
+    syscall_logger_->log_warn(sys_call_name_, " syscall has different return values");
     print_sys_call_fields();
     syscall_logger_->log_warn("Return values are different.");
     if (abort_mode()) {
@@ -176,7 +176,7 @@ void SystemCallTraceReplayModule::compare_retval_and_errno() {
     }
   } else if (replayed_ret_val_ == -1) {
     if (errno != errno_number()) {
-      syscall_logger_->log_warn(sys_call_name_, ": ");
+      syscall_logger_->log_warn(sys_call_name_, " syscall has different errno number");
       print_sys_call_fields();
       syscall_logger_->log_warn("Errno numbers are different.");
       if (abort_mode()) {
@@ -254,16 +254,15 @@ bool SystemCallTraceReplayModule::isReplayable() {
  * of given base. This function is only used while printing the values
  * of system call arguments.
  */
-std::string SystemCallTraceReplayModule::val2base(double value,
+std::string SystemCallTraceReplayModule::formatVal(double value,
 					std::ios_base &(base)(std::ios_base&)) {
   std::stringstream oss;
   if (base == std::hex)
     oss << "0x";
   else if (base == std::oct)
     oss << "0";
-  else if (base == std::fixed) {
+  else if (base == std::fixed)
     oss.precision(25);
-  }
   oss << base << value;
   return oss.str();
 }

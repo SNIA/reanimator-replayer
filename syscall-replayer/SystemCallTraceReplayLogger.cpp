@@ -22,7 +22,7 @@ SystemCallTraceReplayLogger::SystemCallTraceReplayLogger(std::string log_filenam
   // Open log file in append mode
   this->logger_file_.open(log_filename.c_str(),
 			  std::ios_base::app | std::ios_base::out);
-  if (this->logger_file_.is_open() < 0) {
+  if (!(this->logger_file_.is_open())) {
     std::cerr << "Unable to open log file" << std::endl;
     exit(EXIT_FAILURE);
   }
@@ -32,7 +32,7 @@ void SystemCallTraceReplayLogger::print_logs(std::stringstream&& log_stream) {
   this->logger_file_ << log_stream.str();
 }
 
-std::string SystemCallTraceReplayLogger::print_time() {
+std::string SystemCallTraceReplayLogger::format_time() {
   static char buffer[TIMESTAMP_BUFFER_SIZE];
   time_t rawtime;
   struct tm *curr_time;

@@ -51,7 +51,7 @@ void ReadSystemCallTraceReplayModule::processRow() {
       syscall_logger_->log_err("Verification of data in read failed.");
       if (!default_mode()) {
         syscall_logger_->log_warn("time called:", \
-	  val2base(Tfrac_to_sec(time_called()), std::fixed), \
+	  formatVal(Tfrac_to_sec(time_called()), std::fixed), \
           " Captured read data is different from replayed read data");
         syscall_logger_->log_warn("Captured read data: ", data_read_.val(), ", ", \
           "Replayed read data: ", std::string(buffer));
@@ -100,7 +100,7 @@ void PReadSystemCallTraceReplayModule::processRow() {
       syscall_logger_->log_err("Verification of data in pread failed.");
       if (!default_mode()) {
         syscall_logger_->log_warn("time called:", \
-	  val2base(Tfrac_to_sec(time_called()), std::fixed), \
+	  formatVal(Tfrac_to_sec(time_called()), std::fixed), \
           " Captured pread data is different from replayed pread data");
         syscall_logger_->log_warn("Captured pread data: ", data_read_.val(), ", ", \
           "Replayed pread data: ", std::string(buffer));

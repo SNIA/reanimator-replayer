@@ -34,12 +34,12 @@ MmapSystemCallTraceReplayModule(DataSeriesModule &source,
 
 void MmapSystemCallTraceReplayModule::print_specific_fields() {
   syscall_logger_->log_info("start_address(", \
-	   val2base(start_address_.val(), std::hex), "), ", \
+	   formatVal(start_address_.val(), std::hex), "), ", \
 	   "length(", std::dec, length_.val(), "), ", \
 	   "protection_value(", protection_value_.val(), "), ", \
 	   "flags_value(", flags_value_.val(), "), ", \
 	   "descriptor(", descriptor_.val(), "), ", \
-	   "offset(", val2base(offset_.val(), std::hex), ")");
+	   "offset(", formatVal(offset_.val(), std::hex), ")");
 }
 
 void MmapSystemCallTraceReplayModule::processRow() {
