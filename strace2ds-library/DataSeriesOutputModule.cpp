@@ -169,6 +169,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["write"] = &DataSeriesOutputModule::makeWriteArgsMap;
   // writev system call
   func_ptr_map_["writev"] = &DataSeriesOutputModule::makeWritevArgsMap;
+  // umask system call
+  func_ptr_map_["umask"] = &DataSeriesOutputModule::makeUmaskArgsMap;
 }
 
 /*
@@ -975,7 +977,7 @@ void DataSeriesOutputModule::makeCreatArgsMap(SysCallArgsMap &args_map,
   } else {
     std::cerr << "Creat: Pathname is set as NULL!!" << std::endl;
   }
-  mode_t mode = processMode(args_map, args, 1);
+  mode_t mode = processMode(args_map, args, mode_offset);
   if (mode != 0) {
     std::cerr << "Creat: These modes are not processed/unknown->0";
     std::cerr << std::oct << mode << std::dec << std::endl;
@@ -992,9 +994,21 @@ void DataSeriesOutputModule::makeChmodArgsMap(SysCallArgsMap &args_map,
   } else {
     std::cerr << "Chmod: Pathname is set as NULL!!" << std::endl;
   }
-  mode_t mode = processMode(args_map, args, 1);
+  mode_t mode = processMode(args_map, args, mode_offset);
   if (mode != 0) {
     std::cerr << "Chmod: These modes are not processed/unknown->0";
+    std::cerr << std::oct << mode << std::dec << std::endl;
+  }
+}
+
+void DataSeriesOutputModule::makeUmaskArgsMap(SysCallArgsMap &args_map,
+					      long *args,
+					      void **v_args) {
+  initArgsMap(args_map, "umask");
+  int mode_offset = 0;
+  mode_t mode = processMode(args_map, args, mode_offset);
+  if (mode != 0) {
+    std::cerr << "Umask: These modes are not processed/unknown->0";
     std::cerr << std::oct << mode << std::dec << std::endl;
   }
 }

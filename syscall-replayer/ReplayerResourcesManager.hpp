@@ -13,7 +13,7 @@
  * This header file provides members and functions for implementing file
  * descriptor manager.
  *
- * FileDescriptorManager is a class that has members and functions of
+ * ReplayerResourcesManager is a class that has members and functions of
  * managing file descriptors during replaying.
  *
  * USAGE
@@ -21,8 +21,8 @@
  * function to add/delete/update file descriptor table.
  */
 
-#ifndef FILE_DESCRIPTOR_MANAGER_HPP
-#define FILE_DESCRIPTOR_MANAGER_HPP
+#ifndef REPLAYER_RESOURCES_MANAGER_HPP
+#define REPLAYER_RESOURCES_MANAGER_HPP
 
 #include <utility>
 #include <map>
@@ -41,14 +41,18 @@ typedef std::map<int, FileDescriptor> FileDescriptorTable;
 typedef std::map<pid_t, FileDescriptorTable> PerPidFileDescriptorTableMap;
 // <traced fd, reference count>
 typedef std::map<int, int> FileDescriptorReferenceCount;
-class FileDescriptorManager {
+// <pid, mask>
+typedef std::map<pid_t, mode_t> UmaskTable;
+
+class ReplayerResourcesManager {
 private:
   PerPidFileDescriptorTableMap fd_table_map_;
   FileDescriptorReferenceCount fd_rc_;
+  UmaskTable umask_table_;
 
 public:
   // Constructor
-  FileDescriptorManager();
+  ReplayerResourcesManager();
   /*
    * Note:
    * 1. fds are int because fds can be negative. Ex: FDCWD == -100
@@ -131,4 +135,4 @@ public:
   void print_fd_manager();
 };
 
-#endif /* FILE_DESCRIPTOR_MANAGER_HPP */
+#endif /* REPLAYER_RESOURCES_MANAGER_HPP */

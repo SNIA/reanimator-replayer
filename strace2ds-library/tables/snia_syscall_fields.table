@@ -510,3 +510,16 @@ clone	flag_untraced	0	bool
 clone	flag_vfork	0	bool
 clone	flag_vm	0	bool
 vfork			
+umask	mode_value	1	int32
+umask	mode_uid	0	bool
+umask	mode_gid	0	bool
+umask	mode_sticky_bit	0	bool
+umask	mode_R_user	0	bool
+umask	mode_W_user	0	bool
+umask	mode_X_user	0	bool
+umask	mode_R_group	0	bool
+umask	mode_W_group	0	bool
+umask	mode_X_group	0	bool
+umask	mode_R_others	0	bool
+umask	mode_W_others	0	bool
+umask	mode_X_others	0	bool
