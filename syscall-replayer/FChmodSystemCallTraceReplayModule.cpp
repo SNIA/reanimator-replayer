@@ -41,3 +41,30 @@ void FChmodSystemCallTraceReplayModule::processRow() {
   // Replay the fchmod system call
   replayed_ret_val_ = fchmod(fd, mode);
 }
+
+FChmodatSystemCallTraceReplayModule::FChmodatSystemCallTraceReplayModule(
+						   DataSeriesModule &source,
+						   bool verbose_flag,
+						   int warn_level_flag):
+  FChmodSystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+  given_pathname_(series, "given_pathname"),
+  flag_value_(series, "flag_value", Field::flag_nullable) {
+  sys_call_name_ = "fchmodat";
+}
+
+void FChmodatSystemCallTraceReplayModule::print_specific_fields() {
+  syscall_logger_->log_info("descriptor(", descriptor_.val(), "), ", \
+    "given_pathname(", given_pathname_.val(), ") ", \
+    "mode(", mode_value_.val(), ") ", \
+    "flag(", flag_value_.val(), ")");
+}
+
+void FChmodatSystemCallTraceReplayModule::processRow() {
+  int fd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
+  const char *pathname = (char *)given_pathname_.val();
+  mode_t mode = mode_value_.val();
+  int flags = flag_value_.val();
+
+  // Replay the fchmodat system call
+  replayed_ret_val_ = fchmodat(fd, pathname, mode, flags);
+}
