@@ -29,8 +29,8 @@ ExitSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void ExitSystemCallTraceReplayModule::print_specific_fields() {
-  LOG_INFO("exit_status(" << exit_status_.val() << "), " \
-    << "generated(" << generated_.val() << ")");
+  syscall_logger_->log_info("exit_status(", exit_status_.val(), "), ", \
+    "generated(", generated_.val(), ")");
 }
 
 void ExitSystemCallTraceReplayModule::processRow() {

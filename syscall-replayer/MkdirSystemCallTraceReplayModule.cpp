@@ -29,8 +29,8 @@ MkdirSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void MkdirSystemCallTraceReplayModule::print_specific_fields() {
-  LOG_INFO("pathname(" << given_pathname_.val() << "), " \
-	   << "mode(" << mode_value_.val() << ")");
+  syscall_logger_->log_info("pathname(", given_pathname_.val(), "), ", \
+	   "mode(", mode_value_.val(), ")");
 }
 
 void MkdirSystemCallTraceReplayModule::processRow() {
@@ -51,9 +51,9 @@ MkdiratSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void MkdiratSystemCallTraceReplayModule::print_specific_fields() {
-  LOG_INFO("descriptor(" << descriptor_.val() << "), " \
-    << "pathname(" << given_pathname_.val() << "), " \
-    << "mode(" << mode_value_.val() << ")");
+  syscall_logger_->log_info("descriptor(", descriptor_.val(), "), ", \
+    "pathname(", given_pathname_.val(), "), ", \
+    "mode(", mode_value_.val(), ")");
 }
 
 void MkdiratSystemCallTraceReplayModule::processRow() {

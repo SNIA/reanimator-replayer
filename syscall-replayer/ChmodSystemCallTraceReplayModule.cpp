@@ -30,8 +30,8 @@ ChmodSystemCallTraceReplayModule::ChmodSystemCallTraceReplayModule(
 }
 
 void ChmodSystemCallTraceReplayModule::print_specific_fields() {
-  LOG_INFO("pathname(" << given_pathname_.val() << "), " \
-    << "mode(" << mode_value_.val() << ")");
+  syscall_logger_->log_info("pathname(", given_pathname_.val(), "), ", \
+    "mode(", mode_value_.val(), ")");
 }
 
 void ChmodSystemCallTraceReplayModule::processRow() {
