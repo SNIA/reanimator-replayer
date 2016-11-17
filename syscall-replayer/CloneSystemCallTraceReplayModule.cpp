@@ -33,12 +33,12 @@ CloneSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void CloneSystemCallTraceReplayModule::print_specific_fields() {
-  LOG_INFO("flags(" << std::hex << flag_value_.val() << "), "  \
-	   << "child stack address(" << child_stack_address_.val() << "), " \
-	   << std::dec \
-	   << "parent thread id(" << parent_thread_id_.val() << "), " \
-	   << "child thread id(" << child_thread_id_.val() << "), " \
-	   << "new tls(" << new_tls_.val() << ")");
+  syscall_logger_->log_info("flags(", \
+	   format_field_value(flag_value_.val(), std::hex), "), ",  \
+	   "child stack address(", child_stack_address_.val(), "), ", \
+	   "parent thread id(", parent_thread_id_.val(), "), ", \
+	   "child thread id(", child_thread_id_.val(), "), ", \
+	   "new tls(", new_tls_.val(), ")");
 }
 
 void CloneSystemCallTraceReplayModule::processRow() {
