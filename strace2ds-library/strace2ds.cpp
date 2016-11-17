@@ -64,7 +64,7 @@ void ds_print_warning(DataSeriesOutputModule *ds_module,
 		      const char *sys_call_name,
 		      long sys_call_number) {
   ((DataSeriesOutputModule *)ds_module)->untraced_sys_call_counts_[
-						sys_call_number] += 1;
+						sys_call_number]++;
   std::cerr << "WARNING: Attempting to trace unsupported system call: "
 	    << sys_call_name << " (" << sys_call_number << ")" << std::endl;
 }
@@ -85,7 +85,7 @@ void ds_add_to_untraced_set(DataSeriesOutputModule *ds_module,
 	    << sys_call_name << " (" << sys_call_number << ")" << std::endl;
   } else {
     ((DataSeriesOutputModule *)ds_module)->untraced_sys_call_counts_[
-						sys_call_number] += 1;
+						sys_call_number]++;
   }
 }
 

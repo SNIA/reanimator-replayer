@@ -22,7 +22,7 @@ SystemCallTraceReplayLogger::SystemCallTraceReplayLogger(std::string log_filenam
   // Open log file in append mode
   this->logger_file_.open(log_filename.c_str(),
 			  std::ios_base::app | std::ios_base::out);
-  if (!(this->logger_file_.is_open())) {
+  if (!(this->logger_file_.is_open()) && !log_filename.empty()) {
     std::cerr << "Unable to open log file" << std::endl;
     exit(EXIT_FAILURE);
   }
