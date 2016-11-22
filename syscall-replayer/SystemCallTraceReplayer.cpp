@@ -65,6 +65,7 @@
 #include "IoctlSystemCallTraceReplayModule.hpp"
 #include "CloneSystemCallTraceReplayModule.hpp"
 #include "VForkSystemCallTraceReplayModule.hpp"
+#include "UmaskSystemCallTraceReplayModule.hpp"
 
 /*
  * min heap uses this function to sort elements in the tree.
@@ -306,6 +307,7 @@ int main(int argc, char *argv[]) {
   system_calls.push_back("ioctl");
   system_calls.push_back("clone");
   system_calls.push_back("vfork");
+  system_calls.push_back("umask");
 
   std::vector<TypeIndexModule *> type_index_modules;
 
@@ -604,6 +606,11 @@ int main(int argc, char *argv[]) {
 				 *prefetch_buffer_modules[module_index++],
 				 verbose,
 				 warn_level);
+  UmaskSystemCallTraceReplayModule *umask_module =
+    new UmaskSystemCallTraceReplayModule(
+         *prefetch_buffer_modules[module_index++],
+         verbose,
+         warn_level);
 
   /*
    * This vector is going to used to load replaying modules.
@@ -660,6 +667,7 @@ int main(int argc, char *argv[]) {
   system_call_trace_replay_modules.push_back(ioctl_module);
   system_call_trace_replay_modules.push_back(clone_module);
   system_call_trace_replay_modules.push_back(vfork_module);
+  system_call_trace_replay_modules.push_back(umask_module);
 
   // Open log file to write replayer logs
   SystemCallTraceReplayModule::logFile_.open(log_filename.c_str());
