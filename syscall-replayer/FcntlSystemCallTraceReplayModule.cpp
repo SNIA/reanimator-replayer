@@ -39,17 +39,17 @@ void FcntlSystemCallTraceReplayModule::print_specific_fields() {
   if ((command_value_.val() == F_SETLK) ||
       (command_value_.val() == F_SETLKW) ||
       (command_value_.val() == F_GETLK)) {
-    LOG_INFO("descriptor(" << descriptor_.val() << "), " \
-      << "command value(" << command_value_.val() << "), " \
-      << "lock type(" << lock_type_.val() << "), " \
-      << "lock whence(" << lock_whence_.val() << "), " \
-      << "lock start(" << lock_start_.val() << "), " \
-      << "lock length(" << lock_length_.val() << "), " \
-      << "lock pid(" << lock_pid_.val() << ")");
+    syscall_logger_->log_info("descriptor(", descriptor_.val(), "), ", \
+      "command value(", command_value_.val(), "), ", \
+      "lock type(", lock_type_.val(), "), ", \
+      "lock whence(", lock_whence_.val(), "), ", \
+      "lock start(", lock_start_.val(), "), ", \
+      "lock length(", lock_length_.val(), "), ", \
+      "lock pid(", lock_pid_.val(), ")");
   } else {
-    LOG_INFO("descriptor(" << descriptor_.val() << "), " \
-      << "command value(" << command_value_.val() << "), " \
-      << "argument value(" << argument_value_.val() << ")");
+    syscall_logger_->log_info("descriptor(", descriptor_.val(), "), ", \
+      "command value(", command_value_.val(), "), " \
+      "argument value(", argument_value_.val(), ")");
   }
 }
 
