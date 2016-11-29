@@ -27,31 +27,19 @@
 
 #include <DataSeries/RowAnalysisModule.hpp>
 #include "strace2ds.h"
+#include "FileDescriptorManager.hpp"
+#include "SystemCallTraceReplayLogger.hpp"
 
 #include <string>
 #include <map>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <errno.h>
 
 #define DEFAULT_MODE 0
 #define WARN_MODE    1
 #define ABORT_MODE   2
-
-#define ERROR_MSG "ERROR"
-#define WARN_MSG "WARN"
-#define INFO_MSG "INFO"
-
-#define TIMESTAMP_BUFFER_SIZE 20
-#define NEWLINE "\n"
-
-#define PRINT_LOG(msg, TYPE) SystemCallTraceReplayModule::logFile_ << print_time() << "[" << \
-			     TYPE << "]" << " " << __FILE__ << "(" << __LINE__ << ") " << \
-			     msg << NEWLINE
-
-#define LOG_ERR(msg) PRINT_LOG(msg, ERROR_MSG)
-#define LOG_WARN(msg) PRINT_LOG(msg, WARN_MSG)
-#define LOG_INFO(msg) PRINT_LOG(msg, INFO_MSG)
 
 class SystemCallTraceReplayModule : public RowAnalysisModule {
 protected:
@@ -125,10 +113,11 @@ protected:
 public:
   // A mapping of file descriptors in the trace file to actual file descriptors
   static std::map<int, int> fd_map_;
+  static FileDescriptorManager fd_manager_;
   // An input file stream for reading random data from /dev/urandom
   static std::ifstream random_file_;
-  // An output file stream for writing system call replayer logs to a log file
-  static std::ofstream logFile_;
+  // An object of logger class
+  static SystemCallTraceReplayLogger *syscall_logger_;
 
   /*
    * Basic Constructor
@@ -169,6 +158,13 @@ public:
    * @return: true if it is in abort mode, false otherwise
    */
   bool abort_mode() const;
+
+  /*
+   * Get the system call name of current system call record
+   *
+   * @return: a string that represents the system call name.
+   */
+  std::string sys_call_name() const;
 
   /*
    * Get the execution time of current system call record
@@ -300,13 +296,11 @@ public:
   bool isReplayable();
 
   /*
-   * This function is used to print the current time to the log file
-   * while appending logs to the log file.
-   *
-   * @return: returns buffer having timestamp in the format
-   *          YYYY-MM-DD HH:MM:SS
+   * This function takes a number and converts it to string representation
+   * of given base. This function is only used while printing the values
+   * of system call arguments.
    */
-  char *print_time();
+   std::string format_field_value(double val, std::ios_base &(base)(std::ios_base&));
 };
 
 #endif /* SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

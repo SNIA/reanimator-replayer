@@ -22,7 +22,7 @@
 OPTFLAGS = -g -O2 -Wall
 
 CPPFLAGS = -I/usr/local/dataseries/include -I/usr/include/libxml2/ \
-	   -I$(HOME)/strace2ds/include
+	   -I$(HOME)/strace2ds/include -std=c++11
 
 LDFLAGS =  -lboost_program_options -laio -lDataSeries \
 	   -lLintel -L/usr/local/dataseries/lib
@@ -33,7 +33,8 @@ CXX      = g++
 
 TARGETS = system-call-replayer
 
-SYSTEM_CALL_REPLAY_MODULE_OBJECTS = SystemCallTraceReplayer.o SystemCallTraceReplayModule.o \
+SYSTEM_CALL_REPLAY_MODULE_OBJECTS = SystemCallTraceReplayer.o FileDescriptorManager.o \
+				    SystemCallTraceReplayLogger.o SystemCallTraceReplayModule.o \
 				    OpenSystemCallTraceReplayModule.o \
 				    CloseSystemCallTraceReplayModule.o \
 				    ReadSystemCallTraceReplayModule.o \

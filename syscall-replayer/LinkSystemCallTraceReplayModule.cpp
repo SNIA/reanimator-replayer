@@ -29,8 +29,8 @@ LinkSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void LinkSystemCallTraceReplayModule::print_specific_fields() {
-  LOG_INFO("old path(" << given_oldpathname_.val() << "), " \
-    << "new path(" << given_newpathname_.val() << ")");
+  syscall_logger_->log_info("old path(", given_oldpathname_.val(), "), ", \
+    "new path(", given_newpathname_.val(), ")");
 }
 
 void LinkSystemCallTraceReplayModule::processRow() {
@@ -53,11 +53,11 @@ LinkatSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void LinkatSystemCallTraceReplayModule::print_specific_fields() {
-  LOG_INFO("old descriptor(" << old_descriptor_.val() << "), " \
-    << "new descriptor(" << new_descriptor_.val() << "), " \
-    << "old path(" << given_oldpathname_.val() << "), " \
-    << "new path(" << given_newpathname_.val() << "), " \
-    << "flags(" << flag_value_.val() << ")");
+  syscall_logger_->log_info("old descriptor(", old_descriptor_.val(), "), ", \
+    "new descriptor(", new_descriptor_.val(), "), ", \
+    "old path(", given_oldpathname_.val(), "), ", \
+    "new path(", given_newpathname_.val(), "), ", \
+    "flags(", flag_value_.val(), ")");
 }
 
 void LinkatSystemCallTraceReplayModule::processRow() {

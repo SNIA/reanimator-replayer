@@ -41,9 +41,9 @@ void WritevSystemCallTraceReplayModule::print_specific_fields() {
    * Print the descriptor value, number of iovec and total
    * number of bytes written from the first record of dataseries file.
    */
-  LOG_INFO("descriptor:(" << descriptor_.val() << "), " \
-	   << "count:(" << count_.val() << "), " \
-	   << "bytes requested:(" << bytes_requested_.val() << ")");
+  syscall_logger_->log_info("descriptor:(", descriptor_.val(), "), ", \
+	   "count:(", count_.val(), "), ", \
+	   "bytes requested:(", bytes_requested_.val(), ")");
 
   int count = count_.val();
 
@@ -53,8 +53,8 @@ void WritevSystemCallTraceReplayModule::print_specific_fields() {
    */
   while (count > 0 && series.morerecords()) {
     ++series;
-    LOG_INFO("iov_number:(" << iov_number_.val() << "), " \
-	     << "data_written:(" << data_written_.val() << ")");
+    syscall_logger_->log_info("iov_number:(", iov_number_.val(), "), ", \
+	     "data_written:(", data_written_.val(), ")");
     count--;
   }
 
