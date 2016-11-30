@@ -47,6 +47,7 @@
 #include <sys/statfs.h>
 #include <sys/statvfs.h>
 #include <sched.h>
+#include <signal.h>
 
 class DataSeriesOutputModule;
 
@@ -419,6 +420,12 @@ private:
    * field name.
    */
   u_int processCloneFlags(SysCallArgsMap &args_map, u_int flag);
+
+  /*
+   * Maps individual signal value for Clone system call to its corresponding
+   * field name.
+   */
+  u_int processCloneSignals(SysCallArgsMap &args_map, u_int flag);
 
   // Maps VFork System Call <field, value> pairs
   void makeVForkArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
