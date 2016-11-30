@@ -34,9 +34,9 @@ WriteSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void WriteSystemCallTraceReplayModule::print_specific_fields() {
-  LOG_INFO("descriptor(" << descriptor_.val() << "), " \
-	   << "data(" << data_written_.val() << "), " \
-	   << "nbytes(" << bytes_requested_.val() << ")");
+  syscall_logger_->log_info("descriptor(", descriptor_.val(), "), " \
+	   "data(", data_written_.val(), "), ", \
+	   "nbytes(", bytes_requested_.val(), ")");
 }
 
 void WriteSystemCallTraceReplayModule::processRow() {
@@ -90,10 +90,10 @@ PWriteSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void PWriteSystemCallTraceReplayModule::print_specific_fields() {
-  LOG_INFO("descriptor(" << descriptor_.val() << "), " \
-	   << "data(" << data_written_.val() << "), " \
-	   << "nbytes(" << bytes_requested_.val() << "), " \
-	   << "offset(" << offset_.val() << ")");
+  syscall_logger_->log_info("descriptor(", descriptor_.val(), "), ", \
+	   "data(", data_written_.val(), "), ", \
+	   "nbytes(", bytes_requested_.val(), "), ", \
+	   "offset(", offset_.val(), ")");
 }
 
 void PWriteSystemCallTraceReplayModule::processRow() {

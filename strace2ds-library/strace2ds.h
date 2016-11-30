@@ -72,7 +72,17 @@ void ds_write_record(DataSeriesOutputModule *ds_module,
  * If the program attempts to trace a system call not supported
  * by the library, print a warning message.
  */
-void ds_print_warning(const char *sys_call_name, long sys_call_number);
+void ds_print_warning(DataSeriesOutputModule *ds_module,
+		      const char *sys_call_name,
+		      long sys_call_number);
+
+/*
+ * If a program, attempts to trace a system call which are chosen
+ * to be ignored while replaying, maintain a set of untraced syscall.
+ */
+void ds_add_to_untraced_set(DataSeriesOutputModule *ds_module,
+			    const char *sys_call_name,
+			    long sys_call_number);
 
 /*
  * Record the size of the buffer passed to an ioctl system call

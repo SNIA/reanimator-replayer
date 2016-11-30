@@ -31,9 +31,9 @@ ChownSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void ChownSystemCallTraceReplayModule::print_specific_fields() {
-  LOG_INFO("pathname(" << given_pathname_.val() << "), " \
-    << "owner(" << new_owner_.val() << "), " \
-    << "group(" << new_group_.val() << ")");
+  syscall_logger_->log_info("pathname(", given_pathname_.val(), "), ", \
+    "owner(", new_owner_.val(), "), ", \
+    "group(", new_group_.val(), ")");
 }
 
 void ChownSystemCallTraceReplayModule::processRow() {

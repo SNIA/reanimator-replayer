@@ -30,8 +30,8 @@ Dup2SystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void Dup2SystemCallTraceReplayModule::print_specific_fields() {
-  LOG_INFO("old descriptor(" << old_descriptor_.val() << "), " \
-    << "new descriptor(" << new_descriptor_.val() << ")");
+  syscall_logger_->log_info("old descriptor(", old_descriptor_.val(), "), ", \
+    "new descriptor(", new_descriptor_.val(), ")");
 }
 
 void Dup2SystemCallTraceReplayModule::processRow() {

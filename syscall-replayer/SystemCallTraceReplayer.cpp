@@ -226,10 +226,13 @@ void process_options(int argc, char *argv[],
 
 // Define the static fd_map_ in SystemCallTraceReplayModule
 std::map<int, int> SystemCallTraceReplayModule::fd_map_;
+FileDescriptorManager SystemCallTraceReplayModule::fd_manager_;
+
 // Define the input file stream random_file_ in SystemCallTraceReplayModule
 std::ifstream SystemCallTraceReplayModule::random_file_;
-// Define the log file
-std::ofstream SystemCallTraceReplayModule::logFile_;
+
+// Define the object of logger class in SystemCallTraceReplayModule
+SystemCallTraceReplayLogger *SystemCallTraceReplayModule::syscall_logger_;
 
 int main(int argc, char *argv[]) {
   int ret = EXIT_SUCCESS;
@@ -245,11 +248,19 @@ int main(int argc, char *argv[]) {
 		  verify, warn_level, pattern_data,
 		  log_filename, input_files);
 
-  // Initialize standard map values (STDIN, STDOUT, STDERR, AT_FDCWD)
-  SystemCallTraceReplayModule::fd_map_[STDIN_FILENO] = STDIN_FILENO;
-  SystemCallTraceReplayModule::fd_map_[STDOUT_FILENO] = STDOUT_FILENO;
-  SystemCallTraceReplayModule::fd_map_[STDERR_FILENO] = STDERR_FILENO;
-  SystemCallTraceReplayModule::fd_map_[AT_FDCWD] = AT_FDCWD;
+  // Create an instance of logger class and open log file to write replayer logs
+  SystemCallTraceReplayModule::syscall_logger_ = new SystemCallTraceReplayLogger(log_filename);
+
+  // If pattern data is equal to urandom, then open /dev/urandom file
+  if (pattern_data == "urandom") {
+    SystemCallTraceReplayModule::random_file_.open("/dev/urandom");
+    if (!SystemCallTraceReplayModule::random_file_.is_open()) {
+      std::cerr << "Unable to open file '/dev/urandom'.\n";
+      // Delete the instance of logger class and close the log file
+      delete SystemCallTraceReplayModule::syscall_logger_;
+      exit(EXIT_FAILURE);
+    }
+  }
 
   // This is the prefix extent type of all system calls.
   const std::string kExtentTypePrefix = "IOTTAFSL::Trace::Syscall::";
@@ -285,6 +296,7 @@ int main(int argc, char *argv[]) {
   system_calls.push_back("utime");
   system_calls.push_back("chmod");
   system_calls.push_back("fchmod");
+  system_calls.push_back("fchmodat");
   system_calls.push_back("chown");
   system_calls.push_back("readv");
   system_calls.push_back("writev");
@@ -488,6 +500,11 @@ int main(int argc, char *argv[]) {
 				 *prefetch_buffer_modules[module_index++],
 				 verbose,
 				 warn_level);
+  FChmodatSystemCallTraceReplayModule *fchmodat_module =
+    new FChmodatSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 warn_level);
   ChownSystemCallTraceReplayModule *chown_module =
     new ChownSystemCallTraceReplayModule(
 				 *prefetch_buffer_modules[module_index++],
@@ -645,6 +662,7 @@ int main(int argc, char *argv[]) {
   system_call_trace_replay_modules.push_back(utime_module);
   system_call_trace_replay_modules.push_back(chmod_module);
   system_call_trace_replay_modules.push_back(fchmod_module);
+  system_call_trace_replay_modules.push_back(fchmodat_module);
   system_call_trace_replay_modules.push_back(chown_module);
   system_call_trace_replay_modules.push_back(readv_module);
   system_call_trace_replay_modules.push_back(writev_module);
@@ -669,27 +687,13 @@ int main(int argc, char *argv[]) {
   system_call_trace_replay_modules.push_back(vfork_module);
   system_call_trace_replay_modules.push_back(umask_module);
 
-  // Open log file to write replayer logs
-  SystemCallTraceReplayModule::logFile_.open(log_filename.c_str());
-  if (SystemCallTraceReplayModule::logFile_.is_open() < 0) {
-    std::cerr << "Unable to open log file" << std::endl;
-    exit(EXIT_FAILURE);
-  }
-
   // Double check to make sure all replaying modules are loaded.
   if (system_call_trace_replay_modules.size() != system_calls.size()) {
     std::cerr << "The number of loaded replaying modules is not same"
 	      << "as the number of supported system calls\n";
+    // Delete the instance of logger class and close the log file
+    delete SystemCallTraceReplayModule::syscall_logger_;
     abort();
-  }
-
-  // If pattern data is equal to urandom, then open /dev/urandom file
-  if (pattern_data == "urandom") {
-    SystemCallTraceReplayModule::random_file_.open("/dev/urandom");
-    if (!SystemCallTraceReplayModule::random_file_.is_open()) {
-      std::cerr << "Unable to open file '/dev/urandom'.\n";
-      exit(EXIT_FAILURE);
-    }
   }
 
   /*
@@ -708,6 +712,38 @@ int main(int argc, char *argv[]) {
     if (module->getSharedExtent()) {
       replayers_heap.push(module);
     }
+  }
+
+  pid_t first_pid = 0;
+  std::vector<SystemCallTraceReplayModule *> poped_modules;
+  // This is needed to initialize first file descriptor
+  while (first_pid == 0 && !replayers_heap.empty()) {
+    // Find first system system call that has a pid.
+    SystemCallTraceReplayModule *module = replayers_heap.top();
+    replayers_heap.pop();
+    poped_modules.push_back(module);
+    first_pid = module->executing_pid();
+  }
+  for (std::vector<SystemCallTraceReplayModule *>::iterator it = poped_modules.begin();
+    it != poped_modules.end();
+    ++it) {
+    replayers_heap.push(*it);
+  }
+
+  // We find the first system call that has a pid
+  if (first_pid >= 0) {
+    // Initialize standard map values (STDIN, STDOUT, STDERR, AT_FDCWD)
+    std::map<int, int> std_fd_map;
+    std_fd_map[STDIN_FILENO] = STDIN_FILENO;
+    std_fd_map[STDOUT_FILENO] = STDOUT_FILENO;
+    std_fd_map[STDERR_FILENO] = STDERR_FILENO;
+    std_fd_map[AT_FDCWD] = AT_FDCWD;
+    SystemCallTraceReplayModule::fd_manager_.initialize(first_pid, std_fd_map);
+  } else {
+    std::cerr << "Something is wrong with pid. Not going to replay" << std::endl;
+    // Delete the instance of logger class
+    delete SystemCallTraceReplayModule::syscall_logger_;
+    abort();
   }
 
   // Process all the records in the dataseries
@@ -730,8 +766,8 @@ int main(int argc, char *argv[]) {
     SystemCallTraceReplayModule::random_file_.close();
   }
 
-  // Close the log file
-  SystemCallTraceReplayModule::logFile_.close();
+  // Delete the instance of logger class and close the log file
+  delete SystemCallTraceReplayModule::syscall_logger_;
 
   return ret;
 }

@@ -30,8 +30,8 @@ RenameSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void RenameSystemCallTraceReplayModule::print_specific_fields() {
-  LOG_INFO("old name(" << given_oldname_.val() << "), " \
-    << "new name(" << given_newname_.val() << ")");
+  syscall_logger_->log_info("old name(", given_oldname_.val(), "), ", \
+    "new name(", given_newname_.val(), ")");
 }
 
 void RenameSystemCallTraceReplayModule::processRow() {

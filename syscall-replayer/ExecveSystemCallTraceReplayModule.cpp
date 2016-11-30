@@ -32,7 +32,6 @@ ExecveSystemCallTraceReplayModule(DataSeriesModule &source,
 
 void ExecveSystemCallTraceReplayModule::print_sys_call_fields() {
   print_specific_fields();
-  std::cout << std::endl;
 }
 
 void ExecveSystemCallTraceReplayModule::print_specific_fields() {
@@ -46,13 +45,13 @@ void ExecveSystemCallTraceReplayModule::print_specific_fields() {
   while (continuation_number_.val() >= 0 && series.morerecords()) {
     int continuation_num = continuation_number_.val();
     if (continuation_num == 0) {
-      LOG_INFO("continuation_number(" << continuation_num << ")");
+      syscall_logger_->log_info("continuation_number(", continuation_num, ")");
     } else if (continuation_num > 0) {
-      LOG_INFO("continuation_number(" << continuation_num << "),");
+      syscall_logger_->log_info("continuation_number(", continuation_num, "),");
       if (environment_.isNull())
-        LOG_INFO("argument(" << argument_.val() << ")");
+        syscall_logger_->log_info("argument(", argument_.val(), ")");
       else if (argument_.isNull())
-        LOG_INFO("environment(" << environment_.val() << ")");
+        syscall_logger_->log_info("environment(", environment_.val(), ")");
     }
     ++series;
   }

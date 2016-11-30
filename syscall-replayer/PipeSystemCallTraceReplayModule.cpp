@@ -32,8 +32,8 @@ PipeSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void PipeSystemCallTraceReplayModule::print_specific_fields() {
-  LOG_INFO("read descriptor(" << read_descriptor_.val() << "), " \
-    << "write descriptor(" << write_descriptor_.val() << ")");
+  syscall_logger_->log_info("read descriptor(", read_descriptor_.val(), "), ", \
+    "write descriptor(", write_descriptor_.val(), ")");
 }
 
 void PipeSystemCallTraceReplayModule::processRow() {
@@ -43,7 +43,7 @@ void PipeSystemCallTraceReplayModule::processRow() {
   if ((read_descriptor_.val() == 0) && (write_descriptor_.val() == 0)) {
     // If both descriptors were set as 0, pass NULL to the pipe call
     if (verify_) {
-      LOG_INFO("Pipe was passed NULL instead of an integer array.");
+      syscall_logger_->log_info("Pipe was passed NULL instead of an integer array.");
     }
     replayed_ret_val_ = pipe(NULL);
   } else {
@@ -57,12 +57,12 @@ void PipeSystemCallTraceReplayModule::processRow() {
      */
     if ((pipefd[0] != read_descriptor_.val()) ||
       (pipefd[1] != write_descriptor_.val())) {
-      LOG_ERR("Captured and replayed pipe file descriptors differ.");
+      syscall_logger_->log_err("Captured and replayed pipe file descriptors differ.");
       if (verbose_mode()) {
-        LOG_WARN("Captured read descriptor: " << read_descriptor_.val() \
-          << ", Replayed read descriptor: " << pipefd[0]);
-        LOG_WARN("Captured write descriptor: " << write_descriptor_.val() \
-          << ", Replayed write descriptor: " << pipefd[1]);
+        syscall_logger_->log_warn("Captured read descriptor: ",
+	  read_descriptor_.val(), ", Replayed read descriptor: ", pipefd[0]);
+        syscall_logger_->log_warn("Captured write descriptor: ", \
+	  write_descriptor_.val(), ", Replayed write descriptor: ", pipefd[1]);
       }
       if (abort_mode())
         abort();
