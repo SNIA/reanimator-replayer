@@ -51,7 +51,7 @@ void GetdentsSystemCallTraceReplayModule::processRow() {
       syscall_logger_->log_err("Verification of data in getdents failed.");
       if (!default_mode()) {
         syscall_logger_->log_warn("time called: ", \
-		      format_field_value(Tfrac_to_sec(time_called()), std::fixed), \
+		      (boost::format("%.25f") % Tfrac_to_sec(time_called())), \
 		      "Captured getdents data is different from replayed ", \
 		      "getdents data.");
         if (abort_mode()) {

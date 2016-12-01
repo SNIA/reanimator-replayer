@@ -40,8 +40,8 @@ UtimeSystemCallTraceReplayModule(DataSeriesModule &source,
 
 void UtimeSystemCallTraceReplayModule::print_specific_fields() {
   syscall_logger_->log_info("given_pathname(", given_pathname_.val(), "), ", \
-	   "access_time(", format_field_value(Tfrac_to_sec(access_time_.val()), std::fixed), "), ", \
-	   "mod_time(", format_field_value(Tfrac_to_sec(mod_time_.val()), std::fixed), ")");
+	   "access_time(", (boost::format("%.25f") % Tfrac_to_sec(access_time_.val())), "), ", \
+	   "mod_time(", (boost::format("%.25f") % Tfrac_to_sec(mod_time_.val())), ")");
 }
 
 void UtimeSystemCallTraceReplayModule::processRow() {
@@ -121,8 +121,8 @@ UtimensatSystemCallTraceReplayModule(DataSeriesModule &source,
 void UtimensatSystemCallTraceReplayModule::print_specific_fields() {
   syscall_logger_->log_info("descriptor(", descriptor_.val(), "), ", \
     "given_pathname(", given_pathname_.val(), "), ", \
-    "access_time(", format_field_value(Tfrac_to_sec(access_time_.val()), std::fixed), "), ", \
-    "mod_time(", format_field_value(Tfrac_to_sec(mod_time_.val()), std::fixed), "), ", \
+    "access_time(", (boost::format("%.25f") % Tfrac_to_sec(access_time_.val())), "), ", \
+    "mod_time(", (boost::format("%.25f") % Tfrac_to_sec(mod_time_.val())), "), ", \
     "flags(", flag_value_.val(), ")");
 }
 

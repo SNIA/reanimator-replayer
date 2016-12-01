@@ -36,6 +36,7 @@
 #include <fstream>
 #include <sstream>
 #include <errno.h>
+#include <boost/format.hpp>
 
 #define DEFAULT_MODE 0
 #define WARN_MODE    1
@@ -294,13 +295,6 @@ public:
    *	      returns false.
    */
   bool isReplayable();
-
-  /*
-   * This function takes a number and converts it to string representation
-   * of given base. This function is only used while printing the values
-   * of system call arguments.
-   */
-   std::string format_field_value(double val, std::ios_base &(base)(std::ios_base&));
 };
 
 #endif /* SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

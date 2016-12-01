@@ -1027,7 +1027,7 @@ void DataSeriesOutputModule::makeFChmodatArgsMap(SysCallArgsMap &args_map,
   } else {
     std::cerr << "FChmodat: Pathname is set as NULL!!" << std::endl;
   }
-  mode_t mode = processMode(args_map, args, 1);
+  mode_t mode = processMode(args_map, args, mode_offset);
   if (mode != 0) {
     std::cerr << "FChmodat: These modes are not processed/unknown->0";
     std::cerr << std::oct << mode << std::dec << std::endl;
