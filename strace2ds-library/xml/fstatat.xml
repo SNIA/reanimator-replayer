@@ -1,0 +1,34 @@
+<ExtentType name="IOTTAFSL::Trace::Syscall::fstatat" namespace="iotta.snia.org.fsl.cs.sunysb.edu" version="1.00">
+  <field name="time_called" type="int64" opt_nullable="yes"/>
+  <field name="time_returned" type="int64" opt_nullable="yes"/>
+  <field name="time_recorded" type="int64" opt_nullable="yes"/>
+  <field name="executing_pid" type="int32" opt_nullable="yes"/>
+  <field name="executing_tid" type="int32" opt_nullable="yes"/>
+  <field name="executing_ppid" type="int32" opt_nullable="yes"/>
+  <field name="executing_uid" type="int32" opt_nullable="yes"/>
+  <field name="errno_number" type="int32" opt_nullable="yes"/>
+  <field name="errno_string" type="variable32" opt_nullable="yes"/>
+  <field name="return_value" type="int64" opt_nullable="yes"/>
+  <field name="unique_id" type="int64" opt_nullable="no"/>
+  <field name="descriptor" type="int32" opt_nullable="no"/>
+  <field name="given_pathname" type="variable32" opt_nullable="no"/>
+  <field name="buffer_address" type="int64" opt_nullable="yes"/>
+  <field name="stat_result_raw" type="variable32" opt_nullable="yes"/>
+  <field name="stat_result_dev" type="int32" opt_nullable="yes"/>
+  <field name="stat_result_ino" type="int32" opt_nullable="yes"/>
+  <field name="stat_result_mode" type="int32" opt_nullable="yes"/>
+  <field name="stat_result_nlink" type="int32" opt_nullable="yes"/>
+  <field name="stat_result_uid" type="int32" opt_nullable="yes"/>
+  <field name="stat_result_gid" type="int32" opt_nullable="yes"/>
+  <field name="stat_result_rdev" type="int32" opt_nullable="yes"/>
+  <field name="stat_result_size" type="int64" opt_nullable="yes"/>
+  <field name="stat_result_blksize" type="int32" opt_nullable="yes"/>
+  <field name="stat_result_blocks" type="int32" opt_nullable="yes"/>
+  <field name="stat_result_atime" type="int64" opt_nullable="yes"/>
+  <field name="stat_result_mtime" type="int64" opt_nullable="yes"/>
+  <field name="stat_result_ctime" type="int64" opt_nullable="yes"/>
+  <field name="flags_value" type="int32" opt_nullable="yes"/>
+  <field name="flags_at_empty_path" type="bool" opt_nullable="no"/>
+  <field name="flags_at_no_automount" type="bool" opt_nullable="no"/>
+  <field name="flags_at_symlink_nofollow" type="bool" opt_nullable="no"/>
+</ExtentType>

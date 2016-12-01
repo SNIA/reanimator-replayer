@@ -101,6 +101,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["fcntl"] = &DataSeriesOutputModule::makeFcntlArgsMap;
   // fstat system call
   func_ptr_map_["fstat"] = &DataSeriesOutputModule::makeFStatArgsMap;
+  // fstatat system call
+  func_ptr_map_["fstatat"] = &DataSeriesOutputModule::makeFStatatArgsMap;
   // fstatfs system call
   func_ptr_map_["fstatfs"] = &DataSeriesOutputModule::makeFStatfsArgsMap;
   // fsync system call
@@ -1553,6 +1555,81 @@ void DataSeriesOutputModule::makeFStatArgsMap(SysCallArgsMap &args_map,
   } else {
     std::cerr << "FStat: Struct stat buffer is set as NULL!!" << std::endl;
   }
+}
+
+void DataSeriesOutputModule::makeFStatatArgsMap(SysCallArgsMap &args_map,
+						long *args,
+						void **v_args) {
+  // Initialize all non-nullable boolean fields to False.
+  initArgsMap(args_map, "fstatat");
+
+  args_map["descriptor"] = &args[0];
+  std::cerr << args[0] << std::endl;
+  if (v_args[0] != NULL) {
+    args_map["given_pathname"] = &v_args[0];
+  } else {
+    std::cerr << "FStatat: Pathname is set as NULL!!" << std::endl;
+  }
+
+  if (v_args[1] != NULL) {
+    struct stat *statbuf = (struct stat *) v_args[1];
+
+    args_map["stat_result_dev"] = &statbuf->st_dev;
+    args_map["stat_result_ino"] = &statbuf->st_ino;
+    args_map["stat_result_mode"] = &statbuf->st_mode;
+    args_map["stat_result_nlink"] = &statbuf->st_nlink;
+    args_map["stat_result_uid"] = &statbuf->st_uid;
+    args_map["stat_result_gid"] = &statbuf->st_gid;
+    args_map["stat_result_rdev"] = &statbuf->st_rdev;
+    args_map["stat_result_size"] = &statbuf->st_size;
+    args_map["stat_result_blksize"] = &statbuf->st_blksize;
+    args_map["stat_result_blocks"] = &statbuf->st_blocks;
+
+    /*
+     * Convert stat_result_atime, stat_result_mtime and
+     * stat_result_ctime to Tfracs.
+     */
+    static uint64_t atime_Tfrac = timespec_to_Tfrac(statbuf->st_atim);
+    static uint64_t mtime_Tfrac = timespec_to_Tfrac(statbuf->st_mtim);
+    static uint64_t ctime_Tfrac = timespec_to_Tfrac(statbuf->st_ctim);
+    args_map["stat_result_atime"] = &atime_Tfrac;
+    args_map["stat_result_mtime"] = &mtime_Tfrac;
+    args_map["stat_result_ctime"] = &ctime_Tfrac;
+  } else {
+    std::cerr << "FStatat: Struct stat buffer is set as NULL!!" << std::endl;
+  }
+
+  args_map["flags_value"] = &args[3];
+  std::cerr << args[3] << std::endl;
+  u_int flag = processFStatatFlags(args_map, args[3]);
+  if (flag != 0) {
+    std::cerr << "FStatat: These flags are not processed/unknown->"
+	      << std::hex << flag << std::dec << std::endl;
+  }
+}
+
+u_int DataSeriesOutputModule::processFStatatFlags(SysCallArgsMap &args_map,
+						  u_int fstatat_flags) {
+  /*
+   * Process each individual statfs flag bit that has been set
+   * in the argument fstatat_flags.
+   */
+  // set at empty path flag
+  process_Flag_and_Mode_Args(args_map, fstatat_flags, AT_EMPTY_PATH,
+			     "flags_at_empty_path");
+  // set no auto mount flag
+  process_Flag_and_Mode_Args(args_map, fstatat_flags, AT_NO_AUTOMOUNT,
+			     "flags_at_no_automount");
+  // set symlink nofollow flag
+  process_Flag_and_Mode_Args(args_map, fstatat_flags, AT_SYMLINK_NOFOLLOW,
+			     "flags_at_symlink_nofollow");
+
+  /*
+   * Return remaining fstatat flags so that caller can
+   * warn of unknown flags if the fstatat_flags is not set
+   * as zero.
+   */
+  return fstatat_flags;
 }
 
 void DataSeriesOutputModule::makeUtimesArgsMap(SysCallArgsMap &args_map,

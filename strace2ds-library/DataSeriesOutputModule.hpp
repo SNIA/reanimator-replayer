@@ -310,6 +310,15 @@ private:
   // Maps FStat System Call <field, value> pairs
   void makeFStatArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
+  /*
+   * Maps individual mount option flags for fstatat system call to its
+   * corresponding field name
+   */
+  u_int processFStatatFlags(SysCallArgsMap &args_map, u_int fstatat_flags);
+
+  // Maps FStatat System Call <field, value> pairs
+  void makeFStatatArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+
   // Maps Utimes System Call <field, value> pairs
   void makeUtimesArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
