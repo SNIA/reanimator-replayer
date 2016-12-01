@@ -14,7 +14,8 @@
  * lstat, and fstat system calls.
  *
  * BasicStatSystemCallTraceReplayerModule is a class/module that
- * has members and functions of replaying stat, lstat, and fstat system calls.
+ * has members and functions of replaying stat, lstat, fstat and
+ * fstatat system call.
  *
  * USAGE
  * A main program could initialize this class with a dataseries file
@@ -153,5 +154,31 @@ public:
 				   bool verbose_flag,
 				   bool verify_flag,
 				   int warn_level_flag);
+};
+
+class FStatatSystemCallTraceReplayModule :
+  public BasicStatSystemCallTraceReplayModule {
+private:
+  /* System Call Field descriptor stored in Dataseries ilfe */
+  Int32Field descriptor_;
+  Variable32Field given_pathname_;
+  Int32Field flags_value_;
+
+  /*
+   * Print fstatat sys call field values in a nice format
+   */
+  void print_specific_fields();
+
+  /*
+   * This function will gather arguments in the trace file
+   * and call replay an fstatat system call with those arguments.
+   */
+  void processRow();
+
+public:
+  FStatatSystemCallTraceReplayModule(DataSeriesModule &source,
+                                   bool verbose_flag,
+                                   bool verify_flag,
+                                   int warn_level_flag);
 };
 #endif /* BASIC_STAT_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

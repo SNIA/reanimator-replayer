@@ -301,6 +301,7 @@ int main(int argc, char *argv[]) {
   system_calls.push_back("writev");
   system_calls.push_back("lstat");
   system_calls.push_back("fstat");
+  system_calls.push_back("fstatat");
   system_calls.push_back("utimes");
   system_calls.push_back("utimensat");
   system_calls.push_back("rename");
@@ -532,6 +533,13 @@ int main(int argc, char *argv[]) {
 				 verbose,
 				 verify,
 				 warn_level);
+  FStatatSystemCallTraceReplayModule *fstatat_module =
+    new FStatatSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 verify,
+				 warn_level);
+
   UtimesSystemCallTraceReplayModule *utimes_module =
     new UtimesSystemCallTraceReplayModule(
 				 *prefetch_buffer_modules[module_index++],
@@ -661,6 +669,7 @@ int main(int argc, char *argv[]) {
   system_call_trace_replay_modules.push_back(writev_module);
   system_call_trace_replay_modules.push_back(lstat_module);
   system_call_trace_replay_modules.push_back(fstat_module);
+  system_call_trace_replay_modules.push_back(fstatat_module);
   system_call_trace_replay_modules.push_back(utimes_module);
   system_call_trace_replay_modules.push_back(utimensat_module);
   system_call_trace_replay_modules.push_back(rename_module);

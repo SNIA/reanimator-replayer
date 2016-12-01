@@ -233,3 +233,36 @@ void FStatSystemCallTraceReplayModule::processRow() {
     BasicStatSystemCallTraceReplayModule::verifyResult(stat_buf);
   }
 }
+
+FStatatSystemCallTraceReplayModule::
+FStatatSystemCallTraceReplayModule(DataSeriesModule &source,
+                                   bool verbose_flag,
+                                   bool verify_flag,
+                                   int warn_level_flag):
+  BasicStatSystemCallTraceReplayModule(source, verbose_flag, verify_flag,
+                                warn_level_flag),
+  descriptor_(series, "descriptor"),
+  given_pathname_(series, "given_pathname"),
+  flags_value_(series, "flags_value", Field::flag_nullable) {
+  sys_call_name_ = "fstatat";
+}
+
+void FStatatSystemCallTraceReplayModule::print_specific_fields() {
+  syscall_logger_->log_info("descriptor(", descriptor_.val(), "), ", \
+        "pathname(", given_pathname_.val(), "), ", \
+        "flags_value(", flags_value_.val(), ")");
+  BasicStatSystemCallTraceReplayModule::print_specific_fields();
+}
+
+void FStatatSystemCallTraceReplayModule::processRow() {
+  struct stat stat_buf;
+  int descriptor = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
+  char *pathname = (char *) given_pathname_.val();
+
+  // replay the fstat system call
+  replayed_ret_val_ = fstatat(descriptor, pathname, &stat_buf, flags_value_.val());
+
+  if (verify_ == true) {
+    BasicStatSystemCallTraceReplayModule::verifyResult(stat_buf);
+  }
+}
