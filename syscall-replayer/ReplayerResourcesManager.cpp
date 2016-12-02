@@ -112,26 +112,6 @@ int ReplayerResourcesManager::clone_fd_table(pid_t ppid, pid_t pid) {
   return 0;
 }
 
-void ReplayerResourcesManager::update_umask(pid_t pid, mode_t umask) {
-  assert(umask_table_.find(pid) != umask_table_.end());
-  // Update umask
-  umask_table_[pid] = umask;
-}
-
-int ReplayerResourcesManager::clone_umask_table(pid_t ppid, pid_t pid) {
-  assert(umask_table_.find(ppid) != umask_table_.end());
-  // Make a copy
-  umask_table_[pid] = umask_table_[ppid];
-  return 0;
-}
-
-int ReplayerResourcesManager::remove_umask_table(pid_t pid) {
-  assert(umask_table_.find(pid) != umask_table_.end());
-  // Make a copy
-  umask_table_.erase(pid);
-  return 0;
-}
-
 std::vector<std::pair<bool, int>> ReplayerResourcesManager::remove_fd_table(pid_t pid) {
   assert(fd_table_map_.find(pid) != fd_table_map_.end());
   // Get the corresponding fd table
