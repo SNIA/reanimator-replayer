@@ -110,6 +110,19 @@ protected:
    */
   virtual void after_sys_call();
 
+  /*
+   * This function is a helper function that masks mode value argument
+   * of a system call because we are managing our own umask values.
+   * This means that all system calls that have mode_val will
+   * use this function to get the mode value that needs to be passed
+   * to system call, syscall ex: mkdir, open, etc.
+   * The conversion logic:
+   * 1. getting the current PID umask value
+   * 2. ~umask AND mode bits
+   * Return ~umask AND mode bits
+   */
+  mode_t get_mode(mode_t mode);
+
 public:
   // A mapping of file descriptors in the trace file to actual file descriptors
   static std::map<int, int> fd_map_;
@@ -300,7 +313,7 @@ public:
    * of given base. This function is only used while printing the values
    * of system call arguments.
    */
-   std::string format_field_value(double val, std::ios_base &(base)(std::ios_base&));
+  std::string format_field_value(double val, std::ios_base &(base)(std::ios_base&));
 };
 
 #endif /* SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */
