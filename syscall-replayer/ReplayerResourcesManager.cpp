@@ -22,6 +22,9 @@ ReplayerResourcesManager::ReplayerResourcesManager() {
 }
 
 void ReplayerResourcesManager::initialize(pid_t pid, std::map<int, int>& fd_map) {
+  // Create a new UmaskEntry for trace application
+  umask_table_[pid] = new UmaskEntry(0);
+
   for (std::map<int, int>::iterator it = fd_map.begin();
     it != fd_map.end(); ++it) {
     int traced_fd = it->first;
@@ -152,4 +155,63 @@ void ReplayerResourcesManager::print_fd_manager() {
     int reference_count = iter->second;
     std::cout << "Traced fd: " << traced_fd << ", Reference count: " << reference_count << std::endl;
   }
+}
+
+mode_t ReplayerResourcesManager::get_umask(pid_t pid) {
+  assert(umask_table_.find(pid) != umask_table_.end());
+  return umask_table_[pid]->get_umask();
+}
+
+void ReplayerResourcesManager::set_umask(pid_t pid, mode_t mode) {
+  assert(umask_table_.find(pid) != umask_table_.end());
+  umask_table_[pid]->set_umask(mode);
+}
+
+void ReplayerResourcesManager::clone_umask(pid_t ppid, pid_t pid, bool shared) {
+  assert(umask_table_.find(ppid) != umask_table_.end());
+  // Check if two processes share same umask
+  if (shared) {
+    // Make pid points to same umask
+    umask_table_[pid] = umask_table_[ppid];
+    // Increment rc.
+    umask_table_[pid]->increment_rc();
+  } else {
+    // Create a new UmaskEntry since they don't share umask.
+    UmaskEntry *p_umask = umask_table_[ppid];
+    umask_table_[pid] = new UmaskEntry(p_umask->get_umask());
+  }
+}
+
+void ReplayerResourcesManager::remove_umask(pid_t pid) {
+  assert(umask_table_.find(pid) != umask_table_.end());
+  // Decrement the reference count for this process's umask.
+  unsigned int rc = umask_table_[pid]->decrement_rc();
+  // If reference count reaches 0, we will remove the entry from the table.
+  if (rc <= 0) {
+    // Free the memory that is used by UmaskEntry
+    delete umask_table_[pid];
+    // Remove the entry from umask table.
+    umask_table_.erase(pid);
+  }
+}
+
+// =========================== UmaskEntry Implementation ==========================
+UmaskEntry::UmaskEntry(mode_t m):umask_(m), rc_(1) { }
+
+mode_t UmaskEntry::get_umask() {
+  return umask_;
+}
+
+void UmaskEntry::set_umask(mode_t m) {
+  umask_ = m;
+}
+
+void UmaskEntry::increment_rc() {
+  rc_++;
+}
+
+unsigned int UmaskEntry::decrement_rc() {
+  assert(rc_ != 0);
+  rc_--;
+  return rc_;
 }
