@@ -13,7 +13,7 @@
  * system call.
  *
  * AccessSystemCallTraceReplayerModule is a class/module that
- * has members and functions of replaying access system call.
+ * has members and functions of replaying access and faccessat system call.
  *
  * USAGE
  * A main program could initialize this class with a dataseries file
@@ -50,4 +50,26 @@ public:
 				    int warn_level_flag);
 };
 
+class FAccessatSystemCallTraceReplayModule : public AccessSystemCallTraceReplayModule {
+private:
+  // FAccessat System Call Trace Fields in Dataseries file
+  Int32Field descriptor_;
+  Int32Field flags_value_;
+
+  /*
+   * Print this sys call field values in a nice format
+   */
+  void print_specific_fields();
+
+  /*
+   * This function will gather arguments in the trace file
+   * and replay a faccessat system call with those arguments.
+   */
+  void processRow();
+
+public:
+  FAccessatSystemCallTraceReplayModule(DataSeriesModule &source,
+				       bool verbose_flag,
+				       int warn_level_flag);
+};
 #endif /* ACCESS_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

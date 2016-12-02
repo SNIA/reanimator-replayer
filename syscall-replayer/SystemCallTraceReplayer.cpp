@@ -276,6 +276,7 @@ int main(int argc, char *argv[]) {
   system_calls.push_back("lseek");
   system_calls.push_back("pread");
   system_calls.push_back("access");
+  system_calls.push_back("faccessat");
   system_calls.push_back("chdir");
   system_calls.push_back("truncate");
   system_calls.push_back("creat");
@@ -394,6 +395,11 @@ int main(int argc, char *argv[]) {
 				 warn_level);
   AccessSystemCallTraceReplayModule *access_module =
     new AccessSystemCallTraceReplayModule(
+				 *prefetch_buffer_modules[module_index++],
+				 verbose,
+				 warn_level);
+  FAccessatSystemCallTraceReplayModule *faccessat_module =
+    new FAccessatSystemCallTraceReplayModule(
 				 *prefetch_buffer_modules[module_index++],
 				 verbose,
 				 warn_level);
@@ -644,6 +650,7 @@ int main(int argc, char *argv[]) {
   system_call_trace_replay_modules.push_back(lseek_module);
   system_call_trace_replay_modules.push_back(pread_module);
   system_call_trace_replay_modules.push_back(access_module);
+  system_call_trace_replay_modules.push_back(faccessat_module);
   system_call_trace_replay_modules.push_back(chdir_module);
   system_call_trace_replay_modules.push_back(truncate_module);
   system_call_trace_replay_modules.push_back(creat_module);
