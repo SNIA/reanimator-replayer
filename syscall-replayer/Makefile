@@ -33,7 +33,7 @@ CXX      = g++
 
 TARGETS = system-call-replayer
 
-SYSTEM_CALL_REPLAY_MODULE_OBJECTS = SystemCallTraceReplayer.o FileDescriptorManager.o \
+SYSTEM_CALL_REPLAY_MODULE_OBJECTS = SystemCallTraceReplayer.o ReplayerResourcesManager.o \
 				    SystemCallTraceReplayLogger.o SystemCallTraceReplayModule.o \
 				    OpenSystemCallTraceReplayModule.o \
 				    CloseSystemCallTraceReplayModule.o \
