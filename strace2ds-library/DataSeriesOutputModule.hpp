@@ -260,6 +260,15 @@ private:
   // Maps Access System Call <field, value> pairs
   void makeAccessArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
+  // Maps FAccessat System Call <field, value> pairs
+  void makeFAccessatArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+
+  /*
+   * Maps individual mount option flags for faccessat system call to its
+   * corresponding field name
+   */
+  u_int processFAccessatFlags(SysCallArgsMap &args_map, u_int faccessat_flags);
+
   // Maps individual Access mode bits to the corresponding field names
   mode_t processAccessMode(SysCallArgsMap &args_map,
 			   long *args,

@@ -244,6 +244,17 @@ access	mode_read	0	bool
 access	mode_write	0	bool
 access	mode_execute	0	bool
 access	mode_exist	0	bool
+faccessat	descriptor	0	int32
+faccessat	given_pathname	0	variable32
+faccessat	full_pathname	1	variable32
+faccessat	mode_value	1	int32
+faccessat	mode_read	0	bool
+faccessat	mode_write	0	bool
+faccessat	mode_execute	0	bool
+faccessat	mode_exist	0	bool
+faccessat	flags_value	1	int32
+faccessat	flags_at_eaccess	0	bool
+faccessat	flags_at_symlink_nofollow	0	bool
 execve	given_pathname	1	variable32
 execve	full_pathname	1	variable32
 execve	argument_address	1	int64

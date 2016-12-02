@@ -93,6 +93,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["execve"] = &DataSeriesOutputModule::makeExecveArgsMap;
   // _exit system call
   func_ptr_map_["exit"] = &DataSeriesOutputModule::makeExitArgsMap;
+  // faccessat system call
+  func_ptr_map_["faccessat"] = &DataSeriesOutputModule::makeFAccessatArgsMap;
   // fchmod system call
   func_ptr_map_["fchmod"] = &DataSeriesOutputModule::makeFChmodArgsMap;
   // fchmodat system call
@@ -1020,23 +1022,31 @@ void DataSeriesOutputModule::makeFChmodatArgsMap(SysCallArgsMap &args_map,
 						 long *args,
 						 void **v_args) {
   int mode_offset = 2;
-  static bool true_ = true;
-
   initArgsMap(args_map, "fchmodat");
+
   args_map["descriptor"] = &args[0];
+
   if (v_args[0] != NULL) {
     args_map["given_pathname"] = &v_args[0];
   } else {
     std::cerr << "FChmodat: Pathname is set as NULL!!" << std::endl;
   }
+
+  // set individual  Mode values
   mode_t mode = processMode(args_map, args, mode_offset);
   if (mode != 0) {
     std::cerr << "FChmodat: These modes are not processed/unknown->0";
     std::cerr << std::oct << mode << std::dec << std::endl;
   }
+
+  // set flag values
   args_map["flag_value"] = &args[3];
-  if (args[3] == AT_SYMLINK_NOFOLLOW) {
-    args_map["flag_at_symlink_nofollow"] = &true_;
+  u_int flag = args[3];
+  process_Flag_and_Mode_Args(args_map, flag, AT_SYMLINK_NOFOLLOW, \
+			     "flag_at_symlink_nofollow");
+  if (flag != 0) {
+    std::cerr << "FChmodat: These flags are not processed/unknown->0";
+    std::cerr << std::oct << flag << std::dec << std::endl;
   }
 }
 
@@ -1140,6 +1150,58 @@ void DataSeriesOutputModule::makeAccessArgsMap(SysCallArgsMap &args_map,
     std::cerr << "Access: These modes are not processed/unknown->0";
     std::cerr << std::oct << mode << std::dec << std::endl;
   }
+}
+
+void DataSeriesOutputModule::makeFAccessatArgsMap(SysCallArgsMap &args_map,
+						  long *args,
+						  void **v_args) {
+  // Initialize all non-nullable boolean fields to False.
+  initArgsMap(args_map, "faccessat");
+  u_int mode_offset = 2;
+
+  args_map["descriptor"] = &args[0];
+
+  if (v_args[0] != NULL) {
+    args_map["given_pathname"] = &v_args[0];
+  } else {
+    std::cerr << "FAccessat: Pathname is set as NULL!!" << std::endl;
+  }
+
+  // Map the individual mode fields
+  mode_t mode = processAccessMode(args_map, args, mode_offset);
+  if (mode != 0) {
+    std::cerr << "FAccessat: These modes are not processed/unknown->0";
+    std::cerr << std::oct << mode << std::dec << std::endl;
+  }
+
+  args_map["flags_value"] = &args[3];
+  // Map the inividual flag values
+  u_int flag = processFAccessatFlags(args_map, args[3]);
+  if (flag != 0) {
+    std::cerr << "FAccessat: These flags are not processed/unknown->"
+	      << std::hex << flag << std::dec << std::endl;
+  }
+}
+
+u_int DataSeriesOutputModule::processFAccessatFlags(SysCallArgsMap &args_map,
+						    u_int faccessat_flags) {
+  /*
+   * Process each individual faccessat flag bit that has been set
+   * in the argument faccessat_flags.
+   */
+  // set eaccess flag
+  process_Flag_and_Mode_Args(args_map, faccessat_flags, AT_EACCESS,
+			     "flags_at_eaccess");
+  // set symlink nofollow flag
+  process_Flag_and_Mode_Args(args_map, faccessat_flags, AT_SYMLINK_NOFOLLOW,
+			     "flags_at_symlink_nofollow");
+
+  /*
+   * Return remaining faccessat flags so that caller can
+   * warn of unknown flags if the faccessat_flags is not set
+   * as zero.
+   */
+  return faccessat_flags;
 }
 
 /*
@@ -1564,7 +1626,7 @@ void DataSeriesOutputModule::makeFStatatArgsMap(SysCallArgsMap &args_map,
   initArgsMap(args_map, "fstatat");
 
   args_map["descriptor"] = &args[0];
-  std::cerr << args[0] << std::endl;
+
   if (v_args[0] != NULL) {
     args_map["given_pathname"] = &v_args[0];
   } else {
@@ -1600,7 +1662,7 @@ void DataSeriesOutputModule::makeFStatatArgsMap(SysCallArgsMap &args_map,
   }
 
   args_map["flags_value"] = &args[3];
-  std::cerr << args[3] << std::endl;
+
   u_int flag = processFStatatFlags(args_map, args[3]);
   if (flag != 0) {
     std::cerr << "FStatat: These flags are not processed/unknown->"

@@ -17,6 +17,7 @@ XML_FILES=			\
 	xml/dup2.xml		\
 	xml/execve.xml		\
 	xml/exit.xml		\
+	xml/faccessat.xml		\
 	xml/fchmod.xml		\
 	xml/fchmodat.xml		\
 	xml/fcntl.xml		\
