@@ -36,7 +36,10 @@ void ExitSystemCallTraceReplayModule::print_specific_fields() {
 void ExitSystemCallTraceReplayModule::processRow() {
   /*
    * NOTE: On replaying exit system call, our replayer will terminate.
-   * Hence we do not replay exit system call.
+   * Hence we do not replay exit system call, but we update replayer resources
    */
+  pid_t pid = executing_pid();
+  // Clone umask table
+  SystemCallTraceReplayModule::replayer_resources_manager_.remove_umask(pid);
   return;
 }

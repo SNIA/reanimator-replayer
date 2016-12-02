@@ -226,7 +226,7 @@ void process_options(int argc, char *argv[],
 
 // Define the static fd_map_ in SystemCallTraceReplayModule
 std::map<int, int> SystemCallTraceReplayModule::fd_map_;
-ReplayerResourcesManager SystemCallTraceReplayModule::fd_manager_;
+ReplayerResourcesManager SystemCallTraceReplayModule::replayer_resources_manager_;
 
 // Define the input file stream random_file_ in SystemCallTraceReplayModule
 std::ifstream SystemCallTraceReplayModule::random_file_;
@@ -738,7 +738,7 @@ int main(int argc, char *argv[]) {
     std_fd_map[STDOUT_FILENO] = STDOUT_FILENO;
     std_fd_map[STDERR_FILENO] = STDERR_FILENO;
     std_fd_map[AT_FDCWD] = AT_FDCWD;
-    SystemCallTraceReplayModule::fd_manager_.initialize(first_pid, std_fd_map);
+    SystemCallTraceReplayModule::replayer_resources_manager_.initialize(first_pid, std_fd_map);
   } else {
     std::cerr << "Something is wrong with pid. Not going to replay" << std::endl;
     // Delete the instance of logger class

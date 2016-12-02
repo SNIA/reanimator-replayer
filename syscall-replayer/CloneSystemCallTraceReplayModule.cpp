@@ -49,11 +49,17 @@ void CloneSystemCallTraceReplayModule::processRow() {
    * from that of the parent process. If that flag is set, then the cloned
    * process id will be mapped to the parent process id, and the two processes 
    * will share a file descriptor table, as they would in the kernel.
-   */
-
-  /*
    * NOTE: It is inappropriate to replay clone system call.
    * Hence we do not replay clone system call.
    */
+  int flags = flag_value_.val();
+  bool shared_umask = false;
+  if (flags & CLONE_FS) {
+    shared_umask = true;
+  }
+  pid_t ppid = executing_pid();
+  pid_t pid = return_value();
+  // Clone umask table
+  SystemCallTraceReplayModule::replayer_resources_manager_.clone_umask(ppid, pid, shared_umask);
   return;
 }
