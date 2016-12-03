@@ -39,27 +39,15 @@ protected:
   void print_specific_fields();
 
   /*
-   * This function will prepare things before replaying any
-   * symlink system call. Right now it displays a starting
-   * message.
-   */
-  void prepareForProcessing();
-
-  /*
    * This function will gather arguments in the trace file
    * and replay a symlink system call with those arguments.
    */
   void processRow();
 
-  /*
-   * This function will do things that have be done
-   * after finishing replaying all symlink system calls.
-   * Now, it only displays an ending message.
-   */
-  void completeProcessing();
-
 public:
-  SymlinkSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag, int warn_level_flag);
+  SymlinkSystemCallTraceReplayModule(DataSeriesModule &source,
+				     bool verbose_flag,
+				     int warn_level_flag);
 };
 
 #endif /* SYMLINK_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

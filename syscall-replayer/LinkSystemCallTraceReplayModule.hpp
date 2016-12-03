@@ -9,11 +9,11 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
- * This header file provides members and functions for implementing link
- * system call.
+ * This header file provides members and functions for implementing link and
+ * linkat system calls.
  *
  * LinkSystemCallTraceReplayerModule is a class/module that
- * has members and functions of replaying link system call.
+ * has members and functions of replaying link and linkat system calls.
  *
  * USAGE
  * A main program could initialize this class with a dataseries file
@@ -34,16 +34,9 @@ protected:
   Variable32Field given_newpathname_;
 
   /*
-   * Print open sys call field values in a nice format
+   * Print link sys call field values in a nice format
    */
   void print_specific_fields();
-
-  /*
-   * This function will prepare things before replaying any
-   * link system call. Right now it displays a starting
-   * message.
-   */
-  void prepareForProcessing();
 
   /*
    * This function will gather arguments in the trace file
@@ -51,15 +44,34 @@ protected:
    */
   void processRow();
 
-  /*
-   * This function will do things that have be done
-   * after finishing replaying all link system calls.
-   * Now, it only displays an ending message.
-   */
-  void completeProcessing();
-
 public:
-  LinkSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag, int warn_level_flag);
+  LinkSystemCallTraceReplayModule(DataSeriesModule &source,
+				  bool verbose_flag,
+				  int warn_level_flag);
 };
 
+class LinkatSystemCallTraceReplayModule :
+  public LinkSystemCallTraceReplayModule {
+protected:
+  // Linkat System Call Trace Fields in Dataseries file
+  Int32Field old_descriptor_;
+  Int32Field new_descriptor_;
+  Int32Field flag_value_;
+
+  /*
+   * Print linkat sys call field values in a nice format
+   */
+  void print_specific_fields();
+
+  /*
+   * This function will gather arguments in the trace file
+   * and replay a linkat system call with those arguments.
+   */
+  void processRow();
+
+public:
+  LinkatSystemCallTraceReplayModule(DataSeriesModule &source,
+				    bool verbose_flag,
+				    int warn_level_flag);
+};
 #endif /* LINK_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

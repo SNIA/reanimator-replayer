@@ -1,0 +1,17 @@
+<ExtentType name="IOTTAFSL::Trace::Syscall::chown" namespace="iotta.snia.org.fsl.cs.sunysb.edu" version="1.00">
+  <field name="time_called" type="int64" opt_nullable="yes"/>
+  <field name="time_returned" type="int64" opt_nullable="yes"/>
+  <field name="time_recorded" type="int64" opt_nullable="yes"/>
+  <field name="executing_pid" type="int32" opt_nullable="yes"/>
+  <field name="executing_tid" type="int32" opt_nullable="yes"/>
+  <field name="executing_ppid" type="int32" opt_nullable="yes"/>
+  <field name="executing_uid" type="int32" opt_nullable="yes"/>
+  <field name="errno_number" type="int32" opt_nullable="yes"/>
+  <field name="errno_string" type="variable32" opt_nullable="yes"/>
+  <field name="return_value" type="int64" opt_nullable="yes"/>
+  <field name="unique_id" type="int64" opt_nullable="no"/>
+  <field name="given_pathname" type="variable32" opt_nullable="no"/>
+  <field name="full_pathname" type="variable32" opt_nullable="yes"/>
+  <field name="new_owner" type="int32" opt_nullable="no"/>
+  <field name="new_group" type="int32" opt_nullable="no"/>
+</ExtentType>

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2015-2016 Leixiang Wu
  * Copyright (c) 2015-2016 Shubhi Rani
- * Copyright (c) 2015-2016 Sonam Mandal 
+ * Copyright (c) 2015-2016 Sonam Mandal
  * Copyright (c) 2015-2016 Erez Zadok
  * Copyright (c) 2015-2016 Stony Brook University
  *
@@ -12,9 +12,9 @@
  * This header file provides members and functions for implementing lseek
  * system call.
  *
- * LSeekSystemCallTraceReplayerModule is a class/module that 
- * has members and functions of replaying lseek system call. 
- * 
+ * LSeekSystemCallTraceReplayerModule is a class/module that
+ * has members and functions of replaying lseek system call.
+ *
  * USAGE
  * A main program could initialize this object with a dataseries file
  * and call execute() function until all extents are processed.
@@ -37,26 +37,12 @@ private:
    * Print lseek sys call field values in a nice format
    */
   void print_specific_fields();
-  
-  /*
-   * This function will prepare things before replaying any
-   * lseek system call. Right now it displays a starting
-   * message.
-   */
-  void prepareForProcessing();
 
   /*
-   * This function will gather arguments in the trace file 
+   * This function will gather arguments in the trace file
    * and then replay lseek system call with those arguments.
    */
   void processRow();
-
-  /*
-   * This function will do things that have be done 
-   * after finishing replaying all lseek system calls in the
-   * trace files. Now, it only displays an ending message.
-   */
-  void completeProcessing();
 
 public:
   LSeekSystemCallTraceReplayModule(DataSeriesModule &source,

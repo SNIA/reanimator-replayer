@@ -1,39 +1,59 @@
-Note: there are many more system calls. However, SNIA document only lists the following 38 system calls. We may support more system calls if we expand our replayer to support all of the following.
+NOTE: There are many more system calls. However, SNIA document only lists the
+system calls numbered below from 1 to 38. We have extended the trace-replayer
+to add support for rename, unlinkat, getdents and openat system calls. The
+trace-replayer can be easily extended to support more system calls.
+
+We support following system calls in the trace-replayer.
 The POSIX system calls considered applicable to I/O tracing:
-1. read - support
-2. write - support
-3. lseek - support
-4. mmap - NOT supported
-5. fstat - NOT supported
-6. pread - support
-7. pwrite - support
-8. readv - NOT supported
-9. writev - NOT supported
-10. fcntl - NOT supported
-11. ioctl - NOT supported
-12. fsync - NOT supported
-13. open - support
-14. close - support
-15. stat - In Progress
-16. lstat - In Progress
-17. access - NOT supported
-18. execve - NOT supported
-19. truncate - support
-20. chdir - support
-21. mkdir - IN Progress
-22. rmdir - NOT supported
-23. creat - NOT supported
-24. link - NOT supported
-25. unlink - support
-26. symlink - support
-27. readlink - NOT supported
-28. chmod - NOT supported
-29. utime - NOT supported
-31. utimes - NOT supported
-32. mknod - NOT supported
-33. munmap - NOT supported
-34. pipe - NOT supported
-35. fork - NOT supported
-36. exit - NOT supported
-37. dup - NOT supported
-38. dup2 - NOT supported
+
+============================================================
+SNo.	System_call_name	Status		IsReplayable
+============================================================
+1.	read			supported	Yes
+2. 	write			supported	Yes
+3. 	lseek			supported	Yes
+4. 	mmap			supported	No
+5. 	fstat			supported	Yes
+6. 	pread			supported	Yes
+7. 	pwrite			supported	Yes
+8. 	readv			supported	Yes
+9. 	writev			supported	Yes
+10. 	fcntl			supported	Yes
+11. 	ioctl			supported	Yes
+12. 	fsync			supported	Yes
+13. 	open			supported	Yes
+14. 	close			supported	Yes
+15. 	stat			supported	Yes
+16. 	lstat			supported	Yes
+17. 	access			supported	Yes
+18. 	execve			supported	No
+19. 	truncate		supported	Yes
+20. 	chdir			supported	Yes
+21. 	mkdir			supported	Yes
+22. 	rmdir			supported	Yes
+23. 	creat			supported	Yes
+24. 	link			supported	Yes
+25. 	unlink			supported	Yes
+26. 	symlink			supported	Yes
+27. 	readlink		supported	Yes
+28. 	chmod			supported	Yes
+29. 	chown			supported	Yes
+30. 	utime			supported	Yes
+31. 	utimes			supported	Yes
+32. 	mknod			supported	Yes
+33. 	munmap			supported	No
+34. 	pipe			supported	Yes
+35. 	fork			NOT supported
+36. 	exit			supported	No
+37. 	dup			supported	Yes
+38. 	dup2			supported	Yes
+39. 	rename			supported	Yes
+40.	getdents		supported	Yes
+41.	openat			supported	Yes
+42.	unlinkat		supported	Yes
+43.	linkat			supported	YES
+44.	fchmod			supported	YES
+45.	utimensat		supported	YES
+46.	mkdirat			supported	YES
+47.	statfs			supported	YES
+48.	fstatfs			supported	YES

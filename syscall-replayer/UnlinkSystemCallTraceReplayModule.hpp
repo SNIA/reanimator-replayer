@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2016 Nina Brown
  * Copyright (c) 2015-2016 Leixiang Wu
  * Copyright (c) 2015-2016 Shubhi Rani
  * Copyright (c) 2015-2016 Sonam Mandal
@@ -26,6 +27,7 @@
 #include "SystemCallTraceReplayModule.hpp"
 
 #include <unistd.h>
+#include <fcntl.h>
 
 class UnlinkSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 protected:
@@ -38,27 +40,39 @@ protected:
   void print_specific_fields();
 
   /*
-   * This function will prepare things before replaying any
-   * unlink system call. Right now it displays a starting
-   * message.
-   */
-  void prepareForProcessing();
-
-  /*
    * This function will gather arguments in the trace file
    * and replay a unlink system call with those arguments.
    */
   void processRow();
 
+public:
+  UnlinkSystemCallTraceReplayModule(DataSeriesModule &source,
+				    bool verbose_flag,
+				    int warn_level_flag);
+};
+
+class UnlinkatSystemCallTraceReplayModule :
+  public UnlinkSystemCallTraceReplayModule {
+private:
+  // Unlinkat System Call Trace Fields in Dataseries file
+  Int32Field descriptor_;
+  Int32Field flag_value_;
+
   /*
-   * This function will do things that have be done
-   * after finishing replaying all unlink system calls.
-   * Now, it only displays an ending message.
+   * Print this sys call field values in a nice format
    */
-  void completeProcessing();
+  void print_specific_fields();
+
+  /*
+   * This function will gather arguments in the trace file
+   * and replay a unlinkat system call with those arguments.
+   */
+  void processRow();
 
 public:
-  UnlinkSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag, int warn_level_flag);
+  UnlinkatSystemCallTraceReplayModule(DataSeriesModule &source,
+				      bool verbose_flag,
+				      int warn_level_flag);
 };
 
 #endif /* UNLINK_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

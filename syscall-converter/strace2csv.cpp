@@ -51,6 +51,10 @@ void show_usage(const char *pgmname) {
   std::cerr << "Example: " << pgmname << " /foo/bar /foo/baz\n";
 }
 
+
+// A variable that is used to indicate row # and unique_id field
+int64_t row_num = 0;
+
 int main(int argc, char *argv[]) {
   const char *in_file_name;
   const char *out_file_name;
@@ -58,7 +62,6 @@ int main(int argc, char *argv[]) {
   std::ofstream out_file;
   std::string in_row;
   std::string out_row;
-  int row_num = 0;
   int ret = EXIT_SUCCESS;
   
   if (argc < 3) {
@@ -86,7 +89,7 @@ int main(int argc, char *argv[]) {
       std::cerr << "Error processing record " << in_row << ".\n";
       std::cerr << "The error record is at row " << row_num << ".\n";
       exit(EXIT_FAILURE);
-    } 
+    }
     out_file << out_row;
   }
  cleanup:

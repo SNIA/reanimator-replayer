@@ -46,6 +46,13 @@ bool process_open_flags(const std::string &flags_arg,
 bool process_mode(const std::string &mode_arg,
 		  std::vector<std::string> &mode_vector);
 bool process_lseek_args(std::string &sys_call_csv_args);
+bool process_stat_args(std::string &sys_call_csv_args);
+bool split_stat_args(std::string &sys_call_args);
+bool process_stat_mode(std::string &stat_mode_string);
+bool get_stat_fields(std::vector<std::string> &sys_call_args);
+bool convert_timeStamp_to_epoch(std::string timestamp,
+                                std::string &epoch);
+bool process_mkdir_args(std::string &sys_call_csv_args);
 
 /*
  * The input expected by csv2ds: <extent name>, <fields>.
@@ -138,8 +145,9 @@ bool process_row(const std::string &in_row, std::string &out_row) {
  *                      information is stored.
  * @param ret_fields: vector object where the return fields
  *                    are going to be stored.
- *                    position 0: return value
- *                    position 1: errno num
+ *                    position 0: errno num
+ *                    position 1: return value
+ *                    position 2: unique id
  * @return: true if ret info is parsed succesfully, false otherwise.
  */
 bool process_ret_info(const std::string &ret_info,
@@ -163,6 +171,9 @@ bool process_ret_info(const std::string &ret_info,
   }
   // Store return value in 2nd position
   ret_info_fields.push_back(ret_fields[0]);
+  // This variable is defined in strace2csv.cpp
+  extern int64_t row_num;
+  ret_info_fields.push_back(std::to_string(row_num));
   return true;
 }
 
@@ -238,6 +249,10 @@ bool process_sys_call_info(const std::string &sys_call_info,
   if (sys_call_name == "open" && process_open_args(sys_call_csv_args) == false) {
     return false;
   } else if (sys_call_name == "lseek" && process_lseek_args(sys_call_csv_args) == false) {
+    return false;
+  } else if (sys_call_name == "mkdir" && process_mkdir_args(sys_call_csv_args) == false) {
+    return false;
+  } else if (sys_call_name == "stat" && process_stat_args(sys_call_csv_args) == false) {
     return false;
   }
 
@@ -343,9 +358,9 @@ bool process_open_args(std::string &sys_call_csv_args) {
   /* 
    * The vector is represented as follows:
    * mode_R_user,mode_W_user,...
-   * Example: 777,1,1,...
+   * Example: 0777,1,1,...
    */
-  std::vector<std::string> mode_vector(9,"0");
+  std::vector<std::string> mode_vector(12,"0");
   // Assume this is two arguments open sys call
   std::string mode_arg = "0";
   // Check to see if modes are set in this open sys call.
@@ -521,11 +536,12 @@ bool process_open_flags(const std::string &flags_arg,
  */
 bool process_mode(const std::string &mode_arg,
 		       std::vector<std::string> &mode_vector) {
-  for (int i = 3; i > 0; i--) {
+  for (int i = 4; i > 0; i--) {
     /*
      * others_permission -> mode_arg.at(mode_arg.length()-1);
      * group_permission -> mode_arg.at(mode_arg.length()-2);
      * user_permission -> mode_arg.at(mode_arg.length()-3);
+     * set_permission -> mode_arg.at(mode_arg.length()-4);
      */
     char c_permission = mode_arg.at(mode_arg.length() - i);
     if (isdigit(c_permission)) {
@@ -535,24 +551,28 @@ bool process_mode(const std::string &mode_arg,
        * mode_vector[2] -> user execute permission
        * mode_vector[3] -> group read permission
        * ...
-       * owner_start_index = 0 for user, 3 for group, 6 for others
+       * owner_start_index = 0 for set-user-ID, 3 user, 6 for group, 9 for others
        */
       int start_index = 0;
       switch(i) {
+      case 4:
+	// set-user-id
+	start_index = 0;
+	break;
       case 3:
 	// User
-	start_index = 0;
+	start_index = 3;
 	break;
       case 2:
 	// Group
-	start_index = 3;
+	start_index = 6;
 	break;
       case 1:
 	// Others
-	start_index = 6;
+	start_index = 9;
 	break;
       }
-      
+
       int permission = c_permission - '0';
       switch(permission) {
       case 0:
@@ -656,5 +676,309 @@ bool process_lseek_args(std::string &sys_call_csv_args) {
   }
   // Combine lseek arguments into a CSV string
   sys_call_csv_args = boost::algorithm::join(sys_call_args, ",");
+  return true;
+}
+
+/*
+ * This function splits the stat sys call arguments and store them
+ * in a vector.
+ * sys call arguments are in format:
+ *"Filename",{st_dev=makedev(252,0),st_ino=145210,st_mode=S_IFREG|0664,
+ *            st_nlink=1,st_uid=1000,...}
+ * @param sys_call_args: string object of system call arguments
+ *
+ * @param parsed_string_vector: string vector having tokenized sys call 
+ *                              arguments. Vector will contain elements as:
+ *                              "Filename"
+ *                              st_dev=makedev(252,0)
+ *                              st_ino=145210
+ *                              ...
+ *
+ * @return: Return true if arguments are splitted successfully, 
+ *          otherwise false.
+ */
+bool split_stat_args(std::string &sys_call_args, 
+                     std::vector<std::string> &parsed_string_vector) {
+  size_t index = 0;
+  size_t last_index = 0;
+
+  // First store the path of filename inquired by stat system call.
+  size_t comma = sys_call_args.find_first_of(",");
+  parsed_string_vector.push_back(sys_call_args.substr(0, comma));
+
+  // Extract the substring representing struct stat buffer in strace.
+  size_t left_curly_braces = sys_call_args.find_first_of("{");
+  size_t right_curly_braces = sys_call_args.find_first_of("}");
+
+  std::string stat_buffer_args = sys_call_args.substr(left_curly_braces + 1,
+                                                      right_curly_braces - 
+                                                      left_curly_braces - 1);
+
+  size_t length = stat_buffer_args.size();
+
+  // Now store each field of stat buffer in vector
+  do {
+    if (stat_buffer_args[index] == ',') {
+      std::string args = stat_buffer_args.substr(last_index, index-last_index);
+      // If opening bracket is found, continue until closing bracket is not found 
+      if (args.find("(") != std::string::npos) {
+        while (stat_buffer_args[index] != ')')
+          index++;
+        index++;
+        args = stat_buffer_args.substr(last_index, index-last_index);
+      }
+      parsed_string_vector.push_back(args);
+      last_index = index+1;
+      }
+    index++;
+  } while (index < length);
+
+  parsed_string_vector.push_back(stat_buffer_args.substr(last_index, index));
+
+  return true;
+}
+
+/*
+ * The format of timestamp in strace is YYYY/MM/DD-Hr:Min:Sec
+ *
+ * This function converts the timestamp relative to the Unix epoch.
+ *
+ * @param timestamp: string object representing timestamp format captured
+ *                   in strace.
+ *
+ * @param epoch: string object representing timestamp relative to the
+ *               Unix epoch.
+ *
+ * @return: Returns true if converted successfully, otherwise false.
+ */
+bool convert_timeStamp_to_epoch(std::string timestamp, 
+                                std::string &epoch) {
+  struct tm tm;
+  time_t t_of_day;
+
+  memset(&tm, 0, sizeof(struct tm));
+  if(strptime(timestamp.c_str(), "%Y/%m/%d-%H:%M:%S", &tm) == NULL)
+    return false;
+
+  t_of_day = mktime(&tm);
+  epoch = std::to_string(t_of_day);
+  return true;
+}
+
+/*
+ * The format of mode in strace is IS_TYPE|xxxx.
+ * Example: ISREG|0777
+ * 
+ * This function extracts file type and file mode for each user from the 
+ * given system call mode argument and returns the bitwise OR of file type
+ * and file mode.
+ * 
+ * @param stat_mode_string: string object where the system call mode argument
+ *                          is stored in format IS_TYPE|xxxx and is converted
+ *                          as bitwise OR of IS_TYPE and xxxx.
+ *                          
+ * @return: Returns true if conversion is successful, otherwise false.  
+ */
+
+bool process_stat_mode(std::string &stat_mode_string) {
+  std::vector<std::string> stat_mode_vector;
+  int stat_mode;
+  std::string file_type;
+  long int file_mode;
+  
+  // Split the mode field of stat struture into a vector.
+  boost::split(stat_mode_vector, stat_mode_string, boost::is_any_of("|"), boost::token_compress_on);
+  
+  if (stat_mode_vector.size() != 2) {
+    std::cerr << "Stat mode argument is in wrong format" << std::endl;
+    return false;
+  }
+
+  // Store file type
+  file_type = stat_mode_vector[0];
+
+  // Store file mode in octal
+  char *file_mode_buffer = new char[stat_mode_vector[1].length() + 1];
+  std::strcpy(file_mode_buffer, stat_mode_vector[1].c_str());
+  int base = 8;
+  file_mode = std::strtoul(file_mode_buffer, NULL, base);
+  
+  if (file_type.compare("S_IFSOCK") == 0) {
+    //socket file
+    stat_mode = (0140000 & 0170000) | file_mode;
+  } else  if (file_type.compare("S_IFLNK") == 0) {
+    //symbolic link
+    stat_mode = (0120000 & 0170000) | file_mode;
+  } else  if (file_type.compare("S_IFREG") == 0) {
+    //regular file
+    stat_mode = (0100000 & 0170000) | file_mode;
+  } else  if (file_type.compare("S_IFBLK") == 0) {
+    //block device
+    stat_mode = (0060000 & 0170000) | file_mode;
+  } else  if (file_type.compare("S_IFDIR") == 0) {
+    //directory
+    stat_mode = (0040000 & 0170000) | file_mode;
+  } else  if (file_type.compare("S_IFCHR") == 0) {
+    //character device
+    stat_mode = (0020000 & 0170000) | file_mode;
+  } else  if (file_type.compare("S_IFIFO") == 0) {
+    //FIFO
+    stat_mode = (0010000 & 0170000) | file_mode;
+  } else {
+    std::cerr << "Unknown file type.." << std::endl;
+    return false;
+  }
+
+  stat_mode_string = std::to_string(stat_mode);
+  return true;
+}
+
+/* Extacts the values of different fields of stat strucure and combine them
+ * into a vector. The vector is ordered as: {st_inode, st_mode, st_nlink,
+ * st_uid, st_gid, st_blksize, st_blocks, st_size, st_atime, st_mtime,
+ * st_ctime}.
+ *
+ * @param sys_call_args : Each element of vector contains the different fields 
+ *                        and their repective values. 
+ *
+ * @param stat_buf_vector: The values of different fields of stat structure are
+ *                         Originally formated as: {st_ino=145210,st_mode=
+ *                                                  IFREG|0664,st_nlink=1,...}
+ *                         After completion, it converts it to a vector as:
+ *                         {145310,33204,1,....}.
+ *
+ * @return: true if the values of each struct stat field is fetched, 
+ * otherwise false; 
+ */
+bool get_stat_fields(std::vector<std::string> &sys_call_args,
+                     std::vector<std::string> &stat_buf_vector) {
+  for (unsigned int i=1; i<sys_call_args.size(); ++i) {
+    std::vector<std::string> stat_fields_vector;
+    std::string epoch;
+    // Split and fetch the fields of stat argument into a vector.
+    boost::split(stat_fields_vector, sys_call_args[i], boost::is_any_of("="), 
+                 boost::token_compress_on); 
+    
+    if (stat_fields_vector[0].compare("st_dev") == 0) {
+      std::vector<std::string> st_dev_vector;
+      st_dev_vector = boost::split(st_dev_vector, stat_fields_vector[1], 
+                      boost::is_any_of(",()"));
+      // Call makedev function to get the value of st_dev field.
+      dev_t st_dev = makedev(std::stoi(st_dev_vector[1]), 
+                             std::stoi(st_dev_vector[2]));
+      stat_buf_vector.push_back(std::to_string(st_dev));
+    } else if (stat_fields_vector[0].compare("st_mode") == 0) {
+      if(!process_stat_mode(stat_fields_vector[1]))
+        return false;
+      stat_buf_vector.push_back(stat_fields_vector[1]);
+    } else if ((stat_fields_vector[0].compare("st_ino") == 0) || 
+              (stat_fields_vector[0].compare("st_nlink") == 0) ||
+              (stat_fields_vector[0].compare("st_uid") == 0) ||
+              (stat_fields_vector[0].compare("st_gid") == 0) ||
+              (stat_fields_vector[0].compare("st_size") == 0) ||
+              (stat_fields_vector[0].compare("st_blksize") == 0) ||
+              (stat_fields_vector[0].compare("st_blocks") == 0)) {
+      stat_buf_vector.push_back(stat_fields_vector[1]);
+    } else if ((stat_fields_vector[0].compare("st_ctime") == 0) ||
+              (stat_fields_vector[0].compare("st_atime") == 0) ||
+              (stat_fields_vector[0].compare("st_mtime") == 0)) {
+      if (!convert_timeStamp_to_epoch(stat_fields_vector[1], epoch))
+        return false;
+      stat_buf_vector.push_back(epoch);
+    } else {
+      std::cerr << "Unknown field in stat buffer" << std::endl;
+      return false;
+    }
+  }
+  return true;
+}
+
+/*
+ * Converts stat system call arguments that are in strace format to arguments
+ * that are in SNIA POSIX System Call Trace format which is a standard IO 
+ * trace format.
+ * strace format: (pathname, {st_ino=145310,st_mode=IFREG|0664,st_nlink=1, ...}) 
+ * SNIA POSIX format: (pathname, stat_result_ino, stat_result_mode, ...)
+ *
+ * @param sys_call_csv_args: string object where the SNIA format system call
+ *                           arguments are going to be stored.
+ *                           Originally format: pathname, {st_ino=145310,
+ *                                              st_mode=IFREG|0664, ...}
+ *                           After this function succesfully executed:
+ *                           "pathname",33204,1764
+ *
+ * @return: true if stat args are parsed succesfully, false otherwise.
+ */
+bool process_stat_args(std::string &sys_call_csv_args) {
+  std::vector<std::string> sys_call_args;
+
+  // Store arguments into a sys_call_args vector.
+  if (!split_stat_args(sys_call_csv_args, sys_call_args))
+    return false;
+
+  // Make sure this traced stat sys call has 13 arguments.
+  if (sys_call_args.size() != 13) {
+    std::cerr << "SYS: Malformed record: '" << sys_call_csv_args << "'. Too few arguments.\n";
+    return false;
+  }
+ 
+  // Get arguments and store each one into a vector.
+  std::string path_name = sys_call_args[0];
+  std::vector<std::string> stat_fields_vector;
+  
+  if (!get_stat_fields(sys_call_args, stat_fields_vector))
+    return false;
+
+  // Combine stat arguments into a CSV string
+  std::stringstream csv_args_stream;
+  csv_args_stream << path_name << "," << boost::algorithm::join(stat_fields_vector, ",");
+  sys_call_csv_args = csv_args_stream.str();
+  return true;
+}
+
+/*
+ * Converts mkdir system call arguments that are in strace format to arguments
+ * that are in SNIA POSIX System Call Trace format which is a standard IO 
+ * trace format.
+ * strace format: (pathname, mode) 
+ * SNIA POSIX format: (given_pathname, mode_value)
+ *
+ * @param sys_call_csv_args: string object where the SNIA format system call
+ *                           arguments are going to be stored.
+ *
+ * @return: true if stat args are parsed succesfully, false otherwise.
+ */
+
+bool process_mkdir_args(std::string &sys_call_csv_args) {
+  // Parse CSV traced mkdir arguments
+  boost::tokenizer<boost::escaped_list_separator<char> > args_tokenizer(sys_call_csv_args);
+  std::vector<std::string> sys_call_args;
+  // Store CSV arguments into a vector
+  sys_call_args.assign(args_tokenizer.begin(), args_tokenizer.end());
+  // Make sure mkdir trace has 2 argument.
+  if (sys_call_args.size() != 2) {
+    std::cerr << "'" << sys_call_csv_args << "' has too few arguments.\n";
+    return false;
+  }
+
+  // Get each argument and store it in a variable
+  std::string path_name = sys_call_args[0];
+  /* 
+   * The vector is represented as follows:
+   * mode_R_user,mode_W_user,...
+   * Example: 0,0,...
+   */
+  std::string mode_arg = sys_call_args[1];
+  std::vector<std::string> mode_vector(9,"0");
+  // Get modes and store them into mode_vector
+  if (process_mode(mode_arg, mode_vector) == false) {
+    return false;
+  }
+
+  // Combine mkdir system call arguments into a CSV string
+  std::stringstream csv_args_stream;
+  csv_args_stream << path_name << "," << mode_arg << "," 
+                  << boost::algorithm::join(mode_vector, ",");
+  sys_call_csv_args = csv_args_stream.str();
   return true;
 }

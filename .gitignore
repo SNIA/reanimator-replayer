@@ -1,0 +1,6 @@
+*.o
+*.lo
+*.a
+*.so
+autom4te.cache
+

@@ -198,8 +198,8 @@ public:
 	myExtentXMLDescription += str + "\n";
       
       /* Register the ExtentXMLDescription */
-      const ExtentType &myExtentType =
-	extentTypeLibrary.registerTypeR(myExtentXMLDescription);
+      const ExtentType::Ptr myExtentType =
+	extentTypeLibrary.registerTypePtr(myExtentXMLDescription);
       
       /* Create ExtentSeries, OutPutModule, and fields */
       ExtentSeries *myExtentSeries = new ExtentSeries();
@@ -283,9 +283,9 @@ private:
 
 int main(int argc, char *argv[]) {
   bool quietmode = false;
-  if (argc < 4) {
+  if (argc < 5) {
     std::cout << "Wrong usage!\n";
-    std::cout << "Usage: " << argv[0] << " [-q] <outputfile> <tablefile> <spec_string_file> <inputfiles...> \n";
+    std::cout << "Usage: " << argv[0] << " [-q] <outputfile> <tablefile> <spec_string_file> <xml directory> <inputfiles...> \n";
     return 1;
   }
   

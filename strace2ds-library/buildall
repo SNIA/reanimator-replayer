@@ -1,0 +1,24 @@
+#!/bin/bash
+
+function runcmd
+{
+    echo "CMD: $@"
+    sleep 0.2
+    $@
+    ret=$?
+    if test $ret -ne 0 ; then
+	exit $ret
+    fi
+}
+
+runcmd autoreconf -v -i
+runcmd /bin/rm -fr BUILD
+runcmd mkdir -p BUILD
+runcmd cd BUILD
+runcmd ../generate-xml.sh ../tables/snia_syscall_fields.table
+runcmd ../configure --enable-shared --disable-static --prefix=$HOME/strace2ds
+runcmd make clean
+# if all you're changing is C/C++ code, just "cd BUILD" and run next
+# two commands.
+runcmd make
+runcmd make install
