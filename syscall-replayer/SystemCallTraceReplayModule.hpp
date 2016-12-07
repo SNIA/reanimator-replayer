@@ -42,6 +42,15 @@
 #define WARN_MODE    1
 #define ABORT_MODE   2
 
+/*
+ * DEC_PRECISION specifies the format for printing precision of decimal
+ * values upto 25 decimal places in logger file.
+ */
+#define DEC_PRECISION "%.25f"
+
+// define the format for printing values in hexadecimal representation
+#define HEX_FORMAT "0x%x"
+
 class SystemCallTraceReplayModule : public RowAnalysisModule {
 protected:
   std::string sys_call_name_;

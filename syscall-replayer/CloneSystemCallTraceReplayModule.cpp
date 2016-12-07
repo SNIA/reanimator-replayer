@@ -34,7 +34,7 @@ CloneSystemCallTraceReplayModule(DataSeriesModule &source,
 
 void CloneSystemCallTraceReplayModule::print_specific_fields() {
   syscall_logger_->log_info("flags(", \
-	   (boost::format("%02x") % flag_value_.val()), "), ",  \
+	   (boost::format(HEX_FORMAT) % flag_value_.val()), "), ",  \
 	   "child stack address(", child_stack_address_.val(), "), ", \
 	   "parent thread id(", parent_thread_id_.val(), "), ", \
 	   "child thread id(", child_thread_id_.val(), "), ", \

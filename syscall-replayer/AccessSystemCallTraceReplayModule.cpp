@@ -65,5 +65,5 @@ void FAccessatSystemCallTraceReplayModule::processRow() {
   int flags = flags_value_.val();
 
   // Replay the faccessat system call
-  replayed_ret_val_ = faccessat(descriptor, pathname, mode, 0);
+  replayed_ret_val_ = faccessat(descriptor, pathname, mode, flags);
 }

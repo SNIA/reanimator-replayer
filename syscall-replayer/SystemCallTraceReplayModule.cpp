@@ -152,9 +152,9 @@ void SystemCallTraceReplayModule::print_common_fields() {
   double time_recorded_val = Tfrac_to_sec(time_recorded());
 
   // Print the common fields and their values
-  syscall_logger_->log_info("time called(", (boost::format("%.25f") % time_called_val), "), ", \
-		   "time returned(", (boost::format("%.25f") % time_returned_val), "), ", \
-		   "time recorded(", (boost::format("%.25f") % time_recorded_val), "), ", \
+  syscall_logger_->log_info("time called(", (boost::format(DEC_PRECISION) % time_called_val), "), ", \
+		   "time returned(", (boost::format(DEC_PRECISION) % time_returned_val), "), ", \
+		   "time recorded(", (boost::format(DEC_PRECISION) % time_recorded_val), "), ", \
 		   "executing pid(", executing_pid(), "), ", \
 		   "errno(", errno_number(), "), ", \
 		   "return value(", return_value(), "), ", \
