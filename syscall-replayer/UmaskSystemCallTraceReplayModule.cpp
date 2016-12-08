@@ -32,6 +32,10 @@ void UmaskSystemCallTraceReplayModule::print_specific_fields() {
 }
 
 void UmaskSystemCallTraceReplayModule::processRow() {
-  // mode_t mode = mode_value_.val();
+  mode_t mode = mode_value_.val();
+  pid_t pid = executing_pid();
   // Replay umask by updating umask table.
+  SystemCallTraceReplayModule::replayer_resources_manager_.set_umask(pid, mode);
+  // Always succeed since umask always succeeds.
+  replayed_ret_val_ = 0;
 }
