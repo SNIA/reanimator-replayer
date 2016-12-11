@@ -10,18 +10,21 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
- * This file implements all the functions in the FileDescriptorManager
+ * This file implements all the functions in the ReplayerResourcesManager
  * header file.
  *
- * Read FileDescriptorManager.hpp for more information about this class.
+ * Read ReplayerResourcesManager.hpp for more information about this class.
  */
 
-#include "FileDescriptorManager.hpp"
+#include "ReplayerResourcesManager.hpp"
 
-FileDescriptorManager::FileDescriptorManager() {
+ReplayerResourcesManager::ReplayerResourcesManager() {
 }
 
-void FileDescriptorManager::initialize(pid_t pid, std::map<int, int>& fd_map) {
+void ReplayerResourcesManager::initialize(pid_t pid, std::map<int, int>& fd_map) {
+  // Create a new UmaskEntry for trace application
+  umask_table_[pid] = new UmaskEntry(0);
+
   for (std::map<int, int>::iterator it = fd_map.begin();
     it != fd_map.end(); ++it) {
     int traced_fd = it->first;
@@ -32,7 +35,7 @@ void FileDescriptorManager::initialize(pid_t pid, std::map<int, int>& fd_map) {
   }
 }
 
-void FileDescriptorManager::add_fd(pid_t pid, int traced_fd,
+void ReplayerResourcesManager::add_fd(pid_t pid, int traced_fd,
   int replayed_fd, int flags) {
   assert(fd_table_map_.find(pid) != fd_table_map_.end());
   FileDescriptorTable& fd_table = fd_table_map_[pid];
@@ -46,7 +49,7 @@ void FileDescriptorManager::add_fd(pid_t pid, int traced_fd,
   fd_rc_[traced_fd]++;
 }
 
-std::pair<bool, int> FileDescriptorManager::remove_fd(pid_t pid, int traced_fd) {
+std::pair<bool, int> ReplayerResourcesManager::remove_fd(pid_t pid, int traced_fd) {
   assert(fd_table_map_.find(pid) != fd_table_map_.end());
   FileDescriptorTable& fd_table = fd_table_map_[pid];
   if (fd_rc_.find(traced_fd) == fd_rc_.end() || fd_table.find(traced_fd) == fd_table.end()) {
@@ -68,7 +71,7 @@ std::pair<bool, int> FileDescriptorManager::remove_fd(pid_t pid, int traced_fd) 
   return std::make_pair(false, 0);
 }
 
-int FileDescriptorManager::get_fd(pid_t pid, int traced_fd) {
+int ReplayerResourcesManager::get_fd(pid_t pid, int traced_fd) {
   assert(fd_table_map_.find(pid) != fd_table_map_.end());
   // Get the corresponding fd table
   FileDescriptorTable& fd_table = fd_table_map_[pid];
@@ -78,25 +81,25 @@ int FileDescriptorManager::get_fd(pid_t pid, int traced_fd) {
   return fd_table[traced_fd].first;
 }
 
-int FileDescriptorManager::get_flags(pid_t pid, int traced_fd) {
+int ReplayerResourcesManager::get_flags(pid_t pid, int traced_fd) {
   assert(fd_table_map_.find(pid) != fd_table_map_.end());
   FileDescriptorTable& fd_table = fd_table_map_[pid];
   return fd_table[traced_fd].second;
 }
 
-void FileDescriptorManager::add_flags(pid_t pid, int traced_fd, int flags) {
+void ReplayerResourcesManager::add_flags(pid_t pid, int traced_fd, int flags) {
   assert(fd_table_map_.find(pid) != fd_table_map_.end());
   FileDescriptorTable& fd_table = fd_table_map_[pid];
   fd_table[traced_fd].second |= flags;
 }
 
-void FileDescriptorManager::remove_flags(pid_t pid, int traced_fd, int flags) {
+void ReplayerResourcesManager::remove_flags(pid_t pid, int traced_fd, int flags) {
   assert(fd_table_map_.find(pid) != fd_table_map_.end());
   FileDescriptorTable& fd_table = fd_table_map_[pid];
   fd_table[traced_fd].second &= ~flags;
 }
 
-int FileDescriptorManager::clone_fd_table(pid_t ppid, pid_t pid) {
+int ReplayerResourcesManager::clone_fd_table(pid_t ppid, pid_t pid) {
   assert(fd_table_map_.find(ppid) != fd_table_map_.end());
   // Make a copy
   fd_table_map_[pid] = fd_table_map_[ppid];
@@ -112,7 +115,7 @@ int FileDescriptorManager::clone_fd_table(pid_t ppid, pid_t pid) {
   return 0;
 }
 
-std::vector<std::pair<bool, int>> FileDescriptorManager::remove_fd_table(pid_t pid) {
+std::vector<std::pair<bool, int>> ReplayerResourcesManager::remove_fd_table(pid_t pid) {
   assert(fd_table_map_.find(pid) != fd_table_map_.end());
   // Get the corresponding fd table
   FileDescriptorTable& fd_table = fd_table_map_[pid];
@@ -128,7 +131,7 @@ std::vector<std::pair<bool, int>> FileDescriptorManager::remove_fd_table(pid_t p
   return fds;
 }
 
-void FileDescriptorManager::print_fd_manager() {
+void ReplayerResourcesManager::print_fd_manager() {
   std::cout << "=====================================================================" << std::endl;
   std::cout << "---------------------- File Descriptor Manager ----------------------" << std::endl;
   // Print file desriptor tables
@@ -152,4 +155,63 @@ void FileDescriptorManager::print_fd_manager() {
     int reference_count = iter->second;
     std::cout << "Traced fd: " << traced_fd << ", Reference count: " << reference_count << std::endl;
   }
+}
+
+mode_t ReplayerResourcesManager::get_umask(pid_t pid) {
+  assert(umask_table_.find(pid) != umask_table_.end());
+  return umask_table_[pid]->get_umask();
+}
+
+void ReplayerResourcesManager::set_umask(pid_t pid, mode_t mode) {
+  assert(umask_table_.find(pid) != umask_table_.end());
+  umask_table_[pid]->set_umask(mode);
+}
+
+void ReplayerResourcesManager::clone_umask(pid_t ppid, pid_t pid, bool shared) {
+  assert(umask_table_.find(ppid) != umask_table_.end());
+  // Check if two processes share same umask
+  if (shared) {
+    // Make pid points to same umask
+    umask_table_[pid] = umask_table_[ppid];
+    // Increment rc.
+    umask_table_[pid]->increment_rc();
+  } else {
+    // Create a new UmaskEntry since they don't share umask.
+    UmaskEntry *p_umask = umask_table_[ppid];
+    umask_table_[pid] = new UmaskEntry(p_umask->get_umask());
+  }
+}
+
+void ReplayerResourcesManager::remove_umask(pid_t pid) {
+  assert(umask_table_.find(pid) != umask_table_.end());
+  // Decrement the reference count for this process's umask.
+  unsigned int rc = umask_table_[pid]->decrement_rc();
+  // If reference count reaches 0, we will remove the entry from the table.
+  if (rc <= 0) {
+    // Free the memory that is used by UmaskEntry
+    delete umask_table_[pid];
+    // Remove the entry from umask table.
+    umask_table_.erase(pid);
+  }
+}
+
+// =========================== UmaskEntry Implementation ==========================
+UmaskEntry::UmaskEntry(mode_t m):umask_(m), rc_(1) { }
+
+mode_t UmaskEntry::get_umask() {
+  return umask_;
+}
+
+void UmaskEntry::set_umask(mode_t m) {
+  umask_ = m;
+}
+
+void UmaskEntry::increment_rc() {
+  rc_++;
+}
+
+unsigned int UmaskEntry::decrement_rc() {
+  assert(rc_ != 0);
+  rc_--;
+  return rc_;
 }

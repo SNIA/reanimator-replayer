@@ -199,3 +199,5 @@ Now, we run
 $ ./csv2ds-extra out.ds tables/example.table specstrings/example.spec traces/example.csv
 
 to perform the conversion.
+
+# TEST change by Ming (V2)

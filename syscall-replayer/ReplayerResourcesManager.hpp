@@ -13,7 +13,7 @@
  * This header file provides members and functions for implementing file
  * descriptor manager.
  *
- * FileDescriptorManager is a class that has members and functions of
+ * ReplayerResourcesManager is a class that has members and functions of
  * managing file descriptors during replaying.
  *
  * USAGE
@@ -21,17 +21,47 @@
  * function to add/delete/update file descriptor table.
  */
 
-#ifndef FILE_DESCRIPTOR_MANAGER_HPP
-#define FILE_DESCRIPTOR_MANAGER_HPP
+#ifndef REPLAYER_RESOURCES_MANAGER_HPP
+#define REPLAYER_RESOURCES_MANAGER_HPP
 
 #include <utility>
 #include <map>
-#include <unordered_set> 
 #include <string>
 #include <vector>
 #include <iterator>
 #include <assert.h>
 #include <iostream>
+
+class UmaskEntry {
+private:
+  mode_t umask_;
+  unsigned int rc_;
+
+public:
+  // Constructor
+  UmaskEntry(mode_t m);
+
+  /*
+   * Return mask
+   */
+  mode_t get_umask();
+
+  /*
+   * This function will update mask value to the given mask.
+   */
+  void set_umask(mode_t m);
+
+  /*
+   * Increment the reference count by 1.
+   */
+  void increment_rc();
+
+  /*
+   * Decrement the reference count by 1.
+   * Return the reference count after decrement
+   */
+  unsigned int decrement_rc();
+};
 
 // <replayed fd, flags>
 typedef std::pair<int, int> FileDescriptor;
@@ -41,14 +71,18 @@ typedef std::map<int, FileDescriptor> FileDescriptorTable;
 typedef std::map<pid_t, FileDescriptorTable> PerPidFileDescriptorTableMap;
 // <traced fd, reference count>
 typedef std::map<int, int> FileDescriptorReferenceCount;
-class FileDescriptorManager {
+// <pid, umask entry>
+typedef std::map<pid_t, UmaskEntry*> UmaskTable;
+
+class ReplayerResourcesManager {
 private:
   PerPidFileDescriptorTableMap fd_table_map_;
   FileDescriptorReferenceCount fd_rc_;
+  UmaskTable umask_table_;
 
 public:
   // Constructor
-  FileDescriptorManager();
+  ReplayerResourcesManager();
   /*
    * Note:
    * 1. fds are int because fds can be negative. Ex: FDCWD == -100
@@ -129,6 +163,30 @@ public:
    * for debug.
    */
   void print_fd_manager();
-};
 
-#endif /* FILE_DESCRIPTOR_MANAGER_HPP */
+  /*
+   * Return umask value for a particular process
+   */
+  mode_t get_umask(pid_t pid);
+
+  /*
+   * Set umask value for a particular process
+   */
+  void set_umask(pid_t pid, mode_t mode);
+
+  /*
+   * Clone mask value for a particular process given its parent process
+   * If shared is True, then two processes same mask entry, otherwise,
+   * this function will create a new entry for pid.
+   * pid is child process pid
+   * ppid is parent process pid
+   */
+  void clone_umask(pid_t ppid, pid_t pid, bool shared);
+
+  /*
+   * Decrement the mask reference count for the given pid.
+   * Only remove the entry if rc reaches to 0.
+   */
+  void remove_umask(pid_t pid);
+};
+#endif /* REPLAYER_RESOURCES_MANAGER_HPP */

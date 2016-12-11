@@ -175,6 +175,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["write"] = &DataSeriesOutputModule::makeWriteArgsMap;
   // writev system call
   func_ptr_map_["writev"] = &DataSeriesOutputModule::makeWritevArgsMap;
+  // umask system call
+  func_ptr_map_["umask"] = &DataSeriesOutputModule::makeUmaskArgsMap;
 }
 
 /*
@@ -981,7 +983,7 @@ void DataSeriesOutputModule::makeCreatArgsMap(SysCallArgsMap &args_map,
   } else {
     std::cerr << "Creat: Pathname is set as NULL!!" << std::endl;
   }
-  mode_t mode = processMode(args_map, args, 1);
+  mode_t mode = processMode(args_map, args, mode_offset);
   if (mode != 0) {
     std::cerr << "Creat: These modes are not processed/unknown->0";
     std::cerr << std::oct << mode << std::dec << std::endl;
@@ -998,9 +1000,21 @@ void DataSeriesOutputModule::makeChmodArgsMap(SysCallArgsMap &args_map,
   } else {
     std::cerr << "Chmod: Pathname is set as NULL!!" << std::endl;
   }
-  mode_t mode = processMode(args_map, args, 1);
+  mode_t mode = processMode(args_map, args, mode_offset);
   if (mode != 0) {
     std::cerr << "Chmod: These modes are not processed/unknown->0";
+    std::cerr << std::oct << mode << std::dec << std::endl;
+  }
+}
+
+void DataSeriesOutputModule::makeUmaskArgsMap(SysCallArgsMap &args_map,
+					      long *args,
+					      void **v_args) {
+  initArgsMap(args_map, "umask");
+  int mode_offset = 0;
+  mode_t mode = processMode(args_map, args, mode_offset);
+  if (mode != 0) {
+    std::cerr << "Umask: These modes are not processed/unknown->0";
     std::cerr << std::oct << mode << std::dec << std::endl;
   }
 }
@@ -2462,6 +2476,7 @@ void DataSeriesOutputModule::makeCloneArgsMap(SysCallArgsMap &args_map,
 
   args_map["flag_value"] = &args[0];
   u_int flag = processCloneFlags(args_map, args[0]);
+  flag = processCloneSignals(args_map, flag);
   if (flag != 0) {
     std::cerr << "Clone: These flags are not processed/unknown->0x";
     std::cerr << std::hex << flag << std::dec << std::endl;
@@ -2471,13 +2486,14 @@ void DataSeriesOutputModule::makeCloneArgsMap(SysCallArgsMap &args_map,
 
   if (v_args[0] != NULL) {
     args_map["parent_thread_id"] = &v_args[0];
-  } else {
+  } else if (args[0] & CLONE_PARENT_SETTID) {
     std::cerr << "Clone: Parent thread ID is set as NULL!!" << std::endl;
   }
 
   if (v_args[1] != NULL) {
     args_map["child_thread_id"] = &v_args[1];
-  } else {
+  } else if ((args[0] & CLONE_CHILD_SETTID)
+	     || (args[0] & CLONE_CHILD_CLEARTID)) {
     std::cerr << "Clone: Child thread ID is set as NULL!!" << std::endl;
   }
 
@@ -2580,6 +2596,137 @@ u_int DataSeriesOutputModule::processCloneFlags(SysCallArgsMap &args_map,
   return flag;
 }
 
+u_int DataSeriesOutputModule::processCloneSignals(SysCallArgsMap &args_map,
+						 u_int flag) {
+  /*
+   * Process each individual clone signal bit that has been set in the flags
+   * passed to clone
+   */
+  // set signal_hangup field
+  process_Flag_and_Mode_Args(args_map, flag, SIGHUP,
+			     "signal_hangup");
+  // set signal_terminal_interrupt field
+  process_Flag_and_Mode_Args(args_map, flag, SIGINT,
+			     "signal_terminal_interrupt");
+
+  // set signal_terminal_quit field
+  process_Flag_and_Mode_Args(args_map, flag, SIGQUIT,
+			     "signal_terminal_quit");
+
+  // set signal_illegal field
+  process_Flag_and_Mode_Args(args_map, flag, SIGILL,
+			     "signal_illegal");
+
+  // set signal_trace_trap field
+  process_Flag_and_Mode_Args(args_map, flag, SIGTRAP,
+			     "signal_trace_trap");
+
+  // set signal_abort field
+  process_Flag_and_Mode_Args(args_map, flag, SIGABRT,
+			     "signal_abort");
+
+  // set signal_iot_trap field
+  process_Flag_and_Mode_Args(args_map, flag, SIGIOT,
+			     "signal_iot_trap");
+
+  // set signal_bus field
+  process_Flag_and_Mode_Args(args_map, flag, SIGBUS,
+			     "signal_bus");
+
+  // set signal_floating_point_exception field
+  process_Flag_and_Mode_Args(args_map, flag, SIGFPE,
+			     "signal_floating_point_exception");
+
+  // set signal_kill field
+  process_Flag_and_Mode_Args(args_map, flag, SIGKILL,
+			     "signal_kill");
+
+  // set signal_user_defined_1 field
+  process_Flag_and_Mode_Args(args_map, flag, SIGUSR1,
+			     "signal_user_defined_1");
+
+  // set signal_segv field
+  process_Flag_and_Mode_Args(args_map, flag, SIGSEGV,
+			     "signal_segv");
+
+  // set signal_user_defined_2 field
+  process_Flag_and_Mode_Args(args_map, flag, SIGUSR2,
+			     "signal_user_defined_2");
+
+  // set signal_pipe field
+  process_Flag_and_Mode_Args(args_map, flag, SIGPIPE,
+			     "signal_pipe");
+
+  // set signal_alarm field
+  process_Flag_and_Mode_Args(args_map, flag, SIGALRM,
+			     "signal_alarm");
+
+  // set signal_termination field
+  process_Flag_and_Mode_Args(args_map, flag, SIGTERM,
+			     "signal_termination");
+
+  // set signal_stack_fault field
+  process_Flag_and_Mode_Args(args_map, flag, SIGSTKFLT,
+			     "signal_stack_fault");
+
+  // set signal_child field
+  process_Flag_and_Mode_Args(args_map, flag, SIGCHLD,
+			     "signal_child");
+
+  // set signal_continue field
+  process_Flag_and_Mode_Args(args_map, flag, SIGCONT,
+			     "signal_continue");
+
+  // set signal_stop field
+  process_Flag_and_Mode_Args(args_map, flag, SIGSTOP,
+			     "signal_stop");
+
+  // set signal_terminal_stop field
+  process_Flag_and_Mode_Args(args_map, flag, SIGTSTP,
+			     "signal_terminal_stop");
+
+  // set signal_tty_read field
+  process_Flag_and_Mode_Args(args_map, flag, SIGTTIN,
+			     "signal_tty_read");
+
+  // set signal_tty_write field
+  process_Flag_and_Mode_Args(args_map, flag, SIGTTOU,
+			     "signal_tty_write");
+
+  // set signal_urgent field
+  process_Flag_and_Mode_Args(args_map, flag, SIGURG,
+			     "signal_urgent");
+
+  // set signal_cpu_exceeded field
+  process_Flag_and_Mode_Args(args_map, flag, SIGXCPU,
+			     "signal_cpu_exceeded");
+
+  // set signal_file_size_exceeded field
+  process_Flag_and_Mode_Args(args_map, flag, SIGXFSZ,
+			     "signal_file_size_exceeded");
+
+  // set signal_virtual_alarm field
+  process_Flag_and_Mode_Args(args_map, flag, SIGVTALRM,
+			     "signal_virtual_alarm");
+
+  // set signal_prof_alarm field
+  process_Flag_and_Mode_Args(args_map, flag, SIGPROF,
+			     "signal_prof_alarm");
+
+  // set signal_window_size_change field
+  process_Flag_and_Mode_Args(args_map, flag, SIGWINCH,
+			     "signal_window_size_change");
+
+  // set signal_io field
+  process_Flag_and_Mode_Args(args_map, flag, SIGIO,
+			     "signal_io");
+
+  // set signal_power field
+  process_Flag_and_Mode_Args(args_map, flag, SIGPWR,
+			     "signal_power");
+
+  return flag;
+}
 void DataSeriesOutputModule::makeVForkArgsMap(SysCallArgsMap &args_map,
 					      long *args,
 					      void **v_args) {

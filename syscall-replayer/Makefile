@@ -33,7 +33,7 @@ CXX      = g++
 
 TARGETS = system-call-replayer
 
-SYSTEM_CALL_REPLAY_MODULE_OBJECTS = SystemCallTraceReplayer.o FileDescriptorManager.o \
+SYSTEM_CALL_REPLAY_MODULE_OBJECTS = SystemCallTraceReplayer.o ReplayerResourcesManager.o \
 				    SystemCallTraceReplayLogger.o SystemCallTraceReplayModule.o \
 				    OpenSystemCallTraceReplayModule.o \
 				    CloseSystemCallTraceReplayModule.o \
@@ -73,7 +73,8 @@ SYSTEM_CALL_REPLAY_MODULE_OBJECTS = SystemCallTraceReplayer.o FileDescriptorMana
 				    IoctlSystemCallTraceReplayModule.o \
 				    FChmodSystemCallTraceReplayModule.o \
 				    CloneSystemCallTraceReplayModule.o \
-				    VForkSystemCallTraceReplayModule.o
+				    VForkSystemCallTraceReplayModule.o \
+				    UmaskSystemCallTraceReplayModule.o
 
 # Modify following variables if the path of your replayer is different.
 SYS_CALL_REPLAYER_DIR=$(HOME)/trace2model/syscall-replayer

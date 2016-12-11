@@ -27,7 +27,7 @@
 
 #include <DataSeries/RowAnalysisModule.hpp>
 #include "strace2ds.h"
-#include "FileDescriptorManager.hpp"
+#include "ReplayerResourcesManager.hpp"
 #include "SystemCallTraceReplayLogger.hpp"
 
 #include <string>
@@ -120,10 +120,23 @@ protected:
    */
   virtual void after_sys_call();
 
+  /*
+   * This function is a helper function that masks mode value argument
+   * of a system call because we are managing our own umask values.
+   * This means that all system calls that have mode_val will
+   * use this function to get the mode value that needs to be passed
+   * to system call, syscall ex: mkdir, open, etc.
+   * The conversion logic:
+   * 1. getting the current PID umask value
+   * 2. ~umask AND mode bits
+   * Return ~umask AND mode bits
+   */
+  mode_t get_mode(mode_t mode);
+
 public:
   // A mapping of file descriptors in the trace file to actual file descriptors
   static std::map<int, int> fd_map_;
-  static FileDescriptorManager fd_manager_;
+  static ReplayerResourcesManager replayer_resources_manager_;
   // An input file stream for reading random data from /dev/urandom
   static std::ifstream random_file_;
   // An object of logger class

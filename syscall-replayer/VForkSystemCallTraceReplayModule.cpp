@@ -34,11 +34,16 @@ void VForkSystemCallTraceReplayModule::processRow() {
   /*
    * Here, we will create a new file descriptor mapping for
    * the process created by vfork.
-   */
-
-  /*
    * NOTE: It is inappropriate to replay vfork system call.
    * Hence we do not replay vfork system call.
    */
+  /* A call to vfork() is equivalent to calling clone(2) with flags
+   * specified as: CLONE_VM | CLONE_VFORK | SIGCHLD
+   */
+  bool shared_umask = false;
+  pid_t ppid = executing_pid();
+  pid_t pid = return_value();
+  // Clone umask table
+  SystemCallTraceReplayModule::replayer_resources_manager_.clone_umask(ppid, pid, shared_umask);
   return;
 }

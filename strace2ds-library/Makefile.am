@@ -58,7 +58,8 @@ XML_FILES=			\
 	xml/utimes.xml		\
 	xml/vfork.xml		\
 	xml/write.xml		\
-	xml/writev.xml
+	xml/writev.xml          \
+	xml/umask.xml
 
 EXTRA_DIST=$(SNIA_SYSCALL_FIELDS_TABLE_FILE) $(XML_FILES) buildall
 tablesdir = $(prefix)/tables
