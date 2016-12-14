@@ -333,3 +333,11 @@ trace_syscall_exiting() function is not called.
 
 Also, since the _exit system call does not return, we do not set time_returned,
 return values, or errno numbers in the syscall-replayer.
+
+4. FSTATAT
+The underlying system call employed by the glibc fstatat() wrapper function is
+actually called fstatat64() or, on some architectures, newfstatat().
+In fsl-strace, we intercept this system call using 'SEN_newfstatat' switch block.
+While recording we create a new record for fstatat system call in the
+DataSeries file. And finally while replaying also, instead of calling newfstatat()
+system call, we call the fstatat() system call.

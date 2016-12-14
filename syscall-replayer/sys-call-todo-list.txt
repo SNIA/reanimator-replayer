@@ -57,3 +57,8 @@ SNo.	System_call_name	Status		IsReplayable
 46.	mkdirat			supported	YES
 47.	statfs			supported	YES
 48.	fstatfs			supported	YES
+49.	fchmodat		supported	YES
+50.	faccessat		supported	YES
+51.	fstatat			supported	YES
+52.	clone			supported	NO
+53.	umask			supported	YES
