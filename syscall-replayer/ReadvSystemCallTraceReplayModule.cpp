@@ -139,7 +139,7 @@ void ReadvSystemCallTraceReplayModule::processRow() {
           iovcnt_, " in readv failed.");
         if (!default_mode()) {
           syscall_logger_->log_warn("time called:", \
-	    (boost::format(DEC_PRECISION) % Tfrac_to_sec(time_called())), \
+	    boost::format(DEC_PRECISION) % Tfrac_to_sec(time_called()), \
             ", Captured readv data is different from", \
             " replayed read data");
           syscall_logger_->log_warn("Captured readv data: ", traced_buffer[iovcnt_],
