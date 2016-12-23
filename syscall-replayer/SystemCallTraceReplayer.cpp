@@ -276,6 +276,7 @@ std::vector<PrefetchBufferModule *> create_prefetch_buffer_modules(std::vector<s
       new PrefetchBufferModule(*(type_index_modules[i]), 8 * 1024 * 1024);
     prefetch_buffer_modules.push_back(module);
   }
+
   return prefetch_buffer_modules;
 }
 
@@ -639,6 +640,17 @@ void load_syscall_modules(std::priority_queue<SystemCallTraceReplayModule*,
     SystemCallTraceReplayModule *module = system_call_trace_replay_modules[i];
     // getSharedExtent() == NULL means that there are no extents in the module.
     if (module->getSharedExtent()) {
+      /*
+       * Assert that only version 1.0 is allowed (at this point). Exit if version is wrong.
+       * This means that our replayer can process input DataSeries with version x.y
+       * if y <= supported_minor_version and x == supported_major_version.
+       */
+      if (!(module->is_version_compatible(supported_major_version, supported_minor_version))) {
+        std::cerr << "System call replayer currently only support system call traces \
+          dataseries with version" << supported_major_version << '.' << supported_minor_version
+          << std::endl;
+        exit(0);
+      }
       replayers_heap.push(module);
     }
   }

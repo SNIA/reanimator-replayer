@@ -113,6 +113,11 @@ bool SystemCallTraceReplayModule::cur_extent_has_more_record() {
   }
 }
 
+bool SystemCallTraceReplayModule::is_version_compatible(unsigned int major_v, unsigned int minor_v) {
+  assert(series.getTypePtr() != NULL);
+  return series.getTypePtr()->versionCompatible(major_v, minor_v);
+}
+
 void SystemCallTraceReplayModule::execute() {
   processRow();
   completeProcessing();
@@ -180,7 +185,7 @@ void SystemCallTraceReplayModule::compare_retval_and_errno() {
       print_sys_call_fields();
       syscall_logger_->log_warn("Errno numbers are different.");
       if (abort_mode()) {
-	abort();
+        abort();
       }
     }
   }

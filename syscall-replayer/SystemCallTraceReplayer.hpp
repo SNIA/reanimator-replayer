@@ -54,3 +54,7 @@ ReplayerResourcesManager SystemCallTraceReplayModule::replayer_resources_manager
 std::ifstream SystemCallTraceReplayModule::random_file_;
 // Define the object of logger class in SystemCallTraceReplayModule
 SystemCallTraceReplayLogger *SystemCallTraceReplayModule::syscall_logger_;
+
+// Assert that only version 1 is allowed (at this point)
+static const unsigned int supported_major_version = 1;
+static const unsigned int supported_minor_version = 0;

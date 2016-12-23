@@ -259,6 +259,15 @@ public:
   bool cur_extent_has_more_record();
 
   /*
+   * is_version_compatible() determines whether current extent is
+   * compatible with major_v.minor_v. Return true if current extent
+   * has version x.y and y <= minor_v and x == major_v.
+   *
+   * @return: true indicates current extent is compatible with version major_v.minor_v.
+   */
+  bool is_version_compatible(unsigned int major_v, unsigned int minor_v);
+
+  /*
    * This function will be called by a replayer to replay
    * one record of corresponding(based on class name) system call
    * Note: Replayer should call this function until
