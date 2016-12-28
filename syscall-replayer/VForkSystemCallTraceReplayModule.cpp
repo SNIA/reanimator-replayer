@@ -40,10 +40,10 @@ void VForkSystemCallTraceReplayModule::processRow() {
   /* A call to vfork() is equivalent to calling clone(2) with flags
    * specified as: CLONE_VM | CLONE_VFORK | SIGCHLD
    */
-  bool shared_umask = false;
+  bool shared_umask = false, shared_files = false;
   pid_t ppid = executing_pid();
   pid_t pid = return_value();
-  // Clone umask table
+  // Clone resources tables
   SystemCallTraceReplayModule::replayer_resources_manager_.clone_umask(ppid, pid, shared_umask);
-  return;
+  SystemCallTraceReplayModule::replayer_resources_manager_.clone_fd_table(ppid, pid, shared_files);
 }

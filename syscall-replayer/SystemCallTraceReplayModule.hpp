@@ -36,6 +36,9 @@
 #include <fstream>
 #include <sstream>
 #include <errno.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #define DEFAULT_MODE 0
 #define WARN_MODE    1
@@ -124,8 +127,7 @@ protected:
   mode_t get_mode(mode_t mode);
 
 public:
-  // A mapping of file descriptors in the trace file to actual file descriptors
-  static std::map<int, int> fd_map_;
+  // A resource manager for umask and file descriptors
   static ReplayerResourcesManager replayer_resources_manager_;
   // An input file stream for reading random data from /dev/urandom
   static std::ifstream random_file_;

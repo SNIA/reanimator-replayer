@@ -21,8 +21,8 @@
 
 OpenSystemCallTraceReplayModule::
 OpenSystemCallTraceReplayModule(DataSeriesModule &source,
-				bool verbose_flag,
-				int warn_level_flag):
+  bool verbose_flag,
+  int warn_level_flag):
   SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
   given_pathname_(series, "given_pathname"),
   open_value_(series, "open_value", Field::flag_nullable),
@@ -46,28 +46,33 @@ void OpenSystemCallTraceReplayModule::processRow() {
   // replay the open system call
   replayed_ret_val_ = open(pathname, flags, mode);
   // Add a mapping from fd in trace file to actual replayed fd
-  SystemCallTraceReplayModule::fd_map_[return_value] = replayed_ret_val_;
+  pid_t pid = executing_pid();
+  replayer_resources_manager_.add_fd(pid, return_value, replayed_ret_val_, flags);
 }
 
 OpenatSystemCallTraceReplayModule::
 OpenatSystemCallTraceReplayModule(DataSeriesModule &source,
-				  bool verbose_flag,
-				  int warn_level_flag):
+  bool verbose_flag,
+  int warn_level_flag):
   OpenSystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
   descriptor_(series, "descriptor") {
   sys_call_name_ = "openat";
 }
 
 void OpenatSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("descriptor(", descriptor_.val(), "pathname(", \
-    given_pathname_.val(), "), flags(", \
+  pid_t pid = executing_pid();
+  int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
+  syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
+    "replayed fd(", replayed_fd, "), ",
+    "pathname(", given_pathname_.val(), "), flags(", \
     open_value_.val(), "), ",
     "traced mode(", mode_value_.val(), "), ",
     "replayed mode(", get_mode(mode_value_.val()), ")");
 }
 
 void OpenatSystemCallTraceReplayModule::processRow() {
-  int dirfd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
+  pid_t pid = executing_pid();
+  int dirfd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
   const char *pathname = (char *)given_pathname_.val();
   int flags = open_value_.val();
   mode_t mode = get_mode(mode_value_.val());
@@ -76,5 +81,5 @@ void OpenatSystemCallTraceReplayModule::processRow() {
   // replay the openat system call
   replayed_ret_val_ = openat(dirfd, pathname, flags, mode);
   // Add a mapping from fd in trace file to actual replayed fd
-  SystemCallTraceReplayModule::fd_map_[return_value] = replayed_ret_val_;
+  replayer_resources_manager_.add_fd(pid, return_value, replayed_ret_val_, flags);
 }

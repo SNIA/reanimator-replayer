@@ -36,10 +36,13 @@ FcntlSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void FcntlSystemCallTraceReplayModule::print_specific_fields() {
+  pid_t pid = executing_pid();
+  int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
   if ((command_value_.val() == F_SETLK) ||
       (command_value_.val() == F_SETLKW) ||
       (command_value_.val() == F_GETLK)) {
-    syscall_logger_->log_info("descriptor(", descriptor_.val(), "), ", \
+    syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
+      "replayed fd(", replayed_fd, "), ",
       "command value(", command_value_.val(), "), ", \
       "lock type(", lock_type_.val(), "), ", \
       "lock whence(", lock_whence_.val(), "), ", \
@@ -47,14 +50,16 @@ void FcntlSystemCallTraceReplayModule::print_specific_fields() {
       "lock length(", lock_length_.val(), "), ", \
       "lock pid(", lock_pid_.val(), ")");
   } else {
-    syscall_logger_->log_info("descriptor(", descriptor_.val(), "), ", \
+    syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
+      "replayed fd(", replayed_fd, "), ",
       "command value(", command_value_.val(), "), " \
       "argument value(", argument_value_.val(), ")");
   }
 }
 
 void FcntlSystemCallTraceReplayModule::processRow() {
-  int fd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
+  pid_t pid = executing_pid();
+  int fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
   int command = command_value_.val();
   int argument = argument_value_.val();
   struct flock lock;
@@ -99,7 +104,18 @@ void FcntlSystemCallTraceReplayModule::processRow() {
    * If command has F_DUPFD flag set, then map the returned file descriptor
    * value to the traced return value.
    */
-  if (command & F_DUPFD) {
-    SystemCallTraceReplayModule::fd_map_[return_value()] = replayed_ret_val_;
+  if (command & F_DUPFD || command & F_DUPFD_CLOEXEC) {
+    // Get actual file descriptor
+    pid_t pid = executing_pid();
+    int fd_flags = replayer_resources_manager_.get_flags(pid, descriptor_.val());
+    /*
+     * The two file descriptors do not share file descriptor flags (the close-on-exec flag),
+     * unless F_DUPFD_CLOEXEC is set
+     */
+    int new_fd_flags = fd_flags & ~O_CLOEXEC;
+    if (command & F_DUPFD_CLOEXEC) {
+      new_fd_flags |= O_CLOEXEC;
+    }
+    replayer_resources_manager_.add_fd(pid, return_value(), replayed_ret_val_, new_fd_flags);
   }
 }

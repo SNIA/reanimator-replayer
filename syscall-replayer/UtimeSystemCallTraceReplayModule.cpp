@@ -119,7 +119,10 @@ UtimensatSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void UtimensatSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("descriptor(", descriptor_.val(), "), ", \
+  pid_t pid = executing_pid();
+  int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
+  syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
+    "replayed fd(", replayed_fd, "), ",
     "given_pathname(", given_pathname_.val(), "), ", \
     "access_time(", format_field_value(Tfrac_to_sec(access_time_.val()), std::fixed), "), ", \
     "mod_time(", format_field_value(Tfrac_to_sec(mod_time_.val()), std::fixed), "), ", \
@@ -128,7 +131,8 @@ void UtimensatSystemCallTraceReplayModule::print_specific_fields() {
 
 void UtimensatSystemCallTraceReplayModule::processRow() {
   // Get replaying file given_pathname and make timespec array.
-  int dirfd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
+  pid_t pid = executing_pid();
+  int dirfd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
   struct timespec ts[2];
   const char *pathname;
   if (given_pathname_.isNull())

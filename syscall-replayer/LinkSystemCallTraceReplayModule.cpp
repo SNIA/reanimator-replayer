@@ -53,22 +53,27 @@ LinkatSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void LinkatSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("old descriptor(", old_descriptor_.val(), "), ", \
-    "new descriptor(", new_descriptor_.val(), "), ", \
+  pid_t pid = executing_pid();
+  int replayed_old_fd = replayer_resources_manager_.get_fd(pid, old_descriptor_.val());
+  int replayed_new_fd = replayer_resources_manager_.get_fd(pid, new_descriptor_.val());
+
+  syscall_logger_->log_info("traced old fd(", old_descriptor_.val(), "), ",
+    "replayed old fd(", replayed_old_fd, "), ",
+    "traced new fd(", new_descriptor_.val(), "), ",
+    "replayed new fd(", replayed_new_fd, "), ",
     "old path(", given_oldpathname_.val(), "), ", \
     "new path(", given_newpathname_.val(), "), ", \
     "flags(", flag_value_.val(), ")");
 }
 
 void LinkatSystemCallTraceReplayModule::processRow() {
-  int old_fd = SystemCallTraceReplayModule::fd_map_[old_descriptor_.val()];
-  int new_fd = SystemCallTraceReplayModule::fd_map_[new_descriptor_.val()];
+  pid_t pid = executing_pid();
+  int old_fd = replayer_resources_manager_.get_fd(pid, old_descriptor_.val());
+  int new_fd = replayer_resources_manager_.get_fd(pid, new_descriptor_.val());
   const char *old_path_name = (const char *)given_oldpathname_.val();
   const char *new_path_name = (const char *)given_newpathname_.val();
   int flags = flag_value_.val();
 
   // Replay the linkat system call
-  replayed_ret_val_ = linkat(old_fd, old_path_name,
-    new_fd, new_path_name,
-    flags);
+  replayed_ret_val_ = linkat(old_fd, old_path_name, new_fd, new_path_name, flags);
 }

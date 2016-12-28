@@ -32,14 +32,18 @@ ReadSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void ReadSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("descriptor:", descriptor_.val(), "), ", \
-	   "data read(", data_read_.val(), "), ", \
-	   "bytes requested(", bytes_requested_.val(), ")");
+  pid_t pid = executing_pid();
+  int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
+  syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
+    "replayed fd(", replayed_fd, "), ",
+    "data read(", data_read_.val(), "), ", \
+    "bytes requested(", bytes_requested_.val(), ")");
 }
 
 void ReadSystemCallTraceReplayModule::processRow() {
   // Get replaying file descriptor.
-  int fd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
+  pid_t pid = executing_pid();
+  int fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
   int nbytes = bytes_requested_.val();
   char buffer[nbytes];
   replayed_ret_val_ = read(fd, buffer, nbytes);
@@ -51,7 +55,7 @@ void ReadSystemCallTraceReplayModule::processRow() {
       syscall_logger_->log_err("Verification of data in read failed.");
       if (!default_mode()) {
         syscall_logger_->log_warn("time called:", \
-	  format_field_value(Tfrac_to_sec(time_called()), std::fixed), \
+          format_field_value(Tfrac_to_sec(time_called()), std::fixed), \
           " Captured read data is different from replayed read data");
         syscall_logger_->log_warn("Captured read data: ", data_read_.val(), ", ", \
           "Replayed read data: ", std::string(buffer));
@@ -79,7 +83,10 @@ PReadSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void PReadSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("descriptor:", descriptor_.val(), "), ", \
+  pid_t pid = executing_pid();
+  int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
+  syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
+    "replayed fd(", replayed_fd, "), ",
     "data read(", data_read_.val(), "), ", \
     "bytes requested(", bytes_requested_.val(), "), " \
     "offset(", offset_.val(), ")");
@@ -87,7 +94,8 @@ void PReadSystemCallTraceReplayModule::print_specific_fields() {
 
 void PReadSystemCallTraceReplayModule::processRow() {
   // Get replaying file descriptor.
-  int fd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
+  pid_t pid = executing_pid();
+  int fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
   int nbytes = bytes_requested_.val();
   char buffer[nbytes];
   int offset = offset_.val();
@@ -100,7 +108,7 @@ void PReadSystemCallTraceReplayModule::processRow() {
       syscall_logger_->log_err("Verification of data in pread failed.");
       if (!default_mode()) {
         syscall_logger_->log_warn("time called:", \
-	  format_field_value(Tfrac_to_sec(time_called()), std::fixed), \
+          format_field_value(Tfrac_to_sec(time_called()), std::fixed), \
           " Captured pread data is different from replayed pread data");
         syscall_logger_->log_warn("Captured pread data: ", data_read_.val(), ", ", \
           "Replayed pread data: ", std::string(buffer));

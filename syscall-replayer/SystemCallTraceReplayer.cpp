@@ -689,7 +689,9 @@ void prepare_replay(std::priority_queue<SystemCallTraceReplayModule*,
     std_fd_map[STDOUT_FILENO] = STDOUT_FILENO;
     std_fd_map[STDERR_FILENO] = STDERR_FILENO;
     std_fd_map[AT_FDCWD] = AT_FDCWD;
-    SystemCallTraceReplayModule::replayer_resources_manager_.initialize(traced_app_pid, std_fd_map);
+    SystemCallTraceReplayModule::replayer_resources_manager_.initialize(
+      SystemCallTraceReplayModule::syscall_logger_,
+      traced_app_pid, std_fd_map);
 
     syscall_replayer.pop();
     // Replay umask operation.
@@ -729,12 +731,6 @@ int main(int argc, char *argv[]) {
       exit(EXIT_FAILURE);
     }
   }
-
-  // Initialize standard map values (STDIN, STDOUT, STDERR, AT_FDCWD)
-  SystemCallTraceReplayModule::fd_map_[STDIN_FILENO] = STDIN_FILENO;
-  SystemCallTraceReplayModule::fd_map_[STDOUT_FILENO] = STDOUT_FILENO;
-  SystemCallTraceReplayModule::fd_map_[STDERR_FILENO] = STDERR_FILENO;
-  SystemCallTraceReplayModule::fd_map_[AT_FDCWD] = AT_FDCWD;
 
   std::vector<PrefetchBufferModule *> prefetch_buffer_modules = create_prefetch_buffer_modules(input_files);
 

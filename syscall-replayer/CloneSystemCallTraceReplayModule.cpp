@@ -53,13 +53,17 @@ void CloneSystemCallTraceReplayModule::processRow() {
    * Hence we do not replay clone system call.
    */
   int flags = flag_value_.val();
-  bool shared_umask = false;
+  bool shared_umask = false, shared_files = false;
   if (flags & CLONE_FS) {
     shared_umask = true;
   }
+  if (flags & CLONE_FILES) {
+    shared_files = true;
+  }
+
   pid_t ppid = executing_pid();
   pid_t pid = return_value();
-  // Clone umask table
+  // Clone resources tables
   SystemCallTraceReplayModule::replayer_resources_manager_.clone_umask(ppid, pid, shared_umask);
-  return;
+  SystemCallTraceReplayModule::replayer_resources_manager_.clone_fd_table(ppid, pid, shared_files);
 }

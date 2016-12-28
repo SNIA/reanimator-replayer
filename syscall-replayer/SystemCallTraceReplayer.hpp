@@ -46,8 +46,6 @@
 #include "VForkSystemCallTraceReplayModule.hpp"
 #include "UmaskSystemCallTraceReplayModule.hpp"
 
-// Define the static fd_map_ in SystemCallTraceReplayModule
-std::map<int, int> SystemCallTraceReplayModule::fd_map_;
 // Define the static replayer resources manager in SystemCallTraceReplayModule
 ReplayerResourcesManager SystemCallTraceReplayModule::replayer_resources_manager_;
 // Define the input file stream random_file_ in SystemCallTraceReplayModule

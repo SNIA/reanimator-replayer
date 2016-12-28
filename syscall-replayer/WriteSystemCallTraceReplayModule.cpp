@@ -34,14 +34,18 @@ WriteSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void WriteSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("descriptor(", descriptor_.val(), "), " \
+  pid_t pid = executing_pid();
+  int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
+  syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
+    "replayed fd(", replayed_fd, "), ",
 	   "data(", data_written_.val(), "), ", \
 	   "nbytes(", bytes_requested_.val(), ")");
 }
 
 void WriteSystemCallTraceReplayModule::processRow() {
   size_t nbytes = bytes_requested_.val();
-  int fd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
+  pid_t pid = executing_pid();
+  int fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
   char *data_buffer;
 
   // Check to see if user wants to use pattern
@@ -90,7 +94,10 @@ PWriteSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void PWriteSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("descriptor(", descriptor_.val(), "), ", \
+  pid_t pid = executing_pid();
+  int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
+  syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
+    "replayed fd(", replayed_fd, "), ",
 	   "data(", data_written_.val(), "), ", \
 	   "nbytes(", bytes_requested_.val(), "), ", \
 	   "offset(", offset_.val(), ")");
@@ -98,7 +105,8 @@ void PWriteSystemCallTraceReplayModule::print_specific_fields() {
 
 void PWriteSystemCallTraceReplayModule::processRow() {
   // Get replaying file descriptor.
-  int fd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
+  pid_t pid = executing_pid();
+  int fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
   size_t nbytes = bytes_requested_.val();
   char *data_buffer;
 
