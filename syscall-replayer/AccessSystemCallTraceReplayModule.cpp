@@ -30,12 +30,13 @@ AccessSystemCallTraceReplayModule(DataSeriesModule &source,
 
 void AccessSystemCallTraceReplayModule::print_specific_fields() {
   syscall_logger_->log_info("pathname(", given_pathname_.val(), "), " \
-    "mode(", mode_value_.val(), ")");
+    "traced mode(", mode_value_.val(), "), ",
+    "replayed mode(", get_mode(mode_value_.val()), ")");
 }
 
 void AccessSystemCallTraceReplayModule::processRow() {
   const char *pathname = (char *)given_pathname_.val();
-  int mode_value = mode_value_.val();
+  int mode_value = get_mode(mode_value_.val());
 
   // Replay the access system call
   replayed_ret_val_ = access(pathname, mode_value);

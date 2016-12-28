@@ -30,12 +30,13 @@ CreatSystemCallTraceReplayModule(DataSeriesModule &source,
 
 void CreatSystemCallTraceReplayModule::print_specific_fields() {
   syscall_logger_->log_info("pathname(", given_pathname_.val(), "), ", \
-	   "mode(", mode_value_.val(), ")");
+    "traced mode(", mode_value_.val(), "), ",
+    "replayed mode(", get_mode(mode_value_.val()), ")");
 }
 
 void CreatSystemCallTraceReplayModule::processRow() {
   const char *pathname = (char *)given_pathname_.val();
-  mode_t mode = mode_value_.val();
+  mode_t mode = get_mode(mode_value_.val());
   int return_value = (int)return_value_.val();
 
   // replay the creat system call

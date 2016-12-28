@@ -30,12 +30,13 @@ MkdirSystemCallTraceReplayModule(DataSeriesModule &source,
 
 void MkdirSystemCallTraceReplayModule::print_specific_fields() {
   syscall_logger_->log_info("pathname(", given_pathname_.val(), "), ", \
-	   "mode(", mode_value_.val(), ")");
+    "traced mode(", mode_value_.val(), "), ",
+    "replayed mode(", get_mode(mode_value_.val()), ")");
 }
 
 void MkdirSystemCallTraceReplayModule::processRow() {
   const char *pathname = (char *)given_pathname_.val();
-  mode_t mode = mode_value_.val();
+  mode_t mode = get_mode(mode_value_.val());
 
   // Replay the mkdir system call
   replayed_ret_val_ = mkdir(pathname, mode);
@@ -53,13 +54,14 @@ MkdiratSystemCallTraceReplayModule(DataSeriesModule &source,
 void MkdiratSystemCallTraceReplayModule::print_specific_fields() {
   syscall_logger_->log_info("descriptor(", descriptor_.val(), "), ", \
     "pathname(", given_pathname_.val(), "), ", \
-    "mode(", mode_value_.val(), ")");
+    "traced mode(", mode_value_.val(), "), ",
+    "replayed mode(", get_mode(mode_value_.val()), ")");
 }
 
 void MkdiratSystemCallTraceReplayModule::processRow() {
   int dirfd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
   const char *pathname = (char *)given_pathname_.val();
-  mode_t mode = mode_value_.val();
+  mode_t mode = get_mode(mode_value_.val());
 
   // Replay the mkdirat system call
   replayed_ret_val_ = mkdirat(dirfd, pathname, mode);

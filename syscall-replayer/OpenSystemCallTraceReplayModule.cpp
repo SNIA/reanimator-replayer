@@ -32,13 +32,15 @@ OpenSystemCallTraceReplayModule(DataSeriesModule &source,
 
 void OpenSystemCallTraceReplayModule::print_specific_fields() {
   syscall_logger_->log_info("pathname(", given_pathname_.val(), "), flags(", \
-			    open_value_.val(), "), mode(", mode_value_.val(), ")");
+    open_value_.val(), "),",
+    "traced mode(", mode_value_.val(), "), ",
+    "replayed mode(", get_mode(mode_value_.val()), ")");
 }
 
 void OpenSystemCallTraceReplayModule::processRow() {
   const char *pathname = (char *)given_pathname_.val();
   int flags = open_value_.val();
-  mode_t mode = mode_value_.val();
+  mode_t mode = get_mode(mode_value_.val());
   int return_value = (int)return_value_.val();
 
   // replay the open system call
@@ -58,15 +60,17 @@ OpenatSystemCallTraceReplayModule(DataSeriesModule &source,
 
 void OpenatSystemCallTraceReplayModule::print_specific_fields() {
   syscall_logger_->log_info("descriptor(", descriptor_.val(), "pathname(", \
-			    given_pathname_.val(), "), flags(", \
-			    open_value_.val(), "), mode(", mode_value_.val(), ")");
+    given_pathname_.val(), "), flags(", \
+    open_value_.val(), "), ",
+    "traced mode(", mode_value_.val(), "), ",
+    "replayed mode(", get_mode(mode_value_.val()), ")");
 }
 
 void OpenatSystemCallTraceReplayModule::processRow() {
   int dirfd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
   const char *pathname = (char *)given_pathname_.val();
   int flags = open_value_.val();
-  mode_t mode = mode_value_.val();
+  mode_t mode = get_mode(mode_value_.val());
   int return_value = (int)return_value_.val();
 
   // replay the openat system call

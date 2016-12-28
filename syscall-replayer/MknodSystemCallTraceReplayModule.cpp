@@ -54,13 +54,14 @@ void MknodSystemCallTraceReplayModule::print_specific_fields() {
 
   syscall_logger_->log_info("pathname(", given_pathname_.val(), "), ", \
     "file type(", file_type, "), ", \
-    "mode(", mode_value_.val(), "), ", \
+    "traced mode(", mode_value_.val(), ")",
+    "replayed mode(", get_mode(mode_value_.val()), ")",
     "dev(", dev_.val(), ")");
 }
 
 void MknodSystemCallTraceReplayModule::processRow() {
   const char *pathname = (char *)given_pathname_.val();
-  mode_t mode = mode_value_.val();
+  mode_t mode = get_mode(mode_value_.val());
   dev_t dev = dev_.val();
 
   // replay the mknod system call
