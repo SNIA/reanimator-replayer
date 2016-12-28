@@ -777,6 +777,9 @@ int main(int argc, char *argv[]) {
       execute_replayer->getSharedExtent() != NULL) {
       // No, there are more extents, so we add it to min_heap
       replayers_heap.push(execute_replayer);
+    } else {
+      // No, there are no more extents, so we delete the module
+      delete execute_replayer;
     }
   }
 
