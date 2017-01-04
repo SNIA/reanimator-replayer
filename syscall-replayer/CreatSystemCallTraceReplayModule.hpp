@@ -18,7 +18,6 @@
  * USAGE
  * A main program could initialize this class with a dataseries file
  * and call execute() function until all extents are processed.
- *
  */
 #ifndef CREAT_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define CREAT_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
@@ -31,16 +30,16 @@
 
 class CreatSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 private:
-  /* Creat System Call Trace Fields in Dataseries file */
+  // Creat System Call Trace Fields in Dataseries file
   Variable32Field given_pathname_;
   Int32Field mode_value_;
 
-  /*
+  /**
    * Print creat sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will gather arguments in the trace file
    * and replay an creat system call with those arguments.
    */

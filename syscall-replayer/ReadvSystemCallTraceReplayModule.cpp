@@ -82,9 +82,7 @@ void ReadvSystemCallTraceReplayModule::processRow() {
    */
   rows_per_call_ = count + 1;
 
-  /*
-   * Save the position of the first record in the Extent Series.
-   */
+  // Save the position of the first record in the Extent Series.
   const void *first_record_pos = series.getCurPos();
   int iovcnt = count;
 
@@ -100,7 +98,8 @@ void ReadvSystemCallTraceReplayModule::processRow() {
      * call.
      */
     while (iovcnt > 0 && series.morerecords()) {
-      ++series; /* This moves the pointer in extent series to next record */
+      // This moves the pointer in extent series to next record
+      ++series;
 
       int iov_num = iov_number_.val();
       size_t bytes_requested = bytes_requested_.val();
@@ -126,19 +125,17 @@ void ReadvSystemCallTraceReplayModule::processRow() {
     }
   }
 
-  /*
-   * Replay the readv system call.
-   */
+  //  Replay the readv system call.
   replayed_ret_val_ = readv(fd, iov, count);
 
-  /* If replayer runs in verify mode. */
+  // If replayer runs in verify mode.
   if (verify_ == true) {
     // Verify each iovec read data and data in the trace file
     for (int iovcnt_ = 0; iovcnt_ < count; iovcnt_++) {
       if (memcmp(traced_buffer[iovcnt_],
         replayed_buffer[iovcnt_],
         iov[iovcnt_].iov_len) != 0) {
-        //Data aren't same
+        // Data aren't same
         syscall_logger_->log_err("Verification of data for iov number: ", \
           iovcnt_, " in readv failed.");
         if (!default_mode()) {
@@ -159,9 +156,7 @@ void ReadvSystemCallTraceReplayModule::processRow() {
     }
   }
 
-  /*
-   * Free both traced and replayed buffers.
-   */
+  // Free both traced and replayed buffers.
   for (int iovcnt_ = 0; iovcnt_ < count; iovcnt_++) {
     delete[] replayed_buffer[iovcnt_];
     delete[] traced_buffer[iovcnt_];

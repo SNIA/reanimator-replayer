@@ -19,7 +19,6 @@
  * INITIALIZATION AND USAGE
  * A main program could initialize this class with a dataseries file
  * and call execute() function until all extents are processed.
- *
  */
 #ifndef DUP_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define DUP_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
@@ -28,15 +27,15 @@
 
 class DupSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 private:
-  /* DataSeries Dup System Call Trace Fields */
+  // DataSeries Dup System Call Trace Fields
   Int32Field descriptor_;
 
-  /*
+  /**
    * Print dup sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will gather arguments in the trace file
    * and replay a dup system call with those arguments
    */

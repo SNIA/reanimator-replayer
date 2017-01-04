@@ -35,6 +35,6 @@ void RmdirSystemCallTraceReplayModule::processRow() {
   // Get actual file descriptor
   const char *pathname = (char *)given_pathname_.val();
 
-  // replay rmdir sys call.
+  // Replay rmdir sys call.
   replayed_ret_val_ = rmdir(pathname);
 }

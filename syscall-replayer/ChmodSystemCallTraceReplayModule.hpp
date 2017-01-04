@@ -32,16 +32,16 @@
 
 class ChmodSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 private:
-  /* Chmod System Call Trace Fields in Dataseries file */
+  // Chmod System Call Trace Fields in Dataseries file
   Variable32Field given_pathname_;
   Int32Field mode_value_;
 
-  /*
+  /**
    * Print chmod sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will gather arguments in the trace file
    * and replay a chmod system call with those arguments.
    */

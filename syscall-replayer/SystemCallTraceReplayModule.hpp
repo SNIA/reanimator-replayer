@@ -66,17 +66,17 @@ protected:
   int rows_per_call_; // It stores the number of rows processed per system call.
   int replayed_ret_val_;
 
-  /*
+  /**
    * Print common and specific sys call field values in a nice format
    */
   virtual void print_sys_call_fields();
 
-  /*
+  /**
    * Print common sys call field values in a nice format
    */
   void print_common_fields();
 
-  /*
+  /**
    * Print specific sys call field values in a nice format
    *
    * Note: child class should implement this function if it wants
@@ -84,14 +84,14 @@ protected:
    */
   virtual void print_specific_fields() = 0;
 
-  /*
+  /**
    * Compare return value of an operation in trace file and replayed operation
    *
    * @param replayed_ret_val: return value of replayed operation
    */
   void compare_retval_and_errno();
 
-  /*
+  /**
    * This function is where all the replaying takes action.
    * It will be called by execute() function for each record
    * of a corresponding system call.
@@ -100,7 +100,7 @@ protected:
    */
   virtual void processRow() = 0;
 
-  /*
+  /**
    * This function will be called after processRow() of correponding
    * system call is called. It calls the after_sys_call() which does
    * the post checking of each record processed.  Finally it increments
@@ -110,7 +110,7 @@ protected:
 
   virtual void completeProcessing();
 
-  /*
+  /**
    * after_sys_call is called by completeProcessing() function.
    * This function gets called after a system call is replayed.
    * Currently, it prints system call fields if the replayer
@@ -120,7 +120,7 @@ protected:
    */
   virtual void after_sys_call();
 
-  /*
+  /**
    * This function is a helper function that masks mode value argument
    * of a system call because we are managing our own umask values.
    * This means that all system calls that have mode_val will
@@ -141,7 +141,7 @@ public:
   // An object of logger class
   static SystemCallTraceReplayLogger *syscall_logger_;
 
-  /*
+  /**
    * Basic Constructor
    *
    * @param source: dataseries module that contains system call traces
@@ -153,42 +153,42 @@ public:
   SystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
 			      int warn_level_flag);
 
-  /*
+  /**
    * Determine whether or not to replay in verbose mode
    *
    * @return: true if it is in verbose mode, false otherwise
    */
   bool verbose_mode() const;
 
-  /*
+  /**
    * Determine whether or not to replay in default mode
    *
    * @return: true if it is in default mode, false otherwise
    */
   bool default_mode() const;
 
-  /*
+  /**
    * Determine whether or not to replay in warn mode
    *
    * @return: true if it is in warn mode, false otherwise
    */
   bool warn_mode() const;
 
-  /*
+  /**
    * Determine whether or not to replay in abort mode
    *
    * @return: true if it is in abort mode, false otherwise
    */
   bool abort_mode() const;
 
-  /*
+  /**
    * Get the system call name of current system call record
    *
    * @return: a string that represents the system call name.
    */
   std::string sys_call_name() const;
 
-  /*
+  /**
    * Get the execution time of current system call record
    *
    * @return: corresponding time_called field of a record that
@@ -196,7 +196,7 @@ public:
    */
   uint64_t time_called() const;
 
-  /*
+  /**
    * Get the time the current system call returned according to the record
    *
    * @return: corresponding time_returned field of a record that
@@ -204,7 +204,7 @@ public:
    */
   uint64_t time_returned() const;
 
-  /*
+  /**
    * Get the time the current system call record was written
    *
    * @return corresponding time_recorded field of a record that
@@ -212,7 +212,7 @@ public:
    */
   uint64_t time_recorded() const;
 
-  /*
+  /**
    * Get the process id of current system call record
    *
    * @return: corresponding executing_pid field of a record that
@@ -220,7 +220,7 @@ public:
    */
   uint32_t executing_pid() const;
 
-  /*
+  /**
    * Get the error number of current system call record
    *
    * @return: corresponding errno_number field of a record that
@@ -228,7 +228,7 @@ public:
    */
   int errno_number() const;
 
-  /*
+  /**
    * Get the return value of current system call record
    * (not replayed ret value)
    *
@@ -237,7 +237,7 @@ public:
    */
   int64_t return_value() const;
 
-  /*
+  /**
    * Get the unique id of current system call record
    *
    * @return: corresponding unique id field of a record that
@@ -245,7 +245,7 @@ public:
    */
   int64_t unique_id() const;
 
-  /*
+  /**
    * This function overwrite getSharedExtent() in RowAnalysisModule.
    * It will find a extent test to see if current extent
    * has more records in it.  If there are, that means not all
@@ -256,7 +256,7 @@ public:
    */
   Extent::Ptr getSharedExtent();
 
-  /*
+  /**
    * This function will test to see if current extent
    * has more records in it.  If there are, that means not all
    * operations are replayed.  Replayer still need to call execute()
@@ -267,7 +267,7 @@ public:
    */
   bool cur_extent_has_more_record();
 
-  /*
+  /**
    * is_version_compatible() determines whether current extent is
    * compatible with major_v.minor_v. Return true if current extent
    * has version x.y and y <= minor_v and x == major_v.
@@ -276,7 +276,7 @@ public:
    */
   bool is_version_compatible(unsigned int major_v, unsigned int minor_v);
 
-  /*
+  /**
    * This function will be called by a replayer to replay
    * one record of corresponding(based on class name) system call
    * Note: Replayer should call this function until
@@ -284,7 +284,7 @@ public:
    */
   void execute();
 
-  /*
+  /**
    * Convert a time value stored in Tfrac units (2^32 Tfracs = 1 sec)
    * (as a uint64_t) to seconds (as a double)
    *
@@ -292,7 +292,7 @@ public:
    */
   double Tfrac_to_sec(uint64_t time);
 
-  /*
+  /**
    * Convert a time value stored in Tfrac units (2^32 Tfracs = 1 sec)
    * (as a uint64_t) to a struct timeval (for the utimes system call)
    *
@@ -300,7 +300,7 @@ public:
    */
   struct timeval Tfrac_to_timeval(uint64_t time);
 
-  /*
+  /**
    * Convert a time value stored in Tfrac units (2^32 Tfracs = 1 sec)
    * (as a uint64_t) to a struct timespec (for the utimensat system call)
    *
@@ -308,7 +308,7 @@ public:
    */
   struct timespec Tfrac_to_timespec(uint64_t time);
 
-  /*
+  /**
    * For system calls such as write, pwrite and writev, replayer has
    * an option to fill buffers with zeros, any pattern or random values.
    * If pattern is set as random, this function will randomly generate
@@ -317,7 +317,7 @@ public:
    */
   char *random_fill_buffer(char *buffer, size_t nbytes);
 
-  /*
+  /**
    * Some system calls such as _exit, execve, mmap and munmap are not
    * appropriate to replay. So we do not replay in our replayer.
    *

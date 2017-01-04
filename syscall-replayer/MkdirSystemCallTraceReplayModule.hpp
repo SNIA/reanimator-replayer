@@ -31,16 +31,16 @@
 
 class MkdirSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 protected:
-  /* Mkdir System Call Trace Fields in Dataseries file */
+  // Mkdir System Call Trace Fields in Dataseries file
   Variable32Field given_pathname_;
   Int32Field mode_value_;
 
-  /*
+  /**
    * Print mkdir sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will gather arguments in the trace file
    * and replay an mkdir system call with those arguments.
    */
@@ -56,15 +56,15 @@ public:
 class MkdiratSystemCallTraceReplayModule :
   public MkdirSystemCallTraceReplayModule {
 private:
-  /* Mkdirat System Call Trace Fields in Dataseries file */
+  // Mkdirat System Call Trace Fields in Dataseries file
   Int32Field descriptor_;
 
-  /*
+  /**
    * Print mkdirat sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will gather arguments in the trace file
    * and replay a mkdirat system call with those arguments.
    */

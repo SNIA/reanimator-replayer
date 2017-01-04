@@ -18,7 +18,6 @@
  * INITIALIZATION AND USAGE
  * A main program could initialize this class with a dataseries file
  * and call execute() function until all extents are processed.
- *
  */
 #ifndef MMAP_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define MMAP_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
@@ -27,7 +26,7 @@
 
 class MmapSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 private:
-  /* DataSeries Mmap System Call Trace Fields */
+  // DataSeries Mmap System Call Trace Fields
   Int64Field start_address_;
   Int64Field length_;
   Int32Field protection_value_;
@@ -35,12 +34,12 @@ private:
   Int32Field descriptor_;
   Int64Field offset_;
 
-  /*
+  /**
    * Print mmap sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will simply return without replaying
    * mmap system call.
    */

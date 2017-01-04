@@ -19,7 +19,6 @@
  * INITIALIZATION AND USAGE
  * A main program could initialize this class with a dataseries file
  * and call execute() function until all extents are processed.
- *
  */
 #ifndef CHOWN_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define CHOWN_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
@@ -28,17 +27,17 @@
 
 class ChownSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 private:
-  /* DataSeries Chown System Call Trace Fields */
+  // DataSeries Chown System Call Trace Fields
   Variable32Field given_pathname_;
   Int32Field new_owner_;
   Int32Field new_group_;
 
-  /*
+  /**
    * Print chown sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will gather arguments in the trace file
    * and replay a chown system call with those arguments
    */

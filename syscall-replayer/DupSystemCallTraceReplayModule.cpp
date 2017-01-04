@@ -43,10 +43,7 @@ void DupSystemCallTraceReplayModule::processRow() {
 
   replayed_ret_val_ = dup(fd);
 
-  /*
-   * Map replayed duplicated file descriptor to traced duplicated
-   * file descriptor
-   */
+  // Map replayed duplicated file descriptor to traced duplicated file descriptor
   int fd_flags = replayer_resources_manager_.get_flags(pid, descriptor_.val());
   int new_fd_flags = fd_flags & ~O_CLOEXEC;
   replayer_resources_manager_.add_fd(pid, return_value(), replayed_ret_val_, new_fd_flags);

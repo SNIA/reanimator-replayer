@@ -19,7 +19,6 @@
  * INITIALIZATION AND USAGE
  * A main program could initialize this class with a dataseries file
  * and call execute() function until all extents are processed.
- *
  */
 #ifndef FSYNC_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define FSYNC_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
@@ -28,15 +27,15 @@
 
 class FsyncSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 private:
-  /* DataSeries Fsync System Call Trace Fields */
+  // DataSeries Fsync System Call Trace Fields
   Int32Field descriptor_;
 
-  /*
+  /**
    * Print fsync sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will gather arguments in the trace file
    * and replay an fsync system call with those arguments
    */

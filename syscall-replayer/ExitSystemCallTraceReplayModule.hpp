@@ -18,7 +18,6 @@
  * INITIALIZATION AND USAGE
  * A main program could initialize this class with a dataseries file
  * and call execute() function until all extents are processed.
- *
  */
 #ifndef EXIT_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define EXIT_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
@@ -27,16 +26,16 @@
 
 class ExitSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 private:
-  /* DataSeries Exit System Call Trace Fields */
+  // DataSeries Exit System Call Trace Fields
   Int32Field exit_status_;
   BoolField generated_;
 
-  /*
+  /**
    * Print exit sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will simply return without replaying
    * exit system call.
    */

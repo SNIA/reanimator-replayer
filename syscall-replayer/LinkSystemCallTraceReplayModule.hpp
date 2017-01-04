@@ -33,12 +33,12 @@ protected:
   Variable32Field given_oldpathname_;
   Variable32Field given_newpathname_;
 
-  /*
+  /**
    * Print link sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will gather arguments in the trace file
    * and replay a link system call with those arguments.
    */
@@ -58,12 +58,12 @@ protected:
   Int32Field new_descriptor_;
   Int32Field flag_value_;
 
-  /*
+  /**
    * Print linkat sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will gather arguments in the trace file
    * and replay a linkat system call with those arguments.
    */

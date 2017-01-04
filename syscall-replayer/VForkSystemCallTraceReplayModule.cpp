@@ -36,8 +36,7 @@ void VForkSystemCallTraceReplayModule::processRow() {
    * the process created by vfork.
    * NOTE: It is inappropriate to replay vfork system call.
    * Hence we do not replay vfork system call.
-   */
-  /* A call to vfork() is equivalent to calling clone(2) with flags
+   * A call to vfork() is equivalent to calling clone(2) with flags
    * specified as: CLONE_VM | CLONE_VFORK | SIGCHLD
    */
   bool shared_umask = false, shared_files = false;

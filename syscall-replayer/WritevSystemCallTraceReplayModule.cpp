@@ -81,9 +81,7 @@ void WritevSystemCallTraceReplayModule::processRow() {
    */
   rows_per_call_ = count + 1;
 
-  /*
-   * Save the position of the first record in the Extent Series.
-   */
+  // Save the position of the first record in the Extent Series.
   const void *first_record_pos = series.getCurPos();
   int iovcnt = count;
 
@@ -100,7 +98,8 @@ void WritevSystemCallTraceReplayModule::processRow() {
      * call.
      */
     while (iovcnt > 0 && series.morerecords()) {
-      ++series; /* This moves the pointer in extent series to next record */
+      // This moves the pointer in extent series to next record
+      ++series;
 
       int iov_num = iov_number_.val();
       size_t bytes_requested = bytes_requested_.val();
@@ -138,9 +137,7 @@ void WritevSystemCallTraceReplayModule::processRow() {
         data_buffer[iov_num] = (char *)data_written_.val();
       }
 
-      /*
-       * Construct the struct iovec from each record.
-       */
+      // Construct the struct iovec from each record.
       iov[iov_num].iov_base = data_buffer[iov_num];
       iov[iov_num].iov_len = bytes_requested;
 
@@ -148,14 +145,10 @@ void WritevSystemCallTraceReplayModule::processRow() {
     }
   }
 
-  /*
-   * Replay the writev system call.
-   */
+  // Replay the writev system call.
   replayed_ret_val_ = writev(fd, iov, count);
 
-  /*
-   * Free data buffer.
-   */
+  // Free data buffer.
   for (int iovcnt_ = 0; iovcnt_ < count; iovcnt_++) {
     if (!pattern_data_.empty())
       delete[] data_buffer[iovcnt_];

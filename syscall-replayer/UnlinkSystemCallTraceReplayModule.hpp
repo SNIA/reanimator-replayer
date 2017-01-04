@@ -34,12 +34,12 @@ protected:
   // Unlink System Call Trace Fields in Dataseries file
   Variable32Field given_pathname_;
 
-  /*
+  /**
    * Print this sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will gather arguments in the trace file
    * and replay a unlink system call with those arguments.
    */
@@ -58,12 +58,12 @@ private:
   Int32Field descriptor_;
   Int32Field flag_value_;
 
-  /*
+  /**
    * Print this sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will gather arguments in the trace file
    * and replay a unlinkat system call with those arguments.
    */

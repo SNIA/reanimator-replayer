@@ -19,7 +19,6 @@
  * INITIALIZATION AND USAGE
  * A main program could initialize this class with a dataseries file
  * and call execute() function until all extents are processed.
- *
  */
 #ifndef VFORK_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define VFORK_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
@@ -29,14 +28,14 @@
 
 class VForkSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 private:
-  /* DataSeries VFork System Call Trace Fields (VFork takes no arguments)*/
+  // DataSeries VFork System Call Trace Fields (VFork takes no arguments)
 
-  /*
+  /**
    * Print vfork sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will simply return without replaying
    * vfork system call.
    */

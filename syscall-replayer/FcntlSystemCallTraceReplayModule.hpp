@@ -19,7 +19,6 @@
  * USAGE
  * A main program could initialize this class with a dataseries file
  * and call execute() function until all extents are processed.
- *
  */
 #ifndef FCNTL_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define FCNTL_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
@@ -32,7 +31,7 @@
 
 class FcntlSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 private:
-  /* Fcntl System Call Trace Fields in Dataseries file */
+  // Fcntl System Call Trace Fields in Dataseries file
   Int32Field descriptor_;
   Int32Field command_value_;
   Int32Field argument_value_;
@@ -42,12 +41,12 @@ private:
   Int32Field lock_length_;
   Int32Field lock_pid_;
 
-  /*
+  /**
    * Print fcntl sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will gather arguments in the trace file
    * and replay an fcntl system call with those arguments.
    */

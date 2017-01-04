@@ -28,18 +28,18 @@
 
 class ReadlinkSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 private:
-  /* Readlink System Call Trace Fields in Dataseries file */
+  // Readlink System Call Trace Fields in Dataseries file
   bool verify_;
   Variable32Field given_pathname_;
   Variable32Field link_value_;
   Int32Field buffer_size_;
 
-  /*
+  /**
    * Print readlink sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will gather arguments in the trace file
    * and then replay readlink system call with those arguments.
    */

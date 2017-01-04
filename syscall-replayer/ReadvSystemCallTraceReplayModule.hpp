@@ -31,19 +31,19 @@
 class ReadvSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 private:
   bool verify_;
-  /* Readv System Call Trace Fields in Dataseries file */
+  // Readv System Call Trace Fields in Dataseries file
   Int32Field descriptor_;
   Int32Field count_;
   Int32Field iov_number_;
   Variable32Field data_read_;
   Int64Field bytes_requested_;
 
-  /*
+  /**
    * Print readv sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will gather arguments in the trace file
    * and then replay an readv system call with those arguments.
    */

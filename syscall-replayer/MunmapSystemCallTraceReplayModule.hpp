@@ -18,7 +18,6 @@
  * INITIALIZATION AND USAGE
  * A main program could initialize this class with a dataseries file
  * and call execute() function until all extents are processed.
- *
  */
 #ifndef MUNMAP_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define MUNMAP_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
@@ -27,16 +26,16 @@
 
 class MunmapSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 private:
-  /* DataSeries Munmap System Call Trace Fields */
+  // DataSeries Munmap System Call Trace Fields
   Int64Field start_address_;
   Int64Field length_;
 
-  /*
+  /**
    * Print munmap sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will simply return without replaying
    * munmap system call.
    */

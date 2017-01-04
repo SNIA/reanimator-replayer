@@ -32,12 +32,12 @@ protected:
   // Chdir System Call Trace Fields in Dataseries file
   Variable32Field given_pathname_;
 
-  /*
+  /**
    * Print chdir sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will gather arguments in the trace file
    * and replay a chdir system call with those arguments.
    */

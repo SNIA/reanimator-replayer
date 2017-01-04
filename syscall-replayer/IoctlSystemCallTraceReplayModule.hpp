@@ -19,7 +19,6 @@
  * USAGE
  * A main program could initialize this class with a dataseries file
  * and call execute() function until all extents are processed.
- *
  */
 #ifndef IOCTL_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define IOCTL_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
@@ -30,19 +29,19 @@
 
 class IoctlSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 private:
-  /* Ioctl System Call Trace Fields in Dataseries file */
+  // Ioctl System Call Trace Fields in Dataseries file
   Int32Field descriptor_;
   Int32Field request_;
   Int64Field parameter_;
   Variable32Field ioctl_buffer_;
   Int64Field buffer_size_;
 
-  /*
+  /**
    * Print ioctl sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will gather arguments in the trace file
    * and replay an ioctl system call with those arguments.
    */

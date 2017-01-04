@@ -26,15 +26,15 @@
 
 class UmaskSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 protected:
-  /* Umask System Call Trace Fields in Dataseries file */
+  // Umask System Call Trace Fields in Dataseries file
   Int32Field mode_value_;
 
-  /*
+  /**
    * Print umask sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will gather arguments in the trace file
    * and replay an umask system call with those arguments.
    */

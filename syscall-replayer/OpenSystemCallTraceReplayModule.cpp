@@ -46,12 +46,14 @@ void OpenSystemCallTraceReplayModule::processRow() {
   // replay the open system call
   replayed_ret_val_ = open(pathname, flags, mode);
   if (traced_fd == -1 && replayed_ret_val_ != -1) {
-    /* Original system open failed, but replay system succeeds.
+    /*
+     * Original system open failed, but replay system succeeds.
      * Therefore, we will close the replayed fd.
      */
     close(replayed_ret_val_);
   } else {
-    /* Even if traced fd is valid, but replayed fd is -1,
+    /*
+     * Even if traced fd is valid, but replayed fd is -1,
      * we will still add the entry and replay it.
      * Add a mapping from fd in trace file to actual replayed fd
      */
@@ -91,13 +93,17 @@ void OpenatSystemCallTraceReplayModule::processRow() {
   // replay the openat system call
   replayed_ret_val_ = openat(dirfd, pathname, flags, mode);
   if (traced_fd == -1 && replayed_ret_val_ != -1) {
-    // Original system open failed, but replay system succeeds.
-    // Therefore, we will close the replayed fd.
+    /*
+     * Original system open failed, but replay system succeeds.
+     * Therefore, we will close the replayed fd.
+     */
     close(replayed_ret_val_);
   } else {
-    // Even if traced fd is valid, but replayed fd is -1,
-    // we will still add the entry and replay it.
-    // Add a mapping from fd in trace file to actual replayed fd
+    /*
+     * Even if traced fd is valid, but replayed fd is -1,
+     * we will still add the entry and replay it.
+     * Add a mapping from fd in trace file to actual replayed fd
+     */
     replayer_resources_manager_.add_fd(pid, traced_fd, replayed_ret_val_, flags);
   }
 }

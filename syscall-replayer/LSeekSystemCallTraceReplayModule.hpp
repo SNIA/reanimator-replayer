@@ -28,17 +28,17 @@
 
 class LSeekSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 private:
-  /* LSeek System Call Trace Fields in Dataseries file */
+  // LSeek System Call Trace Fields in Dataseries file
   Int32Field descriptor_;
   Int64Field offset_;
   ByteField whence_;
 
-  /*
+  /**
    * Print lseek sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will gather arguments in the trace file
    * and then replay lseek system call with those arguments.
    */

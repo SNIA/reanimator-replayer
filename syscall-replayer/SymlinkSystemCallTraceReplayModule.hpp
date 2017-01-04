@@ -33,12 +33,12 @@ protected:
   Variable32Field target_pathname_;
   Variable32Field given_pathname_;
 
-  /*
+  /**
    * Print symlink sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will gather arguments in the trace file
    * and replay a symlink system call with those arguments.
    */

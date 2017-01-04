@@ -18,7 +18,6 @@
  * INITIALIZATION AND USAGE
  * A main program could initialize this class with a dataseries file
  * and call execute() function until all extents are processed.
- *
  */
 #ifndef EXECVE_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define EXECVE_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
@@ -27,13 +26,13 @@
 
 class ExecveSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 private:
-  /* DataSeries Execve System Call Trace Fields */
+  // DataSeries Execve System Call Trace Fields
   Variable32Field given_pathname_;
   Int32Field continuation_number_;
   Variable32Field argument_;
   Variable32Field environment_;
 
-  /*
+  /**
    * Print execve common and sys call field values
    * This function is overridden from its base class
    * SystemCallTraceReplayModule as common field values
@@ -41,12 +40,12 @@ private:
    */
   void print_sys_call_fields();
 
-  /*
+  /**
    * Print execve sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will simply return without replaying
    * execve system call.
    */

@@ -18,7 +18,6 @@
  * USAGE
  * A main program could initialize this object with a dataseries file
  * and call execute() function until all extents are processed.
- *
  */
 #ifndef READ_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define READ_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
@@ -30,17 +29,17 @@
 class ReadSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 protected:
   bool verify_;
-  /* Read System Call Trace Fields in Dataseries file */
+  // Read System Call Trace Fields in Dataseries file
   Int32Field descriptor_;
   Variable32Field data_read_;
   Int64Field bytes_requested_;
 
-  /*
+  /**
    * Print read sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will gather arguments in the trace file
    * and then replay an read system call with those arguments.
    */
@@ -55,15 +54,15 @@ public:
 
 class PReadSystemCallTraceReplayModule : public ReadSystemCallTraceReplayModule {
 private:
-  /* PRead System Call Trace Fields in Dataseries file */
+  // PRead System Call Trace Fields in Dataseries file
   Int64Field offset_;
 
-  /*
+  /**
    * Print pread sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will gather arguments in the trace file
    * and then replay an pread system call with those arguments.
    */

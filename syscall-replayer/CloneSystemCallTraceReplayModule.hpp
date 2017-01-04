@@ -29,19 +29,19 @@
 
 class CloneSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 private:
-  /* DataSeries Execve System Call Trace Fields */
+  // DataSeries Execve System Call Trace Fields
   Int64Field flag_value_;
   Int64Field child_stack_address_;
   Int64Field parent_thread_id_;
   Int64Field child_thread_id_;
   Int64Field new_tls_;
 
-  /*
+  /**
    * Print clone sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will simply return without replaying
    * clone system call.
    */

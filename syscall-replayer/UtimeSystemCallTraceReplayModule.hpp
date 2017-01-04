@@ -32,17 +32,17 @@
 class UtimeSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 protected:
   bool verify_;
-  /* utime System Call Trace Fields in Dataseries file */
+  // utime System Call Trace Fields in Dataseries file
   Variable32Field given_pathname_;
   Int64Field access_time_;
   Int64Field mod_time_;
 
-  /*
+  /**
    * Print utime sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will gather arguments in the trace file
    * and then replay utime system call with those arguments.
    */
@@ -58,7 +58,7 @@ public:
 class UtimesSystemCallTraceReplayModule :
   public UtimeSystemCallTraceReplayModule {
 private:
-  /*
+  /**
    * This function will gather arguments in the trace file
    * and then replay utimes system call with those arguments.
    */
@@ -74,16 +74,16 @@ public:
 class UtimensatSystemCallTraceReplayModule :
   public UtimeSystemCallTraceReplayModule {
 private:
-  /* Utimensat System Call Trace Fields in Dataseries file */
+  // Utimensat System Call Trace Fields in Dataseries file
   Int32Field descriptor_;
   Int32Field flag_value_;
 
-  /*
+  /**
    * Print utimensat sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will gather arguments in the trace file
    * and then replay utimensats system call with those arguments.
    */

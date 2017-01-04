@@ -19,7 +19,6 @@
  * USAGE
  * A main program could initialize this class with a dataseries file
  * and call execute() function until all extents are processed.
- *
  */
 #ifndef PIPE_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define PIPE_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
@@ -29,16 +28,16 @@
 class PipeSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 private:
   bool verify_;
-  /* Pipe System Call Trace Fields in Dataseries file */
+  // Pipe System Call Trace Fields in Dataseries file
   Int32Field read_descriptor_;
   Int32Field write_descriptor_;
 
-  /*
+  /**
    * Print pipe sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will gather arguments in the trace file
    * and replay a pipe system call with those arguments.
    */

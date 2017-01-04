@@ -21,7 +21,7 @@
 
 #include "SystemCallTraceReplayer.hpp"
 
-/*
+/**
  * min heap uses this function to sort elements in the tree.
  * The sorting key is unique id.
  */
@@ -32,7 +32,7 @@ struct CompareByUniqueID {
   }
 };
 
-/*
+/**
  * This function declares a group of options that will
  * be allowed for the replayer, store options in a
  * variable map and return it.
@@ -44,10 +44,7 @@ struct CompareByUniqueID {
 boost::program_options::variables_map get_options(int argc,
 						  char *argv[]) {
   namespace po = boost::program_options;
-  /*
-   * Declare a group of options that will be
-   * allowed only on command line
-   */
+  // Declare a group of options that will be allowed only on command line
   po::options_description generic("Generic options");
   generic.add_options()
     ("version,V", "print version of system call replayer")
@@ -84,10 +81,9 @@ boost::program_options::variables_map get_options(int argc,
   cmdline_options.add(generic).add(config).add(hidden);
 
   /*
-    po::options_description config_file_options;
-    config_file_options.add(config).add(hidden);
-  */
-
+   * po::options_description config_file_options;
+   * config_file_options.add(config).add(hidden);
+   */
   po::options_description visible("Allowed options");
   visible.add(generic).add(config);
 
@@ -107,7 +103,7 @@ boost::program_options::variables_map get_options(int argc,
   return vm;
 }
 
-/*
+/**
  * process_options function calls get_options() to get
  * a variable map that contains all the options. Then this
  * function uses the variable map to define options that
@@ -178,7 +174,7 @@ void process_options(int argc, char *argv[],
   }
 }
 
-/*
+/**
  * Creates a prefetch buffer module for each system call.
  * Each prefetch buffer module is going to be used to create
  * system call module.
@@ -196,9 +192,7 @@ std::vector<PrefetchBufferModule *> create_prefetch_buffer_modules(std::vector<s
   // This is the prefix extent type of all system calls.
   const std::string kExtentTypePrefix = "IOTTAFSL::Trace::Syscall::";
 
-  /*
-   * This vector contains the list of system calls that need replaying modules.
-   */
+  // This vector contains the list of system calls that need replaying modules.
   std::vector<std::string> system_calls;
   system_calls.push_back("open");
   system_calls.push_back("openat");
@@ -262,7 +256,7 @@ std::vector<PrefetchBufferModule *> create_prefetch_buffer_modules(std::vector<s
     type_index_modules.push_back(type_index_module);
   }
 
-  /* Specify to read dataseries input files */
+  // Specify to read dataseries input files
   for (std::vector<std::string>::iterator iter = input_files.begin();
        iter != input_files.end();
        iter++) {
@@ -273,7 +267,7 @@ std::vector<PrefetchBufferModule *> create_prefetch_buffer_modules(std::vector<s
 
   std::vector<PrefetchBufferModule *> prefetch_buffer_modules;
   for (unsigned int i = 0; i < type_index_modules.size(); ++i) {
-    /* Parallel decompress and replay, 8MiB buffer */
+    // Parallel decompress and replay, 8MiB buffer
     PrefetchBufferModule *module =
       new PrefetchBufferModule(*(type_index_modules[i]), 8 * 1024 * 1024);
     prefetch_buffer_modules.push_back(module);
@@ -282,7 +276,7 @@ std::vector<PrefetchBufferModule *> create_prefetch_buffer_modules(std::vector<s
   return prefetch_buffer_modules;
 }
 
-/*
+/**
  * Creates a replaying module for each system call.
  *****Remember to modify here to create a replaying module when supporting a new system call.*********
  * IMPORTANT: each entry in prefetch_buffer_modules corresponds to
@@ -644,7 +638,7 @@ std::vector<SystemCallTraceReplayModule *> create_system_call_trace_replay_modul
   return system_call_trace_replay_modules;
 }
 
-/*
+/**
  * Add all system call replay modules to min heap if the module has extents
  */
 void load_syscall_modules(std::priority_queue<SystemCallTraceReplayModule*,
@@ -671,7 +665,7 @@ void load_syscall_modules(std::priority_queue<SystemCallTraceReplayModule*,
   }
 }
 
-/*
+/**
  * Before replay any system call, we need to prepare it by
  * setting mask value, file descriptor table, etc. That's
  * where this function comes in. 
@@ -688,7 +682,8 @@ void prepare_replay(std::priority_queue<SystemCallTraceReplayModule*,
     // First record should be a umask record.
     assert(syscall_module->unique_id()==0);
 
-    /* Call umask(0) to “turn off” umask. This is needed b/c the kernel still has to have some umask value.
+    /*
+     * Call umask(0) to “turn off” umask. This is needed b/c the kernel still has to have some umask value.
      * By default the umask of the user running the replayer will be used,
      * and applied to whatever mode values we pass to syscalls like mkdir(path, mode).
      * Essentially, kernel will not modify the mode values that we pass to system calls.

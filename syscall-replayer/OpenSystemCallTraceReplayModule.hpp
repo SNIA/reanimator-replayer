@@ -19,7 +19,6 @@
  * USAGE
  * A main program could initialize this class with a dataseries file
  * and call execute() function until all extents are processed.
- *
  */
 #ifndef OPEN_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define OPEN_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
@@ -32,17 +31,17 @@
 
 class OpenSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 protected:
-  /* Open System Call Trace Fields in Dataseries file */
+  // Open System Call Trace Fields in Dataseries file
   Variable32Field given_pathname_;
   Int32Field open_value_;
   Int32Field mode_value_;
 
-  /*
+  /**
    * Print open sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will gather arguments in the trace file
    * and replay an open system call with those arguments.
    */
@@ -58,15 +57,15 @@ public:
 class OpenatSystemCallTraceReplayModule :
   public OpenSystemCallTraceReplayModule {
 private:
-  /* Openat System Call Trace Fields in Dataseries file */
+  // Openat System Call Trace Fields in Dataseries file
   Int32Field descriptor_;
 
-  /*
+  /**
    * Print openat sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will gather arguments in the trace file
    * and replay an openat system call with those arguments.
    */

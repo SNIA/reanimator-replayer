@@ -19,7 +19,6 @@
  * USAGE
  * A main program could initialize this class with a dataseries file
  * and call execute() function until all extents are processed.
- *
  */
 #ifndef MKNOD_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define MKNOD_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
@@ -32,18 +31,18 @@
 
 class MknodSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 private:
-  /* Mknod System Call Trace Fields in Dataseries file */
+  // Mknod System Call Trace Fields in Dataseries file
   Variable32Field given_pathname_;
   Int32Field mode_value_;
   ByteField type_;
   Int32Field dev_;
 
-  /*
+  /**
    * Print mknod sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will gather arguments in the trace file
    * and replay a mknod system call with those arguments.
    */

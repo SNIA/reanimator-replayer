@@ -19,7 +19,6 @@
  * USAGE
  * A main program could initialize this object with a dataseries file
  * and call execute() function until all extents are processed.
- *
  */
 #ifndef GETDENTS_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define GETDENTS_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
@@ -33,17 +32,17 @@
 class GetdentsSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 protected:
   bool verify_;
-  /* Getdents System Call Trace Fields in Dataseries file */
+  // Getdents System Call Trace Fields in Dataseries file
   Int32Field descriptor_;
   Variable32Field dirent_buffer_;
   Int32Field count_;
 
-  /*
+  /**
    * Print getdents sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will gather arguments in the trace file
    * and then replay a getdents system call with those arguments.
    */

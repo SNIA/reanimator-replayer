@@ -28,17 +28,17 @@ class WriteSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 protected:
   bool verify_;
   std::string pattern_data_;
-  /* Write System Call Trace Fields in Dataseries file */
+  // Write System Call Trace Fields in Dataseries file
   Int32Field descriptor_;
   Variable32Field data_written_;
   Int64Field bytes_requested_;
 
-  /*
+  /**
    * Print write sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will gather arguments in the trace file
    * or create our own arguments (for example, pattern),
    * then replay an write system call with those arguments.
@@ -55,15 +55,15 @@ public:
 
 class PWriteSystemCallTraceReplayModule : public WriteSystemCallTraceReplayModule {
 private:
-  /* PWrite System Call Trace Fields in Dataseries file */
+  // PWrite System Call Trace Fields in Dataseries file
   Int64Field offset_;
 
-  /*
+  /**
    * Print pwrite sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will gather arguments in the trace file
    * and then replay an pwrite system call with those arguments.
    */

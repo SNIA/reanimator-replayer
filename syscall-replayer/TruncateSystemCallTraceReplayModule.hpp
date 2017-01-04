@@ -34,12 +34,12 @@ protected:
   Variable32Field given_pathname_;
   Int64Field truncate_length_;
 
-  /*
+  /**
    * Print truncate sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will gather arguments in the trace file
    * and replay a truncate system call with those arguments.
    */

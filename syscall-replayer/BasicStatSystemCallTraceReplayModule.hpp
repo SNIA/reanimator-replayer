@@ -20,7 +20,6 @@
  * USAGE
  * A main program could initialize this class with a dataseries file
  * and call execute() function until all extents are processed.
- *
  */
 #ifndef BASIC_STAT_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define BASIC_STAT_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
@@ -33,10 +32,7 @@
 
 class BasicStatSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 protected:
-  /*
-   * System Call Trace Fields in Dataseries file common to Stat, LStat, and
-   * FStat
-   */
+  // System Call Trace Fields in Dataseries file common to Stat, LStat, and
   bool verify_;
   Int32Field stat_result_dev_;
   Int32Field stat_result_ino_;
@@ -51,25 +47,24 @@ protected:
   Int64Field stat_result_mtime_;
   Int64Field stat_result_ctime_;
 
-  /*
+  /**
    * Print stat, lstat, and fstat sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
-   * Print stat, lstat, and fstat sys call mode values in format as
-   * Format: drwxrwxrwx
+  /**
+   * Print stat, lstat, and fstat sys call mode values in format as Format: drwxrwxrwx
    */
   int print_mode_value(u_int st_mode);
 
-  /*
+  /**
    * This function will gather arguments in the trace file
    * and replay a stat, lstat, or fstat system call with those arguments.
    * This function will be defined in the derived classes.
    */
   virtual void processRow() = 0;
 
-  /*
+  /**
    * This function will verify that the data contained in the stat buffer
    * of the replayed system call matches the stat buffer data captured in
    * the trace.
@@ -87,15 +82,15 @@ public:
 class StatSystemCallTraceReplayModule :
   public BasicStatSystemCallTraceReplayModule {
 private:
-  /* System Call Field pathname stored in DataSeries file */
+  // System Call Field pathname stored in DataSeries file
   Variable32Field given_pathname_;
 
-  /*
+  /**
    * Print stat sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will gather arguments in the trace file
    * and call replay a stat system call with those arguments.
    */
@@ -111,15 +106,15 @@ public:
 class LStatSystemCallTraceReplayModule :
   public BasicStatSystemCallTraceReplayModule {
 private:
-  /* System Call Field pathname stored in DataSeries file */
+  // System Call Field pathname stored in DataSeries file
   Variable32Field given_pathname_;
 
-  /*
+  /**
    * Print lstat sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will gather arguments in the trace file
    * and call replay an lstat system call with those arguments.
    */
@@ -135,15 +130,15 @@ public:
 class FStatSystemCallTraceReplayModule :
   public BasicStatSystemCallTraceReplayModule {
 private:
-  /* System Call Field descriptor stored in Dataseries ilfe */
+  // System Call Field descriptor stored in Dataseries ilfe
   Int32Field descriptor_;
 
-  /*
+  /**
    * Print fstat sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will gather arguments in the trace file
    * and call replay an fstat system call with those arguments.
    */
@@ -159,17 +154,17 @@ public:
 class FStatatSystemCallTraceReplayModule :
   public BasicStatSystemCallTraceReplayModule {
 private:
-  /* System Call Field descriptor stored in Dataseries ilfe */
+  // System Call Field descriptor stored in Dataseries file
   Int32Field descriptor_;
   Variable32Field given_pathname_;
   Int32Field flags_value_;
 
-  /*
+  /**
    * Print fstatat sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will gather arguments in the trace file
    * and call replay an fstatat system call with those arguments.
    */

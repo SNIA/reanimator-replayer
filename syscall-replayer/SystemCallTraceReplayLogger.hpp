@@ -36,20 +36,20 @@ class SystemCallTraceReplayLogger {
 private:
   std::ofstream logger_file_;
 
-  /*
+  /**
    * This function actually prints the log message to the
    * logger file
    */
   void print_logs(std::stringstream&& log_stream);
 
-  /*
+  /**
    * This function calls itself recursively to combine the arguments
    * in a stringstream.
    */
   template<typename First, typename...Rest>
   void print_logs(std::stringstream&& log_stream, First&& parm1, Rest&&...parm);
 
-  /*
+  /**
    * This function is used to print the current time to the log file
    * while appending logs to the log file.
    *
@@ -59,41 +59,44 @@ private:
   std::string format_time();
 
 public:
-  /*
+  /**
    * This is the constructor of SystemCallTraceReplayLogger
    * class which opens the logger file to write logs.
    */
   SystemCallTraceReplayLogger(std::string log_filename);
 
-  /*
+  /**
    * This function takes the variable number of arguments and prints
    * the info messages to the logger file.
    */
   template<typename...Args>
   void log_info(Args&&...args);
 
-  /*
+  /**
    * This function takes the variable number of arguments and prints
    * the error messages to the logger file.
    */
   template<typename...Args>
   void log_err(Args&&...args);
 
-  /*
+  /**
    * This function takes the variable number of arguments and prints
    * the warning messages to the logger file.
    */
   template<typename...Args>
   void log_warn(Args&&...args);
 
-  /*
+  /**
    * This function takes the variable number of arguments and prints
    * the debug messages to the logger file.
    */
   template<typename...Args>
   void log_debug(Args&&...args);
 
-  // Destructor
+
+  /**
+   * Deconstructor
+   */
   ~SystemCallTraceReplayLogger();
 };
 

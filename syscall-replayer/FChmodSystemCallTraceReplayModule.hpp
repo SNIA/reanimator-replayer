@@ -20,7 +20,6 @@
  * USAGE
  * A main program could initialize this class with a dataseries file
  * and call execute() function until all extents are processed.
- *
  */
 #ifndef FCHMOD_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define FCHMOD_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
@@ -33,16 +32,16 @@
 
 class FChmodSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 protected:
-  /* FChmod System Call Trace Fields in Dataseries file */
+  // FChmod System Call Trace Fields in Dataseries file
   Int32Field descriptor_;
   Int32Field mode_value_;
 
-  /*
+  /**
    * Print fchmod sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will gather arguments in the trace file
    * and replay an fchmod  system call with those arguments.
    */
@@ -59,16 +58,16 @@ class FChmodatSystemCallTraceReplayModule :
 public FChmodSystemCallTraceReplayModule {
 
 private:
-  /* FChmodat System Call Trace Fields in Dataseries file */
+  // FChmodat System Call Trace Fields in Dataseries file
   Variable32Field given_pathname_;
   Int32Field flag_value_;
 
-  /*
+  /**
    * Print fchmod sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will gather arguments in the trace file
    * and replay an fchmod  system call with those arguments.
    */

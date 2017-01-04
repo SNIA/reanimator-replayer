@@ -43,7 +43,6 @@ void CreatSystemCallTraceReplayModule::processRow() {
   replayed_ret_val_ = creat(pathname, mode);
   // Add a mapping from fd in trace file to actual replayed fd
   pid_t pid = executing_pid();
-  // A call to creat() is equivalent to calling open() with flags equal to
-  // O_CREAT|O_WRONLY|O_TRUNC.
+  // A call to creat() is equivalent to calling open() with flags equal to O_CREAT|O_WRONLY|O_TRUNC.
   replayer_resources_manager_.add_fd(pid, return_value, replayed_ret_val_, O_CREAT|O_WRONLY|O_TRUNC);
 }

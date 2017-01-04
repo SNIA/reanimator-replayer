@@ -65,8 +65,7 @@ void FcntlSystemCallTraceReplayModule::processRow() {
   struct flock lock;
 
   /*
-   * Replay the fcntl system call
-   * If fcntl was passed a command that requires a struct flock,
+   * Replay the fcntl system call If fcntl was passed a command that requires a struct flock,
    * set the values of the flock and pass it to fcntl as the third argument.
    */
   if ((command == F_SETLK) ||

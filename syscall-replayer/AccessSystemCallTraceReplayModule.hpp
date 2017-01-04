@@ -33,12 +33,12 @@ protected:
   Variable32Field given_pathname_;
   Int32Field mode_value_;
 
-  /*
+  /**
    * Print this sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will gather arguments in the trace file
    * and replay a access system call with those arguments.
    */
@@ -56,12 +56,12 @@ private:
   Int32Field descriptor_;
   Int32Field flags_value_;
 
-  /*
+  /**
    * Print this sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will gather arguments in the trace file
    * and replay a faccessat system call with those arguments.
    */

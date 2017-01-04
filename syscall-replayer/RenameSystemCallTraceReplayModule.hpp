@@ -34,12 +34,12 @@ protected:
   Variable32Field given_oldname_;
   Variable32Field given_newname_;
 
-  /*
+  /**
    * Print rename sys call field values in a nice format
    */
   void print_specific_fields();
 
-  /*
+  /**
    * This function will gather arguments in the trace file
    * and replay a rename system call with those arguments.
    */
