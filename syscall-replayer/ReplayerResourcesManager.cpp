@@ -48,6 +48,11 @@ int ReplayerResourcesManager::get_fd(pid_t pid, int traced_fd) {
   return fd_table_map_[pid]->get_fd(traced_fd);
 }
 
+bool ReplayerResourcesManager::has_fd(pid_t pid, int traced_fd) {
+  assert(fd_table_map_.find(pid) != fd_table_map_.end());
+  return fd_table_map_[pid]->has_fd(traced_fd);
+}
+
 void ReplayerResourcesManager::update_fd(pid_t pid, int traced_fd, int replayed_fd) {
   assert(fd_table_map_.find(pid) != fd_table_map_.end());
   fd_table_map_[pid]->update_fd(traced_fd, replayed_fd);
@@ -239,7 +244,7 @@ void FileDescriptorTableEntry::add_fd_entry(int traced_fd, int replayed_fd, int 
    * to have a memory leak problem where we keep creating a entry
    * for traced_fd=-1
    */
-  if (traced_fd != -1 || fd_table_.find(traced_fd) == fd_table_.end()) {
+  if (traced_fd != -1 || !has_fd(traced_fd)) {
     // Create a FileDescriptorEntry
     fd_table_[traced_fd] = new FileDescriptorEntry(replayed_fd, flags);
   }
@@ -250,7 +255,7 @@ int FileDescriptorTableEntry::remove_fd_entry(int traced_fd) {
    * fd_table_ may not have an entry for traced_fd because
    * traced_fd is invalid.
    */
-  if (fd_table_.find(traced_fd) == fd_table_.end()) {
+  if (!has_fd(traced_fd)) {
     return -1;
   }
   int replayed_fd = fd_table_[traced_fd]->get_fd();
@@ -266,11 +271,19 @@ int FileDescriptorTableEntry::get_fd(int traced_fd) {
    * fd_table_ may not have an entry for traced_fd because
    * traced_fd is invalid.
    */
-  if (fd_table_.find(traced_fd) == fd_table_.end()) {
+  if (!has_fd(traced_fd)) {
     return -1;
   }
   // Return replayed fd corresponding to traced_fd
   return fd_table_[traced_fd]->get_fd();
+}
+
+bool FileDescriptorTableEntry::has_fd(int traced_fd) {
+  if (fd_table_.find(traced_fd) == fd_table_.end()) {
+    return false;
+  } else {
+    return true;
+  }
 }
 
 std::vector<int> FileDescriptorTableEntry::get_all_fds() {

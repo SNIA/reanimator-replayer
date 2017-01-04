@@ -46,6 +46,20 @@ void Dup2SystemCallTraceReplayModule::processRow() {
   int old_fd = replayer_resources_manager_.get_fd(pid, old_descriptor_.val());
   int old_fd_flags = replayer_resources_manager_.get_flags(pid, old_descriptor_.val());
   int new_fd = new_descriptor_.val();
+  /*
+   * The first is to duplicate onto a descriptor that's
+   * currently open, usually as part of redirecting
+   * stdout or stderr. We can't use new_fd in trace file
+   * and need to replace that with our replayed fd.
+   * Also, dup2 silently closes the file descriptor newfd if
+   * it was previously open. Therefore, we need to
+   * update our mapping.
+   */
+  if (replayer_resources_manager_.has_fd(pid, new_fd)) {
+    new_fd = replayer_resources_manager_.get_fd(pid, new_fd);
+    replayer_resources_manager_.remove_fd(pid, new_fd);
+  }
+
   // The two file descriptors do not share file descriptor flags (the close-on-exec flag).
   int new_fd_flags = old_fd_flags & ~O_CLOEXEC;
   replayed_ret_val_ = dup2(old_fd, new_fd);
