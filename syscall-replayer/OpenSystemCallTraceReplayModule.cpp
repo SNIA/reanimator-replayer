@@ -41,13 +41,23 @@ void OpenSystemCallTraceReplayModule::processRow() {
   const char *pathname = (char *)given_pathname_.val();
   int flags = open_value_.val();
   mode_t mode = get_mode(mode_value_.val());
-  int return_value = (int)return_value_.val();
+  int traced_fd = (int)return_value_.val();
 
   // replay the open system call
   replayed_ret_val_ = open(pathname, flags, mode);
-  // Add a mapping from fd in trace file to actual replayed fd
-  pid_t pid = executing_pid();
-  replayer_resources_manager_.add_fd(pid, return_value, replayed_ret_val_, flags);
+  if (traced_fd == -1 && replayed_ret_val_ != -1) {
+    /* Original system open failed, but replay system succeeds.
+     * Therefore, we will close the replayed fd.
+     */
+    close(replayed_ret_val_);
+  } else {
+    /* Even if traced fd is valid, but replayed fd is -1,
+     * we will still add the entry and replay it.
+     * Add a mapping from fd in trace file to actual replayed fd
+     */
+    pid_t pid = executing_pid();
+    replayer_resources_manager_.add_fd(pid, traced_fd, replayed_ret_val_, flags);
+  }
 }
 
 OpenatSystemCallTraceReplayModule::
@@ -76,10 +86,18 @@ void OpenatSystemCallTraceReplayModule::processRow() {
   const char *pathname = (char *)given_pathname_.val();
   int flags = open_value_.val();
   mode_t mode = get_mode(mode_value_.val());
-  int return_value = (int)return_value_.val();
+  int traced_fd = (int)return_value_.val();
 
   // replay the openat system call
   replayed_ret_val_ = openat(dirfd, pathname, flags, mode);
-  // Add a mapping from fd in trace file to actual replayed fd
-  replayer_resources_manager_.add_fd(pid, return_value, replayed_ret_val_, flags);
+  if (traced_fd == -1 && replayed_ret_val_ != -1) {
+    // Original system open failed, but replay system succeeds.
+    // Therefore, we will close the replayed fd.
+    close(replayed_ret_val_);
+  } else {
+    // Even if traced fd is valid, but replayed fd is -1,
+    // we will still add the entry and replay it.
+    // Add a mapping from fd in trace file to actual replayed fd
+    replayer_resources_manager_.add_fd(pid, traced_fd, replayed_ret_val_, flags);
+  }
 }

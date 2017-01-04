@@ -230,15 +230,29 @@ std::map<int, FileDescriptorEntry*>& FileDescriptorTableEntry::get_fd_table() {
 }
 
 void FileDescriptorTableEntry::add_fd_entry(int traced_fd, int replayed_fd, int flags) {
-  // fd_table_ shouldn't have an entry for traced_fd
-  assert(fd_table_.find(traced_fd) == fd_table_.end());
-  // Create a FileDescriptorEntry
-  fd_table_[traced_fd] = new FileDescriptorEntry(replayed_fd, flags);
+  // fd_table_ shouldn't have an entry for traced_fd if traced_fd is NOT -1
+  assert(traced_fd == -1 || fd_table_.find(traced_fd) == fd_table_.end());
+  /*
+   * Because an application can call open system call with invalid
+   * file path many times and get -1 as its return value, this function
+   * can be called many times with traced_fd being -1, we don't want
+   * to have a memory leak problem where we keep creating a entry
+   * for traced_fd=-1
+   */
+  if (traced_fd != -1 || fd_table_.find(traced_fd) == fd_table_.end()) {
+    // Create a FileDescriptorEntry
+    fd_table_[traced_fd] = new FileDescriptorEntry(replayed_fd, flags);
+  }
 }
 
 int FileDescriptorTableEntry::remove_fd_entry(int traced_fd) {
-  // fd_table_ should have an entry for traced_fd
-  assert(fd_table_.find(traced_fd) != fd_table_.end());
+  /*
+   * fd_table_ may not have an entry for traced_fd because
+   * traced_fd is invalid.
+   */
+  if (fd_table_.find(traced_fd) == fd_table_.end()) {
+    return -1;
+  }
   int replayed_fd = fd_table_[traced_fd]->get_fd();
   // Free the memory
   delete fd_table_[traced_fd];
@@ -248,9 +262,14 @@ int FileDescriptorTableEntry::remove_fd_entry(int traced_fd) {
 }
 
 int FileDescriptorTableEntry::get_fd(int traced_fd) {
-  // fd_table_ should have an entry for traced_fd
-  assert(fd_table_.find(traced_fd) != fd_table_.end());
-  // Create a FileDescriptorEntry
+  /*
+   * fd_table_ may not have an entry for traced_fd because
+   * traced_fd is invalid.
+   */
+  if (fd_table_.find(traced_fd) == fd_table_.end()) {
+    return -1;
+  }
+  // Return replayed fd corresponding to traced_fd
   return fd_table_[traced_fd]->get_fd();
 }
 

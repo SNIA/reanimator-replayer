@@ -139,14 +139,23 @@ public:
   void add_fd_entry(int traced_fd, int replayed_fd, int flags);
 
   /*
-   * Remove file descriptor entry from the table
+   * Remove file descriptor entry from the table.
+   * Return -1 if traced_fd is invalid, otherwise, return
+   * replayed fd for caller to close.
    */
   int remove_fd_entry(int traced_fd);
 
   /*
    * Get replayed fd for the given traced fd
+   * Return -1 if traced_fd is invalid.
    */
   int get_fd(int traced_fd);
+
+  /*
+   * Determine whether there is a file descriptor entry for traced fd.
+   * Return true if there is, return false otherwise.
+   */
+  bool has_fd(int traced_fd);
 
   /*
    * Get all fds in this process.
@@ -192,10 +201,6 @@ public:
    * Note:
    * 1. fds are int because fds can be negative. Ex: FDCWD == -100
    * 2. flags are also int because flags in open man page is int.
-   ****************************************************************
-   *        All methods assume that fds are VALID                 *
-   *        Ex: close(5)  we will assume that 5 is a valid fd     *
-   ****************************************************************
    */
 
   /*
@@ -214,8 +219,16 @@ public:
   void add_fd(pid_t pid, int traced_fd, int replayed_fd, int flags);
 
   /*
+   * This function will determine whether there is a file descriptor
+   * entry for traced fd.
+   * Return true if there is, return false otherwise.
+   */
+  bool has_fd(pid_t pid, int traced_fd);
+
+  /*
    * This function will return replayed file descriptor that corrsponds
-   * to given traced file descriptor.
+   * to given traced file descriptor. Return -1 if traced_fd
+   * is invalid.
    */
   int get_fd(pid_t pid, int traced_fd);
 
@@ -229,13 +242,8 @@ public:
    * This function will remove the file descriptor entry
    * from pid fd table.
    *
-   * Return a fd to close.
-   *
-   * Future work:
-   * Return a pair where the first element is true of false. True means that
-   * caller needs to close the file, false means no need to close.
-   * The second element is replayed fd if no error occurs.
-   * <need to close, replayed fd>
+   * Return a fd to close if traced_fd is valid, otherweise,
+   * return -1.
    */
   int remove_fd(pid_t pid, int traced_fd);
 
