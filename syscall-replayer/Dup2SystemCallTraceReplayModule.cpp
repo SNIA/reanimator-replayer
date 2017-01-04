@@ -58,6 +58,8 @@ void Dup2SystemCallTraceReplayModule::processRow() {
   if (replayer_resources_manager_.has_fd(pid, new_fd)) {
     new_fd = replayer_resources_manager_.get_fd(pid, new_fd);
     replayer_resources_manager_.remove_fd(pid, new_fd);
+  } else {
+    new_fd = replayer_resources_manager_.generate_unused_fd(pid);
   }
 
   // The two file descriptors do not share file descriptor flags (the close-on-exec flag).

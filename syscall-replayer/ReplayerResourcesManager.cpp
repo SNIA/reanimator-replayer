@@ -53,6 +53,17 @@ bool ReplayerResourcesManager::has_fd(pid_t pid, int traced_fd) {
   return fd_table_map_[pid]->has_fd(traced_fd);
 }
 
+int ReplayerResourcesManager::generate_unused_fd(pid_t pid) {
+  assert(fd_table_map_.find(pid) != fd_table_map_.end());
+  std::unordered_set<int> used_fds = fd_table_map_[pid]->get_all_fds();
+  int unused = 0;
+  while (used_fds.find(unused) != used_fds.end()) {
+    // Keep incrementing unused until we find a fd that is not used.
+    unused++;
+  }
+  return unused;
+}
+
 void ReplayerResourcesManager::update_fd(pid_t pid, int traced_fd, int replayed_fd) {
   assert(fd_table_map_.find(pid) != fd_table_map_.end());
   fd_table_map_[pid]->update_fd(traced_fd, replayed_fd);
@@ -86,13 +97,13 @@ void ReplayerResourcesManager::clone_fd_table(pid_t ppid, pid_t pid, bool shared
   }
 }
 
-std::vector<int> ReplayerResourcesManager::remove_fd_table(pid_t pid) {
+std::unordered_set<int> ReplayerResourcesManager::remove_fd_table(pid_t pid) {
   assert(fd_table_map_.find(pid) != fd_table_map_.end());
   FileDescriptorTableEntry* fd_table_ptr = fd_table_map_[pid];
   // Decrement the reference count for this process's fd table.
   unsigned int rc = fd_table_ptr->decrement_rc();
   // If reference count reaches 0, we will destroy the fd table.
-  std::vector<int> fds;
+  std::unordered_set<int> fds;
   if (rc <= 0) {
     // Need to ask replayer to close all those fds
     fds = fd_table_ptr->get_all_fds();
@@ -286,12 +297,12 @@ bool FileDescriptorTableEntry::has_fd(int traced_fd) {
   }
 }
 
-std::vector<int> FileDescriptorTableEntry::get_all_fds() {
-  std::vector<int> fds;
+std::unordered_set<int> FileDescriptorTableEntry::get_all_fds() {
+  std::unordered_set<int> fds;
   for (std::map<int, FileDescriptorEntry*>::iterator iter = fd_table_.begin();
     iter != fd_table_.end(); iter++) {
     FileDescriptorEntry* fd_ptr = iter->second;
-    fds.push_back(fd_ptr->get_fd());
+    fds.insert(fd_ptr->get_fd());
   }
   return fds;
 }

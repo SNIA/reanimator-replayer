@@ -28,6 +28,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <unordered_set>
 #include <iterator>
 #include <assert.h>
 #include <iostream>
@@ -160,7 +161,7 @@ public:
   /*
    * Get all fds in this process.
    */
-  std::vector<int> get_all_fds();
+  std::unordered_set<int> get_all_fds();
 
   /*
    * Update the replayed that is mapped to traced_fd
@@ -226,6 +227,13 @@ public:
   bool has_fd(pid_t pid, int traced_fd);
 
   /*
+   * This function generates a fd that is currently
+   * unused in replayer.
+   * Return a fd that is currently unused.
+   */
+  int generate_unused_fd(pid_t pid);
+
+  /*
    * This function will return replayed file descriptor that corrsponds
    * to given traced file descriptor. Return -1 if traced_fd
    * is invalid.
@@ -277,7 +285,7 @@ public:
    * of fd table reaches to 0.
    * Return a list of fd for replayer to close
    */
-  std::vector<int> remove_fd_table(pid_t pid);
+  std::unordered_set<int> remove_fd_table(pid_t pid);
 
   /*
    * print_fd_manager() function will print out the
