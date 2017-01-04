@@ -42,8 +42,8 @@ void ExitSystemCallTraceReplayModule::processRow() {
   // Remove umask table
   SystemCallTraceReplayModule::replayer_resources_manager_.remove_umask(pid);
   // Remove fd table
-  std::vector<int> fds_to_close = replayer_resources_manager_.remove_fd_table(pid);
-  for (std::vector<int>::iterator iter = fds_to_close.begin();
+  std::unordered_set<int> fds_to_close = replayer_resources_manager_.remove_fd_table(pid);
+  for (std::unordered_set<int>::iterator iter = fds_to_close.begin();
     iter != fds_to_close.end();
     iter++) {
     close(*iter);
