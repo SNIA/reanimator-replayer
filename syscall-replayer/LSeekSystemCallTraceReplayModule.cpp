@@ -30,14 +30,19 @@ LSeekSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void LSeekSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("descriptor(", descriptor_.val(), "), ", \
+  pid_t pid = executing_pid();
+  int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
+
+  syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
+    "replayed fd(", replayed_fd, "), ",
     "offset(", offset_.val(), "), ", \
     "whence(", (unsigned) whence_.val(), ")");
 }
 
 void LSeekSystemCallTraceReplayModule::processRow() {
   // Get replaying file descriptor.
-  int fd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
+  pid_t pid = executing_pid();
+  int fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
   long offset = offset_.val();
   uint8_t whence = whence_.val();
 

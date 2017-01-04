@@ -39,7 +39,13 @@ void ExitSystemCallTraceReplayModule::processRow() {
    * Hence we do not replay exit system call, but we update replayer resources
    */
   pid_t pid = executing_pid();
-  // Clone umask table
+  // Remove umask table
   SystemCallTraceReplayModule::replayer_resources_manager_.remove_umask(pid);
-  return;
+  // Remove fd table
+  std::vector<int> fds_to_close = replayer_resources_manager_.remove_fd_table(pid);
+  for (std::vector<int>::iterator iter = fds_to_close.begin();
+    iter != fds_to_close.end();
+    iter++) {
+    close(*iter);
+  }
 }

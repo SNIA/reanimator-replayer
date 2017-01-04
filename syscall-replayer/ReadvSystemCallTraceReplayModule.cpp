@@ -41,7 +41,10 @@ void ReadvSystemCallTraceReplayModule::print_specific_fields() {
    * Print the descriptor value, number of iovec and total
    * number of bytes read from the first record of dataseries file.
    */
-  syscall_logger_->log_info("descriptor:(", descriptor_.val(), "), ", \
+  pid_t pid = executing_pid();
+  int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
+  syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
+    "replayed fd(", replayed_fd, "), ",
     "count:(", count_.val(), "), ", \
     "bytes requested:(", bytes_requested_.val(), ")");
 
@@ -64,7 +67,8 @@ void ReadvSystemCallTraceReplayModule::print_specific_fields() {
 
 void ReadvSystemCallTraceReplayModule::processRow() {
   // Get replaying file descriptor.
-  int fd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
+  pid_t pid = executing_pid();
+  int fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
   int count = count_.val(); /* Number of read io vectors */
   int iov_number = iov_number_.val();
   char *traced_buffer[count];
@@ -139,11 +143,11 @@ void ReadvSystemCallTraceReplayModule::processRow() {
           iovcnt_, " in readv failed.");
         if (!default_mode()) {
           syscall_logger_->log_warn("time called:", \
-	    boost::format(DEC_PRECISION) % Tfrac_to_sec(time_called()), \
+            boost::format(DEC_PRECISION) % Tfrac_to_sec(time_called()), \
             ", Captured readv data is different from", \
             " replayed read data");
           syscall_logger_->log_warn("Captured readv data: ", traced_buffer[iovcnt_],
-	    ", Replayed readv data: ", replayed_buffer[iovcnt_]);
+            ", Replayed readv data: ", replayed_buffer[iovcnt_]);
           if (abort_mode()) {
             abort();
           }

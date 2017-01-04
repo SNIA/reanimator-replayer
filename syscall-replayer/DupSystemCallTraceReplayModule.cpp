@@ -29,12 +29,17 @@ DupSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void DupSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("descriptor(", descriptor_.val(), ")");
+  pid_t pid = executing_pid();
+  int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
+
+  syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
+    "replayed fd(", replayed_fd, ")");
 }
 
 void DupSystemCallTraceReplayModule::processRow() {
   // Get actual file descriptor
-  int fd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
+  pid_t pid = executing_pid();
+  int fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
 
   replayed_ret_val_ = dup(fd);
 
@@ -42,5 +47,7 @@ void DupSystemCallTraceReplayModule::processRow() {
    * Map replayed duplicated file descriptor to traced duplicated
    * file descriptor
    */
-  SystemCallTraceReplayModule::fd_map_[return_value()] = replayed_ret_val_;
+  int fd_flags = replayer_resources_manager_.get_flags(pid, descriptor_.val());
+  int new_fd_flags = fd_flags & ~O_CLOEXEC;
+  replayer_resources_manager_.add_fd(pid, return_value(), replayed_ret_val_, new_fd_flags);
 }

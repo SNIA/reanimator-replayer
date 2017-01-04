@@ -33,13 +33,17 @@ GetdentsSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void GetdentsSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("descriptor(", descriptor_.val(), "), " \
+  pid_t pid = executing_pid();
+  int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
+  syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
+    "replayed fd(", replayed_fd, "), "
     "count(", count_.val(), ")");
 }
 
 void GetdentsSystemCallTraceReplayModule::processRow() {
   // Get replaying file descriptor.
-  int fd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
+  pid_t pid = executing_pid();
+  int fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
   int count = count_.val();
   struct dirent *buffer = (struct dirent *) malloc(count);
   replayed_ret_val_ = syscall(SYS_getdents, fd, buffer, count);

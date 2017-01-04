@@ -29,12 +29,16 @@ FsyncSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void FsyncSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("descriptor(", descriptor_.val(), ")");
+  pid_t pid = executing_pid();
+  int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
+  syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
+    "replayed fd(", replayed_fd, ")");
 }
 
 void FsyncSystemCallTraceReplayModule::processRow() {
   // Get actual file descriptor
-  int fd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
+  pid_t pid = executing_pid();
+  int fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
 
   replayed_ret_val_ = fsync(fd);
 }

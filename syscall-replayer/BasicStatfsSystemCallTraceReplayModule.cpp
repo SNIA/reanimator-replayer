@@ -80,30 +80,30 @@ void BasicStatfsSystemCallTraceReplayModule::verifyResult(
     syscall_logger_->log_err("Verification of ", sys_call_name_, \
       " buffer content failed.");
     if (!default_mode()) {
-	syscall_logger_->log_warn("time called:", \
-	boost::format(DEC_PRECISION) % Tfrac_to_sec(time_called()),\
+      syscall_logger_->log_warn("time called:", \
+        boost::format(DEC_PRECISION) % Tfrac_to_sec(time_called()),\
         "Captured ", sys_call_name_, " content is different from replayed ", \
         sys_call_name_, " content");
     	syscall_logger_->log_warn("Captured file system type: ", statfs_result_type, ", ", \
         "Replayed file system type: ", replayed_statfs_buf.f_type);
     	syscall_logger_->log_warn("Captured block size: ", statfs_result_bsize, \
-	", Replayed block size: ", replayed_statfs_buf.f_bsize);
+        ", Replayed block size: ", replayed_statfs_buf.f_bsize);
     	syscall_logger_->log_warn("Captured total blocks: ", statfs_result_blocks, \
-	", Replayed total blocks: ", replayed_statfs_buf.f_blocks);
+        ", Replayed total blocks: ", replayed_statfs_buf.f_blocks);
     	syscall_logger_->log_warn("Captured free blocks: ", statfs_result_bfree, \
-	", Replayed free blocks: ", replayed_statfs_buf.f_bfree);
+        ", Replayed free blocks: ", replayed_statfs_buf.f_bfree);
     	syscall_logger_->log_warn("Captured available blocks: ", statfs_result_bavail, \
-	", Replayed available blocks: ", replayed_statfs_buf.f_bavail);
+        ", Replayed available blocks: ", replayed_statfs_buf.f_bavail);
     	syscall_logger_->log_warn("Captured total file inodes: ", statfs_result_files, \
-	", Replayed total file inodes: ", replayed_statfs_buf.f_files);
+        ", Replayed total file inodes: ", replayed_statfs_buf.f_files);
     	syscall_logger_->log_warn("Captured free file nodes: ", statfs_result_ffree, \
-	", Replayed free file nodes: ", replayed_statfs_buf.f_ffree);
+        ", Replayed free file nodes: ", replayed_statfs_buf.f_ffree);
     	syscall_logger_->log_warn("Captured maximum namelength: ", statfs_result_namelen, \
-	", Replayed maximum namelength: ", replayed_statfs_buf.f_namelen);
+        ", Replayed maximum namelength: ", replayed_statfs_buf.f_namelen);
     	syscall_logger_->log_warn("Captured fragment size: ", statfs_result_frsize, \
-	", Replayed fragment size: ", replayed_statfs_buf.f_frsize);
+      	", Replayed fragment size: ", replayed_statfs_buf.f_frsize);
     	syscall_logger_->log_warn("Captured mount flags: ", statfs_result_flags, \
-	", Replayed mount flags: ", replayed_statfs_buf.f_flags);
+        ", Replayed mount flags: ", replayed_statfs_buf.f_flags);
       if (abort_mode()) {
         abort();
       }
@@ -156,13 +156,17 @@ FStatfsSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void FStatfsSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("descriptor(", descriptor_.val(), "),");
+  pid_t pid = executing_pid();
+  int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
+  syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
+    "replayed fd(", replayed_fd, "), ");
   BasicStatfsSystemCallTraceReplayModule::print_specific_fields();
 }
 
 void FStatfsSystemCallTraceReplayModule::processRow() {
   struct statfs statfs_buf;
-  int fd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
+  pid_t pid = executing_pid();
+  int fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
 
   // replay the fstatfs system call
   replayed_ret_val_ = fstatfs(fd, &statfs_buf);

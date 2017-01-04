@@ -30,12 +30,13 @@ AccessSystemCallTraceReplayModule(DataSeriesModule &source,
 
 void AccessSystemCallTraceReplayModule::print_specific_fields() {
   syscall_logger_->log_info("pathname(", given_pathname_.val(), "), " \
-    "mode(", mode_value_.val(), ")");
+    "traced mode(", mode_value_.val(), "), ",
+    "replayed mode(", get_mode(mode_value_.val()), ")");
 }
 
 void AccessSystemCallTraceReplayModule::processRow() {
   const char *pathname = (char *)given_pathname_.val();
-  int mode_value = mode_value_.val();
+  int mode_value = get_mode(mode_value_.val());
 
   // Replay the access system call
   replayed_ret_val_ = access(pathname, mode_value);
@@ -52,18 +53,23 @@ FAccessatSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void FAccessatSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("descriptor(", descriptor_.val(), "), " \
-    "pathname(", given_pathname_.val(), "), " \
-    "mode(", mode_value_.val(), ") " \
+  pid_t pid = executing_pid();
+  int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
+  syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
+    "replayed fd(", replayed_fd, ")",
+    "pathname(", given_pathname_.val(), "), ",
+    "traced mode(", mode_value_.val(), "), ",
+    "replayed mode(", get_mode(mode_value_.val()), ")",
     "flag(", flags_value_.val(), ")");
 }
 
 void FAccessatSystemCallTraceReplayModule::processRow() {
-  int descriptor = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
+  pid_t pid = executing_pid();
+  int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
   const char *pathname = (char *)given_pathname_.val();
-  int mode = mode_value_.val();
+  int mode = get_mode(mode_value_.val());
   int flags = flags_value_.val();
 
   // Replay the faccessat system call
-  replayed_ret_val_ = faccessat(descriptor, pathname, mode, flags);
+  replayed_ret_val_ = faccessat(replayed_fd, pathname, mode, flags);
 }

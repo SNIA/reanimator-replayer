@@ -23,7 +23,7 @@ PipeSystemCallTraceReplayModule::
 PipeSystemCallTraceReplayModule(DataSeriesModule &source,
                                 bool verbose_flag,
                                 bool verify_flag,
-				int warn_level_flag):
+                                int warn_level_flag):
   SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
   verify_(verify_flag),
   read_descriptor_(series, "read_descriptor"),
@@ -60,9 +60,9 @@ void PipeSystemCallTraceReplayModule::processRow() {
       syscall_logger_->log_err("Captured and replayed pipe file descriptors differ.");
       if (verbose_mode()) {
         syscall_logger_->log_warn("Captured read descriptor: ",
-	  read_descriptor_.val(), ", Replayed read descriptor: ", pipefd[0]);
+          read_descriptor_.val(), ", Replayed read descriptor: ", pipefd[0]);
         syscall_logger_->log_warn("Captured write descriptor: ", \
-	  write_descriptor_.val(), ", Replayed write descriptor: ", pipefd[1]);
+          write_descriptor_.val(), ", Replayed write descriptor: ", pipefd[1]);
       }
       if (abort_mode())
         abort();
@@ -72,6 +72,11 @@ void PipeSystemCallTraceReplayModule::processRow() {
    * Add mappings from the recorded file descriptors to the
    * replayed file descriptors
    */
-  SystemCallTraceReplayModule::fd_map_[read_descriptor_.val()] = pipefd[0];
-  SystemCallTraceReplayModule::fd_map_[write_descriptor_.val()] = pipefd[1];
+  pid_t pid = executing_pid();
+  /*
+   * If flags is 0, then pipe2() is the same as pipe(). Therefore, fds created by
+   * pipe have flags 0.
+   */
+  replayer_resources_manager_.add_fd(pid, read_descriptor_.val(), pipefd[0], 0);
+  replayer_resources_manager_.add_fd(pid, write_descriptor_.val(), pipefd[1], 0);
 }

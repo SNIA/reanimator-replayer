@@ -20,9 +20,9 @@
 #include "FChmodSystemCallTraceReplayModule.hpp"
 
 FChmodSystemCallTraceReplayModule::FChmodSystemCallTraceReplayModule(
-						   DataSeriesModule &source,
-						   bool verbose_flag,
-						   int warn_level_flag):
+  DataSeriesModule &source,
+  bool verbose_flag,
+  int warn_level_flag):
   SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
   descriptor_(series, "descriptor"),
   mode_value_(series, "mode_value", Field::flag_nullable) {
@@ -30,22 +30,28 @@ FChmodSystemCallTraceReplayModule::FChmodSystemCallTraceReplayModule(
 }
 
 void FChmodSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("descriptor(", descriptor_.val(), "), ", \
-    "mode(", mode_value_.val(), ")");
+  pid_t pid = executing_pid();
+  int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
+
+  syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
+    "replayed fd(", replayed_fd, "), ",
+    "traced mode(", mode_value_.val(), ")",
+    "replayed mode(", get_mode(mode_value_.val()), ")");
 }
 
 void FChmodSystemCallTraceReplayModule::processRow() {
-  int fd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
-  mode_t mode = mode_value_.val();
+  pid_t pid = executing_pid();
+  int fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
+  mode_t mode = get_mode(mode_value_.val());
 
   // Replay the fchmod system call
   replayed_ret_val_ = fchmod(fd, mode);
 }
 
 FChmodatSystemCallTraceReplayModule::FChmodatSystemCallTraceReplayModule(
-						   DataSeriesModule &source,
-						   bool verbose_flag,
-						   int warn_level_flag):
+  DataSeriesModule &source,
+  bool verbose_flag,
+  int warn_level_flag):
   FChmodSystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
   given_pathname_(series, "given_pathname"),
   flag_value_(series, "flag_value", Field::flag_nullable) {
@@ -53,16 +59,22 @@ FChmodatSystemCallTraceReplayModule::FChmodatSystemCallTraceReplayModule(
 }
 
 void FChmodatSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("descriptor(", descriptor_.val(), "), ", \
-    "given_pathname(", given_pathname_.val(), ") ", \
-    "mode(", mode_value_.val(), ") ", \
+  pid_t pid = executing_pid();
+  int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
+
+  syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
+    "replayed fd(", replayed_fd, "), ",
+    "given_pathname(", given_pathname_.val(), "), ", \
+    "traced mode(", mode_value_.val(), "), ",
+    "replayed mode(", get_mode(mode_value_.val()), "), ",
     "flag(", flag_value_.val(), ")");
 }
 
 void FChmodatSystemCallTraceReplayModule::processRow() {
-  int fd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
+  pid_t pid = executing_pid();
+  int fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
   const char *pathname = (char *)given_pathname_.val();
-  mode_t mode = mode_value_.val();
+  mode_t mode = get_mode(mode_value_.val());
   int flags = flag_value_.val();
 
   // Replay the fchmodat system call

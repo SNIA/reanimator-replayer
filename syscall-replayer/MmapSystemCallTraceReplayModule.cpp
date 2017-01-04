@@ -33,13 +33,17 @@ MmapSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void MmapSystemCallTraceReplayModule::print_specific_fields() {
+  pid_t pid = executing_pid();
+  int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
+
   syscall_logger_->log_info("start_address(", \
-	   boost::format("0x%02x") % start_address_.val(), "), ", \
-	   "length(", std::dec, length_.val(), "), ", \
-	   "protection_value(", protection_value_.val(), "), ", \
-	   "flags_value(", flags_value_.val(), "), ", \
-	   "descriptor(", descriptor_.val(), "), ", \
-	   "offset(", boost::format("0x%02x") % offset_.val(), ")");
+    boost::format("0x%02x") % start_address_.val(), "), ", \
+    "length(", std::dec, length_.val(), "), ", \
+    "protection_value(", protection_value_.val(), "), ", \
+    "flags_value(", flags_value_.val(), "), ", \
+    "traced fd(", descriptor_.val(), "), ", \
+    "replayed_fd fd(", replayed_fd, "), ", \
+    "offset(", boost::format("0x%02x") % offset_.val(), ")");
 }
 
 void MmapSystemCallTraceReplayModule::processRow() {

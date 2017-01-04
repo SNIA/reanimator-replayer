@@ -37,6 +37,9 @@
 #include <sstream>
 #include <errno.h>
 #include <boost/format.hpp>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #define DEFAULT_MODE 0
 #define WARN_MODE    1
@@ -131,8 +134,7 @@ protected:
   mode_t get_mode(mode_t mode);
 
 public:
-  // A mapping of file descriptors in the trace file to actual file descriptors
-  static std::map<int, int> fd_map_;
+  // A resource manager for umask and file descriptors
   static ReplayerResourcesManager replayer_resources_manager_;
   // An input file stream for reading random data from /dev/urandom
   static std::ifstream random_file_;
@@ -264,6 +266,15 @@ public:
    * false otherwise.
    */
   bool cur_extent_has_more_record();
+
+  /*
+   * is_version_compatible() determines whether current extent is
+   * compatible with major_v.minor_v. Return true if current extent
+   * has version x.y and y <= minor_v and x == major_v.
+   *
+   * @return: true indicates current extent is compatible with version major_v.minor_v.
+   */
+  bool is_version_compatible(unsigned int major_v, unsigned int minor_v);
 
   /*
    * This function will be called by a replayer to replay

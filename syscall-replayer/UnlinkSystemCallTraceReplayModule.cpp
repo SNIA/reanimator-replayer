@@ -49,13 +49,18 @@ UnlinkatSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void UnlinkatSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("descriptor(", descriptor_.val(), "), ", \
+  pid_t pid = executing_pid();
+  int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
+  syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
+    "replayed fd(", replayed_fd, "), ",
     "pathname(", given_pathname_.val(), "), ", \
     "flags(", flag_value_.val(), ")");
 }
 
 void UnlinkatSystemCallTraceReplayModule::processRow() {
-  int dirfd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
+  // Get replaying file descriptor.
+  pid_t pid = executing_pid();
+  int dirfd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
   char *path = (char *) given_pathname_.val();
   int flags = flag_value_.val();
 

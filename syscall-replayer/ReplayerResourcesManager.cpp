@@ -21,139 +21,94 @@
 ReplayerResourcesManager::ReplayerResourcesManager() {
 }
 
-void ReplayerResourcesManager::initialize(pid_t pid, std::map<int, int>& fd_map) {
+void ReplayerResourcesManager::initialize(SystemCallTraceReplayLogger *logger,
+  pid_t pid, std::map<int, int>& fd_map) {
+  logger_ = logger;
   // Create a new UmaskEntry for trace application
   umask_table_[pid] = new UmaskEntry(0);
 
-  for (std::map<int, int>::iterator it = fd_map.begin();
-    it != fd_map.end(); ++it) {
-    int traced_fd = it->first;
-    int replayed_fd = it->second;
+  fd_table_map_[pid] = new FileDescriptorTableEntry();
+  for (std::map<int, int>::iterator iter = fd_map.begin();
+    iter != fd_map.end(); ++iter) {
+    int traced_fd = iter->first;
+    int replayed_fd = iter->second;
     // Flags is 0
-    fd_table_map_[pid][traced_fd] = std::make_pair(replayed_fd, 0);
-    fd_rc_[traced_fd]++;
+    add_fd(pid, traced_fd, replayed_fd, 0);
   }
 }
 
 void ReplayerResourcesManager::add_fd(pid_t pid, int traced_fd,
   int replayed_fd, int flags) {
   assert(fd_table_map_.find(pid) != fd_table_map_.end());
-  FileDescriptorTable& fd_table = fd_table_map_[pid];
-  fd_table[traced_fd] = std::make_pair(replayed_fd, flags);
-  /* [] operator adds an entry for us if traced_fd is new in our map
-   * and initialize the reference count to be 0. So all we have to do is increment the
-   * reference count.
-   * The following code can lead to traced fd -1 to have many reference counts.
-   * This case is a valid one.
-   */
-  fd_rc_[traced_fd]++;
-}
-
-std::pair<bool, int> ReplayerResourcesManager::remove_fd(pid_t pid, int traced_fd) {
-  assert(fd_table_map_.find(pid) != fd_table_map_.end());
-  FileDescriptorTable& fd_table = fd_table_map_[pid];
-  if (fd_rc_.find(traced_fd) == fd_rc_.end() || fd_table.find(traced_fd) == fd_table.end()) {
-    return std::make_pair(false, -1);
-  }
-  if (fd_rc_[traced_fd] <= 0) {
-    return std::make_pair(false, -1);
-  }
-  // Decrement the reference
-  fd_rc_[traced_fd]--;
-  // Get replayed fd
-  int replayed_fd = fd_table[traced_fd].first;
-  // Remove the fd entry
-  fd_table.erase(traced_fd);
-  if (fd_rc_[traced_fd] == 0) {
-    fd_rc_.erase(traced_fd);
-    return std::make_pair(true, replayed_fd);
-  }
-  return std::make_pair(false, 0);
+  fd_table_map_[pid]->add_fd_entry(traced_fd, replayed_fd, flags);
 }
 
 int ReplayerResourcesManager::get_fd(pid_t pid, int traced_fd) {
   assert(fd_table_map_.find(pid) != fd_table_map_.end());
-  // Get the corresponding fd table
-  FileDescriptorTable& fd_table = fd_table_map_[pid];
-  if (fd_table.find(traced_fd) == fd_table.end()) {
-    return -1;
-  }
-  return fd_table[traced_fd].first;
+  return fd_table_map_[pid]->get_fd(traced_fd);
+}
+
+void ReplayerResourcesManager::update_fd(pid_t pid, int traced_fd, int replayed_fd) {
+  assert(fd_table_map_.find(pid) != fd_table_map_.end());
+  fd_table_map_[pid]->update_fd(traced_fd, replayed_fd);
 }
 
 int ReplayerResourcesManager::get_flags(pid_t pid, int traced_fd) {
   assert(fd_table_map_.find(pid) != fd_table_map_.end());
-  FileDescriptorTable& fd_table = fd_table_map_[pid];
-  return fd_table[traced_fd].second;
+  return fd_table_map_[pid]->get_flags(traced_fd);
 }
 
-void ReplayerResourcesManager::add_flags(pid_t pid, int traced_fd, int flags) {
+void ReplayerResourcesManager::update_flags(pid_t pid, int traced_fd, int flags) {
   assert(fd_table_map_.find(pid) != fd_table_map_.end());
-  FileDescriptorTable& fd_table = fd_table_map_[pid];
-  fd_table[traced_fd].second |= flags;
+  fd_table_map_[pid]->update_flags(traced_fd, flags);
 }
 
-void ReplayerResourcesManager::remove_flags(pid_t pid, int traced_fd, int flags) {
+int ReplayerResourcesManager::remove_fd(pid_t pid, int traced_fd) {
   assert(fd_table_map_.find(pid) != fd_table_map_.end());
-  FileDescriptorTable& fd_table = fd_table_map_[pid];
-  fd_table[traced_fd].second &= ~flags;
+  FileDescriptorTableEntry* fd_table_ptr = fd_table_map_[pid];
+  return fd_table_ptr->remove_fd_entry(traced_fd);
 }
 
-int ReplayerResourcesManager::clone_fd_table(pid_t ppid, pid_t pid) {
+void ReplayerResourcesManager::clone_fd_table(pid_t ppid, pid_t pid, bool shared) {
   assert(fd_table_map_.find(ppid) != fd_table_map_.end());
-  // Make a copy
-  fd_table_map_[pid] = fd_table_map_[ppid];
-
-  for (FileDescriptorTable::iterator iter = fd_table_map_[pid].begin();
-    iter != fd_table_map_[pid].end(); iter++) {
-    int traced_fd = iter->first;
-    assert(fd_rc_.find(traced_fd) != fd_rc_.end());
-    assert(fd_rc_[traced_fd] <= 0);
-    // Increment reference count
-    fd_rc_[traced_fd]++;
+  FileDescriptorTableEntry* p_fd_table_ptr = fd_table_map_[ppid];
+  if (shared) {
+    fd_table_map_[pid] = p_fd_table_ptr;
+    p_fd_table_ptr->increment_rc();
+  } else {
+    // Make a copy
+    fd_table_map_[pid] = new FileDescriptorTableEntry(*p_fd_table_ptr);
   }
-  return 0;
 }
 
-std::vector<std::pair<bool, int>> ReplayerResourcesManager::remove_fd_table(pid_t pid) {
+std::vector<int> ReplayerResourcesManager::remove_fd_table(pid_t pid) {
   assert(fd_table_map_.find(pid) != fd_table_map_.end());
-  // Get the corresponding fd table
-  FileDescriptorTable& fd_table = fd_table_map_[pid];
-  std::vector<std::pair<bool, int>> fds;
-  for (FileDescriptorTable::iterator iter = fd_table.begin();
-  	iter != fd_table.end(); iter++) {
-  	int traced_fd = iter->first;
-    std::pair<bool, int> fd_info = remove_fd(pid, traced_fd);
-
-    fds.push_back(fd_info);
+  FileDescriptorTableEntry* fd_table_ptr = fd_table_map_[pid];
+  // Decrement the reference count for this process's fd table.
+  unsigned int rc = fd_table_ptr->decrement_rc();
+  // If reference count reaches 0, we will destroy the fd table.
+  std::vector<int> fds;
+  if (rc <= 0) {
+    // Need to ask replayer to close all those fds
+    fds = fd_table_ptr->get_all_fds();
+    // Free the memory that is used by fd table
+    delete fd_table_ptr;
   }
+  // Remove the entry for pid.
   fd_table_map_.erase(pid);
   return fds;
 }
 
 void ReplayerResourcesManager::print_fd_manager() {
-  std::cout << "=====================================================================" << std::endl;
-  std::cout << "---------------------- File Descriptor Manager ----------------------" << std::endl;
+  logger_->log_info("=====================================================================");
+  logger_->log_info("---------------------- File Descriptor Manager ----------------------");
   // Print file desriptor tables
   for (PerPidFileDescriptorTableMap::iterator map_iter = fd_table_map_.begin();
     map_iter != fd_table_map_.end(); map_iter++) {
     pid_t pid = map_iter->first;
-    std::cout << "Pid: " << pid << std::endl;
-    for (FileDescriptorTable::iterator table_iter = map_iter->second.begin();
-      table_iter != map_iter->second.end(); table_iter++) {
-      int traced_fd = table_iter->first;
-      FileDescriptor fd_info = table_iter->second;
-      std::cout << "Traced fd: " << traced_fd;
-      std::cout << " -> <Replayed fd: " << fd_info.first << ", flags: " << fd_info.second << ">" << std::endl;
-    }
-  }
-  // Print reference count table
-  std::cout << "---------------------- Reference Count ------------------------------" << std::endl;
-  for (FileDescriptorReferenceCount::iterator iter = fd_rc_.begin();
-    iter != fd_rc_.end(); iter++) {
-    int traced_fd = iter->first;
-    int reference_count = iter->second;
-    std::cout << "Traced fd: " << traced_fd << ", Reference count: " << reference_count << std::endl;
+    logger_->log_info("Pid: " + std::to_string(pid));
+    FileDescriptorTableEntry *table = map_iter->second;
+    logger_->log_info(table->to_string());
   }
 }
 
@@ -190,13 +145,26 @@ void ReplayerResourcesManager::remove_umask(pid_t pid) {
   if (rc <= 0) {
     // Free the memory that is used by UmaskEntry
     delete umask_table_[pid];
-    // Remove the entry from umask table.
-    umask_table_.erase(pid);
   }
+  // Remove the entry from umask table.
+  umask_table_.erase(pid);
+}
+
+// =========================== BasicEntry Implementation ==========================
+BasicEntry::BasicEntry():rc_(1) { }
+
+void BasicEntry::increment_rc() {
+  rc_++;
+}
+
+unsigned int BasicEntry::decrement_rc() {
+  assert(rc_ != 0);
+  rc_--;
+  return rc_;
 }
 
 // =========================== UmaskEntry Implementation ==========================
-UmaskEntry::UmaskEntry(mode_t m):umask_(m), rc_(1) { }
+UmaskEntry::UmaskEntry(mode_t m):BasicEntry(), umask_(m) { }
 
 mode_t UmaskEntry::get_umask() {
   return umask_;
@@ -206,12 +174,127 @@ void UmaskEntry::set_umask(mode_t m) {
   umask_ = m;
 }
 
-void UmaskEntry::increment_rc() {
-  rc_++;
+// =========================== FileDescriptorEntry Implementation ==========================
+FileDescriptorEntry::FileDescriptorEntry(int fd, int flags):fd_(fd), flags_(flags) { }
+
+FileDescriptorEntry::FileDescriptorEntry(FileDescriptorEntry& fd_entry) {
+  fd_ = fd_entry.get_fd();
+  flags_ = fd_entry.get_flags(); 
 }
 
-unsigned int UmaskEntry::decrement_rc() {
-  assert(rc_ != 0);
-  rc_--;
-  return rc_;
+int FileDescriptorEntry::get_fd() {
+  return fd_;
+}
+
+void FileDescriptorEntry::set_fd(int fd) {
+  fd_ = fd;
+}
+
+int FileDescriptorEntry::get_flags() {
+  return flags_;
+}
+
+void FileDescriptorEntry::set_flags(int flags) {
+  flags_ = flags;
+}
+
+std::string FileDescriptorEntry::to_string() {
+  std::stringstream ss;
+  ss << "<Replayed fd: " << fd_ << ", flags: " << flags_ << ">";
+  return ss.str();
+}
+
+// =========================== FileDescriptorTableEntry Implementation ==========================
+FileDescriptorTableEntry::FileDescriptorTableEntry():BasicEntry() { }
+
+FileDescriptorTableEntry::FileDescriptorTableEntry(FileDescriptorTableEntry& fd_table_entry):BasicEntry() {
+  std::map<int, FileDescriptorEntry*>& fd_table_copy = fd_table_entry.get_fd_table();
+  for (std::map<int, FileDescriptorEntry*>::iterator iter = fd_table_copy.begin();
+    iter != fd_table_copy.end(); iter++) {
+    int traced_fd = iter->first;
+    FileDescriptorEntry* fd_ptr = iter->second;
+    add_fd_entry(traced_fd, fd_ptr->get_fd(), fd_ptr->get_flags());
+  }
+}
+
+FileDescriptorTableEntry::~FileDescriptorTableEntry() {
+  for (std::map<int, FileDescriptorEntry*>::iterator iter = fd_table_.begin();
+    iter != fd_table_.end(); iter++) {
+    FileDescriptorEntry* fd_ptr = iter->second;
+    delete fd_ptr;
+  }
+}
+
+std::map<int, FileDescriptorEntry*>& FileDescriptorTableEntry::get_fd_table() {
+  return fd_table_;
+}
+
+void FileDescriptorTableEntry::add_fd_entry(int traced_fd, int replayed_fd, int flags) {
+  // fd_table_ shouldn't have an entry for traced_fd
+  assert(fd_table_.find(traced_fd) == fd_table_.end());
+  // Create a FileDescriptorEntry
+  fd_table_[traced_fd] = new FileDescriptorEntry(replayed_fd, flags);
+}
+
+int FileDescriptorTableEntry::remove_fd_entry(int traced_fd) {
+  // fd_table_ should have an entry for traced_fd
+  assert(fd_table_.find(traced_fd) != fd_table_.end());
+  int replayed_fd = fd_table_[traced_fd]->get_fd();
+  // Free the memory
+  delete fd_table_[traced_fd];
+  // Erase the entry
+  fd_table_.erase(traced_fd);
+  return replayed_fd;
+}
+
+int FileDescriptorTableEntry::get_fd(int traced_fd) {
+  // fd_table_ should have an entry for traced_fd
+  assert(fd_table_.find(traced_fd) != fd_table_.end());
+  // Create a FileDescriptorEntry
+  return fd_table_[traced_fd]->get_fd();
+}
+
+std::vector<int> FileDescriptorTableEntry::get_all_fds() {
+  std::vector<int> fds;
+  for (std::map<int, FileDescriptorEntry*>::iterator iter = fd_table_.begin();
+    iter != fd_table_.end(); iter++) {
+    FileDescriptorEntry* fd_ptr = iter->second;
+    fds.push_back(fd_ptr->get_fd());
+  }
+  return fds;
+}
+
+void FileDescriptorTableEntry::update_fd(int traced_fd, int replayed_fd) {
+  // fd_table_ should have an entry for traced_fd
+  assert(fd_table_.find(traced_fd) != fd_table_.end());
+  // Create a FileDescriptorEntry
+  fd_table_[traced_fd]->set_fd(replayed_fd);
+}
+
+int FileDescriptorTableEntry::get_flags(int traced_fd) {
+  // fd_table_ should have an entry for traced_fd
+  assert(fd_table_.find(traced_fd) != fd_table_.end());
+  // Create a FileDescriptorEntry
+  return fd_table_[traced_fd]->get_flags();
+}
+
+void FileDescriptorTableEntry::update_flags(int traced_fd, int flags) {
+  // fd_table_ should have an entry for traced_fd
+  assert(fd_table_.find(traced_fd) != fd_table_.end());
+  // Create a FileDescriptorEntry
+  fd_table_[traced_fd]->set_flags(flags);
+}
+
+std::string FileDescriptorTableEntry::to_string() {
+  std::stringstream ss;
+  ss << "Reference count: " << rc_ << std::endl;
+  for (std::map<int, FileDescriptorEntry*>::iterator table_iter = fd_table_.begin();
+    table_iter != fd_table_.end();
+    table_iter++) {
+    int traced_fd = table_iter->first;
+    FileDescriptorEntry* fd_entry = table_iter->second;
+    ss << "Traced fd: " << traced_fd << " -> ";
+    ss << fd_entry->to_string() << std::endl;
+  }
+  return ss.str();
 }

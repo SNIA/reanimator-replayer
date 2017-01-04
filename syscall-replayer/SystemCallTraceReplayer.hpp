@@ -46,11 +46,13 @@
 #include "VForkSystemCallTraceReplayModule.hpp"
 #include "UmaskSystemCallTraceReplayModule.hpp"
 
-// Define the static fd_map_ in SystemCallTraceReplayModule
-std::map<int, int> SystemCallTraceReplayModule::fd_map_;
 // Define the static replayer resources manager in SystemCallTraceReplayModule
 ReplayerResourcesManager SystemCallTraceReplayModule::replayer_resources_manager_;
 // Define the input file stream random_file_ in SystemCallTraceReplayModule
 std::ifstream SystemCallTraceReplayModule::random_file_;
 // Define the object of logger class in SystemCallTraceReplayModule
 SystemCallTraceReplayLogger *SystemCallTraceReplayModule::syscall_logger_;
+
+// Assert that only version 1 is allowed (at this point)
+static const unsigned int supported_major_version = 1;
+static const unsigned int supported_minor_version = 0;

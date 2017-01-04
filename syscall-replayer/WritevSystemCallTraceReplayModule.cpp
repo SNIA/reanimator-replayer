@@ -41,7 +41,10 @@ void WritevSystemCallTraceReplayModule::print_specific_fields() {
    * Print the descriptor value, number of iovec and total
    * number of bytes written from the first record of dataseries file.
    */
-  syscall_logger_->log_info("descriptor:(", descriptor_.val(), "), ", \
+  pid_t pid = executing_pid();
+  int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
+  syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
+    "replayed fd(", replayed_fd, "), ",
 	   "count:(", count_.val(), "), ", \
 	   "bytes requested:(", bytes_requested_.val(), ")");
 
@@ -64,7 +67,8 @@ void WritevSystemCallTraceReplayModule::print_specific_fields() {
 
 void WritevSystemCallTraceReplayModule::processRow() {
   // Get replaying file descriptor.
-  int fd = SystemCallTraceReplayModule::fd_map_[descriptor_.val()];
+  pid_t pid = executing_pid();
+  int fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
   int count = count_.val(); /* Number of write io vectors */
   int iov_number = iov_number_.val();
   char *data_buffer[count];
@@ -103,35 +107,35 @@ void WritevSystemCallTraceReplayModule::processRow() {
 
       // Check to see if user wants to use pattern
       if (!pattern_data_.empty()) {
-	/*
-	 * Allocate memory and copy the actual buffer.
-	 * XXX NOTE: ***** FUTURE WORK *****
-	 * Instead of allocating individual buffer, we can allocate
-	 * one single buffer.
-	 */
-	data_buffer[iov_num] = new char[bytes_requested];
-	if (pattern_data_ == "random") {
-	  // Fill write buffer using rand()
-	  data_buffer[iov_num] = random_fill_buffer(data_buffer[iov_num],
-						    bytes_requested);
-	} else if (pattern_data_ == "urandom") {
-	  // Fill write buffer using data generated from /dev/urandom
-	  SystemCallTraceReplayModule::random_file_.read(data_buffer[iov_num],
-							 bytes_requested);
-	} else {
-	  // Write zeros or pattern specified in pattern_data
-	  unsigned char pattern = pattern_data_[0];
+      	/*
+      	 * Allocate memory and copy the actual buffer.
+      	 * XXX NOTE: ***** FUTURE WORK *****
+      	 * Instead of allocating individual buffer, we can allocate
+      	 * one single buffer.
+      	 */
+      	data_buffer[iov_num] = new char[bytes_requested];
+      	if (pattern_data_ == "random") {
+      	  // Fill write buffer using rand()
+      	  data_buffer[iov_num] = random_fill_buffer(data_buffer[iov_num],
+      						    bytes_requested);
+      	} else if (pattern_data_ == "urandom") {
+      	  // Fill write buffer using data generated from /dev/urandom
+      	  SystemCallTraceReplayModule::random_file_.read(data_buffer[iov_num],
+      							 bytes_requested);
+      	} else {
+      	  // Write zeros or pattern specified in pattern_data
+      	  unsigned char pattern = pattern_data_[0];
 
-	  /*
-	   * XXX FUTURE WORK: Currently we support pattern of one byte.
-	   * For multi byte pattern data, we have to modify the
-	   * implementation of filling data_buffer.
-	   */
-	  memset(data_buffer[iov_num], pattern, bytes_requested);
-	}
+      	  /*
+      	   * XXX FUTURE WORK: Currently we support pattern of one byte.
+      	   * For multi byte pattern data, we have to modify the
+      	   * implementation of filling data_buffer.
+      	   */
+      	  memset(data_buffer[iov_num], pattern, bytes_requested);
+      	}
       } else {
-	// Write the traced data
-	data_buffer[iov_num] = (char *)data_written_.val();
+        // Write the traced data
+        data_buffer[iov_num] = (char *)data_written_.val();
       }
 
       /*

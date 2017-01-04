@@ -278,6 +278,7 @@ std::vector<PrefetchBufferModule *> create_prefetch_buffer_modules(std::vector<s
       new PrefetchBufferModule(*(type_index_modules[i]), 8 * 1024 * 1024);
     prefetch_buffer_modules.push_back(module);
   }
+
   return prefetch_buffer_modules;
 }
 
@@ -654,6 +655,17 @@ void load_syscall_modules(std::priority_queue<SystemCallTraceReplayModule*,
     SystemCallTraceReplayModule *module = system_call_trace_replay_modules[i];
     // getSharedExtent() == NULL means that there are no extents in the module.
     if (module->getSharedExtent()) {
+      /*
+       * Assert that only version 1.0 is allowed (at this point). Exit if version is wrong.
+       * This means that our replayer can process input DataSeries with version x.y
+       * if y <= supported_minor_version and x == supported_major_version.
+       */
+      if (!(module->is_version_compatible(supported_major_version, supported_minor_version))) {
+        std::cerr << "System call replayer currently only support system call traces \
+          dataseries with version" << supported_major_version << '.' << supported_minor_version
+          << std::endl;
+        exit(0);
+      }
       replayers_heap.push(module);
     }
   }
@@ -692,7 +704,9 @@ void prepare_replay(std::priority_queue<SystemCallTraceReplayModule*,
     std_fd_map[STDOUT_FILENO] = STDOUT_FILENO;
     std_fd_map[STDERR_FILENO] = STDERR_FILENO;
     std_fd_map[AT_FDCWD] = AT_FDCWD;
-    SystemCallTraceReplayModule::replayer_resources_manager_.initialize(traced_app_pid, std_fd_map);
+    SystemCallTraceReplayModule::replayer_resources_manager_.initialize(
+      SystemCallTraceReplayModule::syscall_logger_,
+      traced_app_pid, std_fd_map);
 
     syscall_replayer.pop();
     // Replay umask operation.
@@ -732,12 +746,6 @@ int main(int argc, char *argv[]) {
       exit(EXIT_FAILURE);
     }
   }
-
-  // Initialize standard map values (STDIN, STDOUT, STDERR, AT_FDCWD)
-  SystemCallTraceReplayModule::fd_map_[STDIN_FILENO] = STDIN_FILENO;
-  SystemCallTraceReplayModule::fd_map_[STDOUT_FILENO] = STDOUT_FILENO;
-  SystemCallTraceReplayModule::fd_map_[STDERR_FILENO] = STDERR_FILENO;
-  SystemCallTraceReplayModule::fd_map_[AT_FDCWD] = AT_FDCWD;
 
   std::vector<PrefetchBufferModule *> prefetch_buffer_modules = create_prefetch_buffer_modules(input_files);
 
@@ -780,6 +788,9 @@ int main(int argc, char *argv[]) {
       execute_replayer->getSharedExtent() != NULL) {
       // No, there are more extents, so we add it to min_heap
       replayers_heap.push(execute_replayer);
+    } else {
+      // No, there are no more extents, so we delete the module
+      delete execute_replayer;
     }
   }
 
