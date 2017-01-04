@@ -33,7 +33,9 @@ CXX      = g++
 
 TARGETS = system-call-replayer
 
-SYSTEM_CALL_REPLAY_MODULE_OBJECTS = SystemCallTraceReplayer.o ReplayerResourcesManager.o \
+SYSTEM_CALL_REPLAY_RESOURCES_MANAGER = ReplayerResourcesManager
+
+SYSTEM_CALL_REPLAY_MODULE_OBJECTS = SystemCallTraceReplayer.o \
 				    SystemCallTraceReplayLogger.o SystemCallTraceReplayModule.o \
 				    OpenSystemCallTraceReplayModule.o \
 				    CloseSystemCallTraceReplayModule.o \
@@ -82,10 +84,13 @@ SYS_CALL_REPLAYER_TEST_DIR=$(SYS_CALL_REPLAYER_DIR)/replayer-tests
 
 all: $(TARGETS)
 
-$(TARGETS): $(SYSTEM_CALL_REPLAY_MODULE_OBJECTS)
+$(TARGETS): $(SYSTEM_CALL_REPLAY_RESOURCES_MANAGER) $(SYSTEM_CALL_REPLAY_MODULE_OBJECTS)
 	$(CXX) -o $@ $^ $(CXXFLAGS)
 
-%.o: %.cpp %.hpp SystemCallTraceReplayModule.hpp
+$(SYSTEM_CALL_REPLAY_RESOURCES_MANAGER): $(SYSTEM_CALL_REPLAY_RESOURCES_MANAGER).cpp
+	$(CXX) -c -o $@ $< $(CXXFLAGS)
+
+%.o: %.cpp %.hpp SystemCallTraceReplayModule.hpp $(SYSTEM_CALL_REPLAY_RESOURCES_MANAGER)
 	$(CXX) -c -o $@ $< $(CXXFLAGS)
 
 test: $(TARGETS)
@@ -93,4 +98,4 @@ test: $(TARGETS)
 .PHONY: test
 
 clean:
-	rm -f $(TARGETS) $(SYSTEM_CALL_REPLAY_MODULE_OBJECTS) *~ \#*\#
+	rm -f $(TARGETS) $(SYSTEM_CALL_REPLAY_MODULE_OBJECTS) $(SYSTEM_CALL_REPLAY_RESOURCES_MANAGER) *~ \#*\#
