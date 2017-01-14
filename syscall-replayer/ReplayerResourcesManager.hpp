@@ -32,6 +32,10 @@
 #include <iterator>
 #include <assert.h>
 #include <iostream>
+#include <sys/time.h>
+#include <sys/resource.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include "SystemCallTraceReplayLogger.hpp"
 
 class BasicEntry {
@@ -211,6 +215,8 @@ private:
   PerPidFileDescriptorTableMap fd_table_map_;
   UmaskTable umask_table_;
   SystemCallTraceReplayLogger *logger_;
+  // Cached currently in-used fds in replayer
+  std::unordered_set<int> replayer_used_fds_;
 
 public:
   /**

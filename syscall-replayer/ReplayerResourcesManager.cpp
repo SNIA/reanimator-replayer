@@ -35,6 +35,33 @@ void ReplayerResourcesManager::initialize(SystemCallTraceReplayLogger *logger,
     // Flags is 0
     add_fd(pid, traced_fd, replayed_fd, 0);
   }
+
+  /*
+   * We have to scan for the open fds once, at startup time.
+   * This is necessary because we need it to genereate correct
+   * unused fds since dup2 needs an unused fd in replayer.
+   * This willl be a very fast scan because lseek is a purely in-kernel call
+   * it looks up the fd (failing right then if the fd is closed, which will be true for over 90% of the scanned values)
+   * and then accesses the file table entry associated with the descriptor (following a couple of pointers).
+   * The time will be dominated by the cost of entering and exiting the kernel.
+   * To be safe, we scan all the way to MAX_FDs.
+   */
+  struct rlimit rlim;
+  int result;
+  // If getrlimit fails, we will scan only first 100 fds.
+  int max_fds = 100;
+  // Get the limit on open files
+  result = getrlimit(RLIMIT_NOFILE, &rlim);
+  if (result >= 0) {
+    // getrlimit succeeds, sow we will scan all fds.
+    max_fds = rlim.rlim_cur;
+  }
+  for (int fd = 0; fd <= max_fds; fd++) {
+    result = lseek(fd, 0, SEEK_CUR);
+    if (result >= 0 || EBADF != errno) {
+      replayer_used_fds_.insert(fd);
+    }
+  }
 }
 
 void ReplayerResourcesManager::add_fd(pid_t pid, int traced_fd,
@@ -56,6 +83,8 @@ bool ReplayerResourcesManager::has_fd(pid_t pid, int traced_fd) {
 int ReplayerResourcesManager::generate_unused_fd(pid_t pid) {
   assert(fd_table_map_.find(pid) != fd_table_map_.end());
   std::unordered_set<int> used_fds = fd_table_map_[pid]->get_all_fds();
+  // Add cached replayer fds to used fds (ex. logger fd)
+  used_fds.insert(replayer_used_fds_.begin(), replayer_used_fds_.end());
   int unused = 0;
   while (used_fds.find(unused) != used_fds.end()) {
     // Keep incrementing unused until we find a fd that is not used.
