@@ -237,6 +237,22 @@ except for time returned value. The time returned value is recorded inside
 trace_syscall_exiting() function.
 
 
+DESIGN DECISIONS IN STRACE2DS
+===============================================================================
+1. UMASK SYSTEM CALLS
+Traced application has a default mask value that is different from the replayer.
+Therefore, we need to change umask value of replayer to be the same as the
+traced application. Unfortunately, there is no system call that
+allows us to extract umask value directly. Instead, we have to call umask twice
+in order to get the correct umask value. First call is to get the
+original value of mask value, and second call is to restore the mask
+value. Therefore, we need to genereate one umask record at the very beginning
+of the DataSeries trace output file. By doing so, our replayer will replay the
+umask record at first and sets its umask value to be same as the traced application.
+Note: We genereate all DataSeries trace files that have an umask at the very beginning
+as version 1.0.
+
+
 DESIGN DECISIONS IN SYSCALL REPLAYER
 ===============================================================================
 1. FILE DESCRIPTORS MAPPING
@@ -286,6 +302,22 @@ For Example: _exit, execve, map, munmap and fork.
 
 So we simply return from the processRow() function of these particular system
 calls without actually executing them.
+
+5. UMASK SYSTEM CALL
+Because the fact that our replayer is a single-process and traced application
+can be multi-process, we need to manage umask values on our own. We will umask(0)
+to “turn off” umask. This is needed b/c the kernel still has to have some umask value.
+By default the umask of the user running the replayer will be used, and applied to
+whatever mode values we pass to syscalls like mkdir(path, mode). Essentially, kernel will
+not modify the mode values that we pass to system calls. Thus whatever mode we pass to mkdir()
+will take place.
+
+
+SPECIAL REQUIREMENTS IN DATASERIES SYSTEM CALL TRACE FILE
+===============================================================================
+Replayer will only support all the DataSeries trace files that have versions >= 1.0
+since DataSeries system call trace file with >= 1.0 version has an umask record
+at the beginning.
 
 
 SOME SPECIAL SYSTEM CALLS
