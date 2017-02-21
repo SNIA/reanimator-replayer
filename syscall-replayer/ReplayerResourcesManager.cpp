@@ -17,6 +17,9 @@
  */
 
 #include "ReplayerResourcesManager.hpp"
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 ReplayerResourcesManager::ReplayerResourcesManager() {
 }
@@ -40,7 +43,7 @@ void ReplayerResourcesManager::initialize(SystemCallTraceReplayLogger *logger,
    * We have to scan for the open fds once, at startup time.
    * This is necessary because we need it to genereate correct
    * unused fds since dup2 needs an unused fd in replayer.
-   * This willl be a very fast scan because lseek is a purely in-kernel call
+   * This will be a very fast scan because lseek is a purely in-kernel call
    * it looks up the fd (failing right then if the fd is closed, which will be true for over 90% of the scanned values)
    * and then accesses the file table entry associated with the descriptor (following a couple of pointers).
    * The time will be dominated by the cost of entering and exiting the kernel.
@@ -56,10 +59,19 @@ void ReplayerResourcesManager::initialize(SystemCallTraceReplayLogger *logger,
     // getrlimit succeeds, sow we will scan all fds.
     max_fds = rlim.rlim_cur;
   }
+  std::unordered_set<int> known_fds = fd_table_map_[pid]->get_all_fds();
+  logger_->log_info("Start initial fd scan. Cache all fds that are not known to the resource manager.");
   for (int fd = 0; fd <= max_fds; fd++) {
-    result = lseek(fd, 0, SEEK_CUR);
-    if (result >= 0 || EBADF != errno) {
+    if (is_fd_in_use(fd) && known_fds.find(fd) == known_fds.end()) {
       replayer_used_fds_.insert(fd);
+    }
+  }
+  if (replayer_used_fds_.size() > 1) {
+    logger_->log_warn("Find multiple fds that are used by the replayer. Printing all of them");
+    for (std::unordered_set<int>::iterator it = replayer_used_fds_.begin();
+      it != replayer_used_fds_.end();
+      it++) {
+      logger_->log_warn(*it);
     }
   }
 }
@@ -193,6 +205,83 @@ void ReplayerResourcesManager::remove_umask(pid_t pid) {
   }
   // Remove the entry from umask table.
   umask_table_.erase(pid);
+}
+
+void ReplayerResourcesManager::validate_consistency() {
+  /*
+   * This will be a very fast scan because lseek is a purely in-kernel call
+   * it looks up the fd (failing right then if the fd is closed, which will be true for over 90% of
+   * the scanned values) and then accesses the file table entry associated with the descriptor
+   * (following a couple of pointers). The time will be dominated by the cost of entering
+   * and exiting the kernel. To be safe, we scan all the way to MAX_FDs.
+   */
+  struct rlimit rlim;
+  int result;
+  int max_fds;
+  // Get the limit on open files
+  result = getrlimit(RLIMIT_NOFILE, &rlim);
+  if (result >= 0) {
+    // getrlimit succeeds, so we will scan all fds.
+    max_fds = rlim.rlim_cur;
+  } else {
+    // If getrlimit fails, we will scan only first MAX_FD_TO_SCAN fds.
+    max_fds = MAX_FD_TO_SCAN;
+  }
+
+  // Hold all fds that resource manager knows
+  std::unordered_set<int> used_fds;
+  // Add cached replayer fds to used fds (ex. logger fd)
+  used_fds.insert(replayer_used_fds_.begin(), replayer_used_fds_.end());
+
+  for (PerPidFileDescriptorTableMap::iterator iter = fd_table_map_.begin();
+    iter != fd_table_map_.end();
+    ++iter) {
+    pid_t pid = iter->first;
+    std::unordered_set<int> process_used_fds = fd_table_map_[pid]->get_all_fds();
+    used_fds.insert(process_used_fds.begin(), process_used_fds.end());
+  }
+
+  for (int fd = 0; fd < max_fds; fd++) {
+    bool fd_used = is_fd_in_use(fd);
+    // Make every fd that is open is known to this resource manager.
+    if (fd_used && used_fds.find(fd) == used_fds.end()) {
+      /*
+       * This fd is in use, but the resource manager doesn't know about that.
+       * Let's print a warning message to warn the user about this situation.
+       * This is caused by some code that creates a fd by opening
+       * a file without the resource manager knowing it. This could
+       * cause serious problems in replaying.
+       */
+      logger_->log_warn("Unknown and currently in used file descriptor to the resource manager \
+        is found: fd #" + fd);
+    } else if (!fd_used && used_fds.find(fd) != used_fds.end()) {
+      /*
+       * This fd is NOT in use, but the resource manager thinks that
+       * this fd is in use. Let's print a warning message to warn the user
+       * about this situation. This is caused by some code that closes a fd without the
+       * resource manager knowing it. This could
+       * cause serious problems in replaying.
+       */
+      logger_->log_warn("Unused file descriptor, but the resource manager thinks it is in used: fd #" + fd);
+    }
+
+    /*
+     * Note that fd_used && used_fds.find(unused) != used_fds.end() is
+     * okay because this condition indicates that fd is used and resource
+     * manager knows about it.
+     * !fd_used && used_fds.find(unused) == used_fds.end() is also
+     * okay because this condition indicates that fd is not used and the resource
+     * manager doesn't know about it.
+     */
+  }
+}
+
+bool ReplayerResourcesManager::is_fd_in_use(int fd) {
+  int result = lseek(fd, 0, SEEK_CUR);
+  if (result >= 0 || EBADF != errno) {
+    return true;
+  }
+  return false;
 }
 
 // =========================== BasicEntry Implementation ==========================

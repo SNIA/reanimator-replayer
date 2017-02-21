@@ -38,6 +38,13 @@
 #include <unistd.h>
 #include "SystemCallTraceReplayLogger.hpp"
 
+/*
+ * This number is the number of fds that we will scan (0 to MAX_FD_TO_SCAN-1)
+ * if getrlimit fails to give us the max fd.
+ * We believe that it should only enough to scan the first 100 fds.
+ */
+#define MAX_FD_TO_SCAN 100
+
 class BasicEntry {
 protected:
   unsigned int rc_;
@@ -338,5 +345,20 @@ public:
    * Only remove the entry if rc reaches to 0.
    */
   void remove_umask(pid_t pid);
+
+  /**
+   * Scan all fds in the replayer and see if there is any fd that
+   * is not known to this manager. Print a warning message to indicate
+   * this situation.
+   * Note: we can periodically call this function to validate the state of our replayer,
+   * so we know that every fd that is open is known to this resource manager.
+   */
+  void validate_consistency();
+
+  /**
+   * Check to see whether the given fd is currently used in the replayer.
+   * Return true if it is currently in-used, false otherwise.
+   */
+   bool is_fd_in_use(int fd);
 };
 #endif /* REPLAYER_RESOURCES_MANAGER_HPP */
