@@ -56,3 +56,11 @@ SystemCallTraceReplayLogger *SystemCallTraceReplayModule::syscall_logger_;
 // Assert that only version 1 is allowed (at this point)
 static const unsigned int supported_major_version = 1;
 static const unsigned int supported_minor_version = 0;
+
+/*
+ * This number is the number of system calls that are need to replayed
+ * in order to invoke next fd scanning done to verify the state
+ * of resource manager. Ex: 10 means that replayer will scan all fds
+ * for every 10 system calls that are replayed.
+ */
+#define SCAN_FD_FREQUENCY 10

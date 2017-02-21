@@ -709,7 +709,7 @@ void prepare_replay(std::priority_queue<SystemCallTraceReplayModule*,
     // Check to see if all the extents in the umask module are processed
     if (syscall_module->cur_extent_has_more_record() ||
       syscall_module->getSharedExtent() != NULL) {
-      // No, there are more extents, so we add it to min_heap
+      // No, there are more umask records, so we add it to min_heap
       syscall_replayer.push(syscall_module);
     }
   }
@@ -770,6 +770,7 @@ int main(int argc, char *argv[]) {
   load_syscall_modules(replayers_heap, system_call_trace_replay_modules);
   prepare_replay(replayers_heap);
   SystemCallTraceReplayModule *execute_replayer = NULL;
+  int num_syscalls_processed = 0;
 
   // Process all the records in the dataseries
   while(!replayers_heap.empty()) {
@@ -786,6 +787,12 @@ int main(int argc, char *argv[]) {
     } else {
       // No, there are no more extents, so we delete the module
       delete execute_replayer;
+    }
+    // Increment number of system calls processed.
+    num_syscalls_processed++;
+    // Verify that the state of resources manager is consistent for every SCAN_FD_FREQUENCY sys calls.
+    if (num_syscalls_processed % SCAN_FD_FREQUENCY == 0) {
+      SystemCallTraceReplayModule::replayer_resources_manager_.validate_consistency();
     }
   }
 
