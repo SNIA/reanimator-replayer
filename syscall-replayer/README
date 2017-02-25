@@ -2,154 +2,180 @@
 			 TRACE-REPLAYER
 *******************************************************************************
 
-INTRODUCTION
+* INTRODUCTION
 ===============================================================================
-The Trace Replayer is a tracing tool that is intented for extracting traces of
-any program or an application and then replaying their I/O behaviour. It uses
-DataSeries, a binary format which provides a fast and efficient way to store and
-analyse traces. Our trace replayer follows SNIA specification document -
-"POSIX System-Call Trace Common Semantics" and "IO Trace Common Semantics" which
-describes about the system call fields, their type and their values.
 
-It can be used as a benchmarking tool to measure the I/O performance under
-various workloads, or for analysing the program traces for security purposes,
-etc.
+The Trace Replayer is a tracing tool that is intended for extracting traces
+of any program or an application and then replaying their I/O behavior.  It
+uses DataSeries, a binary format which provides a fast and efficient way to
+store and analyze traces.  Our trace replayer follows SNIA's specification
+documents -- "POSIX System-Call Trace Common Semantics" and "IO Trace Common
+Semantics" -- which describe the system call fields, their types, and their
+values.
 
+The replayer can be used as a benchmarking tool to measure and reproduce the
+I/O performance under various workloads, or for analyzing the program traces
+for security purposes, etc.
 
-DESIGN OVERVIEW
+* DESIGN OVERVIEW
 ===============================================================================
+
 The trace replayer is divided into three parts:
+
 1. fsl-strace
 2. strace2ds library
 3. syscall-replayer
 
-1. fsl-strace :
-The program fsl-strace is used to capture system calls traces using the Linux
-utility strace. It calls Dataseries API's which allows it to create Dataseries
-file, add records to it, and destroy the dataseries file.
+1. fsl-strace:
 
-2. strace2ds-library :
-The strace2ds-library is a wrapper class which allows us to link C++ program
-(the DataSeries APIs) to a C program (strace code). It contains the definitions
-of functions which creates DataSeries file, add a new record to it, set the
-field values in a record, and, finally, flush all the records to the output
-Dataseries file.
+This program is used to capture system calls traces using the Linux utility
+strace.  It calls Dataseries APIs which allows it to create a Dataseries
+file and add records to it.
 
-3. syscall-replayer :
-The program syscall-replayer is a program that is designed to replay and analyse
-the system call traces collected in the DataSeries format.
+2. strace2ds-library:
 
+The strace2ds-library is a wrapper class which allows us to link a C++
+program (the DataSeries APIs) to a C program (strace code).  It contains the
+definitions of functions which create DataSeries file, add a new record to
+it, set the field values in a record, and finally, flush all the records to
+the output Dataseries file.
 
-GENERAL WORKFLOW
+3. syscall-replayer:
+
+The program syscall-replayer is a program that is designed to replay and
+analyze the system call traces collected in the DataSeries format.
+
+* GENERAL WORKFLOW
 ===============================================================================
-Our workflow consists of the following steps to convert a system call trace to
-a DataSeries file and then replay it.
 
-1. Define a field table for system calls in a special format and generate XML
-files from it. The table is used by generate-xml.sh script to generate XML files
-describing extent types in the DataSeries file. For our purposes, each system
-call has its own extent type.
+Our workflow consists of the following steps to convert a system call trace
+to a DataSeries file and then replay it.
+
+1. Define a field table for system calls in a special format and generate
+XML files from it.  The table is used by generate-xml.sh script to generate
+XML files describing extent types in the DataSeries file.  For our purposes,
+each system call has its own extent type.
 
 USAGE: ./generate_xml.sh <snia_table_filename>
-EXAMPLE: ./generate_xml.sh <tables/snia_table_fields.table
+EXAMPLE: ./generate_xml.sh tables/snia_table_fields.table
 
-NOTE: See section FIELD TABLE for more info.
+NOTE: See section below titled "FIELD TABLE" for more info.
 
-2. Once the field table is defined and XML files are generated, run the STRACE
-utility with the -X <dataseries_output_file> command line option to capture
-traces and create DataSeries file.
+2. Once the field table is defined and XML files are generated, run the
+STRACE utility with the -X <dataseries_output_file> command line option to
+capture traces and create DataSeries file.
 
 USAGE: STRACE2DS=~/strace2ds ./strace -X foo.ds <input_program> <program_args>
 EXAMPLE: STRACE2DS=~/strace2ds ./strace -X foo.ds cat /bin/ls stamp -h
 
-3. Once the DataSeries file is generated, run system call replayer to replay the
-traced program and/or analyse the trace.
+3. Once the DataSeries file is generated, run the system call replayer to
+replay the traced program and/or analyze the trace.
 
 USAGE: ./system-call-replayer <dataseries_input_file>
 EXAMPLE: ./system-call-replayer foo.ds
 
-NOTE: remember to add -f option if you want to trace child processes as they are
-created by currently traced processes as a result of the fork system call
+NOTE: remember to add -f option if you want to trace child processes as they
+are created by currently traced processes as a result of the fork system
+call.
 
-COMMAND LINE OPTIONS OF SYSCALL REPLAYER
+* COMMAND LINE OPTIONS OF SYSCALL REPLAYER
 ===============================================================================
-The syscall-replayer supports following optional command line options:
 
-1. -V [ --version ]      print version of system call replayer
-2. -h [ --help ]         produce help message
-3. -v [ --verbose ]      system calls replay in verbose mode
-4. --verify              verifies that the data being written/read is exactly
-			 what was used originally
-5. -w [ --warn ] arg     system call replays in warn mode
-6. -p [ --pattern ] arg  write repeated pattern data for write, pwrite, and
-			 writev system call
+The syscall-replayer supports the following optional command line options:
 
+1.  -V [ --version ]	  Print version of system call replayer
+2.  -h [ --help ]	  Produce help message
+3.  -v [ --verbose ]	  System calls replay in verbose mode
+4.  --verify		  Verifies that the data being written/read is exactly
+				what was used originally
+5.  -w [ --warn ] arg	  System call replays in warn mode
+6.  -p [ --pattern ] arg  Write repeated pattern data for write, pwrite, and
+				writev system call
 
-WARN LEVELS OF SYSCALL REPLAYER
+* WARN LEVELS OF SYSCALL REPLAYER
 ===============================================================================
+
 The syscall-replayer program has 3 modes:
 
 1. DEFAULT MODE (0)
-In this mode, program ignores any error or warning messages while running.
-This is the default to run the syscall-replayer program.
+
+In this mode, the replayer ignores any error or warning messages while
+running, and continues to replay records.  This is the default to run the
+syscall-replayer program.
 
 USAGE: ./system-call-replayer -w 0 foo.ds
 USAGE: ./system-call-replayer foo.ds
 
 2. WARN MODE (1)
+
 In this mode, if the replayed data (return values, error numbers, read/write
-data, etc.) is different from the data recorded in the DataSeries trace file,
-the program outputs a warning message.
+data, etc.) is different from the data recorded in the DataSeries trace
+file, the program outputs a warning message.
 
 USAGE: ./system-call-replayer -w 1 foo.ds
 
 3. ABORT MODE (2)
-In this mode, the program simply aborts if the replayed data is different from
-the data recorded in the DataSeries trace file.
+
+In this mode, the replayer simply aborts if the replayed data is different
+from the data recorded in the DataSeries trace file.
 
 USAGE: ./system-call-replayer -w 2 foo.ds
 
+#EZK: is just if data is different, or also when a syscall returns error
+#that wasn't expected?
 
-WRITE PATTERN OF SYSCALL REPLAYER
+* WRITE PATTERN OF SYSCALL REPLAYER
 ===============================================================================
-The syscall-replayer program supports writing the following patterns of data
-when replaying write-related system calls such as write, pwrite and writev.
 
-NOTE: Unless otherwise specified, if the DataSeries trace contains the data
-written by the traced program, then that data will be written instead of using
-one of the following patterns.
+The syscall-replayer program supports writing the following patterns of data
+when replaying write-related system calls such as write, pwrite, and writev.
+
+NOTE: Unless otherwise specified using the -p option below, if the
+DataSeries trace contains the data written by the traced program, then that
+data will be written instead of using one of the following patterns.
+
+#EZK: what happens if -p not given and DS file does NOT have the original
+#data written?  Is it even possible to get into that situation?
 
 1. WRITING ZEROS
-In this mode, program fills the write buffer with zeros.
 
-USAGE:	./system-call-replayer -p 0 foo.ds
+In this mode, the replayer fills the write buffer with zeros.
+
+USAGE: ./system-call-replayer -p 0 foo.ds
 
 2. WRITING PATTERN
-In this mode, program fills the write buffer with a pattern.
 
-USAGE:	./system-call-replayer -p "0x5" foo.ds
+In this mode, the replayer fills the write buffer with a pattern.
+
+USAGE: ./system-call-replayer -p "0x5" foo.ds
 
 3. WRITING RANDOM
-In this mode, program fills the write buffer with random values.
+
+In this mode, the replayer fills the write buffer with random values.
 
 USAGE: ./system-call-replayer -p "random" foo.ds
 
-
-FIELD TABLE
+* FIELD TABLE
 ===============================================================================
+
 The field table describes the information fields and their types for each
-system call that will constitute our target DataSeries file. The table has four
-fields, delimited by '\t':
-1. name of the extent
-2. name of the field
-3. nullable (1) or not nullable (0)
-4. type of the field
+system call that will constitute our target DataSeries file.  The table has
+four fields, delimited by '\t':
 
-For fields common to every system call, the extent name is "Common". All the
-common fields are nullable except 'unique_id' which uniquely identifies each
-record across all extents in the DataSeries file.
+1. the name of the extent
+2. the name of the field
+3. whether the field is nullable (1) or not nullable (0)
+4. the type of the field
 
-Example: Read, Write system call
+Nullable fields are ones that don't have to be specified (i.e., they are
+optional).  Non-nullable fields are mandatory and must be specified.
+
+For fields common to every system call, the extent name is "Common".  All
+the common fields are nullable except 'unique_id' which uniquely identifies
+each record across all extents in the DataSeries file.
+
+Example: Read and Write system calls
+
 $ cat example.table
 Common  time_called     1       int64
 Common  time_returned   1       int64
@@ -171,28 +197,33 @@ write   buffer_ptr      1       int64
 write   bytes_requested 0       int64
 write   data_written    1       variable32
 
-
-DESIGN ISSUES IN CREATING DATASERIES FILE
+* DESIGN ISSUES IN CREATING DATASERIES FILE
 ===============================================================================
-The previous version of trace replayer involves following steps to create a
-DataSeries file:
-1. Capture strace in human readble format to create a <test.sys> file.
-2. Convert <test.sys> file to an intermediate CSV file containing the relevant
-   system call fields.
+
+The previous version of trace replayer involves the following steps to
+create a DataSeries file:
+
+1. Capture strace's direct output in human readable format to create a
+   <test.sys> file.
+2. Convert <test.sys> file to an intermediate CSV file containing the
+   relevant system call fields.
 3. Finally, convert intermediate CSV file to a DataSeries file.
 
-The CSV file was difficult to parse and was insufficient to store non-ASCII
-characters, which lead to losing important information about the traced
-program.
+Strace's direct output was post-processed, missing vital information, and
+hard to parse.  The CSV file was also difficult to parse and was
+insufficient to store non-ASCII characters, multiple records, and more.
+This resulted in losing important information about the traced program.
 
-So, for the current version of syscall-replayer, we chose to modify code in
-strace itself in order to generate DataSeries file directly from strace.
+Therefore, for the latest version of syscall-replayer, we chose to modify
+strace code directly in order to capture the raw data and generate the
+DataSeries file directly from strace.
 
-
-DESIGN DECISIONS IN FSL-STRACE
+* DESIGN DECISIONS IN FSL-STRACE
 ===============================================================================
+
 1. COMMON FIELDS AND V_ARGS
-The DataSeries API, callable by strace code, to add a new record is:
+
+The DataSeries API is callable from strace.  To add a new record call this:
 
 void ds_write_record(DataSeriesOutputModule *ds_module,
 		     const char *extent_name,
@@ -207,169 +238,233 @@ void ds_write_record(DataSeriesOutputModule *ds_module,
 @param common_fields	: array of pointers to store common field values
 @param v_args		: array of pointers to store virtual arguments
 
-Strace maintains a Trace Control Block (struct *tcb -> refer to defs.h in strace
-code for complete structure) which stores parameters passed to a system call and
-other metadata such as executing pid, error code, return values, time called,
-time returned, etc.
+Strace maintains a Trace Control Block (TCB, or struct *tcb, see defs.h in
+strace code for complete structure) which stores parameters passed to a
+system call and other metadata such as executing pid, error code, return
+values, time called, time returned, etc.
 
 1.1. COMMON FIELDS
-Instead of passing individual common field values in ds_write_record()
-function, we chose to create an array of pointers named common_fields and pass
-pass the array to the function.
+
+Instead of passing individual common field values in ds_write_record(), we
+chose to create an array of pointers named common_fields and pass the array
+to the function.
 
 1.2. V_ARGS
-Arguments such as pathname or read/write buffers passed to system calls cannot
-be referenced directly from tcp->u_args. These arguments are copied from the
-address space of the actual process being traced and stored in an array of
-pointers named as v_args, which is passed to ds_write_record().
+
+Arguments such as pathname or read/write buffers passed to system calls
+cannot be referenced directly from tcp->u_args.  These arguments are copied
+from the address space of the actual process being traced and stored in an
+array of pointers named as v_args, which is passed to ds_write_record().
 
 2. UTILITY FUNCTIONS
-We added some utility functions in the stace code file util.c to copy the
-arguments from the address space of the actual process being traced. These
-utility functions internally call the strace utility functions  umonev() or
-umovestr() to copy the buffers and string pathname respectively.
+
+We added several utility functions in the strace code file util.c to copy
+the arguments from the address space of the actual process being traced.
+These utility functions internally call the strace utility functions
+umoven() or umovestr() to copy the buffers and string pathnames,
+respectively.
 
 3. TRACE CAPTURING POINT
-We are collecting traces of each system call in trace_syscall_exiting()
-function defined in the strace code file syscall.c. Strace fills the Trace
-Control Block structure before calling trace_syscall_exiting() function
-except for time returned value. The time returned value is recorded inside
-trace_syscall_exiting() function.
 
+We are collecting traces of each system call in trace_syscall_exiting(),
+defined in the strace code file syscall.c.  Strace fills the TCB structure
+before calling trace_syscall_exiting() except for the time returned value.
+The time returned value is recorded inside trace_syscall_exiting() function.
 
-DESIGN DECISIONS IN STRACE2DS
+#EZK: where do we mention exceptions, syscalls that cannot be captured at
+#_exiting()?
+
+* DESIGN DECISIONS IN STRACE2DS
 ===============================================================================
+
 1. UMASK SYSTEM CALLS
-Traced application has a default mask value that is different from the replayer.
-Therefore, we need to change umask value of replayer to be the same as the
-traced application. Unfortunately, there is no system call that
-allows us to extract umask value directly. Instead, we have to call umask twice
-in order to get the correct umask value. First call is to get the
-original value of mask value, and second call is to restore the mask
-value. Therefore, we need to genereate one umask record at the very beginning
-of the DataSeries trace output file. By doing so, our replayer will replay the
-umask record at first and sets its umask value to be same as the traced application.
-Note: We genereate all DataSeries trace files that have an umask at the very beginning
-as version 1.0.
 
+The traced application has a default umask value that is different from the
+replayer.  Therefore, we need to change the umask value of the replayer to
+be the same as the traced application.  Unfortunately, there is no system
+call that allows us to extract a umask value directly.  Instead, we have to
+call umask(2) twice in order to get the correct umask value.  The first call
+is to get the original value of mask value (while setting it to some dummy
+value); the second call is to restore the mask value.  Therefore, we need to
+generate one umask record at the very beginning of the DataSeries trace
+output file.  By doing so, our replayer will replay the umask record at
+first and sets its umask value to be same as the traced application.
 
-DESIGN DECISIONS IN SYSCALL REPLAYER
+Note: We generate all DataSeries trace files that have an umask at the very
+beginning as version 1.0.  The replayer checks the version number and ensure
+it has such a special umask value as the first record.
+
+#EZK verify last sentence
+
+* DESIGN DECISIONS IN SYSCALL REPLAYER
 ===============================================================================
+
 1. FILE DESCRIPTORS MAPPING
-It is unnecessary to obtain the exact same file descriptors while replaying as
-were used by the traced program. So, we maintain a mapping between the file
-descriptors of traced program and those of the replayed program to replay
-accurately.
+
+It is unnecessary to obtain the exact same set of file descriptors while
+replaying as were used by the traced program.  So, we maintain a mapping
+between the file descriptors of the traced program and those of the replayed
+program to replay accurately.
+
+#EZK where's the details of the fd-map design
 
 2. INTEGER ENCODING OF FLAG AND MODE VALUES
-Our converter and replayer follow the SNIA specification document -
-"POSIX System Call Trace Common Semantics". The document requires system call
-traces to store individual flag and mode bits, but storing the integer
-encoding of flag and mode values is optional since the individual bits can be
-used to construct integer encoding value. When our strace2ds-library converts
-information gathered from strace to DataSeries, it stores both the integer
-encoding and all the individual bits in the DataSeries output file.
+
+Our converter and replayer follow the SNIA specification document, "POSIX
+System Call Trace Common Semantics".  The document requires system call
+traces to store individual flag and mode bits.  However, storing the integer
+encoding of flag and mode values is optional since the individual bits can
+be used to construct integer encoding values.  When our strace2ds-library
+converts the information gathered from strace to DataSeries, it stores both
+the original integer encoding of the mode (optional, or nullable) as well as
+all the individual bits (mandatory, or non-nullable) in the DataSeries
+output file.
 
 We chose to store both fields because we want our replayer to be fast.
 Encoding a mode/flag value as an integer from the integer bits would add
-overhead to the replayer. Storing both values also gives users the
-flexibility to extract data that they want. Even though DataSeries files that
-our converter produces contain individual bits, all of our replaying modules
-only extract the integer encoding value from the DataSeries file since the
-modules are not using individual bits for replay. Modification to the
+overhead to the replayer, when it has to reconstruct the original
+mode/flags.  Storing both values also gives users the flexibility to extract
+any data that they want.  Even though the DataSeries files that our
+converter produces contain individual bits, all of our replaying modules
+extract only the integer encoding value from the DataSeries file since the
+modules are not using individual bits for replay.  A modification to the
 replaying modules would be required to extract those bits.
 
-One great example is the open system call. Its mode value is passed as an
+One useful example is the open system call.  Its mode value is passed as an
 integer encoding and the individual mode bits are mode_R_user, mode_W_user,
-etc. Our open replay module only has a mode_value_ field. It doesn't have
-fields for the individual bits even though the DataSeries trace file contains
-those individual mode bits.
+etc.  Our open call replay module only extracts the mode_value_ field.  It
+doesn't support fields for the individual bits even though the DataSeries
+trace file contains those individual mode bits.
 
 3. ROWS PER CALL
-Some system calls such as readv, writev and execve requires multiple rows to
-be processed to replay a single system call. So the 'rows_per_call_' field was
-added in the base class SystemCallTraceReplayModule. Its default value is 1.
-If a system call requires multiple rows to process, then rows_per_call_ should
-be set to the number of rows that must be processed.
+
+Some system calls such as readv, writev, and execve require multiple rows to
+be processed to replay a single system call.  So the 'rows_per_call_' field
+was added in the base class SystemCallTraceReplayModule.  Its default value
+is 1, because most system calls can be defined with a single DataSeries
+record.  If a system call requires multiple rows to process, then
+rows_per_call_ should be set to the number of rows that must be processed.
 
 After a system call is replayed, we increment the series pointer in the
 ExtentSeries of that particular system call by the value set in the
 'row_per_call_' field.
 
 4. NON REPLAYABLE SYSTEM CALLS
-Some system calls are not appropriate to replay.
-For Example: _exit, execve, map, munmap and fork.
 
-So we simply return from the processRow() function of these particular system
-calls without actually executing them.
+There are several system calls that we do not replay for various reasons.
+Therefore, we typically just simply return from the processRow() function of
+these particular system calls without actually executing them.
+
+For example, we don't replay _exit because it would terminate the replayer.
+
+We don't replay mmap, munmap, and their related calls as of now, because
+there's no way for a ptrace(2)-ed process to capture the memory-mapped
+activity of a process (which is handled by the MMU directly).
+
+We don't replay fork, clone, and execve.  That is because, for now, we chose
+to have our replayer simpler and single threaded.  However, we do perform
+special processing in or FD-map (see section XXX above/below) during these
+process management calls, as well as during _exit.
+
+#EZK: Say how we "fake" _exit: do we check any return value or passed value
+#at all?  What do we do, if any to mmap/etc.?  And we do have special
+#handling for fork/clone/execve, esp. wrt the fd-map.  Need details.
+
+#EZK: it's odd to describe exit/execve here and also in more detail below.
+#Ideally we should describe them in one place.
 
 5. UMASK SYSTEM CALL
-Because the fact that our replayer is a single-process and traced application
-can be multi-process, we need to manage umask values on our own. We will umask(0)
-to “turn off” umask. This is needed b/c the kernel still has to have some umask value.
-By default the umask of the user running the replayer will be used, and applied to
-whatever mode values we pass to syscalls like mkdir(path, mode). Essentially, kernel will
-not modify the mode values that we pass to system calls. Thus whatever mode we pass to mkdir()
-will take place.
 
+#EZK: we need to describe this very important design decision, that we chose
+#to make the replayer single threaded (at least for now).  And this needs to
+#be described in the context of the fd-map design, and then we explain why
+#we don't replay fork/clone/execve, and how that design decision impacted
+#FDs and umask.
 
-SPECIAL REQUIREMENTS IN DATASERIES SYSTEM CALL TRACE FILE
+Because our replayer is a single-process and the traced application can be
+multi-process, we need to manage umask values on our own.  We use umask(0)
+to "turn off" umask, meaning we make it the least restrictive mask for newly
+created files.  This is needed because the kernel still has to have some
+umask value.  We record the umask value of the traced process, any changes
+to it (if the traced program called umask directly), and any mode values
+passed to calls like open, create, or mkdir.  By default the umask of the
+user running the replayer is used, and applied to whatever mode values we
+pass to syscalls like mkdir(path, mode).  Essentially, the kernel will not
+modify the mode values that we pass to system calls.  Thus whatever mode we
+pass to mkdir() will take place.  The replayer calculates the precise mode
+value to pass to calls like mkdir and open, and passes it; by setting
+umask(0) in the replayer, we ensure that the kernel will effectively use the
+exact mode value we want, and thus faithfully reproduce the original system
+call's behavior.
+
+#EZK: above description of umask algorithm was lacking.  Revised a lot.
+#Please review and verify with code; ensure this is clear enough.
+
+* SPECIAL REQUIREMENTS IN DATASERIES SYSTEM CALL TRACE FILE
 ===============================================================================
-Replayer will only support all the DataSeries trace files that have versions >= 1.0
-since DataSeries system call trace file with >= 1.0 version has an umask record
-at the beginning.
 
+The replayer will support only DataSeries trace files that have versions >=
+1.0 since DataSeries system call trace files with >= 1.0 version have the
+special aforementioned umask record at the beginning.
 
-SOME SPECIAL SYSTEM CALLS
+* SOME SPECIAL SYSTEM CALLS
 ===============================================================================
+
 1. READV AND WRITEV
-The readv and writev system calls can read and write arbitrarily many buffers.
-The extent type in DatSeries file should be of fixed length. To handle this,
-multiple records are added to the DataSeries trace file when a readv or writev
-call is traced..
 
-Records are identified and ordered by an 'iov_number'. The first record only
-sets the fields for the descriptor and the count and has an iov number equal to
-'-1'. One separate record is added for each buffer passed to the readv or writev
-system call. Each of these subsequent records has an incrementing iov_number,
-starting with '0'.
+The readv and writev system calls can read and write arbitrarily many
+buffers.  The extent type in DataSeries file should be of fixed length.  To
+handle this, multiple records are added to the DataSeries trace file when a
+readv or writev call is traced.
+
+Records are identified and ordered by an 'iov_number'.  The first record
+only sets the fields for the descriptor and the count and has a special iov
+number equal to '-1'.  A separate record is added for each buffer passed to
+the readv or writev system call.  Each of these subsequent records has an
+increasing iov_number, starting with '0'.
 
 2. EXECVE
-The execve system call can accept arbitrary numbers of arguments and environment
-variables. Since the extent type in a DataSeries file cannot handle variable
-length rows, multiple records are added to the DataSeries trace file when an
-execve call is traced.
 
-Records are identified and ordered by a 'continuation_number'. The first record
-only sets the fields for the pathname and has a continuation number equal to
-'0'. One separate record is added for each argument and environment variable
-passed to the execve system call. Each of these subsequent records have
-an incrementing continuation_number starting with '1'.
+The execve system call can accept an arbitrary number of arguments and
+environment variables.  Since the extent type in a DataSeries file cannot
+handle variable length rows, multiple records are added to the DataSeries
+trace file when an execve call is traced.
+
+Records are identified and ordered by a 'continuation_number'.  The first
+record only sets the fields for the pathname and has a special continuation
+number equal to '0'.  A separate record is added for each argument and
+environment variable passed to the execve system call.  Each of these
+subsequent records has an increasing continuation_number starting with '1'.
 
 We capture the parameters of an execve system call in the
 trace_syscall_entering() function rather than in trace_syscall_exiting()
-function of the strace code file syscall.c because the execve system call does
-not return upon success and the memory segments of the calling process are
-overwritten by that of the program loaded. In the trace_syscall_exiting()
-function, we only capture the common field values.
+function (see syscall.c in the strace code).  This is because the execve
+system call does not return upon success and the memory segments of the
+calling process are overwritten by that of the newly loaded program.
 
-Since the common field values are captured last, after the arguments and
-environment variables, a new record containing just the common fields is added
-to the DataSeries file with a continuation_number equal to '-1'.
+As described above, recall that in the trace_syscall_exiting() function, we
+only capture the common field values.  Since the common field values are
+captured last, after the arguments and environment variables, a new record
+containing just the common fields is added to the DataSeries file with a
+special continuation_number equal to '-1'.
 
 3. EXIT
+
 We capture the parameters of an _exit system call in the
 trace_syscall_entering() function rather than in the trace_syscall_exiting()
-function of the strace code file syscall.c because for the _exit system call,
-trace_syscall_exiting() function is not called.
+function (see syscall.c in the strace code).  This is because for the _exit
+system call, trace_syscall_exiting() function is not called.
 
-Also, since the _exit system call does not return, we do not set time_returned,
-return values, or errno numbers in the syscall-replayer.
+Also, since the _exit system call does not return, we do not set
+time_returned, return values, or errno numbers in the syscall-replayer.
+
+#EZK: so do we set those 3 fields to anything, or are they nullable?
 
 4. FSTATAT
-The underlying system call employed by the glibc fstatat() wrapper function is
-actually called fstatat64() or, on some architectures, newfstatat().
-In fsl-strace, we intercept this system call using 'SEN_newfstatat' switch block.
-While recording we create a new record for fstatat system call in the
-DataSeries file. And finally while replaying also, instead of calling newfstatat()
-system call, we call the fstatat() system call.
+
+The underlying system call employed by the glibc fstatat() wrapper function
+is actually called fstatat64() or, on some architectures, newfstatat().  In
+fsl-strace, we intercept this system call using the 'SEN_newfstatat' switch
+block.  While recording we create a new record for the fstatat system call
+in the DataSeries file.  Finally, while replaying, instead of calling
+newfstatat(), we call the fstatat() system call.
