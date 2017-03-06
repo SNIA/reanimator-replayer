@@ -5,6 +5,8 @@ Common	executing_pid	1	int32
 Common	executing_tid	1	int32
 Common	executing_ppid	1	int32
 Common	executing_uid	1	int32
+Common	executing_sid	1	int32
+Common	executing_pgid	1	int32
 Common	errno_number	1	int32
 Common	errno_string	1	variable32
 Common	return_value	1	int64
