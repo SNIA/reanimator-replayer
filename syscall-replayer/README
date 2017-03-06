@@ -468,3 +468,150 @@ fsl-strace, we intercept this system call using the 'SEN_newfstatat' switch
 block.  While recording we create a new record for the fstatat system call
 in the DataSeries file.  Finally, while replaying, instead of calling
 newfstatat(), we call the fstatat() system call.
+
+**********************************************************************
+* HOW TO CONTRIBUTE
+
+
+* PREREQUISITES:
+
+You will need to understand how Dataseries works (how it is laid out), and
+how to use it.  You can refer to the following links to understand how it
+works (you can skip the how-to-install Dataseries part):
+
+        https://avatar.fsl.cs.sunysb.edu/wiki/projects/dataseries/DataSeries.html
+        https://github.com/dataseries/DataSeries/wiki
+        http://www.hpl.hp.com/techreports/2009/HPL-2009-323.pdf
+
+Review your C++ or C skills if you haven't coded in either language for a
+long time.
+
+        http://www.learncpp.com/
+
+
+* WHERE IS THE CODE?
+
+Our code for both strace and trace2model is on git.
+
+1. strace:
+
+git clone ssh://fslgit.fsl.cs.sunysb.edu/scm/fslgit/fsl-strace.git
+
+2. trace2model:
+
+git clone git.fsl.cs.sunysb.edu:/scm/fslgit/trace2model
+
+* WHERE TO WORK?
+
+Any development you do should be done on a virtual machine, and only real
+experiments are run on actual machines.  You could use one of FSL virtual
+machines and ESX servers.  You can also use your own virtual machine, but it
+will be easier to use an FSL VM since a lot of things are already installed
+there.
+
+We have installed the DataSeries library on the 'trex' machine in FSL.  So,
+you do not need to install DS on your individual FSL VM.
+
+* HOW TO BUILD?
+
+After you have both the git repositories mentioned above, you have to build
+the project, to see how it works:
+
+1. First, prepare the strace2ds library:
+
+a. Change your working directory to strace2ds-library -
+
+$ cd trace2model/strace2ds-library
+
+b. Run "./buildall".  This should make a strace2ds directory in your HOME
+folder and setup the fsl strace2ds library in your account
+
+$ ./buildall
+
+2. Now you can build the replayer:
+
+a. Change your working directory to strace2ds-replayer
+
+$ cd trace2model/syscall-replayer
+
+b. Run "make".  This should allow you to build the whole replayer project
+
+$ make
+
+3. To build the trace module:
+
+a. Change your working directory to fsl-strace
+
+$ cd fsl-strace
+
+b. Change your active branch to 'ds'.  'ds' is the main working branch of
+FSL for the tracer module
+
+$ git checkout ds
+
+c. Run configure script with all DataSeries options enabled
+
+$ ./build-fsl-strace
+
+d. Check the updated man page for a new -X option.  You should be able to
+find the -X option nested inside of -o option.
+
+$ man ./strace.1 | grep '\-X'
+
+e. Verify that "Optional features" section has following entry in usage:
+
+	[ --enable-dataseries        enable DataSeries output format ]
+
+$ ./configure -h | grep dataseries
+
+Note: We use --enable-dataseries in our build-fsl-strace, configure adds
+a "#define ENABLE_DATASERIES" to the code.  You can use it to ifdef stuff as
+needed.   All the code we are adding/changing, should be #ifdef'ed
+ENABLE_DATASERIES so it'll be easy for us to tell where our changes are.
+
+* HOW TO RUN?
+
+Here's an example how to run our own strace
+
+$ cd BUILD
+$ STRACE2DS=~/strace2ds ./strace -X foo.ds /bin/cat stamp-h
+$ ls -l foo.ds
+
+Now you should see foo.ds in your current directory.
+
+Here's an example how to run sys call replayer with a trace file (foo.ds)
+
+$ cd trace2model/syscall-replayer
+
+Make sure your foo.ds is in replayer directory.
+
+$ ./system-call-replayer foo.ds
+
+Now replayer should starts to replay all the system call records in foo.ds
+
+Note: If you want to compare tests between different file system,
+you need to run our replayer on a file system that is in the same state as
+the file system that captures the traces. This is needed since our replayer
+makes this assumption.
+
+* HOW TO TEST?
+
+Here's an example how to run a replayer test
+
+$ cd trace2model/syscall-replayer/replayer-tests
+
+Choose a system call that you want to test and build its corresponding program
+
+$ gcc -o rmdir-test rmdir-test.c
+
+Go to replayer directory
+
+$ cd ../
+
+Capture test program traces
+
+$ STRACE2DS=~/strace2ds ~/fsl-strace/BUILD/strace -f -X foo.ds ./rmdir-test
+
+Replay the test program
+
+$ ./system-call-replayer foo.ds
