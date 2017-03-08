@@ -499,7 +499,7 @@ git clone ssh://fslgit.fsl.cs.sunysb.edu/scm/fslgit/fsl-strace.git
 
 2. trace2model:
 
-git clone git.fsl.cs.sunysb.edu:/scm/fslgit/trace2model
+git clone ssh://fslgit.fsl.cs.sunysb.edu:/scm/fslgit/trace2model.git
 
 * WHERE TO WORK?
 
@@ -519,12 +519,12 @@ the project, to see how it works:
 
 1. First, prepare the strace2ds library:
 
-a. Change your working directory to strace2ds-library -
+a. Change your working directory to strace2ds-library:
 
 $ cd trace2model/strace2ds-library
 
 b. Run "./buildall".  This should make a strace2ds directory in your HOME
-folder and setup the fsl strace2ds library in your account
+folder and setup the fsl strace2ds library in your account:
 
 $ ./buildall
 
@@ -579,7 +579,7 @@ $ ls -l foo.ds
 
 Now you should see foo.ds in your current directory.
 
-Here's an example how to run sys call replayer with a trace file (foo.ds)
+Here's an example how to run syscall replayer with a trace file (foo.ds)
 
 $ cd trace2model/syscall-replayer
 
@@ -591,7 +591,7 @@ Now replayer should starts to replay all the system call records in foo.ds
 
 Note: If you want to compare tests between different file system,
 you need to run our replayer on a file system that is in the same state as
-the file system that captures the traces. This is needed since our replayer
+the file system that captures the traces.  This is needed since our replayer
 makes this assumption.
 
 * HOW TO TEST?
