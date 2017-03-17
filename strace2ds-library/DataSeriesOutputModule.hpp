@@ -48,6 +48,7 @@
 #include <sys/statvfs.h>
 #include <sched.h>
 #include <signal.h>
+#include <sys/xattr.h>
 
 class DataSeriesOutputModule;
 
@@ -242,6 +243,12 @@ private:
 
   // Maps Umask System Calls <field, value> pairs
   void makeUmaskArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+
+  // Maps Setxattr System Calls <field, value> pairs
+  void makeSetxattrArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+
+  // Maps LSetxattr System Calls <field, value> pairs
+  void makeLSetxattrArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
   // Maps FChmod System Calls <field, value> pairs
   void makeFChmodArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);

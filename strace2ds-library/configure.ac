@@ -24,6 +24,9 @@ AC_CHECK_LIB([DataSeries], [dataseriesVersion])
 AC_CHECK_LIB([Lintel], [lintelVersion])
 
 # Checks for header files.
+AC_CHECK_HEADER([sys/xattr.h],
+		[AC_DEFINE([HAVE_SYS_XATTR_H], [1], [Define to 1 if you have <sys/xattr.h>.])],
+		[AC_MSG_ERROR(["sys/xattr.h header not found. You need the c-library development package."])])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_CHECK_HEADER_STDBOOL

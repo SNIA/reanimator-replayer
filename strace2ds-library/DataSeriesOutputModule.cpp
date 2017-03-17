@@ -119,6 +119,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["linkat"] = &DataSeriesOutputModule::makeLinkatArgsMap;
   // lseek system call
   func_ptr_map_["lseek"] = &DataSeriesOutputModule::makeLSeekArgsMap;
+  // lsetxattr system call
+  func_ptr_map_["lsetxattr"] = &DataSeriesOutputModule::makeLSetxattrArgsMap;
   // lstat system call
   func_ptr_map_["lstat"] = &DataSeriesOutputModule::makeLStatArgsMap;
   // mkdir system call
@@ -151,6 +153,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["rename"] = &DataSeriesOutputModule::makeRenameArgsMap;
   // rmdir system call
   func_ptr_map_["rmdir"] = &DataSeriesOutputModule::makeRmdirArgsMap;
+  // setxattr system call
+  func_ptr_map_["setxattr"] = &DataSeriesOutputModule::makeSetxattrArgsMap;
   // stat system call
   func_ptr_map_["stat"] = &DataSeriesOutputModule::makeStatArgsMap;
   // statfs system call
@@ -1016,6 +1020,82 @@ void DataSeriesOutputModule::makeUmaskArgsMap(SysCallArgsMap &args_map,
   if (mode != 0) {
     std::cerr << "Umask: These modes are not processed/unknown->0";
     std::cerr << std::oct << mode << std::dec << std::endl;
+  }
+}
+
+void DataSeriesOutputModule::makeSetxattrArgsMap(SysCallArgsMap &args_map,
+						 long *args,
+						 void **v_args) {
+  // Initialize all non-nullable boolean fields to False.
+  initArgsMap(args_map, "setxattr");
+
+  if (v_args[0] != NULL) {
+    args_map["given_pathname"] = &v_args[0];
+  } else {
+    std::cerr << "Setxattr: Pathname is set as NULL!!" << std::endl;
+  }
+
+  if (v_args[1] != NULL) {
+    args_map["xattr_name"] = &v_args[1];
+  } else {
+    std::cerr << "Setxattr: Attribute name is set as NULL!!" << std::endl;
+  }
+
+  if (v_args[2] != NULL) {
+    args_map["value_written"] = &v_args[2];
+  } else {
+    std::cerr << "Setxattr: Attribute value to be written is set as NULL!!";
+    std::cerr << std::endl;
+  }
+
+  args_map["value_size"] = &args[3];
+
+  /* Setting flag values */
+  args_map["flag_value"] = &args[4];
+  u_int flag = args[4];
+  process_Flag_and_Mode_Args(args_map, flag, XATTR_CREATE, "flag_xattr_create");
+  process_Flag_and_Mode_Args(args_map, flag, XATTR_REPLACE, "flag_xattr_replace");
+  if (flag != 0) {
+    std::cerr << "Setxattr: These flags are not processed/unknown->0x";
+    std::cerr << std::hex << flag << std::dec << std::endl;
+  }
+}
+
+void DataSeriesOutputModule::makeLSetxattrArgsMap(SysCallArgsMap &args_map,
+						  long *args,
+						  void **v_args) {
+  // Initialize all non-nullable boolean fields to False.
+  initArgsMap(args_map, "lsetxattr");
+
+  if (v_args[0] != NULL) {
+    args_map["given_pathname"] = &v_args[0];
+  } else {
+    std::cerr << "LSetxattr: Pathname is set as NULL!!" << std::endl;
+  }
+
+  if (v_args[1] != NULL) {
+    args_map["xattr_name"] = &v_args[1];
+  } else {
+    std::cerr << "LSetxattr: Attribute name is set as NULL!!" << std::endl;
+  }
+
+  if (v_args[2] != NULL) {
+    args_map["value_written"] = &v_args[2];
+  } else {
+    std::cerr << "LSetxattr: Attribute value to be written is set as NULL!!";
+    std::cerr << std::endl;
+  }
+
+  args_map["value_size"] = &args[3];
+
+  /* Setting flag values */
+  args_map["flag_value"] = &args[4];
+  u_int flag = args[4];
+  process_Flag_and_Mode_Args(args_map, flag, XATTR_CREATE, "flag_xattr_create");
+  process_Flag_and_Mode_Args(args_map, flag, XATTR_REPLACE, "flag_xattr_replace");
+  if (flag != 0) {
+    std::cerr << "LSetxattr: These flags are not processed/unknown->0x";
+    std::cerr << std::hex << flag << std::dec << std::endl;
   }
 }
 

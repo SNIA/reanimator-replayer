@@ -31,6 +31,7 @@ XML_FILES=			\
 	xml/link.xml		\
 	xml/linkat.xml		\
 	xml/lseek.xml		\
+	xml/lsetxattr.xml	\
 	xml/lstat.xml		\
 	xml/mkdir.xml		\
 	xml/mkdirat.xml		\
@@ -47,6 +48,7 @@ XML_FILES=			\
 	xml/readv.xml		\
 	xml/rename.xml		\
 	xml/rmdir.xml		\
+	xml/setxattr.xml	\
 	xml/stat.xml		\
 	xml/statfs.xml		\
 	xml/symlink.xml		\
