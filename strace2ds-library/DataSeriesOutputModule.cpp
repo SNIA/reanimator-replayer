@@ -111,8 +111,12 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["fsync"] = &DataSeriesOutputModule::makeFsyncArgsMap;
   // getdents system call
   func_ptr_map_["getdents"] = &DataSeriesOutputModule::makeGetdentsArgsMap;
+  // getxattr system call
+  func_ptr_map_["getxattr"] = &DataSeriesOutputModule::makeGetxattrArgsMap;
   // ioctl system call
   func_ptr_map_["ioctl"] = &DataSeriesOutputModule::makeIoctlArgsMap;
+  // lgetxattr system call
+  func_ptr_map_["lgetxattr"] = &DataSeriesOutputModule::makeLGetxattrArgsMap;
   // link system call
   func_ptr_map_["link"] = &DataSeriesOutputModule::makeLinkArgsMap;
   // linkat system call
@@ -1097,6 +1101,56 @@ void DataSeriesOutputModule::makeLSetxattrArgsMap(SysCallArgsMap &args_map,
     std::cerr << "LSetxattr: These flags are not processed/unknown->0x";
     std::cerr << std::hex << flag << std::dec << std::endl;
   }
+}
+
+void DataSeriesOutputModule::makeGetxattrArgsMap(SysCallArgsMap &args_map,
+                                                 long *args,
+                                                 void **v_args) {
+  if (v_args[0] != NULL) {
+    args_map["given_pathname"] = &v_args[0];
+  } else {
+    std::cerr << "Getxattr: Pathname is set as NULL!!" << std::endl;
+  }
+
+  if (v_args[1] != NULL) {
+    args_map["xattr_name"] = &v_args[1];
+  } else {
+    std::cerr << "Getxattr: Attribute name is set as NULL!!" << std::endl;
+  }
+
+  if (v_args[2] != NULL) {
+    args_map["value_read"] = &v_args[2];
+  } else {
+    std::cerr << "Getxattr: Attribute value to be read is set as NULL!!";
+    std::cerr << std::endl;
+  }
+
+  args_map["value_size"] = &args[3];
+}
+
+void DataSeriesOutputModule::makeLGetxattrArgsMap(SysCallArgsMap &args_map,
+                                                  long *args,
+                                                  void **v_args) {
+  if (v_args[0] != NULL) {
+    args_map["given_pathname"] = &v_args[0];
+  } else {
+    std::cerr << "LGetxattr: Pathname is set as NULL!!" << std::endl;
+  }
+
+  if (v_args[1] != NULL) {
+    args_map["xattr_name"] = &v_args[1];
+  } else {
+    std::cerr << "LGetxattr: Attribute name is set as NULL!!" << std::endl;
+  }
+
+  if (v_args[2] != NULL) {
+    args_map["value_read"] = &v_args[2];
+  } else {
+    std::cerr << "LGetxattr: Attribute value to be read is set as NULL!!";
+    std::cerr << std::endl;
+  }
+
+  args_map["value_size"] = &args[3];
 }
 
 void DataSeriesOutputModule::makeFChmodArgsMap(SysCallArgsMap &args_map,

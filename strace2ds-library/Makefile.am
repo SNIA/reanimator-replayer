@@ -27,9 +27,11 @@ XML_FILES=			\
 	xml/fstatfs.xml		\
 	xml/fsync.xml		\
 	xml/getdents.xml	\
+	xml/getxattr.xml	\
 	xml/ioctl.xml		\
 	xml/link.xml		\
 	xml/linkat.xml		\
+	xml/lgetxattr.xml	\
 	xml/lseek.xml		\
 	xml/lsetxattr.xml	\
 	xml/lstat.xml		\

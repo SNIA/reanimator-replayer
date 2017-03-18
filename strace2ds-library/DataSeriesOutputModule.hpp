@@ -250,6 +250,12 @@ private:
   // Maps LSetxattr System Calls <field, value> pairs
   void makeLSetxattrArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
+  // Maps Getxattr System Calls <field, value> pairs
+  void makeGetxattrArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+
+  // Maps LGetxattr System Calls <field, value> pairs
+  void makeLGetxattrArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+
   // Maps FChmod System Calls <field, value> pairs
   void makeFChmodArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 

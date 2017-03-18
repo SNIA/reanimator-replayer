@@ -624,3 +624,15 @@ lsetxattr	value_written	1	variable32
 lsetxattr	flag_value	1	int32
 lsetxattr	flag_xattr_create	0	bool
 lsetxattr	flag_xattr_replace	0	bool
+getxattr	given_pathname	0	variable32
+getxattr	full_pathname	1	variable32
+getxattr	xattr_name	0	variable32
+getxattr	value_ptr	1	int64
+getxattr	value_size	0	int64
+getxattr	value_read	1	variable32
+lgetxattr	given_pathname	0	variable32
+lgetxattr	full_pathname	1	variable32
+lgetxattr	xattr_name	0	variable32
+lgetxattr	value_ptr	1	int64
+lgetxattr	value_size	0	int64
+lgetxattr	value_read	1	variable32
