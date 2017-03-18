@@ -636,3 +636,16 @@ lgetxattr	xattr_name	0	variable32
 lgetxattr	value_ptr	1	int64
 lgetxattr	value_size	0	int64
 lgetxattr	value_read	1	variable32
+fsetxattr	descriptor	0	int32
+fsetxattr	xattr_name	0	variable32
+fsetxattr	value_ptr	1	int64
+fsetxattr	value_size	0	int64
+fsetxattr	value_written	1	variable32
+fsetxattr	flag_value	1	int32
+fsetxattr	flag_xattr_create	0	bool
+fsetxattr	flag_xattr_replace	0	bool
+fgetxattr	descriptor	0	int32
+fgetxattr	xattr_name	0	variable32
+fgetxattr	value_ptr	1	int64
+fgetxattr	value_size	0	int64
+fgetxattr	value_read	1	variable32

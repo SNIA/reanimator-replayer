@@ -361,6 +361,8 @@ XML_FILES = \
 	xml/fchmodat.xml		\
 	xml/fcntl.xml		\
 	xml/fork.xml		\
+	xml/fgetxattr.xml	\
+	xml/fsetxattr.xml	\
 	xml/fstat.xml		\
 	xml/fstatat.xml		\
 	xml/fstatfs.xml		\
