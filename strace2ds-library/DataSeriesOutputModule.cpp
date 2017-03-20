@@ -1196,13 +1196,13 @@ void DataSeriesOutputModule::makeFGetxattrArgsMap(SysCallArgsMap &args_map,
   args_map["descriptor"] = &args[0];
 
   if (v_args[0] != NULL) {
-    args_map["xattr_name"] = &v_args[1];
+    args_map["xattr_name"] = &v_args[0];
   } else {
     std::cerr << "FGetxattr: Attribute name is set as NULL!!" << std::endl;
   }
 
   if (v_args[1] != NULL) {
-    args_map["value_read"] = &v_args[2];
+    args_map["value_read"] = &v_args[1];
   } else {
     std::cerr << "FGetxattr: Attribute value to be read is set as NULL!!";
     std::cerr << std::endl;
