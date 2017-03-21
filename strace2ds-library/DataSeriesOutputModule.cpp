@@ -163,6 +163,10 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["rmdir"] = &DataSeriesOutputModule::makeRmdirArgsMap;
   // setxattr system call
   func_ptr_map_["setxattr"] = &DataSeriesOutputModule::makeSetxattrArgsMap;
+  // setpgid system call
+  func_ptr_map_["setpgid"] = &DataSeriesOutputModule::makeSetpgidArgsMap;
+  // setsid system call
+  func_ptr_map_["setsid"] = &DataSeriesOutputModule::makeSetsidArgsMap;
   // stat system call
   func_ptr_map_["stat"] = &DataSeriesOutputModule::makeStatArgsMap;
   // statfs system call
@@ -1480,6 +1484,19 @@ void DataSeriesOutputModule::makePWriteArgsMap(SysCallArgsMap &args_map,
 
   args_map["bytes_requested"] = &args[2];
   args_map["offset"] = &args[3];
+}
+
+void DataSeriesOutputModule::makeSetpgidArgsMap(SysCallArgsMap &args_map,
+                long *args,
+                void **v_args) {
+  args_map["pid"] = &args[0];
+  args_map["pgid"] = &args[1];
+}
+
+void DataSeriesOutputModule::makeSetsidArgsMap(SysCallArgsMap &args_map,
+                long *args,
+                void **v_args) {
+  // Takes no arguments
 }
 
 void DataSeriesOutputModule::makeStatArgsMap(SysCallArgsMap &args_map,

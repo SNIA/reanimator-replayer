@@ -62,3 +62,5 @@ SNo.	System_call_name	Status		IsReplayable
 51.	fstatat			supported	YES
 52.	clone			supported	NO
 53.	umask			supported	YES
+54.	setsid			supported	NO
+55.	setpgid			supported	NO

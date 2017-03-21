@@ -649,3 +649,6 @@ fgetxattr	xattr_name	0	variable32
 fgetxattr	value_ptr	1	int64
 fgetxattr	value_size	0	int64
 fgetxattr	value_read	1	variable32
+setsid			
+setpgid	pid	0	int32
+setpgid	pgid	0	int32

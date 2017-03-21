@@ -306,6 +306,12 @@ private:
   // Maps PWrite System Call <field, value> pairs
   void makePWriteArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
+  // Maps Setpgid System Call <field, value> pairs
+  void makeSetpgidArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+
+  // Maps Setsid System Call <field, value> pairs
+  void makeSetsidArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+
   // Maps Stat System Call <field, value> pairs
   void makeStatArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
