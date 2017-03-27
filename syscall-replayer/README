@@ -366,6 +366,9 @@ to have our replayer simpler and single threaded.  However, we do perform
 special processing in or FD-map (see section XXX above/below) during these
 process management calls, as well as during _exit.
 
+We don't replay setsid and setpgid, because our replayer is a single
+process and executing these two system calls will not have any side-effects.
+
 #EZK: Say how we "fake" _exit: do we check any return value or passed value
 #at all?  What do we do, if any to mmap/etc.?  And we do have special
 #handling for fork/clone/execve, esp. wrt the fd-map.  Need details.
