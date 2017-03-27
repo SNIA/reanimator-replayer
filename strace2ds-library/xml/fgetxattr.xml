@@ -1,4 +1,4 @@
-<ExtentType name="IOTTAFSL::Trace::Syscall::close" namespace="iotta.snia.org.fsl.cs.sunysb.edu" version="1.00">
+<ExtentType name="IOTTAFSL::Trace::Syscall::fgetxattr" namespace="iotta.snia.org.fsl.cs.sunysb.edu" version="1.00">
   <field name="time_called" type="int64" opt_nullable="yes"/>
   <field name="time_returned" type="int64" opt_nullable="yes"/>
   <field name="time_recorded" type="int64" opt_nullable="yes"/>
@@ -13,4 +13,8 @@
   <field name="return_value" type="int64" opt_nullable="yes"/>
   <field name="unique_id" type="int64" opt_nullable="no"/>
   <field name="descriptor" type="int32" opt_nullable="no"/>
+  <field name="xattr_name" type="variable32" opt_nullable="no"/>
+  <field name="value_ptr" type="int64" opt_nullable="yes"/>
+  <field name="value_size" type="int64" opt_nullable="no"/>
+  <field name="value_read" type="variable32" opt_nullable="yes"/>
 </ExtentType>

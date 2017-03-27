@@ -404,7 +404,9 @@ XML_FILES = \
 	xml/vfork.xml		\
 	xml/write.xml		\
 	xml/writev.xml          \
-	xml/umask.xml
+	xml/umask.xml		\
+	xml/setsid.xml		\
+	xml/setpgid.xml		
 
 EXTRA_DIST = $(SNIA_SYSCALL_FIELDS_TABLE_FILE) $(XML_FILES) buildall
 tablesdir = $(prefix)/tables
