@@ -49,6 +49,8 @@
 #include <sched.h>
 #include <signal.h>
 #include <sys/xattr.h>
+#include <sys/time.h>
+#include <sys/resource.h>
 
 class DataSeriesOutputModule;
 
@@ -469,6 +471,12 @@ private:
 
   // Maps Getdents System Call <field, value> pairs
   void makeGetdentsArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+
+  // Maps Getrlimit System Call <field, value> pairs
+  void makeGetrlimitArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+
+  // Maps Setrlimit System Call <field, value> pairs
+  void makeSetrlimitArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
   // Maps Ioctl System Call <field, value> pairs
   void makeIoctlArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);

@@ -119,6 +119,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["fsync"] = &DataSeriesOutputModule::makeFsyncArgsMap;
   // getdents system call
   func_ptr_map_["getdents"] = &DataSeriesOutputModule::makeGetdentsArgsMap;
+  // getrlimit system call
+  func_ptr_map_["getrlimit"] = &DataSeriesOutputModule::makeGetrlimitArgsMap;
   // getxattr system call
   func_ptr_map_["getxattr"] = &DataSeriesOutputModule::makeGetxattrArgsMap;
   // ioctl system call
@@ -177,6 +179,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["setxattr"] = &DataSeriesOutputModule::makeSetxattrArgsMap;
   // setpgid system call
   func_ptr_map_["setpgid"] = &DataSeriesOutputModule::makeSetpgidArgsMap;
+  // setrlimit system call
+  func_ptr_map_["setrlimit"] = &DataSeriesOutputModule::makeSetrlimitArgsMap;
   // setsid system call
   func_ptr_map_["setsid"] = &DataSeriesOutputModule::makeSetsidArgsMap;
   // stat system call
@@ -187,6 +191,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["symlink"] = &DataSeriesOutputModule::makeSymlinkArgsMap;
   // truncate system call
   func_ptr_map_["truncate"] = &DataSeriesOutputModule::makeTruncateArgsMap;
+  // umask system call
+  func_ptr_map_["umask"] = &DataSeriesOutputModule::makeUmaskArgsMap;
   // unlink system call
   func_ptr_map_["unlink"] = &DataSeriesOutputModule::makeUnlinkArgsMap;
   // unlinkat system call
@@ -203,8 +209,6 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["write"] = &DataSeriesOutputModule::makeWriteArgsMap;
   // writev system call
   func_ptr_map_["writev"] = &DataSeriesOutputModule::makeWritevArgsMap;
-  // umask system call
-  func_ptr_map_["umask"] = &DataSeriesOutputModule::makeUmaskArgsMap;
 }
 
 /*
@@ -1604,6 +1608,26 @@ void DataSeriesOutputModule::makeSetpgidArgsMap(SysCallArgsMap &args_map,
   args_map["pgid"] = &args[1];
 }
 
+void DataSeriesOutputModule::makeSetrlimitArgsMap(SysCallArgsMap &args_map,
+  long *args,
+  void **v_args) {
+  args_map["resource_value"] = &args[0];
+  /*
+   * TODO: The correct value of args_map["resource"] should be 0 if resource is
+   * RLIMIT_AS, 1 if it is RLIMIT_CORE, 2 if it is RLIMIT_CPU, so and so forth.
+   * Currently, we don't do this. We simply assume that resource is same
+   * across different platforms.
+   */
+  args_map["resource"] = &args[0];
+  if (v_args[0] != NULL) {
+    struct rlimit *rlim = (struct rlimit *) v_args[0];
+    args_map["resource_soft_limit"] = &rlim->rlim_cur;
+    args_map["resource_hard_limit"] = &rlim->rlim_max;
+  } else {
+    std::cerr << "Setrlimit: Struct rlimit is set as NULL!!" << std::endl;
+  }
+}
+
 void DataSeriesOutputModule::makeSetsidArgsMap(SysCallArgsMap &args_map,
                 long *args,
                 void **v_args) {
@@ -2773,6 +2797,26 @@ void DataSeriesOutputModule::makeGetdentsArgsMap(SysCallArgsMap &args_map,
     std::cerr << "Getdents: Dirent buffer is set as NULL!!" << std::endl;
   }
   args_map["count"] = &args[2];
+}
+
+void DataSeriesOutputModule::makeGetrlimitArgsMap(SysCallArgsMap &args_map,
+  long *args,
+  void **v_args) {
+  args_map["resource_value"] = &args[0];
+  /*
+   * TODO: The correct value of args_map["resource"] should be 0 if resource is
+   * RLIMIT_AS, 1 if it is RLIMIT_CORE, 2 if it is RLIMIT_CPU, so and so forth.
+   * Currently, we don't do this. We simply assume that resource is same
+   * across different platforms.
+   */
+  args_map["resource"] = &args[0];
+  if (v_args[0] != NULL) {
+    struct rlimit *rlim = (struct rlimit *) v_args[0];
+    args_map["resource_soft_limit"] = &rlim->rlim_cur;
+    args_map["resource_hard_limit"] = &rlim->rlim_max;
+  } else {
+    std::cerr << "Getrlimit: Struct rlimit is set as NULL!!" << std::endl;
+  }
 }
 
 void DataSeriesOutputModule::makeIoctlArgsMap(SysCallArgsMap &args_map,
