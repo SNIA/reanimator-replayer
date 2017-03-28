@@ -362,6 +362,8 @@ XML_FILES = \
 	xml/fcntl.xml		\
 	xml/fork.xml		\
 	xml/fgetxattr.xml	\
+	xml/flistxattr.xml	\
+	xml/fremovexattr.xml	\
 	xml/fsetxattr.xml	\
 	xml/fstat.xml		\
 	xml/fstatat.xml		\
@@ -372,7 +374,10 @@ XML_FILES = \
 	xml/ioctl.xml		\
 	xml/link.xml		\
 	xml/linkat.xml		\
+	xml/listxattr.xml	\
 	xml/lgetxattr.xml	\
+	xml/llistxattr.xml	\
+	xml/lremovexattr.xml	\
 	xml/lseek.xml		\
 	xml/lsetxattr.xml	\
 	xml/lstat.xml		\
@@ -389,6 +394,7 @@ XML_FILES = \
 	xml/read.xml		\
 	xml/readlink.xml	\
 	xml/readv.xml		\
+	xml/removexattr.xml	\
 	xml/rename.xml		\
 	xml/rmdir.xml		\
 	xml/setxattr.xml	\

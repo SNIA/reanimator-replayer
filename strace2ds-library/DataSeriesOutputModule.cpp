@@ -103,6 +103,10 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["fcntl"] = &DataSeriesOutputModule::makeFcntlArgsMap;
   // fgetxattr system call
   func_ptr_map_["fgetxattr"] = &DataSeriesOutputModule::makeFGetxattrArgsMap;
+  // flistxattr system call
+  func_ptr_map_["flistxattr"] = &DataSeriesOutputModule::makeFListxattrArgsMap;
+  // fremovexattr system call
+  func_ptr_map_["fremovexattr"] = &DataSeriesOutputModule::makeFRemovexattrArgsMap;
   // fsetxattr system call
   func_ptr_map_["fsetxattr"] = &DataSeriesOutputModule::makeFSetxattrArgsMap;
   // fstat system call
@@ -125,6 +129,12 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["link"] = &DataSeriesOutputModule::makeLinkArgsMap;
   // linkat system call
   func_ptr_map_["linkat"] = &DataSeriesOutputModule::makeLinkatArgsMap;
+  // listxattr system call
+  func_ptr_map_["listxattr"] = &DataSeriesOutputModule::makeListxattrArgsMap;
+  // llistxattr system call
+  func_ptr_map_["llistxattr"] = &DataSeriesOutputModule::makeLListxattrArgsMap;
+  // lremovexattr system call
+  func_ptr_map_["lremovexattr"] = &DataSeriesOutputModule::makeLRemovexattrArgsMap;
   // lseek system call
   func_ptr_map_["lseek"] = &DataSeriesOutputModule::makeLSeekArgsMap;
   // lsetxattr system call
@@ -157,6 +167,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["readlink"] = &DataSeriesOutputModule::makeReadlinkArgsMap;
   // readv system call
   func_ptr_map_["readv"] = &DataSeriesOutputModule::makeReadvArgsMap;
+  // removexattr system call
+  func_ptr_map_["removexattr"] = &DataSeriesOutputModule::makeRemovexattrArgsMap;
   // rename system call
   func_ptr_map_["rename"] = &DataSeriesOutputModule::makeRenameArgsMap;
   // rmdir system call
@@ -1193,7 +1205,6 @@ void DataSeriesOutputModule::makeFSetxattrArgsMap(SysCallArgsMap &args_map,
   }
 }
 
-
 void DataSeriesOutputModule::makeFGetxattrArgsMap(SysCallArgsMap &args_map,
 						  long *args,
 						  void **v_args) {
@@ -1213,6 +1224,100 @@ void DataSeriesOutputModule::makeFGetxattrArgsMap(SysCallArgsMap &args_map,
   }
 
   args_map["value_size"] = &args[3];
+}
+
+void DataSeriesOutputModule::makeListxattrArgsMap(SysCallArgsMap &args_map,
+						  long *args,
+						  void **v_args) {
+  if (v_args[0] != NULL) {
+    args_map["given_pathname"] = &v_args[0];
+  } else {
+    std::cerr << "Listxattr: Pathname is set as NULL!!" << std::endl;
+  }
+
+  if (v_args[1] != NULL) {
+    args_map["xattr_list"] = &v_args[1];
+  } else {
+    std::cerr << "Listxattr: Attribute list is set as NULL!!" << std::endl;
+  }
+
+  args_map["list_size"] = &args[2];
+}
+
+void DataSeriesOutputModule::makeLListxattrArgsMap(SysCallArgsMap &args_map,
+						   long *args,
+						   void **v_args) {
+  if (v_args[0] != NULL) {
+    args_map["given_pathname"] = &v_args[0];
+  } else {
+    std::cerr << "LListxattr: Pathname is set as NULL!!" << std::endl;
+  }
+
+  if (v_args[1] != NULL) {
+    args_map["xattr_list"] = &v_args[1];
+  } else {
+    std::cerr << "LListxattr: Attribute list is set as NULL!!" << std::endl;
+  }
+
+  args_map["list_size"] = &args[2];
+}
+
+void DataSeriesOutputModule::makeFListxattrArgsMap(SysCallArgsMap &args_map,
+						   long *args,
+						   void **v_args) {
+  args_map["descriptor"] = &args[0];
+
+  if (v_args[0] != NULL) {
+    args_map["xattr_list"] = &v_args[0];
+  } else {
+    std::cerr << "FListxattr: Attribute list is set as NULL!!" << std::endl;
+  }
+
+  args_map["list_size"] = &args[2];
+}
+
+void DataSeriesOutputModule::makeRemovexattrArgsMap(SysCallArgsMap &args_map,
+						    long *args,
+						    void **v_args) {
+  if (v_args[0] != NULL) {
+    args_map["given_pathname"] = &v_args[0];
+  } else {
+    std::cerr << "Removexattr: Pathname is set as NULL!!" << std::endl;
+  }
+
+  if (v_args[1] != NULL) {
+    args_map["xattr_name"] = &v_args[1];
+  } else {
+    std::cerr << "Removexattr: Attribute name is set as NULL!!" << std::endl;
+  }
+}
+
+void DataSeriesOutputModule::makeLRemovexattrArgsMap(SysCallArgsMap &args_map,
+						     long *args,
+						     void **v_args) {
+  if (v_args[0] != NULL) {
+    args_map["given_pathname"] = &v_args[0];
+  } else {
+    std::cerr << "LRemovexattr: Pathname is set as NULL!!" << std::endl;
+  }
+
+  if (v_args[1] != NULL) {
+    args_map["xattr_name"] = &v_args[1];
+  } else {
+    std::cerr << "LRemovexattr: Attribute name is set as NULL!!" << std::endl;
+  }
+}
+
+void DataSeriesOutputModule::makeFRemovexattrArgsMap(SysCallArgsMap &args_map,
+						     long *args,
+						     void **v_args) {
+  args_map["descriptor"] = &args[0];
+
+  if (v_args[0] != NULL) {
+    args_map["xattr_name"] = &v_args[0];
+  } else {
+    std::cerr << "FRemovexattr: Attribute name is set as NULL!!" << std::endl;
+  }
 }
 
 void DataSeriesOutputModule::makeFChmodArgsMap(SysCallArgsMap &args_map,

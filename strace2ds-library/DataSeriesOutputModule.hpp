@@ -262,6 +262,24 @@ private:
   // Maps FGetxattr System Calls <field, value> pairs
   void makeFGetxattrArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
+  // Maps Listxattr System Calls <field, value> pairs
+  void makeListxattrArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+
+  // Maps LListxattr System Calls <field, value> pairs
+  void makeLListxattrArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+
+  // Maps FListxattr System Calls <field, value> pairs
+  void makeFListxattrArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+
+  // Maps Removexattr System Calls <field, value> pairs
+  void makeRemovexattrArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+
+  // Maps LRemovexattr System Calls <field, value> pairs
+  void makeLRemovexattrArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+
+  // Maps FRemovexattr System Calls <field, value> pairs
+  void makeFRemovexattrArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+
   // Maps FChmod System Calls <field, value> pairs
   void makeFChmodArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
