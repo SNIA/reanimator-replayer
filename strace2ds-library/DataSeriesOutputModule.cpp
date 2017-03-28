@@ -267,6 +267,12 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
       common_fields[DS_COMMON_FIELD_EXECUTING_PID];
   }
 
+  /* set executing tid field */
+  if (common_fields[DS_COMMON_FIELD_EXECUTING_TID] != NULL) {
+    sys_call_args_map["executing_tid"] =
+      common_fields[DS_COMMON_FIELD_EXECUTING_TID];
+  }
+
   /* set return value field */
   if (common_fields[DS_COMMON_FIELD_RETURN_VALUE] != NULL) {
     sys_call_args_map["return_value"] =
