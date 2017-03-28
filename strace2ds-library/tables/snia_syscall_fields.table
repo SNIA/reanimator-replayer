@@ -674,3 +674,11 @@ fremovexattr	xattr_name	0	variable32
 setsid			
 setpgid	pid	0	int32
 setpgid	pgid	0	int32
+getrlimit	resource_value	1	int32
+getrlimit	resource	0	byte
+getrlimit	resource_soft_limit	0	int64
+getrlimit	resource_hard_limit	0	int64
+setrlimit	resource_value	1	int32
+setrlimit	resource	0	byte
+setrlimit	resource_soft_limit	0	int64
+setrlimit	resource_hard_limit	0	int64
