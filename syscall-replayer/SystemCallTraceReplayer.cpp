@@ -661,6 +661,9 @@ void load_syscall_modules(std::priority_queue<SystemCallTraceReplayModule*,
         exit(0);
       }
       replayers_heap.push(module);
+    } else {
+      // Delete the module since it has no system call to replay.
+      delete module;
     }
   }
 }
@@ -678,9 +681,9 @@ void prepare_replay(std::priority_queue<SystemCallTraceReplayModule*,
     // Get a module that has min unique_id
     SystemCallTraceReplayModule *syscall_module = syscall_replayer.top();
     // First module to replay should be umask.
-    assert(syscall_module->sys_call_name()=="umask");
+    assert(syscall_module->sys_call_name() == "umask");
     // First record should be a umask record.
-    assert(syscall_module->unique_id()==0);
+    assert(syscall_module->unique_id() == 0);
 
     /*
      * Call umask(0) to “turn off” umask. This is needed b/c the kernel still has to have some umask value.
@@ -711,6 +714,9 @@ void prepare_replay(std::priority_queue<SystemCallTraceReplayModule*,
       syscall_module->getSharedExtent() != NULL) {
       // No, there are more umask records, so we add it to min_heap
       syscall_replayer.push(syscall_module);
+    } else {
+      // Yes, let's delete umask module
+      delete syscall_module;
     }
   }
 }
