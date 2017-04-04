@@ -300,6 +300,9 @@ private:
   // Maps Truncate System Call <field, value> pairs
   void makeTruncateArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
+  // Maps FTruncate System Call <field, value> pairs
+  void makeFTruncateArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+
   // Maps Access System Call <field, value> pairs
   void makeAccessArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
