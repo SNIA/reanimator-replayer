@@ -1790,8 +1790,8 @@ u_int DataSeriesOutputModule::processStatfsFlags(SysCallArgsMap &args_map,
 }
 
 void DataSeriesOutputModule::makeFTruncateArgsMap(SysCallArgsMap &args_map,
-             long *args,
-             void **v_args) {
+						  long *args,
+						  void **v_args) {
   args_map["descriptor"] = &args[0];
   args_map["truncate_length"] = &args[1];
 }
