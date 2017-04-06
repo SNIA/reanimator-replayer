@@ -59,7 +59,7 @@ void ReplayerResourcesManager::initialize(SystemCallTraceReplayLogger *logger,
     // getrlimit succeeds, sow we will scan all fds.
     max_fds = rlim.rlim_cur;
   }
-  std::unordered_set<int> known_fds = fd_table_map_[pid]->get_all_fds();
+  std::unordered_set<int> known_fds = fd_table_map_[pid]->get_all_replayed_fds();
   logger_->log_info("Start initial fd scan. Cache all fds that are not known to the resource manager.");
   for (int fd = 0; fd <= max_fds; fd++) {
     if (is_fd_in_use(fd) && known_fds.find(fd) == known_fds.end()) {
@@ -87,6 +87,11 @@ int ReplayerResourcesManager::get_fd(pid_t pid, int traced_fd) {
   return fd_table_map_[pid]->get_fd(traced_fd);
 }
 
+std::unordered_set<int> ReplayerResourcesManager::get_all_traced_fds(pid_t pid) {
+  assert(fd_table_map_.find(pid) != fd_table_map_.end());
+  return fd_table_map_[pid]->get_all_traced_fds();
+}
+
 bool ReplayerResourcesManager::has_fd(pid_t pid, int traced_fd) {
   assert(fd_table_map_.find(pid) != fd_table_map_.end());
   return fd_table_map_[pid]->has_fd(traced_fd);
@@ -94,7 +99,7 @@ bool ReplayerResourcesManager::has_fd(pid_t pid, int traced_fd) {
 
 int ReplayerResourcesManager::generate_unused_fd(pid_t pid) {
   assert(fd_table_map_.find(pid) != fd_table_map_.end());
-  std::unordered_set<int> used_fds = fd_table_map_[pid]->get_all_fds();
+  std::unordered_set<int> used_fds = fd_table_map_[pid]->get_all_replayed_fds();
   // Add cached replayer fds to used fds (ex. logger fd)
   used_fds.insert(replayer_used_fds_.begin(), replayer_used_fds_.end());
   int unused = 0;
@@ -115,9 +120,16 @@ int ReplayerResourcesManager::get_flags(pid_t pid, int traced_fd) {
   return fd_table_map_[pid]->get_flags(traced_fd);
 }
 
-void ReplayerResourcesManager::update_flags(pid_t pid, int traced_fd, int flags) {
+void ReplayerResourcesManager::set_flags(pid_t pid, int traced_fd, int flags) {
   assert(fd_table_map_.find(pid) != fd_table_map_.end());
-  fd_table_map_[pid]->update_flags(traced_fd, flags);
+  fd_table_map_[pid]->set_flags(traced_fd, flags);
+}
+
+void ReplayerResourcesManager::add_flags(pid_t pid, int traced_fd, int flags) {
+  assert(fd_table_map_.find(pid) != fd_table_map_.end());
+  int cur_flags = get_flags(pid, traced_fd);
+  cur_flags |= flags;
+  fd_table_map_[pid]->set_flags(traced_fd, cur_flags);
 }
 
 int ReplayerResourcesManager::remove_fd(pid_t pid, int traced_fd) {
@@ -147,7 +159,7 @@ std::unordered_set<int> ReplayerResourcesManager::remove_fd_table(pid_t pid) {
   std::unordered_set<int> fds;
   if (rc <= 0) {
     // Need to ask replayer to close all those fds
-    fds = fd_table_ptr->get_all_fds();
+    fds = fd_table_ptr->get_all_replayed_fds();
     // Free the memory that is used by fd table
     delete fd_table_ptr;
   }
@@ -237,7 +249,7 @@ void ReplayerResourcesManager::validate_consistency() {
     iter != fd_table_map_.end();
     ++iter) {
     pid_t pid = iter->first;
-    std::unordered_set<int> process_used_fds = fd_table_map_[pid]->get_all_fds();
+    std::unordered_set<int> process_used_fds = fd_table_map_[pid]->get_all_replayed_fds();
     used_fds.insert(process_used_fds.begin(), process_used_fds.end());
   }
 
@@ -253,7 +265,7 @@ void ReplayerResourcesManager::validate_consistency() {
        * cause serious problems in replaying.
        */
       logger_->log_warn("Unknown and currently in used file descriptor to the resource manager \
-        is found: fd #" + fd);
+        is found: fd #", fd);
     } else if (!fd_used && used_fds.find(fd) != used_fds.end()) {
       /*
        * This fd is NOT in use, but the resource manager thinks that
@@ -262,7 +274,7 @@ void ReplayerResourcesManager::validate_consistency() {
        * resource manager knowing it. This could
        * cause serious problems in replaying.
        */
-      logger_->log_warn("Unused file descriptor, but the resource manager thinks it is in used: fd #" + fd);
+      logger_->log_err("Unused file descriptor, but the resource manager thinks it is in used: fd #", fd);
     }
 
     /*
@@ -415,7 +427,16 @@ bool FileDescriptorTableEntry::has_fd(int traced_fd) {
   }
 }
 
-std::unordered_set<int> FileDescriptorTableEntry::get_all_fds() {
+std::unordered_set<int> FileDescriptorTableEntry::get_all_traced_fds() {
+  std::unordered_set<int> fds;
+  for (std::map<int, FileDescriptorEntry*>::iterator iter = fd_table_.begin();
+    iter != fd_table_.end(); iter++) {
+    fds.insert(iter->first);
+  }
+  return fds;
+}
+
+std::unordered_set<int> FileDescriptorTableEntry::get_all_replayed_fds() {
   std::unordered_set<int> fds;
   for (std::map<int, FileDescriptorEntry*>::iterator iter = fd_table_.begin();
     iter != fd_table_.end(); iter++) {
@@ -439,7 +460,7 @@ int FileDescriptorTableEntry::get_flags(int traced_fd) {
   return fd_table_[traced_fd]->get_flags();
 }
 
-void FileDescriptorTableEntry::update_flags(int traced_fd, int flags) {
+void FileDescriptorTableEntry::set_flags(int traced_fd, int flags) {
   // fd_table_ should have an entry for traced_fd
   assert(fd_table_.find(traced_fd) != fd_table_.end());
   // Create a FileDescriptorEntry
