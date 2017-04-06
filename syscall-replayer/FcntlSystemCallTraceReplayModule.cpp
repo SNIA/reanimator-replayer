@@ -103,7 +103,7 @@ void FcntlSystemCallTraceReplayModule::processRow() {
    * If command has F_DUPFD flag set, then map the returned file descriptor
    * value to the traced return value.
    */
-  if (command & F_DUPFD || command & F_DUPFD_CLOEXEC) {
+  if (command == F_DUPFD || command == F_DUPFD_CLOEXEC) {
     // Get actual file descriptor
     pid_t pid = executing_pid();
     int fd_flags = replayer_resources_manager_.get_flags(pid, descriptor_.val());
@@ -112,9 +112,15 @@ void FcntlSystemCallTraceReplayModule::processRow() {
      * unless F_DUPFD_CLOEXEC is set
      */
     int new_fd_flags = fd_flags & ~O_CLOEXEC;
-    if (command & F_DUPFD_CLOEXEC) {
+    if (command == F_DUPFD_CLOEXEC) {
       new_fd_flags |= O_CLOEXEC;
     }
     replayer_resources_manager_.add_fd(pid, return_value(), replayed_ret_val_, new_fd_flags);
+  } else if (command == F_SETFD) {
+    if (argument == FD_CLOEXEC) {
+      // Get actual file descriptor
+      pid_t pid = executing_pid();
+      replayer_resources_manager_.add_flags(pid, descriptor_.val(), O_CLOEXEC);
+    }
   }
 }
