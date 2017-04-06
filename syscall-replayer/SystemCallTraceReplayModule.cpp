@@ -125,7 +125,7 @@ void SystemCallTraceReplayModule::execute() {
 
 void SystemCallTraceReplayModule::completeProcessing() {
   after_sys_call();
-  for (int i = 0; i < rows_per_call_; i++)
+  for (int i = 1; i <= rows_per_call_; i++)
     ++series;
 }
 

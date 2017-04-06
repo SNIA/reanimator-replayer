@@ -70,6 +70,7 @@ void ExecveSystemCallTraceReplayModule::print_specific_fields() {
 
 void ExecveSystemCallTraceReplayModule::processRow() {
   int count = 1;
+  pid_t pid = executing_pid();
 
   // Save the position of the first record
   const void *first_record_pos = series.getCurPos();
@@ -81,14 +82,34 @@ void ExecveSystemCallTraceReplayModule::processRow() {
   }
 
   // Set the number of record processed
-  rows_per_call_ = count + 1;
+  rows_per_call_ = count;
 
   // Again, set the pointer to the first record
   series.setCurPos(first_record_pos);
 
   /*
    * NOTE: It is not appropriate to replay execve system call.
-   * Hence we do not replay execve system call.
+   * Hence we do not replay execve system call. However, we still need
+   * to update fd manager.
    */
+  
+  // Get all traced fds in this process
+  std::unordered_set<int> traced_fds = replayer_resources_manager_.get_all_traced_fds(pid);
+  for (std::unordered_set<int>::iterator iter = traced_fds.begin();
+    iter != traced_fds.end(); ++iter) {
+    int traced_fd = *iter;
+    int flags = replayer_resources_manager_.get_flags(pid, traced_fd);
+    /*
+     * Check to see if fd has O_CLOEXEC flag set.
+     * If the FD_CLOEXEC bit is set, the file descriptor will automatically
+     * be closed during a successful execve(2). (If the execve(2) fails, the file descriptor
+     * is left open.)  If the FD_CLOEXEC bit is not set, the file descriptor will
+     * remain open across an execve(2).
+     */
+    if (flags & O_CLOEXEC && return_value() >= 0) {
+      replayer_resources_manager_.remove_fd(pid, traced_fd);
+    }
+  }
+  
   return;
 }

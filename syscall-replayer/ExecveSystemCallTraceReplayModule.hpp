@@ -23,6 +23,7 @@
 #define EXECVE_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 
 #include "SystemCallTraceReplayModule.hpp"
+#include <unordered_set>
 
 class ExecveSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 private:
