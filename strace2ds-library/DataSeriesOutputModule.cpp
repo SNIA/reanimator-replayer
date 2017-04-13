@@ -321,7 +321,8 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
     bool nullable = iter->second.first;
     var32_len = 0;
 
-    if (sys_call_args_map.find(field_name) != sys_call_args_map.end()) {
+    if (sys_call_args_map.find(field_name) != sys_call_args_map.end() &&
+      sys_call_args_map[field_name] != NULL) {
       void *field_value = sys_call_args_map[field_name];
       /*
        * If field is of type Variable32, then retrieve the length of the
@@ -891,13 +892,7 @@ void DataSeriesOutputModule::makeReadArgsMap(SysCallArgsMap &args_map,
 					     long *args,
 					     void **v_args) {
   args_map["descriptor"] = &args[0];
-
-  if (v_args[0] != NULL) {
-    args_map["data_read"] = &v_args[0];
-  } else {
-    std::cerr << "Read: Data to be read is set as NULL!!" << std::endl;
-  }
-
+  args_map["data_read"] = &v_args[0];
   args_map["bytes_requested"] = &args[2];
 }
 
@@ -905,13 +900,7 @@ void DataSeriesOutputModule::makeWriteArgsMap(SysCallArgsMap &args_map,
 					      long *args,
 					      void **v_args) {
   args_map["descriptor"] = &args[0];
-
-  if (v_args[0] != NULL) {
-    args_map["data_written"] = &v_args[0];
-  } else {
-    std::cerr << "Write: Data to be written is set as NULL!!" << std::endl;
-  }
-
+  args_map["data_written"] = &v_args[0];
   args_map["bytes_requested"] = &args[2];
 }
 
@@ -1079,13 +1068,7 @@ void DataSeriesOutputModule::makeSetxattrArgsMap(SysCallArgsMap &args_map,
     std::cerr << "Setxattr: Attribute name is set as NULL!!" << std::endl;
   }
 
-  if (v_args[2] != NULL) {
-    args_map["value_written"] = &v_args[2];
-  } else {
-    std::cerr << "Setxattr: Attribute value to be written is set as NULL!!";
-    std::cerr << std::endl;
-  }
-
+  args_map["value_written"] = &v_args[2];
   args_map["value_size"] = &args[3];
 
   /* Setting flag values */
@@ -1117,13 +1100,7 @@ void DataSeriesOutputModule::makeLSetxattrArgsMap(SysCallArgsMap &args_map,
     std::cerr << "LSetxattr: Attribute name is set as NULL!!" << std::endl;
   }
 
-  if (v_args[2] != NULL) {
-    args_map["value_written"] = &v_args[2];
-  } else {
-    std::cerr << "LSetxattr: Attribute value to be written is set as NULL!!";
-    std::cerr << std::endl;
-  }
-
+  args_map["value_written"] = &v_args[2];
   args_map["value_size"] = &args[3];
 
   /* Setting flag values */
@@ -1152,13 +1129,7 @@ void DataSeriesOutputModule::makeGetxattrArgsMap(SysCallArgsMap &args_map,
     std::cerr << "Getxattr: Attribute name is set as NULL!!" << std::endl;
   }
 
-  if (v_args[2] != NULL) {
-    args_map["value_read"] = &v_args[2];
-  } else {
-    std::cerr << "Getxattr: Attribute value to be read is set as NULL!!";
-    std::cerr << std::endl;
-  }
-
+  args_map["value_read"] = &v_args[2];
   args_map["value_size"] = &args[3];
 }
 
@@ -1177,13 +1148,7 @@ void DataSeriesOutputModule::makeLGetxattrArgsMap(SysCallArgsMap &args_map,
     std::cerr << "LGetxattr: Attribute name is set as NULL!!" << std::endl;
   }
 
-  if (v_args[2] != NULL) {
-    args_map["value_read"] = &v_args[2];
-  } else {
-    std::cerr << "LGetxattr: Attribute value to be read is set as NULL!!";
-    std::cerr << std::endl;
-  }
-
+  args_map["value_read"] = &v_args[2];
   args_map["value_size"] = &args[3];
 }
 
@@ -1199,13 +1164,7 @@ void DataSeriesOutputModule::makeFSetxattrArgsMap(SysCallArgsMap &args_map,
     std::cerr << "FSetxattr: Attribute name is set as NULL!!" << std::endl;
   }
 
-  if (v_args[1] != NULL) {
-    args_map["value_written"] = &v_args[1];
-  } else {
-    std::cerr << "FSetxattr: Attribute value to be written is set as NULL!!";
-    std::cerr << std::endl;
-  }
-
+  args_map["value_written"] = &v_args[1];
   args_map["value_size"] = &args[3];
 
   /* Setting flag values */
@@ -1229,14 +1188,7 @@ void DataSeriesOutputModule::makeFGetxattrArgsMap(SysCallArgsMap &args_map,
   } else {
     std::cerr << "FGetxattr: Attribute name is set as NULL!!" << std::endl;
   }
-
-  if (v_args[1] != NULL) {
-    args_map["value_read"] = &v_args[1];
-  } else {
-    std::cerr << "FGetxattr: Attribute value to be read is set as NULL!!";
-    std::cerr << std::endl;
-  }
-
+  args_map["value_read"] = &v_args[1];
   args_map["value_size"] = &args[3];
 }
 
@@ -1579,13 +1531,7 @@ void DataSeriesOutputModule::makePReadArgsMap(SysCallArgsMap &args_map,
 					      long *args,
 					      void **v_args) {
   args_map["descriptor"] = &args[0];
-
-  if (v_args[0] != NULL) {
-    args_map["data_read"] = &v_args[0];
-  } else {
-    std::cerr << "PRead: Data to be read is set as NULL!!" << std::endl;
-  }
-
+  args_map["data_read"] = &v_args[0];
   args_map["bytes_requested"] = &args[2];
   args_map["offset"] = &args[3];
 }
@@ -1594,13 +1540,7 @@ void DataSeriesOutputModule::makePWriteArgsMap(SysCallArgsMap &args_map,
 					       long *args,
 					       void **v_args) {
   args_map["descriptor"] = &args[0];
-
-  if (v_args[0] != NULL) {
-    args_map["data_written"] = &v_args[0];
-  } else {
-    std::cerr << "PWrite: Data to be written is set as NULL!!" << std::endl;
-  }
-
+  args_map["data_written"] = &v_args[0];
   args_map["bytes_requested"] = &args[2];
   args_map["offset"] = &args[3];
 }
@@ -1819,13 +1759,7 @@ void DataSeriesOutputModule::makeReadlinkArgsMap(SysCallArgsMap &args_map,
   } else {
     std::cerr << "Readlink: Pathname is set as NULL!!" << std::endl;
   }
-
-  if (v_args[1] != NULL) {
-    args_map["link_value"] = &v_args[1];
-  } else {
-    std::cerr << "Readlink: Link value is set as NULL!" << std::endl;
-  }
-
+  args_map["link_value"] = &v_args[1];
   args_map["buffer_size"] = &args[2];
 }
 
@@ -1853,10 +1787,7 @@ void DataSeriesOutputModule::makeReadvArgsMap(SysCallArgsMap &args_map,
      */
     args_map["iov_number"] = v_args[0];
     args_map["bytes_requested"] = v_args[1];
-    if (v_args[2] != NULL)
-      args_map["data_read"] = &v_args[2];
-    else
-      std::cerr << "Readv: Data to be read is set as NULL" << std::endl;
+    args_map["data_read"] = &v_args[2];
   }
 }
 
@@ -1884,10 +1815,7 @@ void DataSeriesOutputModule::makeWritevArgsMap(SysCallArgsMap &args_map,
      */
     args_map["iov_number"] = v_args[0];
     args_map["bytes_requested"] = v_args[1];
-    if (v_args[2] != NULL)
-      args_map["data_written"] = &v_args[2];
-    else
-      std::cerr << "Writev: Data to be written is set as NULL" << std::endl;
+    args_map["data_written"] = &v_args[2];
   }
 }
 
@@ -2830,11 +2758,7 @@ void DataSeriesOutputModule::makeGetdentsArgsMap(SysCallArgsMap &args_map,
 						 long *args,
 						 void **v_args) {
   args_map["descriptor"] = &args[0];
-  if (v_args[0] != NULL) {
-    args_map["dirent_buffer"] = &v_args[0];
-  } else {
-    std::cerr << "Getdents: Dirent buffer is set as NULL!!" << std::endl;
-  }
+  args_map["dirent_buffer"] = &v_args[0];
   args_map["count"] = &args[2];
 }
 
@@ -2864,11 +2788,7 @@ void DataSeriesOutputModule::makeIoctlArgsMap(SysCallArgsMap &args_map,
   args_map["descriptor"] = &args[0];
   args_map["request"] = &args[1];
   args_map["parameter"] = &args[2];
-  if (v_args[0] != NULL) {
-    args_map["ioctl_buffer"] = &v_args[0];
-  } else {
-    std::cerr << "Ioctl: Ioctl buffer is set as NULL!!" << std::endl;
-  }
+  args_map["ioctl_buffer"] = &v_args[0];
   args_map["buffer_size"] = &ioctl_size_;
 }
 
