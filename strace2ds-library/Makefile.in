@@ -384,6 +384,7 @@ XML_FILES = \
 	xml/mkdir.xml		\
 	xml/mkdirat.xml		\
 	xml/mknod.xml		\
+	xml/mknodat.xml		\
 	xml/mmap.xml		\
 	xml/munmap.xml		\
 	xml/open.xml		\

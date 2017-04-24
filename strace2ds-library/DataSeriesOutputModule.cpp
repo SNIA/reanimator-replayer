@@ -149,6 +149,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["mkdirat"] = &DataSeriesOutputModule::makeMkdiratArgsMap;
   // mknod system call
   func_ptr_map_["mknod"] = &DataSeriesOutputModule::makeMknodArgsMap;
+  // mknodat system call
+  func_ptr_map_["mknodat"] = &DataSeriesOutputModule::makeMknodatArgsMap;
   // mmap system call
   func_ptr_map_["mmap"] = &DataSeriesOutputModule::makeMmapArgsMap;
   // munmap system call
@@ -2168,6 +2170,34 @@ void DataSeriesOutputModule::makeMknodArgsMap(SysCallArgsMap &args_map,
 
   if ((args[1] & S_IFCHR) || (args[1] & S_IFBLK)) {
     dev = (int32_t) args[2];
+    args_map["dev"] = &dev;
+  }
+}
+
+void DataSeriesOutputModule::makeMknodatArgsMap(SysCallArgsMap &args_map,
+						long *args,
+						void **v_args) {
+  static int32_t dev;
+  args_map["descriptor"] = &args[0];
+  initArgsMap(args_map, "mknodat");
+  if (v_args[0] != NULL) {
+    args_map["given_pathname"] = &v_args[0];
+  } else {
+    std::cerr << "Mknodat: Pathname is set as NULL!!" << std::endl;
+  }
+
+  mode_t mode = processMode(args_map, args, 2);
+
+  /* Can reuse processMknodType since the mode values are same */
+  mode = processMknodType(args_map, mode);
+
+  if (mode != 0) {
+    std::cerr << "Mknodat: These modes are not processed/unknown: ";
+    std::cerr << std::oct << mode << std::dec << ". " << std::endl;
+  }
+
+  if ((args[2] & S_IFCHR) || (args[2] & S_IFBLK)) {
+    dev = (int32_t) args[3];
     args_map["dev"] = &dev;
   }
 }
