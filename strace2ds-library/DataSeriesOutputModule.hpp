@@ -395,6 +395,9 @@ private:
   // Maps Mknod System Call <field, value> pairs
   void makeMknodArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
+  // Maps Mknodat System Call <field, value> pairs
+  void makeMknodatArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+
   // Processes, encodes, and maps the type field for the Mknod system call
   mode_t processMknodType(SysCallArgsMap &args_map, mode_t mode);
 
