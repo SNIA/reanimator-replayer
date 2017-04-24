@@ -348,10 +348,66 @@ it has such a special umask value as the first record.
 
 1. FILE DESCRIPTORS MAPPING
 
-It is unnecessary to obtain the exact same set of file descriptors while
-replaying as were used by the traced program.  So, we maintain a mapping
-between the file descriptors of the traced program and those of the replayed
-program to replay accurately.
+Problem:
+A. Reading/Writing from/to a file happens using a fd (file descriptor). Fd
+   returned from open system call in the program that we want to trace is
+   called "traced fd" and fd returned from open system call in our replayer
+   is called "replayed fd". Although traced program and replayer can execute
+   open system call with exactly same arguments, kernel may return different
+   fds. Therefore, traced fd and replayed fd may not be same. To correctly
+   replay (ex: writing data to a correct file), we cannot simply take traced
+   fd and feed it into write system call. We need a way to translate traced
+   fd into its corresponding replayed fd whenever we see a system call that
+   uses fd.
+
+B. A trace program can invoke process creation related system calls to create
+   processes. However, our replayer is a single process. It doesn't invoke any
+   process creation related system calls to simulate process creation/deletion-
+   /update behaviors of the traced program. Therefore, in order for replayer
+   to correctly simulate the same behavior of traced program (producing
+   same output), we need a way to manage fds for all processes in the traced
+   program.
+
+Solution:
+To translate traced fd into its corresponding replayed fd, we maintain a
+mapping between the file descriptors of the traced program and replayer. This
+solves the problem A because every time we encounter a traced fd, we will use
+the mapping to get replayed fd to use. However, this mapping doesn't help us
+in problem B because our mapping is one-to-one (one traced fd to one replayed
+fd) and fds in multi-process are one-to-many (one traced fd to many replayed
+fds, ex: process A has fd 1 that points to foo file and process B has fd 1
+that points to bar file. Our replayer has two distinct fds for this.). To
+solve this, we add another mapping layer around fd mapping. We implement
+fd-manager, a data structure that has this layer structure and manages all
+activities that are related to fds. The first layer is process id to process
+file descriptors table. This means that each process in the traced program
+will have its own file descriptors table in our fd-manager. The file
+descriptors table is the fd mapping where traced fd is key and value is a
+tuple of replayed fd and flags.
+
+This is how it works:
+Let's say we have process id 1234 performing following sequence of system
+calls in tracing:
+a. Open file1 (say this returns fd 60)
+b. Open file2 (say this returns fd 65)
+c. read(60)
+
+While replaying:
+a. Open file1 (say this returns fd 90)
+In tracing, process #1234 opened file1 which returned fd 60. So, in replaying
+we add an entry <1234, <60,90>> to the map (fd-manager). Here the key is
+pid - 1234 and value is also a map <traced_fd, replayed_fd>.
+
+b. Open file2 (say this returns fd 100)
+Same as above, we add an entry <1234, <65,100>> to fd-manager
+
+c. read(90) (read(60) gets converted to read(90) using mapping <1234, <60,90>>)
+
+Trace file says process 1234 and fd 60, so we use fd-manager and get fd 90.
+This mapping is needed for each process as each process has its own list of
+fds. Thus, the fd-manager data structure should look something like:
+Map<int process, Map<int traced_fd, tuple<int replayed_fd, int flags>>>
+
 
 #EZK where's the details of the fd-map design
 
@@ -449,6 +505,28 @@ call's behavior.
 
 #EZK: above description of umask algorithm was lacking.  Revised a lot.
 #Please review and verify with code; ensure this is clear enough.
+
+6. MULTI-THREADED SUPPORT IN TRACE-REPLAY:
+
+Since Strace is a Linux-only utility, we are currently supporting only the
+Linux operating system.
+In linux:-
+A. Creating a new thread is cloning a process with CLONE_FILES flag.
+B. Creating a new process is cloning a process with or without the flag.
+
+Correspondingly, in Linux, the tid and pid are equivalent. When the traced
+process creates a new thread, the traced 'pid' in the tcb block in strace is
+actually the 'tid' - the thread ID. In our replayer, we have this pid based
+resources mapping table - the fd-manager. Currently, resources are fd and
+umask values. During replaying, if we encounter CLONE_FILES flag in clone
+system call, we assign its parent FD mapping table to the child and make them
+share the same table. Whereas in the case when there is no CLONE_FILES flag,
+the child would have its own FD mapping table with the same content of its
+parent table but not shared. To further make sure that the fd-manager does
+not have any unused entries, we remove the entries from the resources mapping
+table for the processes that get terminated or killed. The fd-manager can
+therefore consistently handle replaying multi-threaded programs.
+
 
 * SPECIAL REQUIREMENTS IN DATASERIES SYSTEM CALL TRACE FILE
 ===============================================================================
