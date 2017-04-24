@@ -248,6 +248,9 @@ std::vector<PrefetchBufferModule *> create_prefetch_buffer_modules(std::vector<s
   system_calls.push_back("vfork");
   system_calls.push_back("umask");
   system_calls.push_back("ftruncate");
+  system_calls.push_back("setxattr");
+  system_calls.push_back("lsetxattr");
+  system_calls.push_back("fsetxattr");
 
   std::vector<TypeIndexModule *> type_index_modules;
 
@@ -580,6 +583,28 @@ std::vector<SystemCallTraceReplayModule *> create_system_call_trace_replay_modul
       *prefetch_buffer_modules[module_index++],
       verbose,
       warn_level);
+  SetxattrSystemCallTraceReplayModule *setxattr_module =
+    new SetxattrSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++],
+      verbose,
+      verify,
+      warn_level,
+      pattern_data);
+  LSetxattrSystemCallTraceReplayModule *lsetxattr_module =
+    new LSetxattrSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++],
+      verbose,
+      verify,
+      warn_level,
+      pattern_data);
+  FSetxattrSystemCallTraceReplayModule *fsetxattr_module =
+    new FSetxattrSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++],
+      verbose,
+      verify,
+      warn_level,
+      pattern_data);
+
   /*
    * This vector is going to used to load replaying modules.
    * Therefore, add replaying modules into this vector in here.
@@ -640,6 +665,9 @@ std::vector<SystemCallTraceReplayModule *> create_system_call_trace_replay_modul
   system_call_trace_replay_modules.push_back(vfork_module);
   system_call_trace_replay_modules.push_back(umask_module);
   system_call_trace_replay_modules.push_back(ftruncate_module);
+  system_call_trace_replay_modules.push_back(setxattr_module);
+  system_call_trace_replay_modules.push_back(lsetxattr_module);
+  system_call_trace_replay_modules.push_back(fsetxattr_module);
 
   return system_call_trace_replay_modules;
 }
