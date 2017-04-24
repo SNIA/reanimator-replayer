@@ -66,7 +66,7 @@ STRACE utility with the -X <dataseries_output_file> command line option to
 capture traces and create DataSeries file.
 
 USAGE: STRACE2DS=~/strace2ds ./strace -X foo.ds <input_program> <program_args>
-EXAMPLE: STRACE2DS=~/strace2ds ./strace -X foo.ds cat /bin/ls stamp -h
+EXAMPLE: STRACE2DS=~/strace2ds ./strace -X foo.ds /bin/ls -h
 
 3. Once the DataSeries file is generated, run the system call replayer to
 replay the traced program and/or analyze the trace.
@@ -273,6 +273,53 @@ The time returned value is recorded inside trace_syscall_exiting() function.
 
 #EZK: where do we mention exceptions, syscalls that cannot be captured at
 #_exiting()?
+
+4. STRACE NUMBER DUPLICATION: XATTR AND KILL-RELATED SYSTEM CALLS HANDLING
+
+Strace uses its own system call numbering scheme, whose structure is
+defined in sysent.h. The numbering is architecture dependent and defined in
+linux/<architecture>/syscallent.h. This numbering scheme is non-unique, and
+assigns the same number (tcp->s_ent->sen) to a the following closely related
+system calls:
+a. setxattr and lsetxattr
+b. getxattr and lgetxattr
+c. removexattr and lremovexattr
+d. listxattr and llistxattr
+e. exit_group and exit
+f. tkill and kill
+
+Using `sen' to identify system calls would be unreliable in these cases, so
+we added an extra check, using the system call name(tcp->s_ent->sys_name).
+To avoid expensive string comparison - we check the first different character
+of the system call name to identify invoked system call.
+
+Example 1:
+For the combinations a, b, and c above, we distinguish between the system
+calls by checking whether the first character in the system call name is an
+'l':
+
+if (tcp->s_ent->sys_name[0] == 'l')
+	/* handling for l*xattr system call */
+else
+	/* handling for other system call */
+
+Example 2:
+For the combination d, we distinguish between the system calls by checking
+whether the second character in the system call name is an 'l':
+
+if (tcp->s_ent->sys_name[1] == 'l')
+	/* handling for llistxattr system call */
+else
+	/* handling for listxattr system call */
+
+Example 3:
+For the combination f, we distinguish between the system calls by checking
+whether the first character in the system call name is an 't':
+
+if (tcp->s_ent->sys_name[0] == 't')
+	/* handling for tkill system call */
+else
+	/* handling for kill system call */
 
 * DESIGN DECISIONS IN STRACE2DS
 ===============================================================================
