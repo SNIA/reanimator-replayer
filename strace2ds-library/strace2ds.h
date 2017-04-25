@@ -36,6 +36,7 @@ extern "C" {
 #endif
 
 #include <sys/time.h>
+#include <stdint.h>
 
 typedef struct DataSeriesOutputModule DataSeriesOutputModule;
 
@@ -94,6 +95,11 @@ void ds_set_ioctl_size(DataSeriesOutputModule *ds_module, int size);
  * Return the size of the buffer passed to an ioctl system call
  */
 int ds_get_ioctl_size(DataSeriesOutputModule *ds_module);
+
+/*
+ * Return the next record number in this dataseries file
+ */
+int64_t ds_get_next_id(DataSeriesOutputModule *ds_module);
 
 /*
  * Record the index of the child thread id argument passed to a clone
