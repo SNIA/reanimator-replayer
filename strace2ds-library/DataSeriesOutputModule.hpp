@@ -107,6 +107,11 @@ public:
   // Gets the ioctl_size_ variable for an Ioctl System Call
   uint64_t getIoctlSize();
 
+  /**
+   * Gets the next record number
+   */
+  int64_t getNextID();
+
   // Sets the clone_ctid_index_ variable for a Clone System Call
   void setCloneCTIDIndex(u_int ctid_index);
 
@@ -122,7 +127,7 @@ private:
   /* Sink is a wrapper for a DataSeries output file. */
   DataSeriesSink ds_sink_;
   config_table_type config_table_;
-  u_int record_num_;
+  int64_t record_num_;
   // ioctl_size_ is the size of a buffer passed to an ioctl system call
   uint64_t ioctl_size_;
   /*

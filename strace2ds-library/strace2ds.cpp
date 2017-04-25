@@ -147,6 +147,13 @@ int ds_get_ioctl_size(DataSeriesOutputModule *ds_module) {
 }
 
 /*
+ * Return the next record number in this dataseries file
+ */
+int64_t ds_get_next_id(DataSeriesOutputModule *ds_module) {
+  ((DataSeriesOutputModule *) ds_module)->getNextID();
+}
+
+/*
  * Record the index of the child thread id argument passed to a clone
  * system call, since the argument order for clone differs for different
  * architectures

@@ -359,6 +359,12 @@ uint64_t DataSeriesOutputModule::getIoctlSize() {
   return ioctl_size_;
 }
 
+int64_t DataSeriesOutputModule::getNextID() {
+  int64_t ret = record_num_;
+  record_num_++;
+  return ret;
+}
+
 void DataSeriesOutputModule::setCloneCTIDIndex(u_int ctid_index) {
   clone_ctid_index_ = ctid_index;
 }
