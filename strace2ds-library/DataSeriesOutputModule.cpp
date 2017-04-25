@@ -243,7 +243,9 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
    * field.  Otherwise set it to null.
    */
 
-  sys_call_args_map["unique_id"] = &record_num_;
+  /* set unique id field */
+  sys_call_args_map["unique_id"] = common_fields[DS_COMMON_FIELD_UNIQUE_ID];
+
   /*
    * Add common field values to the map.
    * NOTE: Some system calls such as _exit(2) do not have
@@ -344,9 +346,6 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
       }
     }
   }
-
-  // Update record number
-  record_num_++;
 }
 
 void DataSeriesOutputModule::setIoctlSize(uint64_t size) {
