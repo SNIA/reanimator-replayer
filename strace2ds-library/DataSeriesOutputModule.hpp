@@ -297,6 +297,9 @@ private:
   // Maps Symlink System Call <field, value> pairs
   void makeSymlinkArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
+  // Maps Symlinkat System Call <field, value> pairs
+  void makeSymlinkatArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+
   // Maps Truncate System Call <field, value> pairs
   void makeTruncateArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 

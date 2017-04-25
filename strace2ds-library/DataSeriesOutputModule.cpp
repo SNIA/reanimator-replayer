@@ -191,6 +191,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["statfs"] = &DataSeriesOutputModule::makeStatfsArgsMap;
   // symlink system call
   func_ptr_map_["symlink"] = &DataSeriesOutputModule::makeSymlinkArgsMap;
+  // symlinkat system call
+  func_ptr_map_["symlinkat"] = &DataSeriesOutputModule::makeSymlinkatArgsMap;
   // truncate system call
   func_ptr_map_["truncate"] = &DataSeriesOutputModule::makeTruncateArgsMap;
   // umask system call
@@ -1392,6 +1394,31 @@ void DataSeriesOutputModule::makeSymlinkArgsMap(SysCallArgsMap &args_map,
   } else {
     std::cerr << "Symlink: Target Pathname is set as NULL!!" << std::endl;
   }
+  if (v_args[1] != NULL) {
+    args_map["given_pathname"] = &v_args[1];
+  } else {
+    std::cerr << "Symlink: Pathname is set as NULL!!" << std::endl;
+  }
+}
+
+void DataSeriesOutputModule::makeSymlinkatArgsMap(SysCallArgsMap &args_map,
+						  long *args,
+						  void **v_args) {
+  static bool true_ = true;
+
+  initArgsMap(args_map, "linkat");
+
+  if (v_args[0] != NULL) {
+    args_map["target_pathname"] = &v_args[0];
+  } else {
+    std::cerr << "Symlink: Target Pathname is set as NULL!!" << std::endl;
+  }
+
+  args_map["new_descriptor"] = &args[2];
+  if (args[2] == AT_FDCWD) {
+    args_map["new_descriptor_current_working_directory"] = &true_;
+  }
+
   if (v_args[1] != NULL) {
     args_map["given_pathname"] = &v_args[1];
   } else {

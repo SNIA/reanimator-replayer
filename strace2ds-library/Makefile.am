@@ -63,6 +63,7 @@ XML_FILES=			\
 	xml/stat.xml		\
 	xml/statfs.xml		\
 	xml/symlink.xml		\
+	xml/symlinkat.xml	\
 	xml/truncate.xml	\
 	xml/unlink.xml		\
 	xml/unlinkat.xml	\
