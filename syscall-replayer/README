@@ -243,11 +243,21 @@ strace code for complete structure) which stores parameters passed to a
 system call and other metadata such as executing pid, error code, return
 values, time called, time returned, etc.
 
-1.1. COMMON FIELDS
+1.1. COMMON FIELDS and ARGS MAP
 
 Instead of passing individual common field values in ds_write_record(), we
-chose to create an array of pointers named common_fields and pass the array
-to the function.
+chose to create an array of pointers named common_fields. We store the
+addresses of common fields in the common_fields. Then we pass the array
+to strace2ds API, so that it can deference the pointer to extract the value.
+The reason why we use pointers, rather than actual values is because 
+ARGS_MAP uses common_fields to extract common field values and ARGS_MAP
+holds the addresses of field values. ARGS_MAP uses pointers rather than
+value is because we want to have uniform interface for all data types, avoid creating
+too many strace2ds APIs in order for strace to talk to strace2ds and avoid
+passing too many arguments around. Ex: system call argument could be string, int, double,
+struct, struct pointer, int pointer, buffer, etc. To pass those values
+to strace2ds, we would have to create different APIs in strace2ds for different
+combinations.
 
 1.2. V_ARGS
 
