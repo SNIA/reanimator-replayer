@@ -278,6 +278,9 @@ private:
   // Maps FListxattr System Calls <field, value> pairs
   void makeFListxattrArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
+  // Maps FLock System Calls <field, value> pairs
+  void makeFLockArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+
   // Maps Removexattr System Calls <field, value> pairs
   void makeRemovexattrArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
