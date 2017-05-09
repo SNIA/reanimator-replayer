@@ -327,6 +327,11 @@ unlink	full_pathname	1	variable32
 symlink	target_pathname	0	variable32
 symlink	given_pathname	0	variable32
 symlink	full_pathname	1	variable32
+symlinkat	target_pathname	0	variable32
+symlinkat	new_descriptor	0	int32
+symlinkat	new_descriptor_current_working_directory	0	bool
+symlinkat	given_pathname	0	variable32
+symlinkat	full_pathname	1	variable32
 readlink	given_pathname	0	variable32
 readlink	full_pathname	1	variable32
 readlink	link_value	0	variable32
