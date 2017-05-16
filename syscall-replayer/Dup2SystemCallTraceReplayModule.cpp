@@ -46,6 +46,7 @@ void Dup2SystemCallTraceReplayModule::processRow() {
   int old_fd = replayer_resources_manager_.get_fd(pid, old_descriptor_.val());
   int old_fd_flags = replayer_resources_manager_.get_flags(pid, old_descriptor_.val());
   int new_fd = new_descriptor_.val();
+  int replayed_new_fd = new_fd;
   /*
    * The first is to duplicate onto a descriptor that's
    * currently open, usually as part of redirecting
@@ -56,15 +57,15 @@ void Dup2SystemCallTraceReplayModule::processRow() {
    * update our mapping.
    */
   if (replayer_resources_manager_.has_fd(pid, new_fd)) {
-    new_fd = replayer_resources_manager_.get_fd(pid, new_fd);
+    replayed_new_fd = replayer_resources_manager_.get_fd(pid, new_fd);
     replayer_resources_manager_.remove_fd(pid, new_fd);
   } else {
-    new_fd = replayer_resources_manager_.generate_unused_fd(pid);
+    replayed_new_fd = replayer_resources_manager_.generate_unused_fd(pid);
   }
 
   // The two file descriptors do not share file descriptor flags (the close-on-exec flag).
   int new_fd_flags = old_fd_flags & ~O_CLOEXEC;
-  replayed_ret_val_ = dup2(old_fd, new_fd);
+  replayed_ret_val_ = dup2(old_fd, replayed_new_fd);
 
   // Map replayed duplicated file descriptor to traced duplicated file descriptor
   replayer_resources_manager_.add_fd(pid, return_value(), replayed_ret_val_, new_fd_flags);
