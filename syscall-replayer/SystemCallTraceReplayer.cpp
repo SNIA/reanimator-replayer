@@ -250,6 +250,7 @@ std::vector<PrefetchBufferModule *> create_prefetch_buffer_modules(std::vector<s
   system_calls.push_back("setxattr");
   system_calls.push_back("lsetxattr");
   system_calls.push_back("fsetxattr");
+  system_calls.push_back("ftruncate");
 
   std::vector<TypeIndexModule *> type_index_modules;
 
@@ -598,6 +599,11 @@ std::vector<SystemCallTraceReplayModule *> create_system_call_trace_replay_modul
       verify,
       warn_level,
       pattern_data);
+  FTruncateSystemCallTraceReplayModule *ftruncate_module =
+    new FTruncateSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++],
+      verbose,
+      warn_level);
 
   /*
    * This vector is going to used to load replaying modules.
@@ -661,6 +667,7 @@ std::vector<SystemCallTraceReplayModule *> create_system_call_trace_replay_modul
   system_call_trace_replay_modules.push_back(setxattr_module);
   system_call_trace_replay_modules.push_back(lsetxattr_module);
   system_call_trace_replay_modules.push_back(fsetxattr_module);
+  system_call_trace_replay_modules.push_back(ftruncate_module);
 
   return system_call_trace_replay_modules;
 }
@@ -688,6 +695,9 @@ void load_syscall_modules(std::priority_queue<SystemCallTraceReplayModule*,
         exit(0);
       }
       replayers_heap.push(module);
+    } else {
+      // Delete the module since it has no system call to replay.
+      delete module;
     }
   }
 }
@@ -705,9 +715,9 @@ void prepare_replay(std::priority_queue<SystemCallTraceReplayModule*,
     // Get a module that has min unique_id
     SystemCallTraceReplayModule *syscall_module = syscall_replayer.top();
     // First module to replay should be umask.
-    assert(syscall_module->sys_call_name()=="umask");
+    assert(syscall_module->sys_call_name() == "umask");
     // First record should be a umask record.
-    assert(syscall_module->unique_id()==0);
+    assert(syscall_module->unique_id() == 0);
 
     /*
      * Call umask(0) to “turn off” umask. This is needed b/c the kernel still has to have some umask value.
@@ -738,6 +748,9 @@ void prepare_replay(std::priority_queue<SystemCallTraceReplayModule*,
       syscall_module->getSharedExtent() != NULL) {
       // No, there are more umask records, so we add it to min_heap
       syscall_replayer.push(syscall_module);
+    } else {
+      // Yes, let's delete umask module
+      delete syscall_module;
     }
   }
 }

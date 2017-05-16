@@ -267,6 +267,8 @@ execve	environment	1	variable32
 truncate	given_pathname	0	variable32
 truncate	full_pathname	1	variable32
 truncate	truncate_length	0	int64
+ftruncate	descriptor	0	int32
+ftruncate	truncate_length	0	int64
 chdir	given_pathname	0	variable32
 chdir	full_pathname	1	variable32
 mkdir	given_pathname	0	variable32

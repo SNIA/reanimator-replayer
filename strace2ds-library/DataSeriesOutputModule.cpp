@@ -117,6 +117,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["fstatfs"] = &DataSeriesOutputModule::makeFStatfsArgsMap;
   // fsync system call
   func_ptr_map_["fsync"] = &DataSeriesOutputModule::makeFsyncArgsMap;
+  // ftruncate system call
+  func_ptr_map_["ftruncate"] = &DataSeriesOutputModule::makeFTruncateArgsMap;
   // getdents system call
   func_ptr_map_["getdents"] = &DataSeriesOutputModule::makeGetdentsArgsMap;
   // getrlimit system call
@@ -1576,15 +1578,15 @@ void DataSeriesOutputModule::makePWriteArgsMap(SysCallArgsMap &args_map,
 }
 
 void DataSeriesOutputModule::makeSetpgidArgsMap(SysCallArgsMap &args_map,
-                long *args,
-                void **v_args) {
+						long *args,
+						void **v_args) {
   args_map["pid"] = &args[0];
   args_map["pgid"] = &args[1];
 }
 
 void DataSeriesOutputModule::makeSetrlimitArgsMap(SysCallArgsMap &args_map,
-  long *args,
-  void **v_args) {
+						  long *args,
+						  void **v_args) {
   args_map["resource_value"] = &args[0];
   /*
    * TODO: The correct value of args_map["resource"] should be 0 if resource is
@@ -1603,8 +1605,8 @@ void DataSeriesOutputModule::makeSetrlimitArgsMap(SysCallArgsMap &args_map,
 }
 
 void DataSeriesOutputModule::makeSetsidArgsMap(SysCallArgsMap &args_map,
-                long *args,
-                void **v_args) {
+					       long *args,
+					       void **v_args) {
   // Takes no arguments
 }
 
@@ -1759,6 +1761,13 @@ u_int DataSeriesOutputModule::processStatfsFlags(SysCallArgsMap &args_map,
    * as zero.
    */
   return statfs_flags;
+}
+
+void DataSeriesOutputModule::makeFTruncateArgsMap(SysCallArgsMap &args_map,
+						  long *args,
+						  void **v_args) {
+  args_map["descriptor"] = &args[0];
+  args_map["truncate_length"] = &args[1];
 }
 
 void DataSeriesOutputModule::makeChownArgsMap(SysCallArgsMap &args_map,
@@ -2788,6 +2797,26 @@ void DataSeriesOutputModule::makeGetdentsArgsMap(SysCallArgsMap &args_map,
 void DataSeriesOutputModule::makeGetrlimitArgsMap(SysCallArgsMap &args_map,
   long *args,
   void **v_args) {
+  args_map["resource_value"] = &args[0];
+  /*
+   * TODO: The correct value of args_map["resource"] should be 0 if resource is
+   * RLIMIT_AS, 1 if it is RLIMIT_CORE, 2 if it is RLIMIT_CPU, so and so forth.
+   * Currently, we don't do this. We simply assume that resource is same
+   * across different platforms.
+   */
+  args_map["resource"] = &args[0];
+  if (v_args[0] != NULL) {
+    struct rlimit *rlim = (struct rlimit *) v_args[0];
+    args_map["resource_soft_limit"] = &rlim->rlim_cur;
+    args_map["resource_hard_limit"] = &rlim->rlim_max;
+  } else {
+    std::cerr << "Getrlimit: Struct rlimit is set as NULL!!" << std::endl;
+  }
+}
+
+void DataSeriesOutputModule::makeGetrlimitArgsMap(SysCallArgsMap &args_map,
+						  long *args,
+						  void **v_args) {
   args_map["resource_value"] = &args[0];
   /*
    * TODO: The correct value of args_map["resource"] should be 0 if resource is
