@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2015-2016 Leixiang Wu
+ * Copyright (c) 2015-2017 Leixiang Wu
  * Copyright (c) 2015-2016 Erez Zadok
- * Copyright (c) 2015-2016 Stony Brook University
+ * Copyright (c) 2015-2017 Stony Brook University
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
