@@ -720,7 +720,7 @@ void prepare_replay(std::priority_queue<SystemCallTraceReplayModule*,
     assert(syscall_module->unique_id() == 0);
 
     /*
-     * Call umask(0) to “turn off” umask. This is needed b/c the kernel still has to have some umask value.
+     * Call umask(0) to "turn off" umask. This is needed b/c the kernel still has to have some umask value.
      * By default the umask of the user running the replayer will be used,
      * and applied to whatever mode values we pass to syscalls like mkdir(path, mode).
      * Essentially, kernel will not modify the mode values that we pass to system calls.
