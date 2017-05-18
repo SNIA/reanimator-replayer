@@ -181,9 +181,14 @@ public:
   bool has_fd(int traced_fd);
 
   /**
-   * Get all fds in this process.
+   * Get all traced fds for this process.
    */
-  std::unordered_set<int> get_all_fds();
+  std::unordered_set<int> get_all_traced_fds();
+
+  /**
+   * Get all replayed fds in this process.
+   */
+  std::unordered_set<int> get_all_replayed_fds();
 
   /**
    * Update the replayed that is mapped to traced_fd
@@ -196,9 +201,9 @@ public:
   int get_flags(int traced_fd);
 
   /**
-   * Update fd flags for the given traced fd
+   * Set fd flags for the given traced fd to the given flags argument
    */
-  void update_flags(int traced_fd, int flags);
+  void set_flags(int traced_fd, int flags);
 
   /**
    * Get string representation of this FileDescriptorTableEntry object
@@ -268,6 +273,12 @@ public:
   int get_fd(pid_t pid, int traced_fd);
 
   /**
+   * This function will return all traced file descriptors in
+   * the given process.
+   */
+  std::unordered_set<int> get_all_traced_fds(pid_t pid);
+
+  /**
    * This function will update the replayed file descriptor
    * for the given traced_fd.
    */
@@ -288,9 +299,14 @@ public:
   int get_flags(pid_t pid, int traced_fd);
 
   /**
-   * This function will update a file descriptor flags.
+   * This function will set file descriptor flags to the argument flags.
    */
-  void update_flags(pid_t pid, int traced_fd, int flag);
+  void set_flags(pid_t pid, int traced_fd, int flags);
+
+  /**
+   * This function will add flags to the file descriptor flags.
+   */
+  void add_flags(pid_t pid, int traced_fd, int flags);
 
   /**
    * This function will clone file descriptor table for a process.

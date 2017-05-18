@@ -47,6 +47,7 @@
 #include "UmaskSystemCallTraceReplayModule.hpp"
 #include "SetxattrSystemCallTraceReplayModule.hpp"
 #include "FTruncateSystemCallTraceReplayModule.hpp"
+#include "SetxattrSystemCallTraceReplayModule.hpp"
 
 // Define the static replayer resources manager in SystemCallTraceReplayModule
 ReplayerResourcesManager SystemCallTraceReplayModule::replayer_resources_manager_;
