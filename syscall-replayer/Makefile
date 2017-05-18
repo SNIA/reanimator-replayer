@@ -3,9 +3,9 @@
 # Copyright (c) 2015-2017 Leixiang Wu
 # Copyright (c) 2015-2016 Shubhi Rani
 # Copyright (c) 2015-2016 Erez Zadok
-# Copyright (c) 2015-2016 Geoff Kuenning
+# Copyright (c) 2015-2017 Geoff Kuenning
 # Copyright (c) 2015-2017 Stony Brook University
-# Copyright (c) 2015-2016 Harvey Mudd College
+# Copyright (c) 2015-2017 Harvey Mudd College
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 as

@@ -341,12 +341,12 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
       if (nullable) {
         setFieldNull(extent_name, field_name);
       } else {
-	// Print error message only if there is a field that is missing
-	if (!field_name.empty()) {
-	  std::cerr << extent_name << ":" << field_name << " ";
-	  std::cerr << "WARNING: Attempting to setNull to a non-nullable field. ";
-	  std::cerr << "This field will take on default value instead." << std::endl;
-	}
+        // Print error message only if there is a field that is missing
+        if (!field_name.empty()) {
+          std::cerr << extent_name << ":" << field_name << " ";
+          std::cerr << "WARNING: Attempting to setNull to a non-nullable field. ";
+          std::cerr << "This field will take on default value instead." << std::endl;
+        }
       }
     }
   }
