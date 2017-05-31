@@ -349,74 +349,75 @@ XML_FILES = \
 	xml/chdir.xml		\
 	xml/chmod.xml		\
 	xml/chown.xml		\
-	xml/clone.xml		\
 	xml/close.xml		\
 	xml/creat.xml		\
 	xml/dup.xml		\
 	xml/dup2.xml		\
 	xml/execve.xml		\
-	xml/exit.xml		\
-	xml/faccessat.xml		\
-	xml/fchmod.xml		\
-	xml/fchmodat.xml		\
 	xml/fcntl.xml		\
 	xml/fork.xml		\
-	xml/fgetxattr.xml	\
-	xml/flistxattr.xml	\
-	xml/fremovexattr.xml	\
-	xml/fsetxattr.xml	\
 	xml/fstat.xml		\
-	xml/fstatat.xml		\
-	xml/fstatfs.xml		\
 	xml/fsync.xml		\
-	xml/getdents.xml	\
-	xml/getxattr.xml	\
 	xml/ioctl.xml		\
 	xml/link.xml		\
-	xml/linkat.xml		\
-	xml/listxattr.xml	\
-	xml/lgetxattr.xml	\
-	xml/llistxattr.xml	\
-	xml/lremovexattr.xml	\
 	xml/lseek.xml		\
-	xml/lsetxattr.xml	\
 	xml/lstat.xml		\
 	xml/mkdir.xml		\
-	xml/mkdirat.xml		\
 	xml/mknod.xml		\
-	xml/mknodat.xml		\
 	xml/mmap.xml		\
 	xml/munmap.xml		\
 	xml/open.xml		\
-	xml/openat.xml		\
 	xml/pipe.xml		\
 	xml/pread.xml		\
 	xml/pwrite.xml		\
 	xml/read.xml		\
 	xml/readlink.xml	\
 	xml/readv.xml		\
-	xml/removexattr.xml	\
 	xml/rename.xml		\
 	xml/rmdir.xml		\
-	xml/setxattr.xml	\
 	xml/stat.xml		\
-	xml/statfs.xml		\
 	xml/symlink.xml		\
-	xml/symlinkat.xml	\
 	xml/truncate.xml	\
 	xml/unlink.xml		\
-	xml/unlinkat.xml	\
 	xml/utime.xml		\
-	xml/utimensat.xml	\
 	xml/utimes.xml		\
-	xml/vfork.xml		\
 	xml/write.xml		\
-	xml/writev.xml          \
-	xml/umask.xml		\
-	xml/setsid.xml		\
+	xml/writev.xml		\
+	xml/clone.xml		\
+	xml/exit.xml		\
+	xml/fchmod.xml		\
+	xml/fchmodat.xml	\
+	xml/fstatfs.xml		\
+	xml/getdents.xml	\
+	xml/linkat.xml		\
+	xml/mkdirat.xml		\
+	xml/openat.xml		\
+	xml/statfs.xml		\
+	xml/unlinkat.xml	\
+	xml/utimensat.xml	\
+	xml/vfork.xml		\
+	xml/faccessat.xml	\
+	xml/fgetxattr.xml	\
+	xml/flistxattr.xml	\
+	xml/fremovexattr.xml	\
+	xml/fsetxattr.xml	\
+	xml/fstatat.xml		\
+	xml/ftruncate.xml	\
+	xml/getrlimit.xml	\
+	xml/getxattr.xml	\
+	xml/lgetxattr.xml	\
+	xml/listxattr.xml	\
+	xml/llistxattr.xml	\
+	xml/lremovexattr.xml	\
+	xml/lsetxattr.xml	\
+	xml/mknodat.xml		\
+	xml/removexattr.xml	\
 	xml/setpgid.xml		\
-	xml/getrlimit.xml		\
-	xml/setrlimit.xml		
+	xml/setrlimit.xml	\
+	xml/setsid.xml		\
+	xml/setxattr.xml	\
+	xml/symlinkat.xml	\
+	xml/umask.xml
 
 EXTRA_DIST = $(SNIA_SYSCALL_FIELDS_TABLE_FILE) $(XML_FILES) buildall
 tablesdir = $(prefix)/tables
