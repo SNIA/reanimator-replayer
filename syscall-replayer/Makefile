@@ -22,7 +22,7 @@
 OPTFLAGS = -g -O2 -Wall
 
 CPPFLAGS = -I/usr/local/dataseries/include -I/usr/include/libxml2/ \
-	   -I$(HOME)/strace2ds/include -std=c++11
+	   -I$(HOME)/lib/strace2ds/include -std=c++11
 
 LDFLAGS =  -lboost_program_options -laio -lDataSeries \
 	   -lLintel -L/usr/local/dataseries/lib
@@ -81,7 +81,7 @@ SYSTEM_CALL_REPLAY_MODULE_OBJECTS = SystemCallTraceReplayer.o \
 				    SetxattrSystemCallTraceReplayModule.o
 
 # Modify following variables if the path of your replayer is different.
-SYS_CALL_REPLAYER_DIR=$(HOME)/trace2model/syscall-replayer
+SYS_CALL_REPLAYER_DIR=$(HOME)/lib/trace2model/syscall-replayer
 SYS_CALL_REPLAYER_TEST_DIR=$(SYS_CALL_REPLAYER_DIR)/replayer-tests
 
 all: $(TARGETS)
