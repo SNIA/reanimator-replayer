@@ -18,6 +18,9 @@
 
 #include "DataSeriesOutputModule.hpp"
 
+bool DataSeriesOutputModule::true_ = true;
+bool DataSeriesOutputModule::false_ = false;
+
 // Constructor to set up all extents and fields
 DataSeriesOutputModule::DataSeriesOutputModule(std::ifstream &table_stream,
 					       const std::string xml_dir,
@@ -641,7 +644,7 @@ void DataSeriesOutputModule::initArgsMap(SysCallArgsMap &args_map,
     std::string field_name = iter->first;
     bool nullable = iter->second.first;
     if (!nullable && extents_[extent_name][field_name].second == ExtentType::ft_bool)
-      args_map[field_name] = 0;
+      args_map[field_name] = &false_;
   }
 }
 
@@ -689,7 +692,6 @@ void DataSeriesOutputModule::makeOpenArgsMap(SysCallArgsMap &args_map,
 void DataSeriesOutputModule::makeOpenatArgsMap(SysCallArgsMap &args_map,
 					       long *args,
 					       void **v_args) {
-  static bool true_ = true;
   int offset = 1;
 
   // Initialize all non-nullable boolean fields to False.
@@ -946,8 +948,6 @@ void DataSeriesOutputModule::makeUnlinkArgsMap(SysCallArgsMap &args_map,
 void DataSeriesOutputModule::makeUnlinkatArgsMap(SysCallArgsMap &args_map,
 						 long *args,
 						 void **v_args) {
-  static bool true_ = true;
-
   initArgsMap(args_map, "unlinkat");
 
   args_map["descriptor"] = &args[0];
@@ -991,7 +991,6 @@ void DataSeriesOutputModule::makeMkdiratArgsMap(SysCallArgsMap &args_map,
 						long *args,
 						void **v_args) {
   int mode_offset = 2;
-  static bool true_ = true;
 
   // Initialize all non-nullable boolean fields
   initArgsMap(args_map, "mkdirat");
@@ -1373,8 +1372,6 @@ void DataSeriesOutputModule::makeLinkArgsMap(SysCallArgsMap &args_map,
 void DataSeriesOutputModule::makeLinkatArgsMap(SysCallArgsMap &args_map,
 					     long *args,
 					     void **v_args) {
-  static bool true_ = true;
-
   initArgsMap(args_map, "linkat");
 
   args_map["old_descriptor"] = &args[0];
@@ -2070,7 +2067,6 @@ void DataSeriesOutputModule::makeUtimensatArgsMap(SysCallArgsMap &args_map,
 						  void **v_args) {
   static uint64_t access_time_Tfrac;
   static uint64_t mod_time_Tfrac;
-  static bool true_ = true;
   initArgsMap(args_map, "utimensat");
 
   args_map["descriptor"] = &args[0];
@@ -2272,7 +2268,6 @@ void DataSeriesOutputModule::makeFcntlArgsMap(SysCallArgsMap &args_map,
   args_map["command_value"] = &args[1];
 
   int command = args[1];
-  static bool true_ = true;
   /*
    * Check the command argument passed to fcntl and set the corresponding
    * fields in the map
@@ -2503,7 +2498,6 @@ void DataSeriesOutputModule::processFcntlFlockType(SysCallArgsMap &args_map,
   // Save the lock type value into the map
   args_map["lock_type"] = &lock->l_type;
   u_int type = lock->l_type;
-  static bool true_ = true;
 
   /*
    * If the type value matches one of the possible types, set the
@@ -2537,7 +2531,6 @@ void DataSeriesOutputModule::processFcntlFlockWhence(SysCallArgsMap &args_map,
   // Save the lock whence value into the map
   args_map["lock_whence"] = &lock->l_whence;
   u_int whence = lock->l_whence;
-  static bool true_ = true;
 
   /*
    * If the whence value matches one of the possible values, set the
@@ -2568,7 +2561,6 @@ void DataSeriesOutputModule::processFcntlFlockWhence(SysCallArgsMap &args_map,
  */
 void DataSeriesOutputModule::processFcntlLease(SysCallArgsMap &args_map,
 					       int lease) {
-  static bool true_ = true;
   /*
    * If the lease argument matches one of the possible values, set the
    * corresponding field in the map to True

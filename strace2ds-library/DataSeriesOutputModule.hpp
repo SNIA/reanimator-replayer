@@ -89,6 +89,9 @@ typedef std::map<std::string, SysCallArgsMapFuncPtr> FuncPtrMap;
 
 class DataSeriesOutputModule {
 public:
+  static bool true_;
+  static bool false_;
+
   // A map of untraced syscalls number and their respective counts
   std::map<long, int> untraced_sys_call_counts_;
 
