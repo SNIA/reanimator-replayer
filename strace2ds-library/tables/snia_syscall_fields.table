@@ -631,6 +631,9 @@ umask	mode_X_group	0	bool
 umask	mode_R_others	0	bool
 umask	mode_W_others	0	bool
 umask	mode_X_others	0	bool
+flock	descriptor	0	int32
+flock	operation_value	0	int32
+flock	operation	0	byte
 setxattr	given_pathname	0	variable32
 setxattr	full_pathname	1	variable32
 setxattr	xattr_name	0	variable32
