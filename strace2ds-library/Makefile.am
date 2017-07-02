@@ -48,6 +48,7 @@ XML_FILES=			\
 	xml/exit.xml		\
 	xml/fchmod.xml		\
 	xml/fchmodat.xml	\
+	xml/flock.xml		\
 	xml/fstatfs.xml		\
 	xml/getdents.xml	\
 	xml/linkat.xml		\
