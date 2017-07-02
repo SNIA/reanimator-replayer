@@ -59,7 +59,7 @@ DataSeriesOutputModule *ds_create_module(const char *output_file,
  * call trace_syscall_exiting directly because strace does its
  * own things in trace_syscall_exiting function.
  */
-void ds_write_two_umask_records(DataSeriesOutputModule *ds_module, int pid);
+void ds_write_umask_at_start(DataSeriesOutputModule *ds_module, int pid);
 
 /*
  * Write a record into the DataSeries output file

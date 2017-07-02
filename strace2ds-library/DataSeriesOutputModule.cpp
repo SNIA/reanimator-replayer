@@ -25,7 +25,7 @@ bool DataSeriesOutputModule::false_ = false;
 DataSeriesOutputModule::DataSeriesOutputModule(std::ifstream &table_stream,
 					       const std::string xml_dir,
 					       const char *output_file) :
-  ds_sink_(output_file), record_num_(0) {
+  ds_sink_(output_file), record_num_(1) {
   // Initialize config table
   initConfigTable(table_stream);
 
