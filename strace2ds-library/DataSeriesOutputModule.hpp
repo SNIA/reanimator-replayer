@@ -59,6 +59,12 @@ class DataSeriesOutputModule;
 #define ST_VALID 0x0020
 #endif /* ST_VALID */
 
+/*
+ * Extent size used to be 4096 bytes, but changing it to
+ * 4,194,304 bytes (4MB) reduced CPU percentage by almost 20%
+ */
+#define DEFAULT_EXTENT_SIZE 0x400000 /* 4MB */
+
 /* map<fieldname, pair<nullable, ExtentType> */
 typedef std::map<std::string,
 		 std::pair<bool, ExtentType::fieldType>

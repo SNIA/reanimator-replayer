@@ -32,8 +32,7 @@ DataSeriesOutputModule::DataSeriesOutputModule(std::ifstream &table_stream,
   // Registering extent types to the library
   ExtentTypeLibrary extent_type_library;
 
-  // Set each extent's size to be 4096 bytes
-  uint32_t extent_size = 4096;
+  uint32_t extent_size = DEFAULT_EXTENT_SIZE;
 
   // Loop through each extent and create its fields from xmls
   for (config_table_type::iterator extent = config_table_.begin();
