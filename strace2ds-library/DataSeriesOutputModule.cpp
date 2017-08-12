@@ -1426,7 +1426,7 @@ void DataSeriesOutputModule::makeSymlinkatArgsMap(SysCallArgsMap &args_map,
 						  void **v_args) {
   static bool true_ = true;
 
-  initArgsMap(args_map, "linkat");
+  initArgsMap(args_map, "symlinkat");
 
   if (v_args[0] != NULL) {
     args_map["target_pathname"] = &v_args[0];
