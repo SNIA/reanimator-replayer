@@ -25,7 +25,13 @@ bool DataSeriesOutputModule::false_ = false;
 DataSeriesOutputModule::DataSeriesOutputModule(std::ifstream &table_stream,
 					       const std::string xml_dir,
 					       const char *output_file) :
-  ds_sink_(output_file), record_num_(1) {
+  /*
+   * Create a new DataSeriesSink(filename, compression_modes, compression_level), and open
+   * filename. output_file is the name of the file to write to. compression_modes and
+   * compression_level should both be 0 to disable compression (can always use ds-repack to
+   * compress a ds file).
+   */
+  ds_sink_(output_file, 0, 0), record_num_(1) {
   // Initialize config table
   initConfigTable(table_stream);
 
