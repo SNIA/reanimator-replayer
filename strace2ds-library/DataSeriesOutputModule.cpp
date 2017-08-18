@@ -1431,7 +1431,7 @@ void DataSeriesOutputModule::makeSymlinkatArgsMap(SysCallArgsMap &args_map,
   if (v_args[0] != NULL) {
     args_map["target_pathname"] = &v_args[0];
   } else {
-    std::cerr << "Symlink: Target Pathname is set as NULL!!" << std::endl;
+    std::cerr << "Symlinkat: Target Pathname is set as NULL!!" << std::endl;
   }
 
   args_map["new_descriptor"] = &args[2];
@@ -1442,7 +1442,7 @@ void DataSeriesOutputModule::makeSymlinkatArgsMap(SysCallArgsMap &args_map,
   if (v_args[1] != NULL) {
     args_map["given_pathname"] = &v_args[1];
   } else {
-    std::cerr << "Symlink: Pathname is set as NULL!!" << std::endl;
+    std::cerr << "Symlinkat: Pathname is set as NULL!!" << std::endl;
   }
 }
 
