@@ -710,3 +710,6 @@ setrlimit	resource_value	1	int32
 setrlimit	resource	0	byte
 setrlimit	resource_soft_limit	0	int64
 setrlimit	resource_hard_limit	0	int64
+socket	domain	0	int32
+socket	type	0	int32
+socket	protocol	0	int32

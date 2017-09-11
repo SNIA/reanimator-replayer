@@ -225,6 +225,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["write"] = &DataSeriesOutputModule::makeWriteArgsMap;
   // writev system call
   func_ptr_map_["writev"] = &DataSeriesOutputModule::makeWritevArgsMap;
+  // socket system call
+  func_ptr_map_["socket"] = &DataSeriesOutputModule::makeSocketArgsMap;
 }
 
 /*
@@ -3103,4 +3105,11 @@ void DataSeriesOutputModule::makeVForkArgsMap(SysCallArgsMap &args_map,
    * VFork takes no arguments, so we do not need to set any specific
    * fields in args_map
    */
+}
+void DataSeriesOutputModule::makeSocketArgsMap(SysCallArgsMap &args_map,
+					      long *args,
+					      void **v_args) {
+  args_map["domain"] = &args[0];
+  args_map["type"] = &args[1];
+  args_map["protocol"] = &args[2];
 }

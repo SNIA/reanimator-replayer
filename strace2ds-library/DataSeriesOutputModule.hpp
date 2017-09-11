@@ -524,5 +524,8 @@ private:
 
   // Maps VFork System Call <field, value> pairs
   void makeVForkArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+
+  // Maps Socket System Call <field, value> pairs
+  void makeSocketArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 };
 #endif // DATA_SERIES_OUTPUT_MODULE_HPP

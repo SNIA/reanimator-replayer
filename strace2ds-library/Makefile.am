@@ -79,7 +79,8 @@ XML_FILES=			\
 	xml/setsid.xml		\
 	xml/setxattr.xml	\
 	xml/symlinkat.xml	\
-	xml/umask.xml
+	xml/umask.xml		\
+	xml/socket.xml
 
 EXTRA_DIST=$(SNIA_SYSCALL_FIELDS_TABLE_FILE) $(XML_FILES) buildall
 tablesdir = $(prefix)/tables
