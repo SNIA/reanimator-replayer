@@ -3098,6 +3098,7 @@ u_int DataSeriesOutputModule::processCloneSignals(SysCallArgsMap &args_map,
 
   return flag;
 }
+
 void DataSeriesOutputModule::makeVForkArgsMap(SysCallArgsMap &args_map,
 					      long *args,
 					      void **v_args) {
@@ -3106,10 +3107,11 @@ void DataSeriesOutputModule::makeVForkArgsMap(SysCallArgsMap &args_map,
    * fields in args_map
    */
 }
+
 void DataSeriesOutputModule::makeSocketArgsMap(SysCallArgsMap &args_map,
-					      long *args,
-					      void **v_args) {
-  args_map["domain"]   = &args[0];
-  args_map["type"]     = &args[1];
+					       long *args,
+					       void **v_args) {
+  args_map["domain"] = &args[0];
+  args_map["type"] = &args[1];
   args_map["protocol"] = &args[2];
 }
