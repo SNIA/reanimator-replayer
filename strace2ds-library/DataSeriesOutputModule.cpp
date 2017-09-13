@@ -3109,7 +3109,7 @@ void DataSeriesOutputModule::makeVForkArgsMap(SysCallArgsMap &args_map,
 void DataSeriesOutputModule::makeSocketArgsMap(SysCallArgsMap &args_map,
 					      long *args,
 					      void **v_args) {
-  args_map["domain"] = &args[0];
-  args_map["type"] = &args[1];
+  args_map["domain"]   = &args[0];
+  args_map["type"]     = &args[1];
   args_map["protocol"] = &args[2];
 }
