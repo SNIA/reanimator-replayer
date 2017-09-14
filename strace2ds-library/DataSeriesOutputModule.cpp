@@ -206,6 +206,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["setrlimit"] = &DataSeriesOutputModule::makeSetrlimitArgsMap;
   // setsid system call
   func_ptr_map_["setsid"] = &DataSeriesOutputModule::makeSetsidArgsMap;
+  // socket system call
+  func_ptr_map_["socket"] = &DataSeriesOutputModule::makeSocketArgsMap;
   // stat system call
   func_ptr_map_["stat"] = &DataSeriesOutputModule::makeStatArgsMap;
   // statfs system call
@@ -234,8 +236,6 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["write"] = &DataSeriesOutputModule::makeWriteArgsMap;
   // writev system call
   func_ptr_map_["writev"] = &DataSeriesOutputModule::makeWritevArgsMap;
-  // socket system call
-  func_ptr_map_["socket"] = &DataSeriesOutputModule::makeSocketArgsMap;
 }
 
 /*
