@@ -32,6 +32,15 @@ DataSeriesOutputModule::DataSeriesOutputModule(std::ifstream &table_stream,
    * compress a ds file).
    */
   ds_sink_(output_file, 0, 0), record_num_(1) {
+
+  /* 
+   * Provide a hint to the library to set the number of buckets to be the most appropriate for 
+   * the number of elements
+   */
+  modules_.reserve(nsyscalls);
+  extents_.reserve(nsyscalls);
+  config_table_.reserve(nsyscalls);
+
   // Initialize config table
   initConfigTable(table_stream);
 

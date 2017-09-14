@@ -30,7 +30,7 @@
 
 #include <iostream>
 #include <utility>
-#include <fstream>
+#include <unordered_map>
 #include <boost/algorithm/string.hpp>
 #include <boost/tokenizer.hpp>
 
@@ -66,32 +66,34 @@ class DataSeriesOutputModule;
 #define DEFAULT_EXTENT_SIZE 0x400000 /* 4MB */
 
 /* map<fieldname, pair<nullable, ExtentType> */
-typedef std::map<std::string,
+typedef std::unordered_map<std::string,
 		 std::pair<bool, ExtentType::fieldType>
 		 > config_table_entry_type;
 
 /* map<extentname, config_table_entry_type> */
-typedef std::map<std::string,config_table_entry_type > config_table_type;
+typedef std::unordered_map<std::string,config_table_entry_type > config_table_type;
 
 /* map<fieldName, <DS Field, DS field type>*/
-typedef std::map<std::string,
+typedef std::unordered_map<std::string,
 		 std::pair<void *, ExtentType::fieldType> > FieldMap;
 
 /* map<syscallName, FieldMap> */
-typedef std::map<std::string, FieldMap> ExtentMap;
+typedef std::unordered_map<std::string, FieldMap> ExtentMap;
 
 // map<extent name, OutputModule>
-typedef std::map<std::string, OutputModule*> OutputModuleMap;
+typedef std::unordered_map<std::string, OutputModule*> OutputModuleMap;
 
 // map<extent name, void *>
-typedef std::map<std::string, void *> SysCallArgsMap;
+typedef std::unordered_map<std::string, void *> SysCallArgsMap;
 
 // function pointer type for system call args map
 typedef void (DataSeriesOutputModule::*SysCallArgsMapFuncPtr)(SysCallArgsMap &,
 							      long *,
 							      void **);
 // map<extent_name, SysCallArgsMapFuncPtr>
-typedef std::map<std::string, SysCallArgsMapFuncPtr> FuncPtrMap;
+typedef std::unordered_map<std::string, SysCallArgsMapFuncPtr> FuncPtrMap;
+
+extern unsigned nsyscalls;
 
 class DataSeriesOutputModule {
 public:
@@ -99,7 +101,7 @@ public:
   static bool false_;
 
   // A map of untraced syscalls number and their respective counts
-  std::map<long, int> untraced_sys_call_counts_;
+  std::unordered_map<long, int> untraced_sys_call_counts_;
 
   // Constructor to set up all extents and fields
   DataSeriesOutputModule(std::ifstream &table_stream,
