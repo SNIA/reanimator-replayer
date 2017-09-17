@@ -71,11 +71,14 @@ typedef std::unordered_map<std::string,
 		 > config_table_entry_type;
 
 /* map<extentname, config_table_entry_type> */
-typedef std::unordered_map<std::string,config_table_entry_type > config_table_type;
+typedef std::unordered_map<std::string,
+	config_table_entry_type> config_table_type;
+
+/* pair<DS Field, DS field type> */
+typedef std::pair<void *, ExtentType::fieldType> ExtentFieldTypePair;
 
 /* map<fieldName, <DS Field, DS field type>*/
-typedef std::unordered_map<std::string,
-		 std::pair<void *, ExtentType::fieldType> > FieldMap;
+typedef std::unordered_map<std::string, ExtentFieldTypePair> FieldMap;
 
 /* map<syscallName, FieldMap> */
 typedef std::unordered_map<std::string, FieldMap> ExtentMap;
@@ -169,18 +172,15 @@ private:
 		const ExtentType::fieldType field_type);
 
   // Set corresponding DS field to the given value
-  void setField(const std::string &extent_name,
-		const std::string &field_name,
+  void setField(const ExtentFieldTypePair& extent_field_value_,
 		void *field_value,
 		u_int var32);
 
   // Set corresponding DS field to null
-  void setFieldNull(const std::string &extent_name,
-		    const std::string &field_name);
+  void setFieldNull(const ExtentFieldTypePair& extent_field_value_);
 
   template <typename FieldType, typename ValueType>
-  void doSetField(const std::string &extent_name,
-		  const std::string &field_name,
+  void doSetField(const ExtentFieldTypePair& extent_field_value_,
 		  void *field_value);
 
   /*

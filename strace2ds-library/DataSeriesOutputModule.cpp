@@ -50,10 +50,8 @@ DataSeriesOutputModule::DataSeriesOutputModule(std::ifstream &table_stream,
   uint32_t extent_size = DEFAULT_EXTENT_SIZE;
 
   // Loop through each extent and create its fields from xmls
-  for (config_table_type::iterator extent = config_table_.begin();
-       extent != config_table_.end();
-       extent++) {
-    std::string extent_name = extent->first;
+  for (auto const &extent : config_table_) {
+    const std::string& extent_name = extent.first;
 
     // Loading extent XML descriptions from outside file
     std::ifstream extent_xml_file((xml_dir + extent_name + ".xml").c_str());
@@ -72,7 +70,7 @@ DataSeriesOutputModule::DataSeriesOutputModule(std::ifstream &table_stream,
     // Create ExtentSeries, OutPutModule, and fields
     ExtentSeries *extent_series = new ExtentSeries();
     modules_[extent_name] = new OutputModule(ds_sink_, *extent_series,
-						   extent_type, extent_size);
+					     extent_type, extent_size);
     addExtent(extent_name, *extent_series);
   }
 
@@ -321,7 +319,7 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
   /* set system call specific field */
   FuncPtrMap::iterator iter = func_ptr_map_.find(extent_name);
   if (iter != func_ptr_map_.end()) {
-    SysCallArgsMapFuncPtr fxn = func_ptr_map_[extent_name];
+    SysCallArgsMapFuncPtr fxn = iter->second;
     (this->*fxn)(sys_call_args_map, args, v_args);
   }
 
@@ -337,13 +335,15 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
   uint64_t time_recorded_Tfrac = timeval_to_Tfrac(tv_time_recorded);
   sys_call_args_map["time_recorded"] = &time_recorded_Tfrac;
 
+  config_table_entry_type& extent_config_table_ =
+    config_table_[extent_name];
+
   // Write values to the new record
-  for (config_table_entry_type::iterator iter =
-       config_table_[extent_name].begin();
-       iter != config_table_[extent_name].end();
-       iter++) {
-    std::string field_name = iter->first;
-    bool nullable = iter->second.first;
+  for (auto const &extent_config_table_entry : extent_config_table_) {
+    const std::string& field_name = extent_config_table_entry.first;
+    const bool nullable = extent_config_table_entry.second.first;
+    const ExtentFieldTypePair& extent_field_value_ =
+      extents_[extent_name][field_name];
     var32_len = 0;
 
     if (sys_call_args_map.find(field_name) != sys_call_args_map.end() &&
@@ -353,14 +353,14 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
        * If field is of type Variable32, then retrieve the length of the
        * field that needs to be set.
        */
-      if (extents_[extent_name][field_name].second == ExtentType::ft_variable32) {
+      if (extent_field_value_.second == ExtentType::ft_variable32) {
         var32_len = getVariable32FieldLength(sys_call_args_map, field_name);
       }
-      setField(extent_name, field_name, field_value, var32_len);
+      setField(extent_field_value_, field_value, var32_len);
       continue;
     } else {
       if (nullable) {
-        setFieldNull(extent_name, field_name);
+        setFieldNull(extent_field_value_);
       } else {
         // Print error message only if there is a field that is missing
         if (!field_name.empty()) {
@@ -382,9 +382,7 @@ uint64_t DataSeriesOutputModule::getIoctlSize() {
 }
 
 int64_t DataSeriesOutputModule::getNextID() {
-  int64_t ret = record_num_;
-  record_num_++;
-  return ret;
+  return record_num_++;
 }
 
 void DataSeriesOutputModule::setCloneCTIDIndex(u_int ctid_index) {
@@ -397,13 +395,11 @@ u_int DataSeriesOutputModule::getCloneCTIDIndex() {
 
 // Destructor to delete the module
 DataSeriesOutputModule::~DataSeriesOutputModule() {
-  for (OutputModuleMap::iterator iter = modules_.begin();
-       iter != modules_.end();
-       iter++) {
-    // iter->second is an OutputModule
-    iter->second->flushExtent();
-    iter->second->close();
-    delete iter->second;
+  for (auto const &module_map_iter : modules_) {
+    // module_map_iter.second is an OutputModule
+    module_map_iter.second->flushExtent();
+    module_map_iter.second->close();
+    delete module_map_iter.second;
   }
 }
 
@@ -520,44 +516,40 @@ void DataSeriesOutputModule::addField(const std::string &extent_name,
 /*
  * Set corresponding DS field to the given value
  */
-void DataSeriesOutputModule::setField(const std::string &extent_name,
-				      const std::string &field_name,
+void DataSeriesOutputModule::setField(const ExtentFieldTypePair&
+				      extent_field_value_,
 				      void *field_value,
 				      u_int var32_len) {
   bool buffer;
-  switch (extents_[extent_name][field_name].second) {
+  switch (extent_field_value_.second) {
   case ExtentType::ft_bool:
     buffer = (field_value != 0);
-    doSetField<BoolField, bool>(extent_name, field_name, &buffer);
+    doSetField<BoolField, bool>(extent_field_value_, &buffer);
     break;
   case ExtentType::ft_byte:
-    doSetField<ByteField, ExtentType::byte>(extent_name,
-					    field_name,
+    doSetField<ByteField, ExtentType::byte>(extent_field_value_,
 					    field_value);
     break;
   case ExtentType::ft_int32:
-    doSetField<Int32Field, ExtentType::int32>(extent_name,
-					      field_name,
+    doSetField<Int32Field, ExtentType::int32>(extent_field_value_,
 					      field_value);
     break;
   case ExtentType::ft_int64:
-    doSetField<Int64Field, ExtentType::int64>(extent_name,
-					      field_name,
+    doSetField<Int64Field, ExtentType::int64>(extent_field_value_,
 					      field_value);
     break;
   case ExtentType::ft_double:
-    doSetField<DoubleField, double>(extent_name,
-				    field_name,
+    doSetField<DoubleField, double>(extent_field_value_,
 				    field_value);
     break;
   case ExtentType::ft_variable32:
-    ((Variable32Field *)(extents_[extent_name][field_name].first))
-      ->set((*(char **)field_value), var32_len);
+    ((Variable32Field *)(extent_field_value_.first)) ->set(
+      (*(char **)field_value), var32_len);
     break;
   default:
     std::stringstream error_msg;
     error_msg << "Unsupported field type: "
-	      << extents_[extent_name][field_name].second << std::endl;
+	      << extent_field_value_.second << std::endl;
     throw std::runtime_error(error_msg.str());
   }
 }
@@ -565,41 +557,42 @@ void DataSeriesOutputModule::setField(const std::string &extent_name,
 /*
  * Set corresponding DS field to null
  */
-void DataSeriesOutputModule::setFieldNull(const std::string &extent_name,
-					  const std::string &field_name) {
-  switch (extents_[extent_name][field_name].second) {
+void DataSeriesOutputModule::setFieldNull(const
+					  ExtentFieldTypePair&
+					  extent_field_value_) {
+  switch (extent_field_value_.second) {
   case ExtentType::ft_bool:
-    ((BoolField *)(extents_[extent_name][field_name].first))->setNull();
+    ((BoolField *)(extent_field_value_.first))->setNull();
     break;
   case ExtentType::ft_byte:
-    ((ByteField *)(extents_[extent_name][field_name].first))->setNull();
+    ((ByteField *)(extent_field_value_.first))->setNull();
     break;
   case ExtentType::ft_int32:
-    ((Int32Field *)(extents_[extent_name][field_name].first))->setNull();
+    ((Int32Field *)(extent_field_value_.first))->setNull();
     break;
   case ExtentType::ft_int64:
-    ((Int64Field *)(extents_[extent_name][field_name].first))->setNull();
+    ((Int64Field *)(extent_field_value_.first))->setNull();
     break;
   case ExtentType::ft_double:
-    ((DoubleField *)(extents_[extent_name][field_name].first))->setNull();
+    ((DoubleField *)(extent_field_value_.first))->setNull();
     break;
   case ExtentType::ft_variable32:
-    ((Variable32Field *)(extents_[extent_name][field_name].first))->setNull();
+    ((Variable32Field *)(extent_field_value_.first))->setNull();
     break;
   default:
     std::stringstream error_msg;
     error_msg << "Unsupported field type: "
-	      << extents_[extent_name][field_name].second << std::endl;
+	      << extent_field_value_.second << std::endl;
     throw std::runtime_error(error_msg.str());
   }
 }
 
 template <typename FieldType, typename ValueType>
-void DataSeriesOutputModule::doSetField(const std::string &extent_name,
-					const std::string &field_name,
+void DataSeriesOutputModule::doSetField(const
+					ExtentFieldTypePair&
+					extent_field_value_,
 					void* field_value) {
-  ((FieldType *)(extents_[extent_name][field_name].first))->set(
-					*(ValueType *)field_value);
+  ((FieldType *)(extent_field_value_.first))->set(*(ValueType *)field_value);
 }
 
 /*
@@ -653,13 +646,13 @@ u_int DataSeriesOutputModule::getVariable32FieldLength(SysCallArgsMap &args_map,
 // Initialize all non-nullable boolean fields as False of given extent_name.
 void DataSeriesOutputModule::initArgsMap(SysCallArgsMap &args_map,
 					 const char *extent_name) {
-  for (config_table_entry_type::iterator iter =
-    config_table_[extent_name].begin();
-    iter != config_table_[extent_name].end();
-    iter++) {
-    std::string field_name = iter->first;
-    bool nullable = iter->second.first;
-    if (!nullable && extents_[extent_name][field_name].second == ExtentType::ft_bool)
+  const config_table_entry_type& extent_config_table_ =
+    config_table_[extent_name];
+  FieldMap& extent_field_map_ = extents_[extent_name];
+  for (auto const &extent_config_table_entry : extent_config_table_) {
+    const std::string& field_name = extent_config_table_entry.first;
+    const bool nullable = extent_config_table_entry.second.first;
+    if (!nullable && extent_field_map_[field_name].second == ExtentType::ft_bool)
       args_map[field_name] = &false_;
   }
 }
