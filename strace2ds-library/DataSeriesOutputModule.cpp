@@ -395,10 +395,21 @@ u_int DataSeriesOutputModule::getCloneCTIDIndex() {
 
 // Destructor to delete the module
 DataSeriesOutputModule::~DataSeriesOutputModule() {
+  /*
+   * Need to delete dynamically-allocated fields before we can delete
+   * ExtentSeries objects
+   */
+  for(auto const &extent_map_iter: extents_){
+    for(auto const &field_map_iter: extent_map_iter.second){
+      delete (Field *)field_map_iter.second.first;
+    }
+  }
+
   for (auto const &module_map_iter : modules_) {
     // module_map_iter.second is an OutputModule
     module_map_iter.second->flushExtent();
     module_map_iter.second->close();
+    delete (ExtentSeries *)&module_map_iter.second->getSeries();
     delete module_map_iter.second;
   }
 }
