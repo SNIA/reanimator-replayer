@@ -174,7 +174,7 @@ private:
   // Set corresponding DS field to the given value
   void setField(const ExtentFieldTypePair& extent_field_value_,
 		void *field_value,
-		u_int var32);
+		int var32);
 
   // Set corresponding DS field to null
   void setFieldNull(const ExtentFieldTypePair& extent_field_value_);
@@ -190,8 +190,8 @@ private:
   void initArgsMapFuncPtr();
 
   // Returns the length for field of type variable32
-  u_int getVariable32FieldLength(SysCallArgsMap &args_map,
-				 const std::string &field_name);
+  int getVariable32FieldLength(SysCallArgsMap &args_map,
+			       const std::string &field_name);
 
   // Initialize args map for given system call
   void initArgsMap(SysCallArgsMap &args_map, const char *extent_name);
