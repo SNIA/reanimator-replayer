@@ -256,7 +256,7 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
 
   SysCallArgsMap sys_call_args_map;
   struct timeval tv_time_recorded;
-  u_int var32_len;
+  int var32_len;
   uint64_t time_called_Tfrac, time_returned_Tfrac;
 
   /*
@@ -530,7 +530,7 @@ void DataSeriesOutputModule::addField(const std::string &extent_name,
 void DataSeriesOutputModule::setField(const ExtentFieldTypePair&
 				      extent_field_value_,
 				      void *field_value,
-				      u_int var32_len) {
+				      int var32_len) {
   bool buffer;
   switch (extent_field_value_.second) {
   case ExtentType::ft_bool:
@@ -554,8 +554,17 @@ void DataSeriesOutputModule::setField(const ExtentFieldTypePair&
 				    field_value);
     break;
   case ExtentType::ft_variable32:
-    ((Variable32Field *)(extent_field_value_.first)) ->set(
-      (*(char **)field_value), var32_len);
+    if (var32_len < 0) {
+      /*
+       * var32_len may be negative in the cases, where we use the return value
+       * of a failed system call as the length.
+       * In those cases, we set the Variable32Field to NULL.
+       */
+      ((Variable32Field *)(extent_field_value_.first))->setNull();
+    } else {
+      ((Variable32Field *)(extent_field_value_.first)) ->set(
+        (*(char **)field_value), var32_len);
+    }
     break;
   default:
     std::stringstream error_msg;
@@ -613,10 +622,10 @@ void DataSeriesOutputModule::doSetField(const
  * NOTE: This function should be extended according to the field name of
  * system call as described in SNIA document.
  */
-u_int DataSeriesOutputModule::getVariable32FieldLength(SysCallArgsMap &args_map,
-						       const std::string
-						       &field_name) {
-  u_int length = 0;
+int DataSeriesOutputModule::getVariable32FieldLength(SysCallArgsMap &args_map,
+						     const std::string
+						     &field_name) {
+  int length = 0;
   SysCallArgsMap::iterator it = args_map.find(field_name);
   if (it != args_map.end()) {
     /*
@@ -641,7 +650,7 @@ u_int DataSeriesOutputModule::getVariable32FieldLength(SysCallArgsMap &args_map,
        */
     } else if ((field_name == "data_read") ||
       (field_name == "data_written") ||
-	    (field_name == "link_value") ||
+      (field_name == "link_value") ||
       (field_name == "dirent_buffer")) {
       length = *(int *)(args_map["return_value"]);
     } else if (field_name == "ioctl_buffer") {
