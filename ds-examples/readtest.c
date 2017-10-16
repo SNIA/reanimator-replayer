@@ -1,31 +1,39 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
 
+#define TEST_BUF_SIZE	128
+#define MAX_READS 1000000 /* number of times to read the file */
+#define FILE_NAME	"my_test.random"
+
 int main(){
 
-  char buf[128];
-  int fd, i;
+  char buf[TEST_BUF_SIZE];
+  int fd, i, numbytes;
 
-  if((fd = open("my_test.txt", O_RDONLY)) < 0){
-    perror("open my_test.txt error");
-    return -1;
+  fd = open(FILE_NAME, O_RDONLY);
+  if (fd < 0) {
+    perror("open " FILE_NAME " error");
+    exit(1);
   }
-    
-  /*one million read syscalls*/
-  for(i = 0; i < 1000000; i++){
-    if(read(fd, buf, 128) < 0){ /*read 128 bytes*/
+
+  /* read 1M till end of file, then seek to start */
+
+  for (i = 0; i < MAX_READS; i++) {
+    numbytes = read(fd, buf, TEST_BUF_SIZE);
+    if (numbytes < 0) {
       perror("read");
-      return -1;
+      exit(2);
     }
-    if(i%1000 == 0){ /*rewind fd every once in a while*/
-      if(lseek(fd, 0, SEEK_SET) < 0){
+    if (numbytes < TEST_BUF_SIZE) { /* partial read or EOF, seek to start */
+      fprintf(stderr, "Seek count=%d\n", i);
+      if (lseek(fd, 0, SEEK_SET) < 0) {
 	perror("lseek");
-	return -1;
+	exit(3);
       }
     }
   }
- 
   close(fd);
-  return 0;
+  exit(0);
 }
