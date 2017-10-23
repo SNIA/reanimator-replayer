@@ -78,7 +78,8 @@ SYSTEM_CALL_REPLAY_MODULE_OBJECTS = SystemCallTraceReplayer.o \
 				    VForkSystemCallTraceReplayModule.o \
 				    UmaskSystemCallTraceReplayModule.o \
 				    FTruncateSystemCallTraceReplayModule.o \
-				    SetxattrSystemCallTraceReplayModule.o
+				    SetxattrSystemCallTraceReplayModule.o \
+				    SocketSystemCallTraceReplayModule.o
 
 # Modify following variables if the path of your replayer is different.
 SYS_CALL_REPLAYER_DIR=$(HOME)/lib/trace2model/syscall-replayer

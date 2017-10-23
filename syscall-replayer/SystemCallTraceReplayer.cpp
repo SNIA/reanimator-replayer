@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2016 Nina Brown
  * Copyright (c) 2015-2017 Leixiang Wu
+ * Copyright (c) 2017 Darshan Godhia
  * Copyright (c) 2015-2016 Shubhi Rani
  * Copyright (c) 2015-2016 Sonam Mandal
  * Copyright (c) 2015-2016 Erez Zadok
@@ -251,6 +252,7 @@ std::vector<PrefetchBufferModule *> create_prefetch_buffer_modules(std::vector<s
   system_calls.push_back("lsetxattr");
   system_calls.push_back("fsetxattr");
   system_calls.push_back("ftruncate");
+  system_calls.push_back("socket");
 
   std::vector<TypeIndexModule *> type_index_modules;
 
@@ -604,6 +606,11 @@ std::vector<SystemCallTraceReplayModule *> create_system_call_trace_replay_modul
       *prefetch_buffer_modules[module_index++],
       verbose,
       warn_level);
+  SocketSystemCallTraceReplayModule *socket_module =
+    new SocketSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++],
+      verbose,
+      warn_level);
 
   /*
    * This vector is going to used to load replaying modules.
@@ -668,6 +675,7 @@ std::vector<SystemCallTraceReplayModule *> create_system_call_trace_replay_modul
   system_call_trace_replay_modules.push_back(lsetxattr_module);
   system_call_trace_replay_modules.push_back(fsetxattr_module);
   system_call_trace_replay_modules.push_back(ftruncate_module);
+  system_call_trace_replay_modules.push_back(socket_module);
 
   return system_call_trace_replay_modules;
 }

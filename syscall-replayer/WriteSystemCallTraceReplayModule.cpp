@@ -45,7 +45,8 @@ void WriteSystemCallTraceReplayModule::print_specific_fields() {
 void WriteSystemCallTraceReplayModule::processRow() {
   size_t nbytes = bytes_requested_.val();
   pid_t pid = executing_pid();
-  int fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
+  int traced_fd = descriptor_.val();
+  int replayed_fd = replayer_resources_manager_.get_fd(pid, traced_fd);
   char *data_buffer;
 
   // Check to see if user wants to use pattern
@@ -73,7 +74,17 @@ void WriteSystemCallTraceReplayModule::processRow() {
     data_buffer = (char *)data_written_.val();
   }
 
-  replayed_ret_val_ = write(fd, data_buffer, nbytes);
+  if (replayed_fd == SYSCALL_SIMULATED) {
+    /*
+     * FD for the write call originated from an AF_UNIX socket().
+     * The system call will not be replayed.
+     * Original return value will be returned.
+     */
+    replayed_ret_val_ = return_value_.val();
+  } else {
+    // Replay write system call as normal.
+    replayed_ret_val_ = write(replayed_fd, data_buffer, nbytes);
+  }
 
   // Free the buffer
   if (!pattern_data_.empty()){

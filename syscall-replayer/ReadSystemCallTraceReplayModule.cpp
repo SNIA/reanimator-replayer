@@ -43,10 +43,23 @@ void ReadSystemCallTraceReplayModule::print_specific_fields() {
 void ReadSystemCallTraceReplayModule::processRow() {
   // Get replaying file descriptor.
   pid_t pid = executing_pid();
-  int fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
+  int traced_fd = descriptor_.val();
+  int replayed_fd = replayer_resources_manager_.get_fd(pid, traced_fd);
   int nbytes = bytes_requested_.val();
   char buffer[nbytes];
-  replayed_ret_val_ = read(fd, buffer, nbytes);
+
+  if (replayed_fd == SYSCALL_SIMULATED) {
+    /*
+     * FD for the read call originated from an AF_UNIX socket().
+     * The system call will not be replayed.
+     * Original return value and data will be returned.
+     */
+    replayed_ret_val_ = return_value_.val();
+    memcpy(buffer, data_read_.val(), replayed_ret_val_);
+  } else {
+    // Replay read system call as normal.
+    replayed_ret_val_ = read(replayed_fd, buffer, nbytes);
+  }
 
   if (verify_ == true) {
     // Verify read data and data in the trace file are same

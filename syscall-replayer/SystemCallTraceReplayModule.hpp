@@ -44,7 +44,8 @@
 #define DEFAULT_MODE 0
 #define WARN_MODE    1
 #define ABORT_MODE   2
-
+#define SYSCALL_FAILURE	-1
+#define SYSCALL_SIMULATED	-2
 /*
  * DEC_PRECISION specifies the format for printing precision of decimal
  * values upto 25 decimal places in logger file.
