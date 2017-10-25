@@ -112,7 +112,17 @@ void PReadSystemCallTraceReplayModule::processRow() {
   int nbytes = bytes_requested_.val();
   char buffer[nbytes];
   int offset = offset_.val();
-  replayed_ret_val_ = pread(fd, buffer, nbytes, offset);
+
+  if (fd == SYSCALL_SIMULATED) {
+    /*
+     * FD for the PRead system call originated from a socket().
+     * The system call will not be replayed.
+     * Traced return value and data will be returned.
+     */
+    replayed_ret_val_ = return_value_.val();
+  } else {
+    replayed_ret_val_ = pread(fd, buffer, nbytes, offset);
+  }
 
   if (verify_ == true) {
     // Verify read data and data in the trace file are same
