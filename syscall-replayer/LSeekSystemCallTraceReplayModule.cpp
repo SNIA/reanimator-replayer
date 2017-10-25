@@ -42,10 +42,19 @@ void LSeekSystemCallTraceReplayModule::print_specific_fields() {
 void LSeekSystemCallTraceReplayModule::processRow() {
   // Get replaying file descriptor.
   pid_t pid = executing_pid();
-  int fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
+  int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
   long offset = offset_.val();
   uint8_t whence = whence_.val();
 
-  // Replay
-  replayed_ret_val_ = lseek(fd, offset, whence);
+  if (replayed_fd == SYSCALL_SIMULATED) {
+    /*
+     * FD for the lseek system call originated from a socket().
+     * The system call will not be replayed.
+     * Traced return value will be returned.
+     */
+    replayed_ret_val_ = return_value_.val();
+  } else {
+    // Replay
+    replayed_ret_val_ = lseek(replayed_fd, offset, whence);
+  }
 }
