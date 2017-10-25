@@ -121,41 +121,52 @@ void PWriteSystemCallTraceReplayModule::processRow() {
   size_t nbytes = bytes_requested_.val();
   char *data_buffer;
 
-  // Check to see if write data is NULL in DS or user didn't specify pattern
-  if (data_written_.isNull() && pattern_data_.empty() ) {
-    // Let's write zeros.
-    pattern_data_ = "0x0";
-  }
-
-  // Check to see if user wants to use pattern
-  if (!pattern_data_.empty()) {
-    data_buffer = new char[nbytes];
-    if (pattern_data_ == "random") {
-      // Fill write buffer using rand()
-      data_buffer = random_fill_buffer(data_buffer, nbytes);
-    } else if (pattern_data_ == "urandom") {
-      // Fill write buffer using data generated from /dev/urandom
-      SystemCallTraceReplayModule::random_file_.read(data_buffer, nbytes);
-    } else {
-      // Write zeros or pattern specified in pattern_data
-      unsigned char pattern = pattern_data_[0];
-
-      /*
-       * XXX FUTURE WORK: Currently we support pattern of one byte.
-       * For multi byte pattern data, we have to modify the
-       * implementation of filling data_buffer.
-       */
-      memset(data_buffer, pattern, nbytes);
-    }
+  if (fd == SYSCALL_SIMULATED) {
+    /*
+     * FD for the write call originated from a socket().
+     * The system call will not be replayed.
+     * Traced return value will be returned.
+     */
+    replayed_ret_val_ = return_value_.val();
   } else {
-    // Write the traced data
-    data_buffer = (char *)data_written_.val();
+    // Replay pwrite system call as normal.
+
+    // Check to see if write data is NULL in DS or user didn't specify pattern
+    if (data_written_.isNull() && pattern_data_.empty() ) {
+      // Let's write zeros.
+      pattern_data_ = "0x0";
+    }
+
+    // Check to see if user wants to use pattern
+    if (!pattern_data_.empty()) {
+      data_buffer = new char[nbytes];
+      if (pattern_data_ == "random") {
+        // Fill write buffer using rand()
+        data_buffer = random_fill_buffer(data_buffer, nbytes);
+      } else if (pattern_data_ == "urandom") {
+        // Fill write buffer using data generated from /dev/urandom
+        SystemCallTraceReplayModule::random_file_.read(data_buffer, nbytes);
+      } else {
+        // Write zeros or pattern specified in pattern_data
+        unsigned char pattern = pattern_data_[0];
+
+        /*
+         * XXX FUTURE WORK: Currently we support pattern of one byte.
+         * For multi byte pattern data, we have to modify the
+         * implementation of filling data_buffer.
+         */
+        memset(data_buffer, pattern, nbytes);
+      }
+    } else {
+      // Write the traced data
+      data_buffer = (char *)data_written_.val();
+    }
+
+    int offset = offset_.val();
+    replayed_ret_val_ = pwrite(fd, data_buffer, nbytes, offset);
+
+    // Free the buffer
+    if (!pattern_data_.empty())
+      delete[] data_buffer;
   }
-
-  int offset = offset_.val();
-  replayed_ret_val_ = pwrite(fd, data_buffer, nbytes, offset);
-
-  // Free the buffer
-  if (!pattern_data_.empty())
-    delete[] data_buffer;
 }
