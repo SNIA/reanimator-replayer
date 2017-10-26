@@ -120,6 +120,7 @@ void PReadSystemCallTraceReplayModule::processRow() {
      * Traced return value and data will be returned.
      */
     replayed_ret_val_ = return_value_.val();
+    memcpy(buffer, data_read_.val(), replayed_ret_val_);
   } else {
     replayed_ret_val_ = pread(fd, buffer, nbytes, offset);
   }
