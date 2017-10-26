@@ -56,10 +56,10 @@ void ReadSystemCallTraceReplayModule::processRow() {
      */
     replayed_ret_val_ = return_value_.val();
     memcpy(buffer, data_read_.val(), replayed_ret_val_);
-  } else {
-    // Replay read system call as normal.
-    replayed_ret_val_ = read(replayed_fd, buffer, nbytes);
+    return;
   }
+  // Replay read system call as normal.
+  replayed_ret_val_ = read(replayed_fd, buffer, nbytes);
 
   if (verify_ == true) {
     // Verify read data and data in the trace file are same
