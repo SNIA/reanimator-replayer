@@ -53,8 +53,8 @@ void LSeekSystemCallTraceReplayModule::processRow() {
      * Traced return value will be returned.
      */
     replayed_ret_val_ = return_value_.val();
-  } else {
-    // Replay
-    replayed_ret_val_ = lseek(replayed_fd, offset, whence);
+    return;
   }
+  // Replay the lseek system call
+  replayed_ret_val_ = lseek(replayed_fd, offset, whence);
 }
