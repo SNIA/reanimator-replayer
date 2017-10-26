@@ -81,10 +81,10 @@ void WriteSystemCallTraceReplayModule::processRow() {
      * Original return value will be returned.
      */
     replayed_ret_val_ = return_value_.val();
-  } else {
-    // Replay write system call as normal.
-    replayed_ret_val_ = write(replayed_fd, data_buffer, nbytes);
+    return;
   }
+  // Replay write system call as normal.
+  replayed_ret_val_ = write(replayed_fd, data_buffer, nbytes);
 
   // Free the buffer
   if (!pattern_data_.empty()){
