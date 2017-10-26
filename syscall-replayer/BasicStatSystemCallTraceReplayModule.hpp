@@ -40,6 +40,7 @@ protected:
   Int32Field stat_result_nlink_;
   Int32Field stat_result_uid_;
   Int32Field stat_result_gid_;
+  Int32Field stat_result_rdev_;
   Int32Field stat_result_blksize_;
   Int32Field stat_result_blocks_;
   Int64Field stat_result_size_;
