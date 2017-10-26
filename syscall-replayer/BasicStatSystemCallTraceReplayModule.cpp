@@ -252,10 +252,11 @@ void FStatSystemCallTraceReplayModule::processRow() {
     stat_buf.st_mtime = (long) stat_result_mtime_.val();
     stat_buf.st_ctime = (long) stat_result_ctime_.val();
     replayed_ret_val_ = return_value_.val();
-  } else {
-    // replay the fstat system call
-    replayed_ret_val_ = fstat(fd, &stat_buf);
+    return;
   }
+
+  // replay the fstat system call
+  replayed_ret_val_ = fstat(fd, &stat_buf);
 
   if (verify_ == true) {
     BasicStatSystemCallTraceReplayModule::verifyResult(stat_buf);
