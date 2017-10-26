@@ -231,8 +231,17 @@ void FStatSystemCallTraceReplayModule::processRow() {
   pid_t pid = executing_pid();
   int fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
 
-  // replay the fstat system call
-  replayed_ret_val_ = fstat(fd, &stat_buf);
+  if (fd == SYSCALL_SIMULATED) {
+    /*
+     * FD for the fstat system call originated from a socket().
+     * The system call will not be replayed.
+     * Original return value and data will be returned.
+     */
+    replayed_ret_val_ = return_value_.val();
+  } else {
+    // replay the fstat system call
+    replayed_ret_val_ = fstat(fd, &stat_buf);
+  }
 
   if (verify_ == true) {
     BasicStatSystemCallTraceReplayModule::verifyResult(stat_buf);
