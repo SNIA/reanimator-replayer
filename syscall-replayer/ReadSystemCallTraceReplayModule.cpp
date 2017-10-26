@@ -121,9 +121,10 @@ void PReadSystemCallTraceReplayModule::processRow() {
      */
     replayed_ret_val_ = return_value_.val();
     memcpy(buffer, data_read_.val(), replayed_ret_val_);
-  } else {
-    replayed_ret_val_ = pread(fd, buffer, nbytes, offset);
+    return;
   }
+
+  replayed_ret_val_ = pread(fd, buffer, nbytes, offset);
 
   if (verify_ == true) {
     // Verify read data and data in the trace file are same
