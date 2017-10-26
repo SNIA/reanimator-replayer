@@ -32,6 +32,7 @@ BasicStatSystemCallTraceReplayModule(DataSeriesModule &source,
   stat_result_nlink_(series, "stat_result_nlink", Field::flag_nullable),
   stat_result_uid_(series, "stat_result_uid", Field::flag_nullable),
   stat_result_gid_(series, "stat_result_gid", Field::flag_nullable),
+  stat_result_rdev_(series, "stat_result_rdev", Field::flag_nullable),
   stat_result_blksize_(series, "stat_result_blksize", Field::flag_nullable),
   stat_result_blocks_(series, "stat_result_blocks", Field::flag_nullable),
   stat_result_size_(series, "stat_result_size", Field::flag_nullable),
@@ -237,6 +238,19 @@ void FStatSystemCallTraceReplayModule::processRow() {
      * The system call will not be replayed.
      * Original return value and data will be returned.
      */
+    stat_buf.st_dev = (u_int) stat_result_dev_.val();
+    stat_buf.st_ino = (u_int) stat_result_ino_.val();
+    stat_buf.st_mode = (u_int) stat_result_mode_.val();
+    stat_buf.st_nlink = (u_int) stat_result_nlink_.val();
+    stat_buf.st_uid = (u_int) stat_result_uid_.val();
+    stat_buf.st_gid = (u_int) stat_result_gid_.val();
+    stat_buf.st_rdev = (u_int) stat_result_rdev_.val();
+    stat_buf.st_blksize = (int) stat_result_blksize_.val();
+    stat_buf.st_blocks = (int) stat_result_blocks_.val();
+    stat_buf.st_size = (long) stat_result_size_.val();
+    stat_buf.st_atime = (long) stat_result_atime_.val();
+    stat_buf.st_mtime = (long) stat_result_mtime_.val();
+    stat_buf.st_ctime = (long) stat_result_ctime_.val();
     replayed_ret_val_ = return_value_.val();
   } else {
     // replay the fstat system call
