@@ -121,6 +121,16 @@ void PWriteSystemCallTraceReplayModule::processRow() {
   size_t nbytes = bytes_requested_.val();
   char *data_buffer;
 
+  if (fd == SYSCALL_SIMULATED) {
+    /*
+     * FD for the write call originated from a socket().
+     * The system call will not be replayed.
+     * Traced return value will be returned.
+     */
+    replayed_ret_val_ = return_value_.val();
+    return;
+  }
+
   // Check to see if write data is NULL in DS or user didn't specify pattern
   if (data_written_.isNull() && pattern_data_.empty() ) {
     // Let's write zeros.
