@@ -407,7 +407,7 @@ pipe	read_descriptor	0	int32
 pipe	write_descriptor	0	int32
 exit	exit_status	0	int32
 exit	generated	0	bool
-fork			
+fork
 dup	descriptor	0	int32
 dup2	old_descriptor	0	int32
 dup2	new_descriptor	0	int32
@@ -617,7 +617,7 @@ clone	signal_prof_alarm	0	bool
 clone	signal_window_size_change	0	bool
 clone	signal_io	0	bool
 clone	signal_power	0	bool
-vfork			
+vfork
 umask	mode_value	1	int32
 umask	mode_uid	0	bool
 umask	mode_gid	0	bool
@@ -699,7 +699,7 @@ lremovexattr	full_pathname	1	variable32
 lremovexattr	xattr_name	0	variable32
 fremovexattr	descriptor	0	int32
 fremovexattr	xattr_name	0	variable32
-setsid			
+setsid
 setpgid	pid	0	int32
 setpgid	pgid	0	int32
 getrlimit	resource_value	1	int32
