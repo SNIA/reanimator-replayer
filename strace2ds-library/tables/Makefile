@@ -1,2 +1,4 @@
-../strace2ds-enums.h: snia_syscall_fields.table Makefile gen-enums.sh
-	sh gen-enums.sh > $@
+XML_FILES+=$(wildcard ../xml/*.xml)
+
+../strace2ds-enums.h $(XML_FILES): snia_syscall_fields.table Makefile gen-xml-enums.pl
+	perl gen-xml-enums.pl
