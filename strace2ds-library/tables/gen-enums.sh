@@ -2,6 +2,7 @@
 # generate enum header file from *.table file
 
 date=`date`
+tmp=.tmp_count.$$
 
 ######################################################################
 ### ENUM for syscall names
@@ -13,6 +14,7 @@ cat <<EOF
  */
 enum syscall_names {
 EOF
+count=0
 # output list of all enums
 (
     cat snia_syscall_fields.table | while read syscall field nullable
@@ -20,13 +22,12 @@ EOF
 	test -n "$syscall" && echo "$syscall"
     done
 ) | sort -i | uniq | while read i ; do
-    printf "\tSYSCALL_NAME_%s,\n" `echo "$i" | tr 'a-z' 'A-Z'`
+    printf "\tSYSCALL_NAME_%s = %d,\n" `echo "$i" | tr 'a-z' 'A-Z'` "$count"
+    let count=count+1
+    echo $count > $tmp
 done
 # output end of all enum
-cat <<EOF
-	MAX_SYSCALL_NAMES
-};
-EOF
+printf "\tMAX_SYSCALL_NAMES = %d\n};\n" "`cat $tmp`"
 
 ######################################################################
 ### ENUM for syscall fields
@@ -35,7 +36,7 @@ cat <<EOF
 
 enum syscall_args {
 EOF
-
+count=0
 # output list of all enum
 (
     cat snia_syscall_fields.table | while read syscall field nullable
@@ -43,13 +44,13 @@ EOF
 	test -n "$field" && echo "$field"
     done
 ) | sort -i | uniq | while read i ; do
-    printf "\tSYSCALL_FIELD_%s,\n" `echo "$i" | tr 'a-z' 'A-Z'`
+    printf "\tSYSCALL_FIELD_%s = %d,\n" `echo "$i" | tr 'a-z' 'A-Z'` "$count"
+    let count=count+1
+    echo $count > $tmp
 done
 
 # output end of all enum
-cat <<EOF
-	MAX_SYSCALL_FIELDS
-};
-EOF
+printf "\tMAX_SYSCALL_FIELDS = %d\n};\n" "`cat $tmp`"
 
+/bin/rm -f "$tmp"
 exit 0
