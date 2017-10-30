@@ -15,12 +15,15 @@
  */
 
 #include "strace2ds.h"
+#include <syscall.h>
 
 #include "DataSeriesOutputModule.hpp"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define UMASK_SYSCALL_NUM SYS_umask
 
 /*
  * Create DataSeries
@@ -59,6 +62,7 @@ void ds_write_umask_at_start(DataSeriesOutputModule *ds_module, int pid) {
   long args[1]; /* umask args */
   int unique_id = 0; /* unique id of this umask record*/
   const char *syscall_name = "umask";
+  unsigned short syscall_num = UMASK_SYSCALL_NUM;
   void *common_fields[DS_NUM_COMMON_FIELDS];
   // Initialize common_fields with NULL arguments.
   memset(common_fields, 0, sizeof(void *) * DS_NUM_COMMON_FIELDS);
@@ -81,6 +85,7 @@ void ds_write_umask_at_start(DataSeriesOutputModule *ds_module, int pid) {
   common_fields[DS_COMMON_FIELD_ERRNO_NUMBER] = &errno;
   common_fields[DS_COMMON_FIELD_EXECUTING_PID] = &pid;
   common_fields[DS_COMMON_FIELD_UNIQUE_ID] = &unique_id;
+  common_fields[DS_COMMON_FIELD_SYSCALL_NUM] = &syscall_num;
 
   /*
    * Now everything is set. Just call ds_write_record to write one umask record

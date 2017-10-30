@@ -54,7 +54,7 @@
 class DataSeriesOutputModule;
 
 #ifndef ST_VALID
-// some systems support this flag of statfs() but it's missing from statfs.h
+// some systems support this flag of statfs() but it’s missing from statfs.h
 #define ST_VALID 0x0020
 #endif /* ST_VALID */
 
@@ -136,10 +136,28 @@ public:
 
 private:
   OutputModuleMap modules_;
+  /*
+   * Since OutputModuleMap's value is of type OutputModule*, we create
+   * a cache of type OutputModule*
+   */
+  OutputModule **modules_cache_;
+
   ExtentMap extents_;
+  /*
+   * Since ExtentMap's value is of type FieldMap, we create a cache
+   * of type FieldMap
+   */
+  FieldMap **extents_cache_;
+
   /* Sink is a wrapper for a DataSeries output file. */
   DataSeriesSink ds_sink_;
   config_table_type config_table_;
+  /*
+   * Since config_table_type's value is of type config_table_entry_type,
+   * we create a cache of type config_table_entry_type
+   */
+  config_table_entry_type **config_table_cache_;
+
   int64_t record_num_;
   // ioctl_size_ is the size of a buffer passed to an ioctl system call
   uint64_t ioctl_size_;
@@ -154,6 +172,11 @@ private:
    * of its corresponding sys call args map function
    */
   FuncPtrMap func_ptr_map_;
+  /*
+   * Since FuncPtrMap's value is of type SysCallArgsMapFuncPtr, we create
+   * a cache of type SysCallArgsMapFuncPtr
+   */
+  SysCallArgsMapFuncPtr *func_ptr_map_cache_;
 
   // Disable copy constructor
   DataSeriesOutputModule(const DataSeriesOutputModule&);
@@ -187,6 +210,9 @@ private:
    * of it corresponding args map function
    */
   void initArgsMapFuncPtr();
+
+  // Initializes all the caches with NULL values
+  void initCache();
 
   // Returns the length for field of type variable32
   int getVariable32FieldLength(SysCallArgsMap &args_map,
