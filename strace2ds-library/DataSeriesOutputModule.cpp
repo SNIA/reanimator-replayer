@@ -79,6 +79,23 @@ DataSeriesOutputModule::DataSeriesOutputModule(std::ifstream &table_stream,
 
   // Initialize function pointer map
   initArgsMapFuncPtr();
+
+  // Initialize Cache
+  initCache();
+}
+
+// Initializes all the caches with NULL values
+void DataSeriesOutputModule::initCache() {
+  modules_cache_ = new OutputModule*[nsyscalls];
+  extents_cache_ = new FieldMap*[nsyscalls];
+  config_table_cache_ = new config_table_entry_type*[nsyscalls];
+  func_ptr_map_cache_ = new SysCallArgsMapFuncPtr[nsyscalls];
+  for(int i = 0; i < nsyscalls; i++) {
+    modules_cache_[i] = NULL;
+    extents_cache_[i] = NULL;
+    config_table_cache_[i] = NULL;
+    func_ptr_map_cache_[i] = NULL;
+  }
 }
 
 /*
@@ -316,15 +333,60 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
       common_fields[DS_COMMON_FIELD_ERRNO_NUMBER];
   }
 
-  /* set system call specific field */
-  FuncPtrMap::iterator iter = func_ptr_map_.find(extent_name);
-  if (iter != func_ptr_map_.end()) {
-    SysCallArgsMapFuncPtr fxn = iter->second;
-    (this->*fxn)(sys_call_args_map, args, v_args);
+  int scno = -1;
+  if (common_fields[DS_COMMON_FIELD_SYSCALL_NUM] != NULL)
+    scno = *static_cast<int*>(common_fields[DS_COMMON_FIELD_SYSCALL_NUM]);
+
+  SysCallArgsMapFuncPtr fxn = NULL;
+  OutputModule *output_module = NULL;
+  FieldMap *field_map = NULL;
+  config_table_entry_type *extent_config_table_ = NULL;
+
+  if (scno >= 0) {
+    // lookup func_ptr_map_cache_ here, if cached directly use
+    if (func_ptr_map_cache_[scno] != NULL) {
+      fxn = func_ptr_map_cache_[scno];
+    } else {
+      FuncPtrMap::iterator iter = func_ptr_map_.find(extent_name);
+      if (iter != func_ptr_map_.end()) {
+        fxn = iter->second;
+        func_ptr_map_cache_[scno] = fxn;
+      }
+    }
+    // lookup modules_cache_ here, if cached directly use
+    if (modules_cache_[scno] != NULL) {
+      output_module = modules_cache_[scno];
+    } else {
+      output_module = modules_[extent_name];
+      modules_cache_[scno] = output_module;
+    }
+    // lookup extents_cache_ here, if cached directly use
+    if (extents_cache_[scno] != NULL) {
+      field_map = extents_cache_[scno];
+    } else {
+      field_map = &extents_[extent_name];
+      extents_cache_[scno] = field_map;
+    }
+    // lookup config_table_cache_ here, if cached directly use
+    if (config_table_cache_[scno] != NULL) {
+      extent_config_table_ = config_table_cache_[scno];
+    } else {
+      extent_config_table_ = &config_table_[extent_name];
+      config_table_cache_[scno] = extent_config_table_;
+    }
+
+  } else {
+    std::cerr << "Error! Negative scno occured:" << extent_name
+                                                 << ":" << scno
+                                                 << std::endl;
   }
 
+  // set system call specific field
+  if (fxn != NULL)
+    (this->*fxn)(sys_call_args_map, args, v_args);
+
   // Create a new record to write
-  modules_[extent_name]->newRecord();
+  output_module->newRecord();
 
   /*
    * Get the time the record was written as late as possible
@@ -335,15 +397,11 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
   uint64_t time_recorded_Tfrac = timeval_to_Tfrac(tv_time_recorded);
   sys_call_args_map["time_recorded"] = &time_recorded_Tfrac;
 
-  config_table_entry_type& extent_config_table_ =
-    config_table_[extent_name];
-
   // Write values to the new record
-  for (auto const &extent_config_table_entry : extent_config_table_) {
+  for (auto const &extent_config_table_entry : (*extent_config_table_)) {
     const std::string& field_name = extent_config_table_entry.first;
     const bool nullable = extent_config_table_entry.second.first;
-    const ExtentFieldTypePair& extent_field_value_ =
-      extents_[extent_name][field_name];
+    const ExtentFieldTypePair& extent_field_value_ = (*field_map)[field_name];
     var32_len = 0;
 
     if (sys_call_args_map.find(field_name) != sys_call_args_map.end() &&
@@ -412,6 +470,11 @@ DataSeriesOutputModule::~DataSeriesOutputModule() {
     delete (ExtentSeries *)&module_map_iter.second->getSeries();
     delete module_map_iter.second;
   }
+
+  delete[] modules_cache_;
+  delete[] extents_cache_;
+  delete[] config_table_cache_;
+  delete[] func_ptr_map_cache_;
 }
 
 // Initialize config table
