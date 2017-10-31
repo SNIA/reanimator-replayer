@@ -50,6 +50,7 @@
 #include <sys/xattr.h>
 #include <sys/time.h>
 #include <sys/resource.h>
+#include "strace2ds-enums.h"
 
 class DataSeriesOutputModule;
 
@@ -65,7 +66,7 @@ class DataSeriesOutputModule;
 #define DEFAULT_EXTENT_SIZE 0x400000 /* 4MB */
 
 /* map<fieldname, pair<nullable, ExtentType> */
-typedef std::unordered_map<std::string,
+typedef std::unordered_map<int,
 		 std::pair<bool, ExtentType::fieldType>
 		 > config_table_entry_type;
 
@@ -101,6 +102,9 @@ class DataSeriesOutputModule {
 public:
   static bool true_;
   static bool false_;
+  //#define USE_ENUMS 1
+  void *SysCallsArgsArray[MAX_SYSCALL_FIELDS];
+  std::string FieldNames[MAX_SYSCALL_FIELDS];
 
   // A map of untraced syscalls number and their respective counts
   std::unordered_map<long, int> untraced_sys_call_counts_;

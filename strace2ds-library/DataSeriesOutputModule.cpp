@@ -399,7 +399,8 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
 
   // Write values to the new record
   for (auto const &extent_config_table_entry : (*extent_config_table_)) {
-    const std::string& field_name = extent_config_table_entry.first;
+    const int ind = extent_config_table_entry.first;
+    const std::string& field_name = FieldNames[ind];
     const bool nullable = extent_config_table_entry.second.first;
     const ExtentFieldTypePair& extent_field_value_ = (*field_map)[field_name];
     var32_len = 0;
@@ -527,12 +528,12 @@ void DataSeriesOutputModule::initConfigTable(std::ifstream &table_stream) {
       ftype = ExtentType::ft_variable32;
 
     if (extent_name == "Common")
-      common_field_map[field_name] = std::make_pair(nullable, ftype);
+      common_field_map[field_enum] = std::make_pair(nullable, ftype);
     else if (config_table_.find(extent_name) != config_table_.end())
-      config_table_[extent_name][field_name] = std::make_pair(nullable, ftype);
+      config_table_[extent_name][field_enum] = std::make_pair(nullable, ftype);
     else { /* New extent detected */
       config_table_[extent_name] = common_field_map;
-      config_table_[extent_name][field_name] = std::make_pair(nullable, ftype);
+      config_table_[extent_name][field_enum] = std::make_pair(nullable, ftype);
     }
   }
 }
@@ -745,7 +746,8 @@ void DataSeriesOutputModule::initArgsMap(SysCallArgsMap &args_map,
     config_table_[extent_name];
   FieldMap& extent_field_map_ = extents_[extent_name];
   for (auto const &extent_config_table_entry : extent_config_table_) {
-    const std::string& field_name = extent_config_table_entry.first;
+    int ind = extent_config_table_entry.first;
+    const std::string& field_name = FieldNames[ind];
     const bool nullable = extent_config_table_entry.second.first;
     if (!nullable && extent_field_map_[field_name].second == ExtentType::ft_bool)
       args_map[field_name] = &false_;
