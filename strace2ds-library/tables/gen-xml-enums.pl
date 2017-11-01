@@ -7,9 +7,9 @@ $debug = 1;
 %all_common_fields = ();	# all common fields -> <is_nullable,type>
 %all_field_names = ();		# names of all fields -> unique field_id num
 %all_syscall_names = ();	# names of all syscalls -> 1
-%all_syscalls_fields = ();	# syscallname{$fieldname} -> <is_nullable,type>
+%all_syscalls_fields = ();	# $syscallname{$fieldname} -> <is_nullable,type>
 
-$file = "snia_syscall_fields.table";
+$file = "snia_syscall_fields.src";
 open(FILE, "$file") || die("$file: $!");
 while(($line = <FILE>)) {
     chop $line;                 # eliminate newline
@@ -121,3 +121,41 @@ foreach $k (sort {$a cmp $b} keys %all_syscall_names) {
     printf(FILE "</ExtentType>\n");
     close(FILE);
 }
+
+######################################################################
+# now re-read input table file and produce output file with field IDs
+$infile = "snia_syscall_fields.src";
+$outfile = "snia_syscall_fields.table";
+open(INFILE, "$infile") || die("$infile: $!");
+open(OUTFILE, ">$outfile") || die("$outfile: $!");
+while(($line = <INFILE>)) {
+    chop $line;                 # eliminate newline
+    printf(STDERR "LINE: %s\n", $line) if $debug > 1;
+    die if ($line =~ /^$/);	# disallow empty lines
+    # parse common lines: <syscallname fieldname is_nullable type>
+    if ($line =~ /^(\w+)\s+(\w+)\s+([01])\s+(\w+)$/) {
+	$syscall_name = $1;
+	$field_name = $2;
+	$is_nullable = $3;
+	$type = $4;
+    } elsif ($line =~ /^(\w+)$/) { # special case: syscall with no custom params
+	$syscall_name = $1;
+	$field_name = undef;
+	$is_nullable = undef;
+	$type = undef;
+    } else {
+	die("CANNOT PARSE LINE: %s\n", $line);
+    }
+    # now output a line
+    if (defined($field_name)) {
+	printf(OUTFILE "%s\t%d\t%s\t%d\t%s\n",
+	       $syscall_name,
+	       $all_field_names{$field_name},
+	       $field_name, $is_nullable, $type);
+    } else { # use -1 for field ID if no fields
+	printf(OUTFILE "%s\t%d\n", $syscall_name, -1);
+    }
+
+}
+close(INFILE);
+close(OUTFILE);
