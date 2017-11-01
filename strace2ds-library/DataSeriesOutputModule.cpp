@@ -246,6 +246,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["socket"] = &DataSeriesOutputModule::makeSocketArgsMap;
   // stat system call
   func_ptr_map_["stat"] = &DataSeriesOutputModule::makeStatArgsMap;
+  // stat system call
+  func_ptr_map_2["stat"] = &DataSeriesOutputModule::makeStatArgsMap2;
   // statfs system call
   func_ptr_map_["statfs"] = &DataSeriesOutputModule::makeStatfsArgsMap;
   // symlink system call
@@ -272,6 +274,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["vfork"] = &DataSeriesOutputModule::makeVForkArgsMap;
   // write system call
   func_ptr_map_["write"] = &DataSeriesOutputModule::makeWriteArgsMap;
+  // write system call
+  func_ptr_map_2["write"] = &DataSeriesOutputModule::makeWriteArgsMap2;
   // writev system call
   func_ptr_map_["writev"] = &DataSeriesOutputModule::makeWritevArgsMap;
 }
@@ -1226,6 +1230,14 @@ void DataSeriesOutputModule::makeWriteArgsMap(SysCallArgsMap &args_map,
   args_map["bytes_requested"] = &args[2];
 }
 
+void DataSeriesOutputModule::makeWriteArgsMap2(void **args_map,
+					      long *args,
+					      void **v_args) {
+  args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
+  args_map[SYSCALL_FIELD_DATA_WRITTEN] = &v_args[0];
+  args_map[SYSCALL_FIELD_BYTES_REQUESTED] = &args[2];
+}
+
 void DataSeriesOutputModule::makeChdirArgsMap(SysCallArgsMap &args_map,
 					      long *args,
 					      void **v_args) {
@@ -2032,6 +2044,44 @@ void DataSeriesOutputModule::makeStatArgsMap(SysCallArgsMap &args_map,
     args_map["stat_result_atime"] = &atime_Tfrac;
     args_map["stat_result_mtime"] = &mtime_Tfrac;
     args_map["stat_result_ctime"] = &ctime_Tfrac;
+  } else {
+    std::cerr << "Stat: Struct stat buffer is set as NULL!!" << std::endl;
+  }
+}
+
+void DataSeriesOutputModule::makeStatArgsMap2(void ** args_map,
+					     long *args,
+					     void **v_args) {
+  if (v_args[0] != NULL) {
+    args_map[SYSCALL_FIELD_GIVEN_PATHNAME] = &v_args[0];
+  } else {
+    std::cerr << "Stat: Pathname is set as NULL!!" << std::endl;
+  }
+
+  if (v_args[1] != NULL) {
+    struct stat *statbuf = (struct stat *) v_args[1];
+
+    args_map[SYSCALL_FIELD_STAT_RESULT_DEV] = &statbuf->st_dev;
+    args_map[SYSCALL_FIELD_STAT_RESULT_INO] = &statbuf->st_ino;
+    args_map[SYSCALL_FIELD_STAT_RESULT_MODE] = &statbuf->st_mode;
+    args_map[SYSCALL_FIELD_STAT_RESULT_NLINK] = &statbuf->st_nlink;
+    args_map[SYSCALL_FIELD_STAT_RESULT_UID] = &statbuf->st_uid;
+    args_map[SYSCALL_FIELD_STAT_RESULT_GID] = &statbuf->st_gid;
+    args_map[SYSCALL_FIELD_STAT_RESULT_RDEV] = &statbuf->st_rdev;
+    args_map[SYSCALL_FIELD_STAT_RESULT_SIZE] = &statbuf->st_size;
+    args_map[SYSCALL_FIELD_STAT_RESULT_BLKSIZE] = &statbuf->st_blksize;
+    args_map[SYSCALL_FIELD_STAT_RESULT_BLOCKS] = &statbuf->st_blocks;
+
+    /*
+     * Convert stat_result_atime, stat_result_mtime and
+     * stat_result_ctime to Tfracs.
+     */
+    static uint64_t atime_Tfrac = timespec_to_Tfrac(statbuf->st_atim);
+    static uint64_t mtime_Tfrac = timespec_to_Tfrac(statbuf->st_mtim);
+    static uint64_t ctime_Tfrac = timespec_to_Tfrac(statbuf->st_ctim);
+    args_map[SYSCALL_FIELD_STAT_RESULT_ATIME] = &atime_Tfrac;
+    args_map[SYSCALL_FIELD_STAT_RESULT_MTIME] = &mtime_Tfrac;
+    args_map[SYSCALL_FIELD_STAT_RESULT_CTIME] = &ctime_Tfrac;
   } else {
     std::cerr << "Stat: Struct stat buffer is set as NULL!!" << std::endl;
   }

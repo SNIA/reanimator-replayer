@@ -301,6 +301,9 @@ private:
   // Maps Write System Call <field, value> pairs
   void makeWriteArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
+  // Maps Write System Call <field, value> pairs
+  void makeWriteArgsMap2(void **args_map, long *args, void **v_args);
+
   // Maps Chdir System Call <field, value> pairs
   void makeChdirArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
@@ -439,6 +442,9 @@ private:
 
   // Maps Stat System Call <field, value> pairs
   void makeStatArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+
+  // Maps Stat System Call <field, value> pairs
+  void makeStatArgsMap2(void **args_map, long *args, void **v_args);
 
   // Maps Statfs System Call <field, value> pairs
   void makeStatfsArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
