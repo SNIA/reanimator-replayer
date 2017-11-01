@@ -1,715 +1,715 @@
-Common	time_called	1	int64
-Common	time_returned	1	int64
-Common	time_recorded	1	int64
-Common	executing_pid	1	int32
-Common	executing_tid	1	int32
-Common	executing_ppid	1	int32
-Common	executing_uid	1	int32
-Common	executing_sid	1	int32
-Common	executing_pgid	1	int32
-Common	errno_number	1	int32
-Common	errno_string	1	variable32
-Common	return_value	1	int64
-Common	unique_id	0	int64
-read	descriptor	0	int32
-read	buffer_ptr	1	int64
-read	bytes_requested	0	int64
-read	data_read	1	variable32
-write	descriptor	0	int32
-write	buffer_ptr	1	int64
-write	bytes_requested	0	int64
-write	data_written	1	variable32
-lseek	descriptor	0	int32
-lseek	offset	0	int64
-lseek	whence_value	1	int32
-lseek	whence	0	byte
-mmap	start_address	0	int64
-mmap	length	0	int64
-mmap	protection_value	1	int32
-mmap	protection_exec	0	bool
-mmap	protection_read	0	bool
-mmap	protection_write	0	bool
-mmap	protection_none	0	bool
-mmap	flags_value	1	int32
-mmap	flag_fixed	0	bool
-mmap	flag_shared	0	bool
-mmap	flag_private	0	bool
-mmap	flag_32bit	0	bool
-mmap	flag_anonymous	0	bool
-mmap	flag_denywrite	0	bool
-mmap	flag_executable	0	bool
-mmap	flag_file	0	bool
-mmap	flag_grows_down	0	bool
-mmap	flag_huge_tlb	0	bool
-mmap	flag_locked	0	bool
-mmap	flag_non_block	0	bool
-mmap	flag_no_reserve	0	bool
-mmap	flag_populate	0	bool
-mmap	flag_stack	0	bool
-mmap	descriptor	0	int32
-mmap	offset	0	int64
-fstat	descriptor	0	int32
-fstat	buffer_address	1	int64
-fstat	stat_result_raw	1	variable32
-fstat	stat_result_dev	1	int32
-fstat	stat_result_ino	1	int32
-fstat	stat_result_mode	1	int32
-fstat	stat_result_nlink	1	int32
-fstat	stat_result_uid	1	int32
-fstat	stat_result_gid	1	int32
-fstat	stat_result_rdev	1	int32
-fstat	stat_result_size	1	int64
-fstat	stat_result_blksize	1	int32
-fstat	stat_result_blocks	1	int32
-fstat	stat_result_atime	1	int64
-fstat	stat_result_mtime	1	int64
-fstat	stat_result_ctime	1	int64
-fstatat	descriptor	0	int32
-fstatat	given_pathname	0	variable32
-fstatat	buffer_address	1	int64
-fstatat	stat_result_raw	1	variable32
-fstatat	stat_result_dev	1	int32
-fstatat	stat_result_ino	1	int32
-fstatat	stat_result_mode	1	int32
-fstatat	stat_result_nlink	1	int32
-fstatat	stat_result_uid	1	int32
-fstatat	stat_result_gid	1	int32
-fstatat	stat_result_rdev	1	int32
-fstatat	stat_result_size	1	int64
-fstatat	stat_result_blksize	1	int32
-fstatat	stat_result_blocks	1	int32
-fstatat	stat_result_atime	1	int64
-fstatat	stat_result_mtime	1	int64
-fstatat	stat_result_ctime	1	int64
-fstatat	flags_value	1	int32
-fstatat	flags_at_empty_path	0	bool
-fstatat	flags_at_no_automount	0	bool
-fstatat	flags_at_symlink_nofollow	0	bool
-pread	descriptor	0	int32
-pread	buffer_ptr	1	int64
-pread	bytes_requested	0	int64
-pread	offset	0	int64
-pread	data_read	1	variable32
-pwrite	descriptor	0	int32
-pwrite	buffer_ptr	1	int64
-pwrite	bytes_requested	0	int64
-pwrite	offset	0	int64
-pwrite	data_written	1	variable32
-readv	descriptor	1	int32
-readv	count	1	int32
-readv	iov_number	0	int32
-readv	buffer_ptr	1	int64
-readv	bytes_requested	0	int64
-readv	data_read	1	variable32
-writev	descriptor	1	int32
-writev	count	1	int32
-writev	iov_number	0	int32
-writev	buffer_ptr	1	int64
-writev	bytes_requested	0	int64
-writev	data_written	1	variable32
-fcntl	descriptor	0	int32
-fcntl	command_value	1	int32
-fcntl	argument_value	1	int32
-fcntl	command_dup	0	bool
-fcntl	command_get_descriptor_flags	0	bool
-fcntl	command_set_descriptor_flags	0	bool
-fcntl	argument_descriptor_flag_exec_close	0	bool
-fcntl	command_get_status_flags	0	bool
-fcntl	command_set_status_flags	0	bool
-fcntl	argument_status_flag_read_only	0	bool
-fcntl	argument_status_flag_write_only	0	bool
-fcntl	argument_status_flag_read_and_write	0	bool
-fcntl	argument_status_flag_append	0	bool
-fcntl	argument_status_flag_async	0	bool
-fcntl	argument_status_flag_create	0	bool
-fcntl	argument_status_flag_direct	0	bool
-fcntl	argument_status_flag_directory	0	bool
-fcntl	argument_status_flag_exclusive	0	bool
-fcntl	argument_status_flag_largefile	0	bool
-fcntl	argument_status_flag_no_access_time	0	bool
-fcntl	argument_status_flag_no_controlling_terminal	0	bool
-fcntl	argument_status_flag_no_follow	0	bool
-fcntl	argument_status_flag_no_blocking_mode	0	bool
-fcntl	argument_status_flag_no_delay	0	bool
-fcntl	argument_status_flag_synchronous	0	bool
-fcntl	argument_status_flag_truncate	0	bool
-fcntl	command_set_lock	0	bool
-fcntl	command_set_lock_wait	0	bool
-fcntl	command_get_lock	0	bool
-fcntl	flock_pointer	1	int64
-fcntl	lock_type	1	int32
-fcntl	lock_type_read	0	bool
-fcntl	lock_type_write	0	bool
-fcntl	lock_type_unlocked	0	bool
-fcntl	lock_whence	1	int32
-fcntl	lock_whence_start	0	bool
-fcntl	lock_whence_current	0	bool
-fcntl	lock_whence_end	0	bool
-fcntl	lock_start	1	int32
-fcntl	lock_length	1	int32
-fcntl	lock_pid	1	int32
-fcntl	command_get_process_id	0	bool
-fcntl	command_set_process_id	0	bool
-fcntl	command_get_signal	0	bool
-fcntl	command_set_signal	0	bool
-fcntl	command_set_lease	0	bool
-fcntl	command_get_lease	0	bool
-fcntl	argument_lease_read	0	bool
-fcntl	argument_lease_write	0	bool
-fcntl	argument_lease_remove	0	bool
-fcntl	command_notify	0	bool
-fcntl	argument_notify_access	0	bool
-fcntl	argument_notify_modify	0	bool
-fcntl	argument_notify_create	0	bool
-fcntl	argument_notify_delete	0	bool
-fcntl	argument_notify_rename	0	bool
-fcntl	argument_notify_attribute	0	bool
-ioctl	descriptor	0	int32
-ioctl	request	0	int32
-ioctl	parameter	1	int64
-ioctl	ioctl_buffer	1	variable32
-ioctl	buffer_size	0	int64
-fsync	descriptor	0	int32
-open	given_pathname	0	variable32
-open	full_pathname	1	variable32
-open	open_value	1	int32
-open	flag_read_only	0	bool
-open	flag_write_only	0	bool
-open	flag_read_and_write	0	bool
-open	flag_append	0	bool
-open	flag_async	0	bool
-open	flag_close_on_exec	0	bool
-open	flag_create	0	bool
-open	flag_direct	0	bool
-open	flag_directory	0	bool
-open	flag_exclusive	0	bool
-open	flag_largefile	0	bool
-open	flag_no_access_time	0	bool
-open	flag_no_controlling_terminal	0	bool
-open	flag_no_follow	0	bool
-open	flag_no_blocking_mode	0	bool
-open	flag_no_delay	0	bool
-open	flag_synchronous	0	bool
-open	flag_truncate	0	bool
-open	mode_value	1	int32
-open	mode_uid	0	bool
-open	mode_gid	0	bool
-open	mode_sticky_bit	0	bool
-open	mode_R_user	0	bool
-open	mode_W_user	0	bool
-open	mode_X_user	0	bool
-open	mode_R_group	0	bool
-open	mode_W_group	0	bool
-open	mode_X_group	0	bool
-open	mode_R_others	0	bool
-open	mode_W_others	0	bool
-open	mode_X_others	0	bool
-close	descriptor	0	int32
-stat	given_pathname	0	variable32
-stat	full_pathname	1	variable32
-stat	buffer_address	1	int64
-stat	stat_result_raw	1	variable32
-stat	stat_result_dev	1	int32
-stat	stat_result_ino	1	int32
-stat	stat_result_mode	1	int32
-stat	stat_result_nlink	1	int32
-stat	stat_result_uid	1	int32
-stat	stat_result_gid	1	int32
-stat	stat_result_rdev	1	int32
-stat	stat_result_size	1	int64
-stat	stat_result_blksize	1	int32
-stat	stat_result_blocks	1	int32
-stat	stat_result_atime	1	int64
-stat	stat_result_mtime	1	int64
-stat	stat_result_ctime	1	int64
-lstat	given_pathname	0	variable32
-lstat	full_pathname	1	variable32
-lstat	buffer_address	1	int64
-lstat	stat_result_raw	1	variable32
-lstat	stat_result_dev	1	int32
-lstat	stat_result_ino	1	int32
-lstat	stat_result_mode	1	int32
-lstat	stat_result_nlink	1	int32
-lstat	stat_result_uid	1	int32
-lstat	stat_result_gid	1	int32
-lstat	stat_result_rdev	1	int32
-lstat	stat_result_size	1	int64
-lstat	stat_result_blksize	1	int32
-lstat	stat_result_blocks	1	int32
-lstat	stat_result_atime	1	int64
-lstat	stat_result_mtime	1	int64
-lstat	stat_result_ctime	1	int64
-access	given_pathname	0	variable32
-access	full_pathname	1	variable32
-access	mode_value	1	int32
-access	mode_read	0	bool
-access	mode_write	0	bool
-access	mode_execute	0	bool
-access	mode_exist	0	bool
-faccessat	descriptor	0	int32
-faccessat	given_pathname	0	variable32
-faccessat	full_pathname	1	variable32
-faccessat	mode_value	1	int32
-faccessat	mode_read	0	bool
-faccessat	mode_write	0	bool
-faccessat	mode_execute	0	bool
-faccessat	mode_exist	0	bool
-faccessat	flags_value	1	int32
-faccessat	flags_at_eaccess	0	bool
-faccessat	flags_at_symlink_nofollow	0	bool
-execve	given_pathname	1	variable32
-execve	full_pathname	1	variable32
-execve	argument_address	1	int64
-execve	environment_address	1	int64
-execve	continuation_number	0	int32
-execve	argument	1	variable32
-execve	environment	1	variable32
-truncate	given_pathname	0	variable32
-truncate	full_pathname	1	variable32
-truncate	truncate_length	0	int64
-ftruncate	descriptor	0	int32
-ftruncate	truncate_length	0	int64
-chdir	given_pathname	0	variable32
-chdir	full_pathname	1	variable32
-mkdir	given_pathname	0	variable32
-mkdir	full_pathname	1	variable32
-mkdir	mode_value	1	int32
-mkdir	mode_uid	0	bool
-mkdir	mode_gid	0	bool
-mkdir	mode_sticky_bit	0	bool
-mkdir	mode_R_user	0	bool
-mkdir	mode_W_user	0	bool
-mkdir	mode_X_user	0	bool
-mkdir	mode_R_group	0	bool
-mkdir	mode_W_group	0	bool
-mkdir	mode_X_group	0	bool
-mkdir	mode_R_others	0	bool
-mkdir	mode_W_others	0	bool
-mkdir	mode_X_others	0	bool
-mkdirat	descriptor	0	int32
-mkdirat	descriptor_current_working_directory	0	bool
-mkdirat	given_pathname	0	variable32
-mkdirat	full_pathname	1	variable32
-mkdirat	mode_value	1	int32
-mkdirat	mode_uid	0	bool
-mkdirat	mode_gid	0	bool
-mkdirat	mode_sticky_bit	0	bool
-mkdirat	mode_R_user	0	bool
-mkdirat	mode_W_user	0	bool
-mkdirat	mode_X_user	0	bool
-mkdirat	mode_R_group	0	bool
-mkdirat	mode_W_group	0	bool
-mkdirat	mode_X_group	0	bool
-mkdirat	mode_R_others	0	bool
-mkdirat	mode_W_others	0	bool
-mkdirat	mode_X_others	0	bool
-rmdir	given_pathname	0	variable32
-rmdir	full_pathname	1	variable32
-creat	given_pathname	0	variable32
-creat	full_pathname	1	variable32
-creat	mode_value	1	int32
-creat	mode_uid	0	bool
-creat	mode_gid	0	bool
-creat	mode_sticky_bit	0	bool
-creat	mode_R_user	0	bool
-creat	mode_W_user	0	bool
-creat	mode_X_user	0	bool
-creat	mode_R_group	0	bool
-creat	mode_W_group	0	bool
-creat	mode_X_group	0	bool
-creat	mode_R_others	0	bool
-creat	mode_W_others	0	bool
-creat	mode_X_others	0	bool
-link	given_oldpathname	0	variable32
-link	full_oldpathname	1	variable32
-link	given_newpathname	0	variable32
-link	full_newpathname	1	variable32
-unlink	given_pathname	0	variable32
-unlink	full_pathname	1	variable32
-symlink	target_pathname	0	variable32
-symlink	given_pathname	0	variable32
-symlink	full_pathname	1	variable32
-symlinkat	target_pathname	0	variable32
-symlinkat	new_descriptor	0	int32
-symlinkat	new_descriptor_current_working_directory	0	bool
-symlinkat	given_pathname	0	variable32
-symlinkat	full_pathname	1	variable32
-readlink	given_pathname	0	variable32
-readlink	full_pathname	1	variable32
-readlink	link_value	0	variable32
-readlink	buffer_address	1	int64
-readlink	buffer_size	1	int32
-chmod	given_pathname	0	variable32
-chmod	full_pathname	1	variable32
-chmod	mode_value	1	int32
-chmod	mode_uid	0	bool
-chmod	mode_gid	0	bool
-chmod	mode_sticky_bit	0	bool
-chmod	mode_R_user	0	bool
-chmod	mode_W_user	0	bool
-chmod	mode_X_user	0	bool
-chmod	mode_R_group	0	bool
-chmod	mode_W_group	0	bool
-chmod	mode_X_group	0	bool
-chmod	mode_R_others	0	bool
-chmod	mode_W_others	0	bool
-chmod	mode_X_others	0	bool
-chown	given_pathname	0	variable32
-chown	full_pathname	1	variable32
-chown	new_owner	0	int32
-chown	new_group	0	int32
-utime	given_pathname	0	variable32
-utime	full_pathname	1	variable32
-utime	access_time	1	int64
-utime	mod_time	1	int64
-utimes	given_pathname	0	variable32
-utimes	full_pathname	1	variable32
-utimes	access_time	1	int64
-utimes	mod_time	1	int64
-mknod	given_pathname	0	variable32
-mknod	full_pathname	1	variable32
-mknod	mode_value	0	int32
-mknod	type	0	byte
-mknod	mode_uid	0	bool
-mknod	mode_gid	0	bool
-mknod	mode_sticky_bit	0	bool
-mknod	mode_R_user	0	bool
-mknod	mode_W_user	0	bool
-mknod	mode_X_user	0	bool
-mknod	mode_R_group	0	bool
-mknod	mode_W_group	0	bool
-mknod	mode_X_group	0	bool
-mknod	mode_R_others	0	bool
-mknod	mode_W_others	0	bool
-mknod	mode_X_others	0	bool
-mknod	dev	1	int32
-mknodat	descriptor	0	int32
-mknodat	given_pathname	0	variable32
-mknodat	full_pathname	1	variable32
-mknodat	mode_value	0	int32
-mknodat	type	0	byte
-mknodat	mode_uid	0	bool
-mknodat	mode_gid	0	bool
-mknodat	mode_sticky_bit	0	bool
-mknodat	mode_R_user	0	bool
-mknodat	mode_W_user	0	bool
-mknodat	mode_X_user	0	bool
-mknodat	mode_R_group	0	bool
-mknodat	mode_W_group	0	bool
-mknodat	mode_X_group	0	bool
-mknodat	mode_R_others	0	bool
-mknodat	mode_W_others	0	bool
-mknodat	mode_X_others	0	bool
-mknodat	dev	1	int32
-munmap	start_address	0	int64
-munmap	length	0	int64
-pipe	read_descriptor	0	int32
-pipe	write_descriptor	0	int32
-exit	exit_status	0	int32
-exit	generated	0	bool
-fork
-dup	descriptor	0	int32
-dup2	old_descriptor	0	int32
-dup2	new_descriptor	0	int32
-rename	given_oldname	0	variable32
-rename	full_oldname	1	variable32
-rename	given_newname	0	variable32
-rename	full_newname	1	variable32
-unlinkat	descriptor	0	int32
-unlinkat	descriptor_current_working_directory	0	bool
-unlinkat	given_pathname	0	variable32
-unlinkat	full_pathname	1	variable32
-unlinkat	flag_value	1	int32
-unlinkat	flag_remove_directory	0	bool
-getdents	descriptor	0	int32
-getdents	dirent_buffer	1	variable32
-getdents	count	0	int32
-openat	descriptor	0	int32
-openat	descriptor_current_working_directory	0	bool
-openat	given_pathname	0	variable32
-openat	full_pathname	1	variable32
-openat	open_value	1	int32
-openat	flag_read_only	0	bool
-openat	flag_write_only	0	bool
-openat	flag_read_and_write	0	bool
-openat	flag_append	0	bool
-openat	flag_async	0	bool
-openat	flag_close_on_exec	0	bool
-openat	flag_create	0	bool
-openat	flag_direct	0	bool
-openat	flag_directory	0	bool
-openat	flag_exclusive	0	bool
-openat	flag_largefile	0	bool
-openat	flag_no_access_time	0	bool
-openat	flag_no_controlling_terminal	0	bool
-openat	flag_no_follow	0	bool
-openat	flag_no_blocking_mode	0	bool
-openat	flag_no_delay	0	bool
-openat	flag_synchronous	0	bool
-openat	flag_truncate	0	bool
-openat	mode_value	1	int32
-openat	mode_uid	0	bool
-openat	mode_gid	0	bool
-openat	mode_sticky_bit	0	bool
-openat	mode_R_user	0	bool
-openat	mode_W_user	0	bool
-openat	mode_X_user	0	bool
-openat	mode_R_group	0	bool
-openat	mode_W_group	0	bool
-openat	mode_X_group	0	bool
-openat	mode_R_others	0	bool
-openat	mode_W_others	0	bool
-openat	mode_X_others	0	bool
-linkat	old_descriptor	0	int32
-linkat	old_descriptor_current_working_directory	0	bool
-linkat	given_oldpathname	0	variable32
-linkat	full_oldpathname	1	variable32
-linkat	new_descriptor	0	int32
-linkat	new_descriptor_current_working_directory	0	bool
-linkat	given_newpathname	0	variable32
-linkat	full_newpathname	1	variable32
-linkat	flag_value	1	int32
-linkat	flag_empty_path	0	bool
-linkat	flag_symlink_follow	0	bool
-fchmod	descriptor	0	int32
-fchmod	mode_value	1	int32
-fchmod	mode_uid	0	bool
-fchmod	mode_gid	0	bool
-fchmod	mode_sticky_bit	0	bool
-fchmod	mode_R_user	0	bool
-fchmod	mode_W_user	0	bool
-fchmod	mode_X_user	0	bool
-fchmod	mode_R_group	0	bool
-fchmod	mode_W_group	0	bool
-fchmod	mode_X_group	0	bool
-fchmod	mode_R_others	0	bool
-fchmod	mode_W_others	0	bool
-fchmod	mode_X_others	0	bool
-fchmodat	descriptor	0	int32
-fchmodat	given_pathname	0	variable32
-fchmodat	mode_value	1	int32
-fchmodat	mode_uid	0	bool
-fchmodat	mode_gid	0	bool
-fchmodat	mode_sticky_bit	0	bool
-fchmodat	mode_R_user	0	bool
-fchmodat	mode_W_user	0	bool
-fchmodat	mode_X_user	0	bool
-fchmodat	mode_R_group	0	bool
-fchmodat	mode_W_group	0	bool
-fchmodat	mode_X_group	0	bool
-fchmodat	mode_R_others	0	bool
-fchmodat	mode_W_others	0	bool
-fchmodat	mode_X_others	0	bool
-fchmodat	flag_value	1	int32
-fchmodat	flag_at_symlink_nofollow	0	bool
-utimensat	descriptor	0	int32
-utimensat	descriptor_current_working_directory	1	bool
-utimensat	given_pathname	1	variable32
-utimensat	full_pathname	1	variable32
-utimensat	access_time	1	int64
-utimensat	mod_time	1	int64
-utimensat	flag_value	1	int32
-utimensat	flag_symlink_nofollow	0	bool
-utimensat	utime_now	0	bool
-utimensat	utime_omit	0	bool
-statfs	given_pathname	0	variable32
-statfs	full_pathname	1	variable32
-statfs	buffer_address	1	int64
-statfs	statfs_result_raw	1	variable32
-statfs	statfs_result_type	1	int32
-statfs	statfs_result_bsize	1	int32
-statfs	statfs_result_blocks	1	int64
-statfs	statfs_result_bfree	1	int64
-statfs	statfs_result_bavail	1	int64
-statfs	statfs_result_files	1	int64
-statfs	statfs_result_ffree	1	int64
-statfs	statfs_result_fsid	1	int32
-statfs	statfs_result_namelen	1	int64
-statfs	statfs_result_frsize	1	int64
-statfs	statfs_result_flags	1	int64
-statfs	statfs_result_flags_mandatory_lock	0	bool
-statfs	statfs_result_flags_no_access_time	0	bool
-statfs	statfs_result_flags_no_dev	0	bool
-statfs	statfs_result_flags_no_directory_access_time	0	bool
-statfs	statfs_result_flags_no_exec	0	bool
-statfs	statfs_result_flags_no_set_uid	0	bool
-statfs	statfs_result_flags_read_only	0	bool
-statfs	statfs_result_flags_relative_access_time	0	bool
-statfs	statfs_result_flags_synchronous	0	bool
-statfs	statfs_result_flags_valid	0	bool
-fstatfs	descriptor	0	int32
-fstatfs	buffer_address	1	int64
-fstatfs	statfs_result_raw	1	variable32
-fstatfs	statfs_result_type	1	int32
-fstatfs	statfs_result_bsize	1	int32
-fstatfs	statfs_result_blocks	1	int64
-fstatfs	statfs_result_bfree	1	int64
-fstatfs	statfs_result_bavail	1	int64
-fstatfs	statfs_result_files	1	int64
-fstatfs	statfs_result_ffree	1	int64
-fstatfs	statfs_result_fsid	1	int32
-fstatfs	statfs_result_namelen	1	int64
-fstatfs	statfs_result_frsize	1	int64
-fstatfs	statfs_result_flags	1	int64
-fstatfs	statfs_result_flags_mandatory_lock	0	bool
-fstatfs	statfs_result_flags_no_access_time	0	bool
-fstatfs	statfs_result_flags_no_dev	0	bool
-fstatfs	statfs_result_flags_no_directory_access_time	0	bool
-fstatfs	statfs_result_flags_no_exec	0	bool
-fstatfs	statfs_result_flags_no_set_uid	0	bool
-fstatfs	statfs_result_flags_read_only	0	bool
-fstatfs	statfs_result_flags_relative_access_time	0	bool
-fstatfs	statfs_result_flags_synchronous	0	bool
-clone	flag_value	1	int64
-clone	child_stack_address	0	int64
-clone	parent_thread_id	1	int64
-clone	child_thread_id	1	int64
-clone	new_tls	1	int64
-clone	flag_child_cleartid	0	bool
-clone	flag_child_settid	0	bool
-clone	flag_files	0	bool
-clone	flag_filesystem	0	bool
-clone	flag_io	0	bool
-clone	flag_newipc	0	bool
-clone	flag_newnet	0	bool
-clone	flag_newns	0	bool
-clone	flag_newpid	0	bool
-clone	flag_newuser	0	bool
-clone	flag_newuts	0	bool
-clone	flag_parent	0	bool
-clone	flag_parent_settid	0	bool
-clone	flag_ptrace	0	bool
-clone	flag_settls	0	bool
-clone	flag_sighand	0	bool
-clone	flag_sysvsem	0	bool
-clone	flag_thread	0	bool
-clone	flag_untraced	0	bool
-clone	flag_vfork	0	bool
-clone	flag_vm	0	bool
-clone	signal_hangup	0	bool
-clone	signal_terminal_interrupt	0	bool
-clone	signal_terminal_quit	0	bool
-clone	signal_illegal	0	bool
-clone	signal_trace_trap	0	bool
-clone	signal_abort	0	bool
-clone	signal_iot_trap	0	bool
-clone	signal_bus	0	bool
-clone	signal_floating_point_exception	0	bool
-clone	signal_kill	0	bool
-clone	signal_user_defined_1	0	bool
-clone	signal_segv	0	bool
-clone	signal_user_defined_2	0	bool
-clone	signal_pipe	0	bool
-clone	signal_alarm	0	bool
-clone	signal_termination	0	bool
-clone	signal_stack_fault	0	bool
-clone	signal_child	0	bool
-clone	signal_continue	0	bool
-clone	signal_stop	0	bool
-clone	signal_terminal_stop	0	bool
-clone	signal_tty_read	0	bool
-clone	signal_tty_write	0	bool
-clone	signal_urgent	0	bool
-clone	signal_cpu_exceeded	0	bool
-clone	signal_file_size_exceeded	0	bool
-clone	signal_virtual_alarm	0	bool
-clone	signal_prof_alarm	0	bool
-clone	signal_window_size_change	0	bool
-clone	signal_io	0	bool
-clone	signal_power	0	bool
-vfork
-umask	mode_value	1	int32
-umask	mode_uid	0	bool
-umask	mode_gid	0	bool
-umask	mode_sticky_bit	0	bool
-umask	mode_R_user	0	bool
-umask	mode_W_user	0	bool
-umask	mode_X_user	0	bool
-umask	mode_R_group	0	bool
-umask	mode_W_group	0	bool
-umask	mode_X_group	0	bool
-umask	mode_R_others	0	bool
-umask	mode_W_others	0	bool
-umask	mode_X_others	0	bool
-flock	descriptor	0	int32
-flock	operation_value	0	int32
-flock	operation	0	byte
-setxattr	given_pathname	0	variable32
-setxattr	full_pathname	1	variable32
-setxattr	xattr_name	0	variable32
-setxattr	value_ptr	1	int64
-setxattr	value_size	0	int64
-setxattr	value_written	1	variable32
-setxattr	flag_value	1	int32
-setxattr	flag_xattr_create	0	bool
-setxattr	flag_xattr_replace	0	bool
-lsetxattr	given_pathname	0	variable32
-lsetxattr	full_pathname	1	variable32
-lsetxattr	xattr_name	0	variable32
-lsetxattr	value_ptr	1	int64
-lsetxattr	value_size	0	int64
-lsetxattr	value_written	1	variable32
-lsetxattr	flag_value	1	int32
-lsetxattr	flag_xattr_create	0	bool
-lsetxattr	flag_xattr_replace	0	bool
-getxattr	given_pathname	0	variable32
-getxattr	full_pathname	1	variable32
-getxattr	xattr_name	0	variable32
-getxattr	value_ptr	1	int64
-getxattr	value_size	0	int64
-getxattr	value_read	1	variable32
-lgetxattr	given_pathname	0	variable32
-lgetxattr	full_pathname	1	variable32
-lgetxattr	xattr_name	0	variable32
-lgetxattr	value_ptr	1	int64
-lgetxattr	value_size	0	int64
-lgetxattr	value_read	1	variable32
-fsetxattr	descriptor	0	int32
-fsetxattr	xattr_name	0	variable32
-fsetxattr	value_ptr	1	int64
-fsetxattr	value_size	0	int64
-fsetxattr	value_written	1	variable32
-fsetxattr	flag_value	1	int32
-fsetxattr	flag_xattr_create	0	bool
-fsetxattr	flag_xattr_replace	0	bool
-fgetxattr	descriptor	0	int32
-fgetxattr	xattr_name	0	variable32
-fgetxattr	value_ptr	1	int64
-fgetxattr	value_size	0	int64
-fgetxattr	value_read	1	variable32
-listxattr	given_pathname	0	variable32
-listxattr	full_pathname	1	variable32
-listxattr	xattr_list	0	variable32
-listxattr	list_ptr	1	int64
-listxattr	list_size	0	int64
-llistxattr	given_pathname	0	variable32
-llistxattr	full_pathname	1	variable32
-llistxattr	xattr_list	0	variable32
-llistxattr	list_ptr	1	int64
-llistxattr	list_size	0	int64
-flistxattr	descriptor	0	int32
-flistxattr	xattr_list	0	variable32
-flistxattr	list_ptr	1	int64
-flistxattr	list_size	0	int64
-removexattr	given_pathname	0	variable32
-removexattr	full_pathname	1	variable32
-removexattr	xattr_name	0	variable32
-lremovexattr	given_pathname	0	variable32
-lremovexattr	full_pathname	1	variable32
-lremovexattr	xattr_name	0	variable32
-fremovexattr	descriptor	0	int32
-fremovexattr	xattr_name	0	variable32
-setsid
-setpgid	pid	0	int32
-setpgid	pgid	0	int32
-getrlimit	resource_value	1	int32
-getrlimit	resource	0	byte
-getrlimit	resource_soft_limit	0	int64
-getrlimit	resource_hard_limit	0	int64
-setrlimit	resource_value	1	int32
-setrlimit	resource	0	byte
-setrlimit	resource_soft_limit	0	int64
-setrlimit	resource_hard_limit	0	int64
-socket	domain	0	int32
-socket	type	0	int32
-socket	protocol	0	int32
+Common	284	time_called	1	int64
+Common	286	time_returned	1	int64
+Common	285	time_recorded	1	int64
+Common	67	executing_pid	1	int32
+Common	70	executing_tid	1	int32
+Common	68	executing_ppid	1	int32
+Common	71	executing_uid	1	int32
+Common	69	executing_sid	1	int32
+Common	66	executing_pgid	1	int32
+Common	64	errno_number	1	int32
+Common	65	errno_string	1	variable32
+Common	214	return_value	1	int64
+Common	289	unique_id	0	int64
+read	57	descriptor	0	int32
+read	32	buffer_ptr	1	int64
+read	34	bytes_requested	0	int64
+read	55	data_read	1	variable32
+write	57	descriptor	0	int32
+write	32	buffer_ptr	1	int64
+write	34	bytes_requested	0	int64
+write	56	data_written	1	variable32
+lseek	57	descriptor	0	int32
+lseek	192	offset	0	int64
+lseek	297	whence_value	1	int32
+lseek	296	whence	0	byte
+mmap	246	start_address	0	int64
+mmap	154	length	0	int64
+mmap	205	protection_value	1	int32
+mmap	202	protection_exec	0	bool
+mmap	204	protection_read	0	bool
+mmap	206	protection_write	0	bool
+mmap	203	protection_none	0	bool
+mmap	139	flags_value	1	int32
+mmap	91	flag_fixed	0	bool
+mmap	119	flag_shared	0	bool
+mmap	113	flag_private	0	bool
+mmap	73	flag_32bit	0	bool
+mmap	74	flag_anonymous	0	bool
+mmap	82	flag_denywrite	0	bool
+mmap	87	flag_executable	0	bool
+mmap	88	flag_file	0	bool
+mmap	92	flag_grows_down	0	bool
+mmap	93	flag_huge_tlb	0	bool
+mmap	96	flag_locked	0	bool
+mmap	109	flag_non_block	0	bool
+mmap	108	flag_no_reserve	0	bool
+mmap	112	flag_populate	0	bool
+mmap	121	flag_stack	0	bool
+mmap	57	descriptor	0	int32
+mmap	192	offset	0	int64
+fstat	57	descriptor	0	int32
+fstat	31	buffer_address	1	int64
+fstat	257	stat_result_raw	1	variable32
+fstat	251	stat_result_dev	1	int32
+fstat	253	stat_result_ino	1	int32
+fstat	254	stat_result_mode	1	int32
+fstat	256	stat_result_nlink	1	int32
+fstat	260	stat_result_uid	1	int32
+fstat	252	stat_result_gid	1	int32
+fstat	258	stat_result_rdev	1	int32
+fstat	259	stat_result_size	1	int64
+fstat	248	stat_result_blksize	1	int32
+fstat	249	stat_result_blocks	1	int32
+fstat	247	stat_result_atime	1	int64
+fstat	255	stat_result_mtime	1	int64
+fstat	250	stat_result_ctime	1	int64
+fstatat	57	descriptor	0	int32
+fstatat	151	given_pathname	0	variable32
+fstatat	31	buffer_address	1	int64
+fstatat	257	stat_result_raw	1	variable32
+fstatat	251	stat_result_dev	1	int32
+fstatat	253	stat_result_ino	1	int32
+fstatat	254	stat_result_mode	1	int32
+fstatat	256	stat_result_nlink	1	int32
+fstatat	260	stat_result_uid	1	int32
+fstatat	252	stat_result_gid	1	int32
+fstatat	258	stat_result_rdev	1	int32
+fstatat	259	stat_result_size	1	int64
+fstatat	248	stat_result_blksize	1	int32
+fstatat	249	stat_result_blocks	1	int32
+fstatat	247	stat_result_atime	1	int64
+fstatat	255	stat_result_mtime	1	int64
+fstatat	250	stat_result_ctime	1	int64
+fstatat	139	flags_value	1	int32
+fstatat	136	flags_at_empty_path	0	bool
+fstatat	137	flags_at_no_automount	0	bool
+fstatat	138	flags_at_symlink_nofollow	0	bool
+pread	57	descriptor	0	int32
+pread	32	buffer_ptr	1	int64
+pread	34	bytes_requested	0	int64
+pread	192	offset	0	int64
+pread	55	data_read	1	variable32
+pwrite	57	descriptor	0	int32
+pwrite	32	buffer_ptr	1	int64
+pwrite	34	bytes_requested	0	int64
+pwrite	192	offset	0	int64
+pwrite	56	data_written	1	variable32
+readv	57	descriptor	1	int32
+readv	54	count	1	int32
+readv	153	iov_number	0	int32
+readv	32	buffer_ptr	1	int64
+readv	34	bytes_requested	0	int64
+readv	55	data_read	1	variable32
+writev	57	descriptor	1	int32
+writev	54	count	1	int32
+writev	153	iov_number	0	int32
+writev	32	buffer_ptr	1	int64
+writev	34	bytes_requested	0	int64
+writev	56	data_written	1	variable32
+fcntl	57	descriptor	0	int32
+fcntl	52	command_value	1	int32
+fcntl	30	argument_value	1	int32
+fcntl	37	command_dup	0	bool
+fcntl	38	command_get_descriptor_flags	0	bool
+fcntl	45	command_set_descriptor_flags	0	bool
+fcntl	3	argument_descriptor_flag_exec_close	0	bool
+fcntl	43	command_get_status_flags	0	bool
+fcntl	51	command_set_status_flags	0	bool
+fcntl	26	argument_status_flag_read_only	0	bool
+fcntl	29	argument_status_flag_write_only	0	bool
+fcntl	25	argument_status_flag_read_and_write	0	bool
+fcntl	13	argument_status_flag_append	0	bool
+fcntl	14	argument_status_flag_async	0	bool
+fcntl	15	argument_status_flag_create	0	bool
+fcntl	16	argument_status_flag_direct	0	bool
+fcntl	17	argument_status_flag_directory	0	bool
+fcntl	18	argument_status_flag_exclusive	0	bool
+fcntl	19	argument_status_flag_largefile	0	bool
+fcntl	20	argument_status_flag_no_access_time	0	bool
+fcntl	22	argument_status_flag_no_controlling_terminal	0	bool
+fcntl	24	argument_status_flag_no_follow	0	bool
+fcntl	21	argument_status_flag_no_blocking_mode	0	bool
+fcntl	23	argument_status_flag_no_delay	0	bool
+fcntl	27	argument_status_flag_synchronous	0	bool
+fcntl	28	argument_status_flag_truncate	0	bool
+fcntl	47	command_set_lock	0	bool
+fcntl	48	command_set_lock_wait	0	bool
+fcntl	40	command_get_lock	0	bool
+fcntl	140	flock_pointer	1	int64
+fcntl	161	lock_type	1	int32
+fcntl	162	lock_type_read	0	bool
+fcntl	164	lock_type_write	0	bool
+fcntl	163	lock_type_unlocked	0	bool
+fcntl	165	lock_whence	1	int32
+fcntl	168	lock_whence_start	0	bool
+fcntl	166	lock_whence_current	0	bool
+fcntl	167	lock_whence_end	0	bool
+fcntl	160	lock_start	1	int32
+fcntl	158	lock_length	1	int32
+fcntl	159	lock_pid	1	int32
+fcntl	41	command_get_process_id	0	bool
+fcntl	49	command_set_process_id	0	bool
+fcntl	42	command_get_signal	0	bool
+fcntl	50	command_set_signal	0	bool
+fcntl	46	command_set_lease	0	bool
+fcntl	39	command_get_lease	0	bool
+fcntl	4	argument_lease_read	0	bool
+fcntl	6	argument_lease_write	0	bool
+fcntl	5	argument_lease_remove	0	bool
+fcntl	44	command_notify	0	bool
+fcntl	7	argument_notify_access	0	bool
+fcntl	11	argument_notify_modify	0	bool
+fcntl	9	argument_notify_create	0	bool
+fcntl	10	argument_notify_delete	0	bool
+fcntl	12	argument_notify_rename	0	bool
+fcntl	8	argument_notify_attribute	0	bool
+ioctl	57	descriptor	0	int32
+ioctl	209	request	0	int32
+ioctl	198	parameter	1	int64
+ioctl	152	ioctl_buffer	1	variable32
+ioctl	33	buffer_size	0	int64
+fsync	57	descriptor	0	int32
+open	151	given_pathname	0	variable32
+open	145	full_pathname	1	variable32
+open	195	open_value	1	int32
+open	116	flag_read_only	0	bool
+open	132	flag_write_only	0	bool
+open	115	flag_read_and_write	0	bool
+open	75	flag_append	0	bool
+open	76	flag_async	0	bool
+open	80	flag_close_on_exec	0	bool
+open	81	flag_create	0	bool
+open	83	flag_direct	0	bool
+open	84	flag_directory	0	bool
+open	86	flag_exclusive	0	bool
+open	95	flag_largefile	0	bool
+open	103	flag_no_access_time	0	bool
+open	105	flag_no_controlling_terminal	0	bool
+open	107	flag_no_follow	0	bool
+open	104	flag_no_blocking_mode	0	bool
+open	106	flag_no_delay	0	bool
+open	124	flag_synchronous	0	bool
+open	127	flag_truncate	0	bool
+open	185	mode_value	1	int32
+open	184	mode_uid	0	bool
+open	181	mode_gid	0	bool
+open	183	mode_sticky_bit	0	bool
+open	172	mode_R_user	0	bool
+open	175	mode_W_user	0	bool
+open	178	mode_X_user	0	bool
+open	170	mode_R_group	0	bool
+open	173	mode_W_group	0	bool
+open	176	mode_X_group	0	bool
+open	171	mode_R_others	0	bool
+open	174	mode_W_others	0	bool
+open	177	mode_X_others	0	bool
+close	57	descriptor	0	int32
+stat	151	given_pathname	0	variable32
+stat	145	full_pathname	1	variable32
+stat	31	buffer_address	1	int64
+stat	257	stat_result_raw	1	variable32
+stat	251	stat_result_dev	1	int32
+stat	253	stat_result_ino	1	int32
+stat	254	stat_result_mode	1	int32
+stat	256	stat_result_nlink	1	int32
+stat	260	stat_result_uid	1	int32
+stat	252	stat_result_gid	1	int32
+stat	258	stat_result_rdev	1	int32
+stat	259	stat_result_size	1	int64
+stat	248	stat_result_blksize	1	int32
+stat	249	stat_result_blocks	1	int32
+stat	247	stat_result_atime	1	int64
+stat	255	stat_result_mtime	1	int64
+stat	250	stat_result_ctime	1	int64
+lstat	151	given_pathname	0	variable32
+lstat	145	full_pathname	1	variable32
+lstat	31	buffer_address	1	int64
+lstat	257	stat_result_raw	1	variable32
+lstat	251	stat_result_dev	1	int32
+lstat	253	stat_result_ino	1	int32
+lstat	254	stat_result_mode	1	int32
+lstat	256	stat_result_nlink	1	int32
+lstat	260	stat_result_uid	1	int32
+lstat	252	stat_result_gid	1	int32
+lstat	258	stat_result_rdev	1	int32
+lstat	259	stat_result_size	1	int64
+lstat	248	stat_result_blksize	1	int32
+lstat	249	stat_result_blocks	1	int32
+lstat	247	stat_result_atime	1	int64
+lstat	255	stat_result_mtime	1	int64
+lstat	250	stat_result_ctime	1	int64
+access	151	given_pathname	0	variable32
+access	145	full_pathname	1	variable32
+access	185	mode_value	1	int32
+access	182	mode_read	0	bool
+access	186	mode_write	0	bool
+access	179	mode_execute	0	bool
+access	180	mode_exist	0	bool
+faccessat	57	descriptor	0	int32
+faccessat	151	given_pathname	0	variable32
+faccessat	145	full_pathname	1	variable32
+faccessat	185	mode_value	1	int32
+faccessat	182	mode_read	0	bool
+faccessat	186	mode_write	0	bool
+faccessat	179	mode_execute	0	bool
+faccessat	180	mode_exist	0	bool
+faccessat	139	flags_value	1	int32
+faccessat	135	flags_at_eaccess	0	bool
+faccessat	138	flags_at_symlink_nofollow	0	bool
+execve	151	given_pathname	1	variable32
+execve	145	full_pathname	1	variable32
+execve	2	argument_address	1	int64
+execve	63	environment_address	1	int64
+execve	53	continuation_number	0	int32
+execve	1	argument	1	variable32
+execve	62	environment	1	variable32
+truncate	151	given_pathname	0	variable32
+truncate	145	full_pathname	1	variable32
+truncate	287	truncate_length	0	int64
+ftruncate	57	descriptor	0	int32
+ftruncate	287	truncate_length	0	int64
+chdir	151	given_pathname	0	variable32
+chdir	145	full_pathname	1	variable32
+mkdir	151	given_pathname	0	variable32
+mkdir	145	full_pathname	1	variable32
+mkdir	185	mode_value	1	int32
+mkdir	184	mode_uid	0	bool
+mkdir	181	mode_gid	0	bool
+mkdir	183	mode_sticky_bit	0	bool
+mkdir	172	mode_R_user	0	bool
+mkdir	175	mode_W_user	0	bool
+mkdir	178	mode_X_user	0	bool
+mkdir	170	mode_R_group	0	bool
+mkdir	173	mode_W_group	0	bool
+mkdir	176	mode_X_group	0	bool
+mkdir	171	mode_R_others	0	bool
+mkdir	174	mode_W_others	0	bool
+mkdir	177	mode_X_others	0	bool
+mkdirat	57	descriptor	0	int32
+mkdirat	58	descriptor_current_working_directory	0	bool
+mkdirat	151	given_pathname	0	variable32
+mkdirat	145	full_pathname	1	variable32
+mkdirat	185	mode_value	1	int32
+mkdirat	184	mode_uid	0	bool
+mkdirat	181	mode_gid	0	bool
+mkdirat	183	mode_sticky_bit	0	bool
+mkdirat	172	mode_R_user	0	bool
+mkdirat	175	mode_W_user	0	bool
+mkdirat	178	mode_X_user	0	bool
+mkdirat	170	mode_R_group	0	bool
+mkdirat	173	mode_W_group	0	bool
+mkdirat	176	mode_X_group	0	bool
+mkdirat	171	mode_R_others	0	bool
+mkdirat	174	mode_W_others	0	bool
+mkdirat	177	mode_X_others	0	bool
+rmdir	151	given_pathname	0	variable32
+rmdir	145	full_pathname	1	variable32
+creat	151	given_pathname	0	variable32
+creat	145	full_pathname	1	variable32
+creat	185	mode_value	1	int32
+creat	184	mode_uid	0	bool
+creat	181	mode_gid	0	bool
+creat	183	mode_sticky_bit	0	bool
+creat	172	mode_R_user	0	bool
+creat	175	mode_W_user	0	bool
+creat	178	mode_X_user	0	bool
+creat	170	mode_R_group	0	bool
+creat	173	mode_W_group	0	bool
+creat	176	mode_X_group	0	bool
+creat	171	mode_R_others	0	bool
+creat	174	mode_W_others	0	bool
+creat	177	mode_X_others	0	bool
+link	150	given_oldpathname	0	variable32
+link	144	full_oldpathname	1	variable32
+link	148	given_newpathname	0	variable32
+link	142	full_newpathname	1	variable32
+unlink	151	given_pathname	0	variable32
+unlink	145	full_pathname	1	variable32
+symlink	283	target_pathname	0	variable32
+symlink	151	given_pathname	0	variable32
+symlink	145	full_pathname	1	variable32
+symlinkat	283	target_pathname	0	variable32
+symlinkat	187	new_descriptor	0	int32
+symlinkat	188	new_descriptor_current_working_directory	0	bool
+symlinkat	151	given_pathname	0	variable32
+symlinkat	145	full_pathname	1	variable32
+readlink	151	given_pathname	0	variable32
+readlink	145	full_pathname	1	variable32
+readlink	155	link_value	0	variable32
+readlink	31	buffer_address	1	int64
+readlink	33	buffer_size	1	int32
+chmod	151	given_pathname	0	variable32
+chmod	145	full_pathname	1	variable32
+chmod	185	mode_value	1	int32
+chmod	184	mode_uid	0	bool
+chmod	181	mode_gid	0	bool
+chmod	183	mode_sticky_bit	0	bool
+chmod	172	mode_R_user	0	bool
+chmod	175	mode_W_user	0	bool
+chmod	178	mode_X_user	0	bool
+chmod	170	mode_R_group	0	bool
+chmod	173	mode_W_group	0	bool
+chmod	176	mode_X_group	0	bool
+chmod	171	mode_R_others	0	bool
+chmod	174	mode_W_others	0	bool
+chmod	177	mode_X_others	0	bool
+chown	151	given_pathname	0	variable32
+chown	145	full_pathname	1	variable32
+chown	190	new_owner	0	int32
+chown	189	new_group	0	int32
+utime	151	given_pathname	0	variable32
+utime	145	full_pathname	1	variable32
+utime	0	access_time	1	int64
+utime	169	mod_time	1	int64
+utimes	151	given_pathname	0	variable32
+utimes	145	full_pathname	1	variable32
+utimes	0	access_time	1	int64
+utimes	169	mod_time	1	int64
+mknod	151	given_pathname	0	variable32
+mknod	145	full_pathname	1	variable32
+mknod	185	mode_value	0	int32
+mknod	288	type	0	byte
+mknod	184	mode_uid	0	bool
+mknod	181	mode_gid	0	bool
+mknod	183	mode_sticky_bit	0	bool
+mknod	172	mode_R_user	0	bool
+mknod	175	mode_W_user	0	bool
+mknod	178	mode_X_user	0	bool
+mknod	170	mode_R_group	0	bool
+mknod	173	mode_W_group	0	bool
+mknod	176	mode_X_group	0	bool
+mknod	171	mode_R_others	0	bool
+mknod	174	mode_W_others	0	bool
+mknod	177	mode_X_others	0	bool
+mknod	59	dev	1	int32
+mknodat	57	descriptor	0	int32
+mknodat	151	given_pathname	0	variable32
+mknodat	145	full_pathname	1	variable32
+mknodat	185	mode_value	0	int32
+mknodat	288	type	0	byte
+mknodat	184	mode_uid	0	bool
+mknodat	181	mode_gid	0	bool
+mknodat	183	mode_sticky_bit	0	bool
+mknodat	172	mode_R_user	0	bool
+mknodat	175	mode_W_user	0	bool
+mknodat	178	mode_X_user	0	bool
+mknodat	170	mode_R_group	0	bool
+mknodat	173	mode_W_group	0	bool
+mknodat	176	mode_X_group	0	bool
+mknodat	171	mode_R_others	0	bool
+mknodat	174	mode_W_others	0	bool
+mknodat	177	mode_X_others	0	bool
+mknodat	59	dev	1	int32
+munmap	246	start_address	0	int64
+munmap	154	length	0	int64
+pipe	208	read_descriptor	0	int32
+pipe	298	write_descriptor	0	int32
+exit	72	exit_status	0	int32
+exit	146	generated	0	bool
+fork	-1
+dup	57	descriptor	0	int32
+dup2	193	old_descriptor	0	int32
+dup2	187	new_descriptor	0	int32
+rename	149	given_oldname	0	variable32
+rename	143	full_oldname	1	variable32
+rename	147	given_newname	0	variable32
+rename	141	full_newname	1	variable32
+unlinkat	57	descriptor	0	int32
+unlinkat	58	descriptor_current_working_directory	0	bool
+unlinkat	151	given_pathname	0	variable32
+unlinkat	145	full_pathname	1	variable32
+unlinkat	129	flag_value	1	int32
+unlinkat	117	flag_remove_directory	0	bool
+getdents	57	descriptor	0	int32
+getdents	60	dirent_buffer	1	variable32
+getdents	54	count	0	int32
+openat	57	descriptor	0	int32
+openat	58	descriptor_current_working_directory	0	bool
+openat	151	given_pathname	0	variable32
+openat	145	full_pathname	1	variable32
+openat	195	open_value	1	int32
+openat	116	flag_read_only	0	bool
+openat	132	flag_write_only	0	bool
+openat	115	flag_read_and_write	0	bool
+openat	75	flag_append	0	bool
+openat	76	flag_async	0	bool
+openat	80	flag_close_on_exec	0	bool
+openat	81	flag_create	0	bool
+openat	83	flag_direct	0	bool
+openat	84	flag_directory	0	bool
+openat	86	flag_exclusive	0	bool
+openat	95	flag_largefile	0	bool
+openat	103	flag_no_access_time	0	bool
+openat	105	flag_no_controlling_terminal	0	bool
+openat	107	flag_no_follow	0	bool
+openat	104	flag_no_blocking_mode	0	bool
+openat	106	flag_no_delay	0	bool
+openat	124	flag_synchronous	0	bool
+openat	127	flag_truncate	0	bool
+openat	185	mode_value	1	int32
+openat	184	mode_uid	0	bool
+openat	181	mode_gid	0	bool
+openat	183	mode_sticky_bit	0	bool
+openat	172	mode_R_user	0	bool
+openat	175	mode_W_user	0	bool
+openat	178	mode_X_user	0	bool
+openat	170	mode_R_group	0	bool
+openat	173	mode_W_group	0	bool
+openat	176	mode_X_group	0	bool
+openat	171	mode_R_others	0	bool
+openat	174	mode_W_others	0	bool
+openat	177	mode_X_others	0	bool
+linkat	193	old_descriptor	0	int32
+linkat	194	old_descriptor_current_working_directory	0	bool
+linkat	150	given_oldpathname	0	variable32
+linkat	144	full_oldpathname	1	variable32
+linkat	187	new_descriptor	0	int32
+linkat	188	new_descriptor_current_working_directory	0	bool
+linkat	148	given_newpathname	0	variable32
+linkat	142	full_newpathname	1	variable32
+linkat	129	flag_value	1	int32
+linkat	85	flag_empty_path	0	bool
+linkat	122	flag_symlink_follow	0	bool
+fchmod	57	descriptor	0	int32
+fchmod	185	mode_value	1	int32
+fchmod	184	mode_uid	0	bool
+fchmod	181	mode_gid	0	bool
+fchmod	183	mode_sticky_bit	0	bool
+fchmod	172	mode_R_user	0	bool
+fchmod	175	mode_W_user	0	bool
+fchmod	178	mode_X_user	0	bool
+fchmod	170	mode_R_group	0	bool
+fchmod	173	mode_W_group	0	bool
+fchmod	176	mode_X_group	0	bool
+fchmod	171	mode_R_others	0	bool
+fchmod	174	mode_W_others	0	bool
+fchmod	177	mode_X_others	0	bool
+fchmodat	57	descriptor	0	int32
+fchmodat	151	given_pathname	0	variable32
+fchmodat	185	mode_value	1	int32
+fchmodat	184	mode_uid	0	bool
+fchmodat	181	mode_gid	0	bool
+fchmodat	183	mode_sticky_bit	0	bool
+fchmodat	172	mode_R_user	0	bool
+fchmodat	175	mode_W_user	0	bool
+fchmodat	178	mode_X_user	0	bool
+fchmodat	170	mode_R_group	0	bool
+fchmodat	173	mode_W_group	0	bool
+fchmodat	176	mode_X_group	0	bool
+fchmodat	171	mode_R_others	0	bool
+fchmodat	174	mode_W_others	0	bool
+fchmodat	177	mode_X_others	0	bool
+fchmodat	129	flag_value	1	int32
+fchmodat	77	flag_at_symlink_nofollow	0	bool
+utimensat	57	descriptor	0	int32
+utimensat	58	descriptor_current_working_directory	1	bool
+utimensat	151	given_pathname	1	variable32
+utimensat	145	full_pathname	1	variable32
+utimensat	0	access_time	1	int64
+utimensat	169	mod_time	1	int64
+utimensat	129	flag_value	1	int32
+utimensat	123	flag_symlink_nofollow	0	bool
+utimensat	290	utime_now	0	bool
+utimensat	291	utime_omit	0	bool
+statfs	151	given_pathname	0	variable32
+statfs	145	full_pathname	1	variable32
+statfs	31	buffer_address	1	int64
+statfs	281	statfs_result_raw	1	variable32
+statfs	282	statfs_result_type	1	int32
+statfs	264	statfs_result_bsize	1	int32
+statfs	263	statfs_result_blocks	1	int64
+statfs	262	statfs_result_bfree	1	int64
+statfs	261	statfs_result_bavail	1	int64
+statfs	266	statfs_result_files	1	int64
+statfs	265	statfs_result_ffree	1	int64
+statfs	279	statfs_result_fsid	1	int32
+statfs	280	statfs_result_namelen	1	int64
+statfs	278	statfs_result_frsize	1	int64
+statfs	267	statfs_result_flags	1	int64
+statfs	268	statfs_result_flags_mandatory_lock	0	bool
+statfs	269	statfs_result_flags_no_access_time	0	bool
+statfs	270	statfs_result_flags_no_dev	0	bool
+statfs	271	statfs_result_flags_no_directory_access_time	0	bool
+statfs	272	statfs_result_flags_no_exec	0	bool
+statfs	273	statfs_result_flags_no_set_uid	0	bool
+statfs	274	statfs_result_flags_read_only	0	bool
+statfs	275	statfs_result_flags_relative_access_time	0	bool
+statfs	276	statfs_result_flags_synchronous	0	bool
+statfs	277	statfs_result_flags_valid	0	bool
+fstatfs	57	descriptor	0	int32
+fstatfs	31	buffer_address	1	int64
+fstatfs	281	statfs_result_raw	1	variable32
+fstatfs	282	statfs_result_type	1	int32
+fstatfs	264	statfs_result_bsize	1	int32
+fstatfs	263	statfs_result_blocks	1	int64
+fstatfs	262	statfs_result_bfree	1	int64
+fstatfs	261	statfs_result_bavail	1	int64
+fstatfs	266	statfs_result_files	1	int64
+fstatfs	265	statfs_result_ffree	1	int64
+fstatfs	279	statfs_result_fsid	1	int32
+fstatfs	280	statfs_result_namelen	1	int64
+fstatfs	278	statfs_result_frsize	1	int64
+fstatfs	267	statfs_result_flags	1	int64
+fstatfs	268	statfs_result_flags_mandatory_lock	0	bool
+fstatfs	269	statfs_result_flags_no_access_time	0	bool
+fstatfs	270	statfs_result_flags_no_dev	0	bool
+fstatfs	271	statfs_result_flags_no_directory_access_time	0	bool
+fstatfs	272	statfs_result_flags_no_exec	0	bool
+fstatfs	273	statfs_result_flags_no_set_uid	0	bool
+fstatfs	274	statfs_result_flags_read_only	0	bool
+fstatfs	275	statfs_result_flags_relative_access_time	0	bool
+fstatfs	276	statfs_result_flags_synchronous	0	bool
+clone	129	flag_value	1	int64
+clone	35	child_stack_address	0	int64
+clone	199	parent_thread_id	1	int64
+clone	36	child_thread_id	1	int64
+clone	191	new_tls	1	int64
+clone	78	flag_child_cleartid	0	bool
+clone	79	flag_child_settid	0	bool
+clone	89	flag_files	0	bool
+clone	90	flag_filesystem	0	bool
+clone	94	flag_io	0	bool
+clone	97	flag_newipc	0	bool
+clone	98	flag_newnet	0	bool
+clone	99	flag_newns	0	bool
+clone	100	flag_newpid	0	bool
+clone	101	flag_newuser	0	bool
+clone	102	flag_newuts	0	bool
+clone	110	flag_parent	0	bool
+clone	111	flag_parent_settid	0	bool
+clone	114	flag_ptrace	0	bool
+clone	118	flag_settls	0	bool
+clone	120	flag_sighand	0	bool
+clone	125	flag_sysvsem	0	bool
+clone	126	flag_thread	0	bool
+clone	128	flag_untraced	0	bool
+clone	130	flag_vfork	0	bool
+clone	131	flag_vm	0	bool
+clone	223	signal_hangup	0	bool
+clone	234	signal_terminal_interrupt	0	bool
+clone	235	signal_terminal_quit	0	bool
+clone	224	signal_illegal	0	bool
+clone	238	signal_trace_trap	0	bool
+clone	215	signal_abort	0	bool
+clone	226	signal_iot_trap	0	bool
+clone	217	signal_bus	0	bool
+clone	222	signal_floating_point_exception	0	bool
+clone	227	signal_kill	0	bool
+clone	242	signal_user_defined_1	0	bool
+clone	231	signal_segv	0	bool
+clone	243	signal_user_defined_2	0	bool
+clone	228	signal_pipe	0	bool
+clone	216	signal_alarm	0	bool
+clone	237	signal_termination	0	bool
+clone	232	signal_stack_fault	0	bool
+clone	218	signal_child	0	bool
+clone	219	signal_continue	0	bool
+clone	233	signal_stop	0	bool
+clone	236	signal_terminal_stop	0	bool
+clone	239	signal_tty_read	0	bool
+clone	240	signal_tty_write	0	bool
+clone	241	signal_urgent	0	bool
+clone	220	signal_cpu_exceeded	0	bool
+clone	221	signal_file_size_exceeded	0	bool
+clone	244	signal_virtual_alarm	0	bool
+clone	230	signal_prof_alarm	0	bool
+clone	245	signal_window_size_change	0	bool
+clone	225	signal_io	0	bool
+clone	229	signal_power	0	bool
+vfork	-1
+umask	185	mode_value	1	int32
+umask	184	mode_uid	0	bool
+umask	181	mode_gid	0	bool
+umask	183	mode_sticky_bit	0	bool
+umask	172	mode_R_user	0	bool
+umask	175	mode_W_user	0	bool
+umask	178	mode_X_user	0	bool
+umask	170	mode_R_group	0	bool
+umask	173	mode_W_group	0	bool
+umask	176	mode_X_group	0	bool
+umask	171	mode_R_others	0	bool
+umask	174	mode_W_others	0	bool
+umask	177	mode_X_others	0	bool
+flock	57	descriptor	0	int32
+flock	197	operation_value	0	int32
+flock	196	operation	0	byte
+setxattr	151	given_pathname	0	variable32
+setxattr	145	full_pathname	1	variable32
+setxattr	300	xattr_name	0	variable32
+setxattr	292	value_ptr	1	int64
+setxattr	294	value_size	0	int64
+setxattr	295	value_written	1	variable32
+setxattr	129	flag_value	1	int32
+setxattr	133	flag_xattr_create	0	bool
+setxattr	134	flag_xattr_replace	0	bool
+lsetxattr	151	given_pathname	0	variable32
+lsetxattr	145	full_pathname	1	variable32
+lsetxattr	300	xattr_name	0	variable32
+lsetxattr	292	value_ptr	1	int64
+lsetxattr	294	value_size	0	int64
+lsetxattr	295	value_written	1	variable32
+lsetxattr	129	flag_value	1	int32
+lsetxattr	133	flag_xattr_create	0	bool
+lsetxattr	134	flag_xattr_replace	0	bool
+getxattr	151	given_pathname	0	variable32
+getxattr	145	full_pathname	1	variable32
+getxattr	300	xattr_name	0	variable32
+getxattr	292	value_ptr	1	int64
+getxattr	294	value_size	0	int64
+getxattr	293	value_read	1	variable32
+lgetxattr	151	given_pathname	0	variable32
+lgetxattr	145	full_pathname	1	variable32
+lgetxattr	300	xattr_name	0	variable32
+lgetxattr	292	value_ptr	1	int64
+lgetxattr	294	value_size	0	int64
+lgetxattr	293	value_read	1	variable32
+fsetxattr	57	descriptor	0	int32
+fsetxattr	300	xattr_name	0	variable32
+fsetxattr	292	value_ptr	1	int64
+fsetxattr	294	value_size	0	int64
+fsetxattr	295	value_written	1	variable32
+fsetxattr	129	flag_value	1	int32
+fsetxattr	133	flag_xattr_create	0	bool
+fsetxattr	134	flag_xattr_replace	0	bool
+fgetxattr	57	descriptor	0	int32
+fgetxattr	300	xattr_name	0	variable32
+fgetxattr	292	value_ptr	1	int64
+fgetxattr	294	value_size	0	int64
+fgetxattr	293	value_read	1	variable32
+listxattr	151	given_pathname	0	variable32
+listxattr	145	full_pathname	1	variable32
+listxattr	299	xattr_list	0	variable32
+listxattr	156	list_ptr	1	int64
+listxattr	157	list_size	0	int64
+llistxattr	151	given_pathname	0	variable32
+llistxattr	145	full_pathname	1	variable32
+llistxattr	299	xattr_list	0	variable32
+llistxattr	156	list_ptr	1	int64
+llistxattr	157	list_size	0	int64
+flistxattr	57	descriptor	0	int32
+flistxattr	299	xattr_list	0	variable32
+flistxattr	156	list_ptr	1	int64
+flistxattr	157	list_size	0	int64
+removexattr	151	given_pathname	0	variable32
+removexattr	145	full_pathname	1	variable32
+removexattr	300	xattr_name	0	variable32
+lremovexattr	151	given_pathname	0	variable32
+lremovexattr	145	full_pathname	1	variable32
+lremovexattr	300	xattr_name	0	variable32
+fremovexattr	57	descriptor	0	int32
+fremovexattr	300	xattr_name	0	variable32
+setsid	-1
+setpgid	201	pid	0	int32
+setpgid	200	pgid	0	int32
+getrlimit	213	resource_value	1	int32
+getrlimit	210	resource	0	byte
+getrlimit	212	resource_soft_limit	0	int64
+getrlimit	211	resource_hard_limit	0	int64
+setrlimit	213	resource_value	1	int32
+setrlimit	210	resource	0	byte
+setrlimit	212	resource_soft_limit	0	int64
+setrlimit	211	resource_hard_limit	0	int64
+socket	61	domain	0	int32
+socket	288	type	0	int32
+socket	207	protocol	0	int32
