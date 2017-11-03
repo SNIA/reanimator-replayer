@@ -22,7 +22,11 @@ extract-snia-nfs-write: extract-snia-nfs-write.cpp
 readtest: readtest.c
 	gcc -Wall -Werror -O2 -o $@ $^
 
+fork: fork-fd-test.c
+	gcc -Wall -Werror -O2 -o $@ $^
+
 clean:
 	rm -f ds-simple-write ds-simple-read ds-nfs-blockmap
 	rm -f  extract-snia-nfs-write readtest
 	rm -f core \#* *~
+	rm -f fork
