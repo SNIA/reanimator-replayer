@@ -1,3 +1,5 @@
+# NOTE: only append new syscalls to this file, else older DS files may not
+# replay when syscall numbers change.
 Common	time_called	1	int64
 Common	time_returned	1	int64
 Common	time_recorded	1	int64

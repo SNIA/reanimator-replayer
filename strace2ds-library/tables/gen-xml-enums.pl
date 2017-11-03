@@ -9,11 +9,13 @@ $debug = 1;
 %all_syscall_names = ();	# names of all syscalls -> 1
 %all_syscalls_fields = ();	# $syscallname{$fieldname} -> <is_nullable,type>
 
+$sysnum = 0;			# syscall number assigned by us
 $file = "snia_syscall_fields.src";
 open(FILE, "$file") || die("$file: $!");
 while(($line = <FILE>)) {
     chop $line;                 # eliminate newline
     printf(STDERR "LINE: %s\n", $line) if $debug > 1;
+    next if ($line =~ /^#/); 	# ignore comment lines
     die if ($line =~ /^$/);	# disallow empty lines
     # parse common lines: <syscallname fieldname is_nullable type>
     if ($line =~ /^(\w+)\s+(\w+)\s+([01])\s+(\w+)$/) {
@@ -27,7 +29,7 @@ while(($line = <FILE>)) {
 	$is_nullable = undef;
 	$type = undef;
     } else {
-	die("CANNOT PARSE LINE: %s\n", $line);
+	die("CANNOT PARSE LINE: \"%s\"\n", $line);
     }
     # now fill in the various structures
     if ($syscall_name eq "Common") {
@@ -46,7 +48,8 @@ while(($line = <FILE>)) {
 	printf(STDERR "\t%s\n",
 	       $all_syscalls_fields{$syscall_name}{$field_name}) if $debug > 1;
     }
-    $all_syscall_names{$syscall_name} = 1;
+    $all_syscall_names{$syscall_name} = $sysnum++
+	if (!defined($all_syscall_names{$syscall_name}));
 }
 close(FILE);
 
@@ -71,9 +74,10 @@ printf(FILE " */\n");
 printf(FILE "#ifdef USE_ENUMS\n");
 printf(FILE "enum syscall_names {\n");
 $count = 0;
-foreach $k (sort {$a cmp $b} keys %all_syscall_names) {
-    printf(FILE "\tSYSCALL_NAME_%s = %d,\n", uc($k), $count);
-    $count++;
+foreach $k (sort {$all_syscall_names{$a} <=> $all_syscall_names{$b}}
+	    keys %all_syscall_names) {
+    printf(FILE "\tSYSCALL_NAME_%s = %d,\n", uc($k), $all_syscall_names{$k});
+    $count++;			# to count for max_syscalls
 }
 printf(FILE "\tMAX_SYSCALL_NAMES = %d\n", $count);
 printf(FILE "};\n");
@@ -128,9 +132,13 @@ $infile = "snia_syscall_fields.src";
 $outfile = "snia_syscall_fields.table";
 open(INFILE, "$infile") || die("$infile: $!");
 open(OUTFILE, ">$outfile") || die("$outfile: $!");
+printf(OUTFILE "# SNIA SYSCALL TABLE FILE\n");
+printf(OUTFILE "# DO NOT EDIT BY HAND: Auto-generated on %s\n", $now_string);
+printf(OUTFILE "# Format: syscall_name syscall_id field_id field_name is_nullable type\n");
 while(($line = <INFILE>)) {
     chop $line;                 # eliminate newline
     printf(STDERR "LINE: %s\n", $line) if $debug > 1;
+    next if ($line =~ /^#/); 	# ignore comment lines
     die if ($line =~ /^$/);	# disallow empty lines
     # parse common lines: <syscallname fieldname is_nullable type>
     if ($line =~ /^(\w+)\s+(\w+)\s+([01])\s+(\w+)$/) {
@@ -144,16 +152,20 @@ while(($line = <INFILE>)) {
 	$is_nullable = undef;
 	$type = undef;
     } else {
-	die("CANNOT PARSE LINE: %s\n", $line);
+	die("CANNOT PARSE LINE: \"%s\"\n", $line);
     }
     # now output a line
     if (defined($field_name)) {
-	printf(OUTFILE "%s\t%d\t%s\t%d\t%s\n",
+	printf(OUTFILE "%s\t%d\t%d\t%s\t%d\t%s\n",
 	       $syscall_name,
+	       $all_syscall_names{$syscall_name},
 	       $all_field_names{$field_name},
 	       $field_name, $is_nullable, $type);
     } else { # use -1 for field ID if no fields
-	printf(OUTFILE "%s\t%d\n", $syscall_name, -1);
+	printf(OUTFILE "%s\t%d\t%d\n",
+	       $syscall_name,
+	       $all_syscall_names{$syscall_name},
+	       -1);
     }
 
 }
