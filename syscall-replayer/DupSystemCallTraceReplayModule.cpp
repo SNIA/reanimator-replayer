@@ -41,10 +41,20 @@ void DupSystemCallTraceReplayModule::processRow() {
   pid_t pid = executing_pid();
   int fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
 
-  replayed_ret_val_ = dup(fd);
-
   // Map replayed duplicated file descriptor to traced duplicated file descriptor
   int fd_flags = replayer_resources_manager_.get_flags(pid, descriptor_.val());
   int new_fd_flags = fd_flags & ~O_CLOEXEC;
+
+  if (fd == SYSCALL_SIMULATED) {
+    /*
+     * FD for the dup system call originated from a socket().
+     * The system call will not be replayed.
+     * Traced return value will be returned.
+     */
+    replayed_ret_val_ = return_value_.val();
+  } else {
+    // replay the dup system call
+    replayed_ret_val_ = dup(fd);
+  }
   replayer_resources_manager_.add_fd(pid, return_value(), replayed_ret_val_, new_fd_flags);
 }
