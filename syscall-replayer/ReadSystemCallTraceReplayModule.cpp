@@ -52,10 +52,9 @@ void ReadSystemCallTraceReplayModule::processRow() {
     /*
      * FD for the read call originated from an AF_UNIX socket().
      * The system call will not be replayed.
-     * Original return value and data will be returned.
+     * Original return value will be returned.
      */
     replayed_ret_val_ = return_value_.val();
-    memcpy(buffer, data_read_.val(), replayed_ret_val_);
     return;
   }
   // Replay read system call as normal.
@@ -117,10 +116,9 @@ void PReadSystemCallTraceReplayModule::processRow() {
     /*
      * FD for the PRead system call originated from a socket().
      * The system call will not be replayed.
-     * Traced return value and data will be returned.
+     * Traced return value will be returned.
      */
     replayed_ret_val_ = return_value_.val();
-    memcpy(buffer, data_read_.val(), replayed_ret_val_);
     return;
   }
 

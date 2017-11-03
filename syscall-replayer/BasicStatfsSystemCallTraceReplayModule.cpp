@@ -172,19 +172,9 @@ void FStatfsSystemCallTraceReplayModule::processRow() {
     /*
      * FD for the fstatfs system call originated from a socket().
      * The system call will not be replayed.
-     * Traced return value and data will be returned.
+     * Traced return value will be returned.
      */
     replayed_ret_val_ = return_value_.val();
-    statfs_buf.f_type = (u_int) statfs_result_type_.val();
-    statfs_buf.f_bsize = (u_int) statfs_result_bsize_.val();
-    statfs_buf.f_blocks = (u_long) statfs_result_blocks_.val();
-    statfs_buf.f_bfree = (u_long) statfs_result_bfree_.val();
-    statfs_buf.f_bavail = (u_long) statfs_result_bavail_.val();
-    statfs_buf.f_files = (u_long) statfs_result_files_.val();
-    statfs_buf.f_ffree = (u_long) statfs_result_ffree_.val();
-    statfs_buf.f_namelen = (u_long) statfs_result_namelen_.val();
-    statfs_buf.f_frsize = (u_long) statfs_result_frsize_.val();
-    statfs_buf.f_flags = (u_long) statfs_result_flags_.val();
     return;
   }
   // replay the fstatfs system call
