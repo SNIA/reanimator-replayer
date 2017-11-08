@@ -253,6 +253,9 @@ private:
   // Maps Openat System Call <field, value> pairs
   void makeOpenatArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
+  // Maps Openat System Call <field, value> pairs
+  void makeOpenatArgsMap2(void **args_map, long *args, void **v_args);
+
   // Processes individual flag and mode bits
   void process_Flag_and_Mode_Args(SysCallArgsMap &args_map,
 				  unsigned int &num,
@@ -449,11 +452,16 @@ private:
   // Maps Statfs System Call <field, value> pairs
   void makeStatfsArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
+  // Maps Statfs System Call <field, value> pairs
+  void makeStatfsArgsMap2(void **args_map, long *args, void **v_args);
+
   /*
    * Maps individual mount option flags for statfs system call to its
    * corresponding field name
    */
   u_int processStatfsFlags(SysCallArgsMap &args_map, u_int statfs_flags);
+
+  u_int processStatfsFlags2(void **args_map, u_int statfs_flags);
 
   // Maps FStatfs System Call <field, value> pairs
   void makeFStatfsArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
@@ -613,6 +621,9 @@ private:
   // Maps Getdents System Call <field, value> pairs
   void makeGetdentsArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
+  // Maps Getdents System Call <field, value> pairs
+  void makeGetdentsArgsMap2(void **args_map, long *args, void **v_args);
+
   // Maps Getrlimit System Call <field, value> pairs
   void makeGetrlimitArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
@@ -621,6 +632,9 @@ private:
 
   // Maps Ioctl System Call <field, value> pairs
   void makeIoctlArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+
+  // Maps Ioctl System Call <field, value> pairs
+  void makeIoctlArgsMap2(void **args_map, long *args, void **v_args);
 
   // Maps Clone System Call <field, value> pairs
   void makeCloneArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);

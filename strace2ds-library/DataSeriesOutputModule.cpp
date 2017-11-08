@@ -166,12 +166,16 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["ftruncate"] = &DataSeriesOutputModule::makeFTruncateArgsMap;
   // getdents system call
   func_ptr_map_["getdents"] = &DataSeriesOutputModule::makeGetdentsArgsMap;
+  // getdents system call
+  func_ptr_map_2["getdents"] = &DataSeriesOutputModule::makeGetdentsArgsMap2;
   // getrlimit system call
   func_ptr_map_["getrlimit"] = &DataSeriesOutputModule::makeGetrlimitArgsMap;
   // getxattr system call
   func_ptr_map_["getxattr"] = &DataSeriesOutputModule::makeGetxattrArgsMap;
   // ioctl system call
   func_ptr_map_["ioctl"] = &DataSeriesOutputModule::makeIoctlArgsMap;
+  // ioctl system call
+  func_ptr_map_2["ioctl"] = &DataSeriesOutputModule::makeIoctlArgsMap2;
   // lgetxattr system call
   func_ptr_map_["lgetxattr"] = &DataSeriesOutputModule::makeLGetxattrArgsMap;
   // link system call
@@ -214,6 +218,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_2["open"] = &DataSeriesOutputModule::makeOpenArgsMap2;
   // openat system call
   func_ptr_map_["openat"] = &DataSeriesOutputModule::makeOpenatArgsMap;
+  // openat system call
+  func_ptr_map_2["openat"] = &DataSeriesOutputModule::makeOpenatArgsMap2;
   // pipe system call
   func_ptr_map_["pipe"] = &DataSeriesOutputModule::makePipeArgsMap;
   // pread system call
@@ -250,6 +256,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_2["stat"] = &DataSeriesOutputModule::makeStatArgsMap2;
   // statfs system call
   func_ptr_map_["statfs"] = &DataSeriesOutputModule::makeStatfsArgsMap;
+  // statfs system call
+  func_ptr_map_2["statfs"] = &DataSeriesOutputModule::makeStatfsArgsMap2;
   // symlink system call
   func_ptr_map_["symlink"] = &DataSeriesOutputModule::makeSymlinkArgsMap;
   // symlinkat system call
@@ -916,6 +924,48 @@ void DataSeriesOutputModule::makeOpenatArgsMap(SysCallArgsMap &args_map,
     }
   }
 }
+
+void DataSeriesOutputModule::makeOpenatArgsMap2(void **args_map,
+                                              long *args,
+                                              void **v_args) {
+  int offset = 1;
+
+  // Initialize all non-nullable boolean fields to False.
+  initArgsMap2(args_map, "openat");
+
+  args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
+  if (args[0] == AT_FDCWD) {
+    args_map[SYSCALL_FIELD_DESCRIPTOR_CURRENT_WORKING_DIRECTORY] = &true_;
+  }
+
+  if (v_args[0] != NULL) {
+    args_map[SYSCALL_FIELD_GIVEN_PATHNAME] = &v_args[0];
+  } else {
+    std::cerr << "Openat: Pathname is set as NULL!!" << std::endl;
+  }
+
+  /* Setting flag values */
+  args_map[SYSCALL_FIELD_OPEN_VALUE] = &args[offset + 1];
+  u_int flag = processOpenFlags2(args_map, args[offset + 1]);
+  if (flag != 0) {
+    std::cerr << "Openat: These flags are not processed/unknown->0x";
+    std::cerr << std::hex << flag << std::dec << std::endl;
+  }
+
+  /*
+   * If openat is called with 4 arguments, set the corresponding
+   * mode value and mode bits as True.
+   */
+  if (args[offset + 1] & O_CREAT) {
+    mode_t mode = processMode2(args_map, args, offset + 2);
+    if (mode != 0) {
+      std::cerr << "Openat: These modes are not processed/unknown->0";
+      std::cerr << std::oct << mode << std::dec << std::endl;
+    }
+  }
+}
+
+
 
 /*
  * This function processes the flag and mode values passed as an arguments
@@ -2124,6 +2174,44 @@ void DataSeriesOutputModule::makeStatfsArgsMap(SysCallArgsMap &args_map,
   }
 }
 
+void DataSeriesOutputModule::makeStatfsArgsMap2(void **args_map,
+                                              long *args,
+                                              void **v_args) {
+  // Initialize all non-nullable boolean fields to False.
+  initArgsMap2(args_map, "statfs");
+
+  if (v_args[0] != NULL) {
+    args_map[SYSCALL_FIELD_GIVEN_PATHNAME] = &v_args[0];
+  } else {
+    std::cerr << "Statfs: Pathname is set as NULL!!" << std::endl;
+  }
+
+  if (v_args[1] != NULL) {
+    struct statfs *statfsbuf = (struct statfs *) v_args[1];
+
+    args_map[SYSCALL_FIELD_STATFS_RESULT_TYPE] = &statfsbuf->f_type;
+    args_map[SYSCALL_FIELD_STATFS_RESULT_BSIZE] = &statfsbuf->f_bsize;
+    args_map[SYSCALL_FIELD_STATFS_RESULT_BLOCKS] = &statfsbuf->f_blocks;
+    args_map[SYSCALL_FIELD_STATFS_RESULT_BFREE] = &statfsbuf->f_bfree;
+    args_map[SYSCALL_FIELD_STATFS_RESULT_BAVAIL] = &statfsbuf->f_bavail;
+    args_map[SYSCALL_FIELD_STATFS_RESULT_FILES] = &statfsbuf->f_files;
+    args_map[SYSCALL_FIELD_STATFS_RESULT_FFREE] = &statfsbuf->f_ffree;
+    args_map[SYSCALL_FIELD_STATFS_RESULT_FSID] = &statfsbuf->f_fsid;
+    args_map[SYSCALL_FIELD_STATFS_RESULT_NAMELEN] = &statfsbuf->f_namelen;
+    args_map[SYSCALL_FIELD_STATFS_RESULT_FRSIZE] = &statfsbuf->f_frsize;
+    args_map[SYSCALL_FIELD_STATFS_RESULT_FLAGS] = &statfsbuf->f_flags;
+
+    u_int flag = processStatfsFlags2(args_map, statfsbuf->f_flags);
+    if (flag != 0) {
+      std::cerr << "Statfs: These flag are not processed/unknown->0x";
+      std::cerr << std::hex << flag << std::dec << std::endl;
+    }
+  } else {
+    std::cerr << "Statfs: Struct statfs is set as NULL!!" << std::endl;
+  }
+}
+
+
 void DataSeriesOutputModule::makeFStatfsArgsMap(SysCallArgsMap &args_map,
 						long *args,
 						void **v_args) {
@@ -2193,6 +2281,51 @@ u_int DataSeriesOutputModule::processStatfsFlags(SysCallArgsMap &args_map,
   // set valid flag (f_flags support is implemented)
   process_Flag_and_Mode_Args(args_map, statfs_flags, ST_VALID,
            "flags_valid");
+
+  /*
+   * Return remaining statfs flags so that caller can
+   * warn of unknown flags if the statfs_flags is not set
+   * as zero.
+   */
+  return statfs_flags;
+}
+
+u_int DataSeriesOutputModule::processStatfsFlags2(void **args_map,
+                                                u_int statfs_flags) {
+  /*
+   * Process each individual statfs flag bit that has been set
+   * in the argument stafs_flags.
+   */
+  // set mandatory lock flag
+  process_Flag_and_Mode_Args2(args_map, statfs_flags, ST_MANDLOCK,
+                            SYSCALL_FIELD_STATFS_RESULT_FLAGS_MANDATORY_LOCK);
+  // set no access time flag
+  process_Flag_and_Mode_Args2(args_map, statfs_flags, ST_NOATIME,
+                            SYSCALL_FIELD_STATFS_RESULT_FLAGS_NO_ACCESS_TIME);
+  // set no dev flag
+  process_Flag_and_Mode_Args2(args_map, statfs_flags, ST_NODEV,
+                            SYSCALL_FIELD_STATFS_RESULT_FLAGS_NO_DEV);
+  // set no directory access time flag
+  process_Flag_and_Mode_Args2(args_map, statfs_flags, ST_NODIRATIME,
+                            SYSCALL_FIELD_STATFS_RESULT_FLAGS_NO_DIRECTORY_ACCESS_TIME);
+  // set no exec flag
+  process_Flag_and_Mode_Args2(args_map, statfs_flags, ST_NOEXEC,
+                            SYSCALL_FIELD_STATFS_RESULT_FLAGS_NO_EXEC);
+  // set no set uid flag
+  process_Flag_and_Mode_Args2(args_map, statfs_flags, ST_NOSUID,
+                            SYSCALL_FIELD_STATFS_RESULT_FLAGS_NO_SET_UID);
+  // set read only flag
+  process_Flag_and_Mode_Args2(args_map, statfs_flags, ST_RDONLY,
+                            SYSCALL_FIELD_STATFS_RESULT_FLAGS_READ_ONLY);
+  // set relative access time flag
+  process_Flag_and_Mode_Args2(args_map, statfs_flags, ST_RELATIME,
+                            SYSCALL_FIELD_STATFS_RESULT_FLAGS_RELATIVE_ACCESS_TIME);
+  // set synchronous flag
+  process_Flag_and_Mode_Args2(args_map, statfs_flags, ST_SYNCHRONOUS,
+                            SYSCALL_FIELD_STATFS_RESULT_FLAGS_SYNCHRONOUS);
+  // set valid flag (f_flags support is implemented)
+  process_Flag_and_Mode_Args2(args_map, statfs_flags, ST_VALID,
+           SYSCALL_FIELD_STATFS_RESULT_FLAGS_VALID);
 
   /*
    * Return remaining statfs flags so that caller can
@@ -3438,6 +3571,14 @@ void DataSeriesOutputModule::makeGetdentsArgsMap(SysCallArgsMap &args_map,
   args_map["count"] = &args[2];
 }
 
+void DataSeriesOutputModule::makeGetdentsArgsMap2(void **args_map,
+                                                long *args,
+                                                void **v_args) {
+  args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
+  args_map[SYSCALL_FIELD_DIRENT_BUFFER] = &v_args[0];
+  args_map[SYSCALL_FIELD_COUNT] = &args[2];
+}
+
 void DataSeriesOutputModule::makeGetrlimitArgsMap(SysCallArgsMap &args_map,
   long *args,
   void **v_args) {
@@ -3466,6 +3607,16 @@ void DataSeriesOutputModule::makeIoctlArgsMap(SysCallArgsMap &args_map,
   args_map["parameter"] = &args[2];
   args_map["ioctl_buffer"] = &v_args[0];
   args_map["buffer_size"] = &ioctl_size_;
+}
+
+void DataSeriesOutputModule::makeIoctlArgsMap2(void **args_map,
+                                             long *args,
+                                             void **v_args) {
+  args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
+  args_map[SYSCALL_FIELD_REQUEST] = &args[1];
+  args_map[SYSCALL_FIELD_PARAMETER] = &args[2];
+  args_map[SYSCALL_FIELD_IOCTL_BUFFER] = &v_args[0];
+  args_map[SYSCALL_FIELD_BUFFER_SIZE] = &ioctl_size_;
 }
 
 void DataSeriesOutputModule::makeCloneArgsMap(SysCallArgsMap &args_map,
