@@ -44,9 +44,19 @@ void IoctlSystemCallTraceReplayModule::processRow() {
   pid_t pid = executing_pid();
   int fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
   u_long request = request_.val();
-  void *buf = malloc(buffer_size_.val());
   int parameter;
 
+  if (fd == SYSCALL_SIMULATED) {
+    /*
+     * FD for the ioctl originated from a socket.
+     * The system call will not be replayed.
+     * Traced return value will be returned.
+     */
+    replayed_ret_val_ = return_value_.val();
+    return;
+  }
+
+  void *buf = malloc(buffer_size_.val());
   // If there is no buffer data, pass the parameter value as the third argument
   if (ioctl_buffer_.isNull()) {
     parameter = parameter_.val();
