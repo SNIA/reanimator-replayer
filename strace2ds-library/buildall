@@ -15,9 +15,12 @@ function runcmd
 runcmd autoreconf -v -i
 runcmd /bin/rm -fr BUILD
 runcmd mkdir -p BUILD
-if [ ! -e "./xml" ] || [ "./xml" -ot "./tables/snia_syscall_fields.table" ]
+if [ ! -e "./xml" ] || [ "./xml" -ot "./tables/snia_syscall_fields.src" ]
 then
-    runcmd ./generate-xml.sh ./tables/snia_syscall_fields.table
+    runcmd mkdir -p xml
+    runcmd cd tables
+    runcmd perl gen-xml-enums.pl
+    runcmd cd ../ 
 fi
 runcmd cp -r ./xml BUILD
 runcmd cd BUILD
