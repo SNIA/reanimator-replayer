@@ -145,8 +145,36 @@ void ReplayerResourcesManager::clone_fd_table(pid_t ppid, pid_t pid, bool shared
     fd_table_map_[pid] = p_fd_table_ptr;
     p_fd_table_ptr->increment_rc();
   } else {
-    // Make a copy
-    fd_table_map_[pid] = new FileDescriptorTableEntry(*p_fd_table_ptr);
+    //  We need to create new FD mapping for every FD in the old table.
+    std::map<int, FileDescriptorEntry*>& p_fd_table = p_fd_table_ptr->get_fd_table();
+    FileDescriptorTableEntry* clone_fd_table_ptr = new FileDescriptorTableEntry();
+    int old_fd, new_fd, traced_fd, flags;
+    for (const auto& entry : p_fd_table) {
+      old_fd = entry.second->get_fd();
+
+      /*
+       * If old_fd is valid, use dup on the old_fd to get another reference
+       * to old_fd.
+       * If old_fd in invalid, (either SYSCALL_FAILURE or SYSCALL_SIMULATED)
+       * reuse old_fd.
+       */
+      if (old_fd > 0) {
+	new_fd = dup(old_fd);
+	if (new_fd == -1) {
+	  // dup failed
+	  logger_->log_err("Cloning fd_table failed"
+			   " for pid: %d, fd %d\n", pid, new_fd);
+	}
+      } else {
+	new_fd = old_fd;
+      }
+
+      traced_fd = entry.first;
+      flags = entry.second->get_flags();
+
+      clone_fd_table_ptr->add_fd_entry(traced_fd, new_fd, flags);
+    }
+    fd_table_map_[pid] = clone_fd_table_ptr;
   }
 }
 
