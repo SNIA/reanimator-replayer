@@ -39,5 +39,15 @@ void CloseSystemCallTraceReplayModule::processRow() {
   pid_t pid = executing_pid();
   int fd = replayer_resources_manager_.remove_fd(pid, descriptor_.val());
 
+  if (fd == SYSCALL_SIMULATED) {
+    /*
+     * FD for the close call originated from a socket().
+     * The system call will not be replayed.
+     * Traced return value will be returned.
+     */
+    replayed_ret_val_ = return_value_.val();
+    return;
+  }
+
   replayed_ret_val_ = close(fd);
 }
