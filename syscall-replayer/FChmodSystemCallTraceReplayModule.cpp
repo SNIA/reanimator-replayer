@@ -44,6 +44,15 @@ void FChmodSystemCallTraceReplayModule::processRow() {
   int fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
   mode_t mode = get_mode(mode_value_.val());
 
+  if (fd == SYSCALL_SIMULATED) {
+    /*
+     * FD for the fchmod call originated from a socket().
+     * The system call will not be replayed.
+     * Traced return value will be returned.
+     */
+    replayed_ret_val_ = return_value_.val();
+    return;
+  }
   // Replay the fchmod system call
   replayed_ret_val_ = fchmod(fd, mode);
 }
@@ -77,6 +86,15 @@ void FChmodatSystemCallTraceReplayModule::processRow() {
   mode_t mode = get_mode(mode_value_.val());
   int flags = flag_value_.val();
 
+  if (fd == SYSCALL_SIMULATED) {
+    /*
+     * FD for the fchmodat call originated from a socket().
+     * The system call will not be replayed.
+     * Traced return value will be returned.
+     */
+    replayed_ret_val_ = return_value_.val();
+    return;
+  }
   // Replay the fchmodat system call
   replayed_ret_val_ = fchmodat(fd, pathname, mode, flags);
 }
