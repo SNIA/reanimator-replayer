@@ -87,6 +87,16 @@ void WritevSystemCallTraceReplayModule::processRow() {
 
   struct iovec iov[count];
 
+  if (fd == SYSCALL_SIMULATED) {
+    /*
+     * FD for the writev call originated from a socket().
+     * The system call will not be replayed.
+     * Original return value and data will be returned.
+     */
+    replayed_ret_val_ = return_value_.val();
+    return;
+  }
+
   /*
    * If iov number is equal to '-1', this means it is first record of
    * single writev system call.
