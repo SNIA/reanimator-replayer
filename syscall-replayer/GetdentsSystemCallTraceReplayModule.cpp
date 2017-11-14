@@ -56,11 +56,17 @@ void GetdentsSystemCallTraceReplayModule::processRow() {
     return;
   }
   struct dirent *buffer = (struct dirent *) malloc(count);
-  replayed_ret_val_ = syscall(SYS_getdents, fd, buffer, count);
+  if (buffer == NULL) {
+    replayed_ret_val_ = ENOMEM;
+  } else {
+    replayed_ret_val_ = syscall(SYS_getdents, fd, buffer, count);
+  }
 
   if (verify_ == true) {
     // Verify dirent buffer data and data in the trace file are same
-    if (memcmp(dirent_buffer_.val(), buffer, replayed_ret_val_) != 0) {
+    if (replayed_ret_val_ != return_value_.val() ||
+        (replayed_ret_val_ > 0 &&
+	 memcmp(dirent_buffer_.val(), buffer, replayed_ret_val_) != 0)) {
       // Data aren't same
       syscall_logger_->log_err("Verification of data in getdents failed.");
       if (!default_mode()) {
@@ -78,5 +84,6 @@ void GetdentsSystemCallTraceReplayModule::processRow() {
       }
     }
   }
-  free(buffer);
+  if (buffer != NULL)
+    free(buffer);
 }

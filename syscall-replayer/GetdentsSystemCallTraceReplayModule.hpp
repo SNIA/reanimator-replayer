@@ -23,6 +23,7 @@
 #ifndef GETDENTS_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define GETDENTS_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 
+#include <cerrno>
 #include <unistd.h>
 #include <sys/syscall.h>
 #include <dirent.h>

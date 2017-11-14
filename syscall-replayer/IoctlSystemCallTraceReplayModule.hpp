@@ -25,6 +25,7 @@
 
 #include "SystemCallTraceReplayModule.hpp"
 
+#include <cerrno>
 #include <sys/ioctl.h>
 
 class IoctlSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
