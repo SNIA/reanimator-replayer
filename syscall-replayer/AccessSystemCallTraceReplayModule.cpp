@@ -70,7 +70,7 @@ void FAccessatSystemCallTraceReplayModule::processRow() {
   int mode = get_mode(mode_value_.val());
   int flags = flags_value_.val();
 
-  if (fd == SYSCALL_SIMULATED) {
+  if (replayed_fd == SYSCALL_SIMULATED) {
     /*
      * FD for the faccessat call originated from a socket().
      * The system call will not be replayed.
