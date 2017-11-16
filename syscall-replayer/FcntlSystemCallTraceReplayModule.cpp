@@ -64,6 +64,15 @@ void FcntlSystemCallTraceReplayModule::processRow() {
   int argument = argument_value_.val();
   struct flock lock;
 
+  if (fd == SYSCALL_SIMULATED) {
+    /*
+    * FD for the Fcntl system call originated from a socket().
+    * The system call will not be replayed.
+    * Original return value will be returned.
+    */
+    replayed_ret_val_ = return_value_.val();
+    return;
+  }
   /*
    * Replay the fcntl system call If fcntl was passed a command that requires a struct flock,
    * set the values of the flock and pass it to fcntl as the third argument.

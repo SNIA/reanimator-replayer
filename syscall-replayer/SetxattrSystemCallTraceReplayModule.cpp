@@ -188,6 +188,15 @@ void FSetxattrSystemCallTraceReplayModule::processRow() {
   size_t size = value_size_.val();
   int flags = flag_value_.val();
 
+  if (fd == SYSCALL_SIMULATED) {
+     /*
+      * FD for the fsetxattr system call originated from a socket().
+      * The system call will not be replayed.
+      * Original return value will be returned.
+      */
+      replayed_ret_val_ = return_value_.val();
+      return;
+  }
   // Check to see if user wants to use pattern
   if (!pattern_data_.empty()) {
     value = new char[size];
