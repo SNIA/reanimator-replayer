@@ -496,10 +496,11 @@ process management calls, as well as during _exit.
 We don't replay setsid and setpgid, because our replayer is a single process
 and executing these two system calls will not have any side-effects.
 
-We don't replay socket, instead, we add a special mapping traced FD (socket FD)
-<-> SYSCALL_SIMULATED in the FD-map.  Any subsequent system call on the socket
-FD will not be replayed.  The traced return value will be returned.
-Additionally, we suppress data verification for any operation on socket FD.
+We don't replay socket, instead, we add a special entry to to the FD-map, to
+denote that a traced FD is a socket being emulated (SYSCALL_SIMULATED).  Any
+subsequent system call on any such (emulated) socket FD will not be
+replayed.  The traced return value will be returned.  Additionally, we
+suppress data verification for any operation on simulated socket FDs.
 
 #EZK: Say how we "fake" _exit: do we check any return value or passed value
 #at all?  What do we do, if any to mmap/etc.?  And we do have special
@@ -553,8 +554,8 @@ and umask values.  During replaying, if we encounter a CLONE_FILES flag in
 the clone system call, we assign its parent FD mapping table to the child
 and make them share the same table.  Conversely, in the case when there is
 no CLONE_FILES flag, the child would have its own FD mapping table with the
-same content of its parent table but not shared.  To create such a deep copy
-we call dup on all entries of the parent table.  To ensure that the
+same content of its parent table but not shared.  To create such a deep copy,
+we call dup(2) on all entries of the parent table.  To ensure that the
 fd-manager does not have any unused entries, we remove the entries from the
 resources mapping table for the processes that get terminated or killed.
 The fd-manager can therefore consistently handle replaying multi-threaded
