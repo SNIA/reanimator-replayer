@@ -421,17 +421,29 @@ void DataSeriesOutputModule::initConfigTable(std::ifstream &table_stream) {
   /* Special case for Common fields */
   config_table_entry_type common_field_map;
   while (getline(table_stream, line)) {
-    std::vector<std::string> split_data;
-    boost::split(split_data, line, boost::is_any_of("\t"));
+    /* Skipping Comment lines */
+    if (line.find_first_of('#', 0) != std::string::npos) {
+      continue;
+    }
+    std::istringstream iss(line);
+    std::vector<std::string> split_data {std::istream_iterator<std::string>{iss},
+                                         std::istream_iterator<std::string>{}};
 
-    if (split_data.size() != 4) {
+    if (split_data.size() != 6 && split_data.size() != 3) {
       std::cout << "Illegal field table file" << std::endl;
       exit(1);
     }
+    /* Initializing with default values for system calls without arguments (Default Constructor initializes a string as empty string )*/
     std::string extent_name = split_data[0];
-    std::string field_name = split_data[1];
-    std::string nullable_str = split_data[2];
-    std::string field_type = split_data[3];
+    std::string field_name;
+    std::string nullable_str;
+    std::string field_type;
+    /* We are ignoring  split_data[1]: syscall_id, split_data[2]: field_id for now */
+    if (split_data.size() == 6) {  
+      std::string field_name = split_data[3];
+      std::string nullable_str = split_data[4];
+      std::string field_type = split_data[5];
+    }
 
     bool nullable = false;
     if (nullable_str == "1")
