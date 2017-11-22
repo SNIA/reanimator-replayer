@@ -74,6 +74,20 @@ void LinkatSystemCallTraceReplayModule::processRow() {
   const char *new_path_name = (const char *)given_newpathname_.val();
   int flags = flag_value_.val();
 
+  if ((old_fd == SYSCALL_SIMULATED && old_path_name != NULL &&
+       old_path_name[0] != '/') ||
+      (new_fd == SYSCALL_SIMULATED && new_path_name != NULL &&
+       new_path_name[0] != '/')) {
+    /*
+     * Either old_fd or new_fd or both originated from a socket.
+     * Linkat cannot be replayed.
+     * Traced system call would have failed with ENOTDIR.
+     * The system call will not be replayed.
+     * Traced return value will be returned.
+     */
+    replayed_ret_val_ = return_value_.val();
+    return;
+  }
   // Replay the linkat system call
   replayed_ret_val_ = linkat(old_fd, old_path_name, new_fd, new_path_name, flags);
 }
