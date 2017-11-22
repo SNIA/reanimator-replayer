@@ -90,6 +90,17 @@ void OpenatSystemCallTraceReplayModule::processRow() {
   mode_t mode = get_mode(mode_value_.val());
   int traced_fd = (int)return_value_.val();
 
+  if (dirfd == SYSCALL_SIMULATED && pathname != NULL && pathname[0] != '/') {
+    /*
+     * dirfd originated from a socket, hence openat cannot be replayed.
+     * Traced system call would have failed with ENOTDIR.
+     * The system call will not be replayed.
+     * Traced return value will be returned.
+     */
+    replayed_ret_val_ = return_value_.val();
+    return;
+  }
+
   // replay the openat system call
   replayed_ret_val_ = openat(dirfd, pathname, flags, mode);
   if (traced_fd == -1 && replayed_ret_val_ != -1) {
