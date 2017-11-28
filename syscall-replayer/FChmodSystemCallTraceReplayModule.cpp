@@ -86,9 +86,10 @@ void FChmodatSystemCallTraceReplayModule::processRow() {
   mode_t mode = get_mode(mode_value_.val());
   int flags = flag_value_.val();
 
-  if (fd == SYSCALL_SIMULATED) {
+  if (fd == SYSCALL_SIMULATED && pathname != NULL && pathname[0] != '/') {
     /*
-     * FD for the fchmodat call originated from a socket().
+     * fd originated from a socket, hence fchmodat cannot be replayed.
+     * Traced system call would have failed with ENOTDIR.
      * The system call will not be replayed.
      * Traced return value will be returned.
      */
