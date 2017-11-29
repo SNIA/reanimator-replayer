@@ -90,13 +90,11 @@ void DataSeriesOutputModule::initCache() {
   extents_cache_ = new FieldMap*[nsyscalls];
   config_table_cache_ = new config_table_entry_type*[nsyscalls];
   func_ptr_map_cache_ = new SysCallArgsMapFuncPtr[nsyscalls];
-  func_ptr_map_cache_2 = new SysCallArgsMapFuncPtr2[nsyscalls];
   for(int i = 0; i < nsyscalls; i++) {
     modules_cache_[i] = NULL;
     extents_cache_[i] = NULL;
     config_table_cache_[i] = NULL;
     func_ptr_map_cache_[i] = NULL;
-    func_ptr_map_cache_2[i] = NULL;
   }
 }
 
@@ -107,7 +105,6 @@ void DataSeriesOutputModule::initCache() {
 void DataSeriesOutputModule::initArgsMapFuncPtr() {
   // access system call
   func_ptr_map_["access"] = &DataSeriesOutputModule::makeAccessArgsMap;
-  func_ptr_map_2["access"] = &DataSeriesOutputModule::makeAccessArgsMap2;
   // chdir system call
   func_ptr_map_["chdir"] = &DataSeriesOutputModule::makeChdirArgsMap;
   // chmod system call
@@ -119,8 +116,6 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   // close system call
   func_ptr_map_["close"] = &DataSeriesOutputModule::makeCloseArgsMap;
   // creat system call
-  func_ptr_map_2["close"] = &DataSeriesOutputModule::makeCloseArgsMap2;
-  // creat system call
   func_ptr_map_["creat"] = &DataSeriesOutputModule::makeCreatArgsMap;
   // dup system call
   func_ptr_map_["dup"] = &DataSeriesOutputModule::makeDupArgsMap;
@@ -128,12 +123,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["dup2"] = &DataSeriesOutputModule::makeDup2ArgsMap;
   // execve system call
   func_ptr_map_["execve"] = &DataSeriesOutputModule::makeExecveArgsMap;
-  // execve system call
-  func_ptr_map_2["execve"] = &DataSeriesOutputModule::makeExecveArgsMap2;
   // _exit system call
   func_ptr_map_["exit"] = &DataSeriesOutputModule::makeExitArgsMap;
-  // _exit system call
-  func_ptr_map_2["exit"] = &DataSeriesOutputModule::makeExitArgsMap2;
   // faccessat system call
   func_ptr_map_["faccessat"] = &DataSeriesOutputModule::makeFAccessatArgsMap;
   // fchmod system call
@@ -154,8 +145,6 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["fsetxattr"] = &DataSeriesOutputModule::makeFSetxattrArgsMap;
   // fstat system call
   func_ptr_map_["fstat"] = &DataSeriesOutputModule::makeFStatArgsMap;
-  // fstat system call
-  func_ptr_map_2["fstat"] = &DataSeriesOutputModule::makeFStatArgsMap2;
   // fstatat system call
   func_ptr_map_["fstatat"] = &DataSeriesOutputModule::makeFStatatArgsMap;
   // fstatfs system call
@@ -166,16 +155,12 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["ftruncate"] = &DataSeriesOutputModule::makeFTruncateArgsMap;
   // getdents system call
   func_ptr_map_["getdents"] = &DataSeriesOutputModule::makeGetdentsArgsMap;
-  // getdents system call
-  func_ptr_map_2["getdents"] = &DataSeriesOutputModule::makeGetdentsArgsMap2;
   // getrlimit system call
   func_ptr_map_["getrlimit"] = &DataSeriesOutputModule::makeGetrlimitArgsMap;
   // getxattr system call
   func_ptr_map_["getxattr"] = &DataSeriesOutputModule::makeGetxattrArgsMap;
   // ioctl system call
   func_ptr_map_["ioctl"] = &DataSeriesOutputModule::makeIoctlArgsMap;
-  // ioctl system call
-  func_ptr_map_2["ioctl"] = &DataSeriesOutputModule::makeIoctlArgsMap2;
   // lgetxattr system call
   func_ptr_map_["lgetxattr"] = &DataSeriesOutputModule::makeLGetxattrArgsMap;
   // link system call
@@ -190,8 +175,6 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["lremovexattr"] = &DataSeriesOutputModule::makeLRemovexattrArgsMap;
   // lseek system call
   func_ptr_map_["lseek"] = &DataSeriesOutputModule::makeLSeekArgsMap;
-  // lseek system call
-  func_ptr_map_2["lseek"] = &DataSeriesOutputModule::makeLSeekArgsMap2;
   // lsetxattr system call
   func_ptr_map_["lsetxattr"] = &DataSeriesOutputModule::makeLSetxattrArgsMap;
   // lstat system call
@@ -206,20 +189,12 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["mknodat"] = &DataSeriesOutputModule::makeMknodatArgsMap;
   // mmap system call
   func_ptr_map_["mmap"] = &DataSeriesOutputModule::makeMmapArgsMap;
-  // mmap system call
-  func_ptr_map_2["mmap"] = &DataSeriesOutputModule::makeMmapArgsMap2;
   // munmap system call
   func_ptr_map_["munmap"] = &DataSeriesOutputModule::makeMunmapArgsMap;
-  // munmap system call
-  func_ptr_map_2["munmap"] = &DataSeriesOutputModule::makeMunmapArgsMap2;
   // open system call
   func_ptr_map_["open"] = &DataSeriesOutputModule::makeOpenArgsMap;
-  // open system call
-  func_ptr_map_2["open"] = &DataSeriesOutputModule::makeOpenArgsMap2;
   // openat system call
   func_ptr_map_["openat"] = &DataSeriesOutputModule::makeOpenatArgsMap;
-  // openat system call
-  func_ptr_map_2["openat"] = &DataSeriesOutputModule::makeOpenatArgsMap2;
   // pipe system call
   func_ptr_map_["pipe"] = &DataSeriesOutputModule::makePipeArgsMap;
   // pread system call
@@ -228,8 +203,6 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["pwrite"] = &DataSeriesOutputModule::makePWriteArgsMap;
   // read system call
   func_ptr_map_["read"] = &DataSeriesOutputModule::makeReadArgsMap;
-  // readlink system call
-  func_ptr_map_2["read"] = &DataSeriesOutputModule::makeReadArgsMap2;
   // readlink system call
   func_ptr_map_["readlink"] = &DataSeriesOutputModule::makeReadlinkArgsMap;
   // readv system call
@@ -252,12 +225,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["socket"] = &DataSeriesOutputModule::makeSocketArgsMap;
   // stat system call
   func_ptr_map_["stat"] = &DataSeriesOutputModule::makeStatArgsMap;
-  // stat system call
-  func_ptr_map_2["stat"] = &DataSeriesOutputModule::makeStatArgsMap2;
   // statfs system call
   func_ptr_map_["statfs"] = &DataSeriesOutputModule::makeStatfsArgsMap;
-  // statfs system call
-  func_ptr_map_2["statfs"] = &DataSeriesOutputModule::makeStatfsArgsMap2;
   // symlink system call
   func_ptr_map_["symlink"] = &DataSeriesOutputModule::makeSymlinkArgsMap;
   // symlinkat system call
@@ -266,8 +235,6 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["truncate"] = &DataSeriesOutputModule::makeTruncateArgsMap;
   // umask system call
   func_ptr_map_["umask"] = &DataSeriesOutputModule::makeUmaskArgsMap;
-  // umask system call
-  func_ptr_map_2["umask"] = &DataSeriesOutputModule::makeUmaskArgsMap2;
   // unlink system call
   func_ptr_map_["unlink"] = &DataSeriesOutputModule::makeUnlinkArgsMap;
   // unlinkat system call
@@ -282,8 +249,6 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["vfork"] = &DataSeriesOutputModule::makeVForkArgsMap;
   // write system call
   func_ptr_map_["write"] = &DataSeriesOutputModule::makeWriteArgsMap;
-  // write system call
-  func_ptr_map_2["write"] = &DataSeriesOutputModule::makeWriteArgsMap2;
   // writev system call
   func_ptr_map_["writev"] = &DataSeriesOutputModule::makeWritevArgsMap;
 }
@@ -372,20 +337,20 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
   if (common_fields[DS_COMMON_FIELD_SYSCALL_NUM] != NULL)
     scno = *static_cast<int*>(common_fields[DS_COMMON_FIELD_SYSCALL_NUM]);
 
-  SysCallArgsMapFuncPtr2 fxn = NULL;
+  SysCallArgsMapFuncPtr fxn = NULL;
   OutputModule *output_module = NULL;
   FieldMap *field_map = NULL;
   config_table_entry_type *extent_config_table_ = NULL;
 
   if (scno >= 0) {
     // lookup func_ptr_map_cache_ here, if cached directly use
-    if (func_ptr_map_cache_2[scno] != NULL) {
-      fxn = func_ptr_map_cache_2[scno];
+    if (func_ptr_map_cache_[scno] != NULL) {
+      fxn = func_ptr_map_cache_[scno];
     } else {
-      FuncPtrMap2::iterator iter = func_ptr_map_2.find(extent_name);
-      if (iter != func_ptr_map_2.end()) {
+      FuncPtrMap::iterator iter = func_ptr_map_.find(extent_name);
+      if (iter != func_ptr_map_.end()) {
         fxn = iter->second;
-        func_ptr_map_cache_2[scno] = fxn;
+        func_ptr_map_cache_[scno] = fxn;
       }
     }
     // lookup modules_cache_ here, if cached directly use
@@ -539,12 +504,12 @@ void DataSeriesOutputModule::initConfigTable(std::ifstream &table_stream) {
     int field_enum;
     /* We are ignoring  split_data[1]: syscall_id, split_data[2]: field_id for now */
     if (split_data.size() == 6) {  
-      std::string field_name = split_data[3];
-      std::string nullable_str = split_data[4];
-      std::string field_type = split_data[5];
-      field_enum = atoi(split_data[4].c_str());
+      field_name = split_data[3];
+      nullable_str = split_data[4];
+      field_type = split_data[5];
+      field_enum = atoi(split_data[2].c_str());
+      FieldNames[field_enum] = field_name;
     }
-    FieldNames[field_enum] = field_name;
     bool nullable = false;
     if (nullable_str == "1")
       nullable = true;
@@ -774,22 +739,7 @@ int DataSeriesOutputModule::getVariable32FieldLength(void **args_map,
 }
 
 // Initialize all non-nullable boolean fields as False of given extent_name.
-void DataSeriesOutputModule::initArgsMap(SysCallArgsMap &args_map,
-					 const char *extent_name) {
-  const config_table_entry_type& extent_config_table_ =
-    config_table_[extent_name];
-  FieldMap& extent_field_map_ = extents_[extent_name];
-  for (auto const &extent_config_table_entry : extent_config_table_) {
-    int ind = extent_config_table_entry.first;
-    const std::string& field_name = FieldNames[ind];
-    const bool nullable = extent_config_table_entry.second.first;
-    if (!nullable && extent_field_map_[field_name].second == ExtentType::ft_bool)
-      args_map[field_name] = &false_;
-  }
-}
-
-// Initialize all non-nullable boolean fields as False of given extent_name.
-void DataSeriesOutputModule::initArgsMap2(void **args_map,
+void DataSeriesOutputModule::initArgsMap(void **args_map,
 					 const char *extent_name) {
   const config_table_entry_type& extent_config_table_ =
     config_table_[extent_name];
@@ -803,60 +753,19 @@ void DataSeriesOutputModule::initArgsMap2(void **args_map,
   }
 }
 
-void DataSeriesOutputModule::makeCloseArgsMap(SysCallArgsMap &args_map,
-					      long *args,
-					      void **v_args) {
-  args_map["descriptor"] = &args[0];
-}
-
-void DataSeriesOutputModule::makeCloseArgsMap2(void **args_map,
+void DataSeriesOutputModule::makeCloseArgsMap(void **args_map,
 					      long *args,
 					      void **v_args) {
   args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
 }
 
-void DataSeriesOutputModule::makeOpenArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeOpenArgsMap(void **args_map,
 					     long *args,
 					     void **v_args) {
   int offset = 0;
 
   // Initialize all non-nullable boolean fields to False.
   initArgsMap(args_map, "open");
-
-  if (v_args[0] != NULL) {
-    args_map["given_pathname"] = &v_args[0];
-  } else {
-    std::cerr << "Open: Pathname is set as NULL!!" << std::endl;
-  }
-
-  /* Setting flag values */
-  args_map["open_value"] = &args[offset + 1];
-  u_int flag = processOpenFlags(args_map, args[offset + 1]);
-  if (flag != 0) {
-    std::cerr << "Open: These flag are not processed/unknown->0x";
-    std::cerr << std::hex << flag << std::dec << std::endl;
-  }
-
-  /*
-   * If only, open is called with 3 arguments, set the corresponding
-   * mode value and mode bits as True.
-   */
-  if (args[offset + 1] & O_CREAT) {
-    mode_t mode = processMode(args_map, args, offset + 2);
-    if (mode != 0) {
-      std::cerr << "Open: These modes are not processed/unknown->0";
-      std::cerr << std::oct << mode << std::dec << std::endl;
-    }
-  }
-}
-
-void DataSeriesOutputModule::makeOpenArgsMap2(void **args_map,
-					     long *args,
-					     void **v_args) {
-  int offset = 0;
-
-  // Initialize all non-nullable boolean fields to False.
-  initArgsMap2(args_map, "open");
 
   if (v_args[0] != NULL) {
     args_map[SYSCALL_FIELD_GIVEN_PATHNAME] = &v_args[0];
@@ -866,7 +775,7 @@ void DataSeriesOutputModule::makeOpenArgsMap2(void **args_map,
 
   /* Setting flag values */
   args_map[SYSCALL_FIELD_OPEN_VALUE] = &args[offset + 1];
-  u_int flag = processOpenFlags2(args_map, args[offset + 1]);
+  u_int flag = processOpenFlags(args_map, args[offset + 1]);
   if (flag != 0) {
     std::cerr << "Open: These flag are not processed/unknown->0x";
     std::cerr << std::hex << flag << std::dec << std::endl;
@@ -877,7 +786,7 @@ void DataSeriesOutputModule::makeOpenArgsMap2(void **args_map,
    * mode value and mode bits as True.
    */
   if (args[offset + 1] & O_CREAT) {
-    mode_t mode = processMode2(args_map, args, offset + 2);
+    mode_t mode = processMode(args_map, args, offset + 2);
     if (mode != 0) {
       std::cerr << "Open: These modes are not processed/unknown->0";
       std::cerr << std::oct << mode << std::dec << std::endl;
@@ -885,53 +794,13 @@ void DataSeriesOutputModule::makeOpenArgsMap2(void **args_map,
   }
 }
 
-void DataSeriesOutputModule::makeOpenatArgsMap(SysCallArgsMap &args_map,
-					       long *args,
-					       void **v_args) {
-  int offset = 1;
-
-  // Initialize all non-nullable boolean fields to False.
-  initArgsMap(args_map, "openat");
-
-  args_map["descriptor"] = &args[0];
-  if (args[0] == AT_FDCWD) {
-    args_map["descriptor_current_working_directory"] = &true_;
-  }
-
-  if (v_args[0] != NULL) {
-    args_map["given_pathname"] = &v_args[0];
-  } else {
-    std::cerr << "Openat: Pathname is set as NULL!!" << std::endl;
-  }
-
-  /* Setting flag values */
-  args_map["open_value"] = &args[offset + 1];
-  u_int flag = processOpenFlags(args_map, args[offset + 1]);
-  if (flag != 0) {
-    std::cerr << "Openat: These flags are not processed/unknown->0x";
-    std::cerr << std::hex << flag << std::dec << std::endl;
-  }
-
-  /*
-   * If openat is called with 4 arguments, set the corresponding
-   * mode value and mode bits as True.
-   */
-  if (args[offset + 1] & O_CREAT) {
-    mode_t mode = processMode(args_map, args, offset + 2);
-    if (mode != 0) {
-      std::cerr << "Openat: These modes are not processed/unknown->0";
-      std::cerr << std::oct << mode << std::dec << std::endl;
-    }
-  }
-}
-
-void DataSeriesOutputModule::makeOpenatArgsMap2(void **args_map,
+void DataSeriesOutputModule::makeOpenatArgsMap(void **args_map,
                                               long *args,
                                               void **v_args) {
   int offset = 1;
 
   // Initialize all non-nullable boolean fields to False.
-  initArgsMap2(args_map, "openat");
+  initArgsMap(args_map, "openat");
 
   args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
   if (args[0] == AT_FDCWD) {
@@ -946,7 +815,7 @@ void DataSeriesOutputModule::makeOpenatArgsMap2(void **args_map,
 
   /* Setting flag values */
   args_map[SYSCALL_FIELD_OPEN_VALUE] = &args[offset + 1];
-  u_int flag = processOpenFlags2(args_map, args[offset + 1]);
+  u_int flag = processOpenFlags(args_map, args[offset + 1]);
   if (flag != 0) {
     std::cerr << "Openat: These flags are not processed/unknown->0x";
     std::cerr << std::hex << flag << std::dec << std::endl;
@@ -957,15 +826,13 @@ void DataSeriesOutputModule::makeOpenatArgsMap2(void **args_map,
    * mode value and mode bits as True.
    */
   if (args[offset + 1] & O_CREAT) {
-    mode_t mode = processMode2(args_map, args, offset + 2);
+    mode_t mode = processMode(args_map, args, offset + 2);
     if (mode != 0) {
       std::cerr << "Openat: These modes are not processed/unknown->0";
       std::cerr << std::oct << mode << std::dec << std::endl;
     }
   }
 }
-
-
 
 /*
  * This function processes the flag and mode values passed as an arguments
@@ -981,17 +848,7 @@ void DataSeriesOutputModule::makeOpenatArgsMap2(void **args_map,
  * @param field_name: denotes the field name for individual flag/mode bits.
  *                    Ex: "flag_read_only", "mode_R_user".
  */
-void DataSeriesOutputModule::process_Flag_and_Mode_Args(SysCallArgsMap &args_map,
-							u_int &num,
-							int value,
-							std::string field_name) {
-  if (num & value) {
-    args_map[field_name] = (void *) 1;
-    num &= ~value;
-  }
-}
-
-void DataSeriesOutputModule::process_Flag_and_Mode_Args2(void **args_map,
+void DataSeriesOutputModule::process_Flag_and_Mode_Args(void **args_map,
 							u_int &num,
 							int value,
 							int field_enum) {
@@ -1010,7 +867,7 @@ void DataSeriesOutputModule::process_Flag_and_Mode_Args2(void **args_map,
  * @param open_flag: represents the flag value passed as an argument
  *                   to the open system call.
  */
-u_int DataSeriesOutputModule::processOpenFlags(SysCallArgsMap &args_map,
+u_int DataSeriesOutputModule::processOpenFlags(void **args_map,
 					       u_int open_flag) {
 
   /*
@@ -1019,127 +876,57 @@ u_int DataSeriesOutputModule::processOpenFlags(SysCallArgsMap &args_map,
    */
   // set read only flag
   process_Flag_and_Mode_Args(args_map, open_flag, O_RDONLY,
-			     "flag_read_only");
-  // set write only flag
-  process_Flag_and_Mode_Args(args_map, open_flag, O_WRONLY,
-			     "flag_write_only");
-  // set both read and write flag
-  process_Flag_and_Mode_Args(args_map, open_flag, O_RDWR,
-			     "flag_read_and_write");
-  // set append flag
-  process_Flag_and_Mode_Args(args_map, open_flag, O_APPEND,
-			     "flag_append");
-  // set async flag
-  process_Flag_and_Mode_Args(args_map, open_flag, O_ASYNC,
-			     "flag_async");
-  // set close-on-exec flag
-  process_Flag_and_Mode_Args(args_map, open_flag, O_CLOEXEC,
-			     "flag_close_on_exec");
-  // set create flag
-  process_Flag_and_Mode_Args(args_map, open_flag, O_CREAT,
-			     "flag_create");
-  // set direct flag
-  process_Flag_and_Mode_Args(args_map, open_flag, O_DIRECT,
-			     "flag_direct");
-  // set directory flag
-  process_Flag_and_Mode_Args(args_map, open_flag, O_DIRECTORY,
-			     "flag_directory");
-  // set exclusive flag
-  process_Flag_and_Mode_Args(args_map, open_flag, O_EXCL,
-			     "flag_exclusive");
-  // set largefile flag
-  process_Flag_and_Mode_Args(args_map, open_flag, O_LARGEFILE,
-			     "flag_largefile");
-  // set last access time flag
-  process_Flag_and_Mode_Args(args_map, open_flag, O_NOATIME,
-			     "flag_no_access_time");
-  // set controlling terminal flag
-  process_Flag_and_Mode_Args(args_map, open_flag, O_NOCTTY,
-			     "flag_no_controlling_terminal");
-  // set no_follow flag (in case of symbolic link)
-  process_Flag_and_Mode_Args(args_map, open_flag, O_NOFOLLOW,
-			     "flag_no_follow");
-  // set non blocking mode flag
-  process_Flag_and_Mode_Args(args_map, open_flag, O_NONBLOCK,
-			     "flag_no_blocking_mode");
-  // set no delay flag
-  process_Flag_and_Mode_Args(args_map, open_flag, O_NDELAY,
-			     "flag_no_delay");
-  // set synchronized IO flag
-  process_Flag_and_Mode_Args(args_map, open_flag, O_SYNC,
-			     "flag_synchronous");
-  // set truncate mode flag
-  process_Flag_and_Mode_Args(args_map, open_flag, O_TRUNC,
-			     "flag_truncate");
-
-  /*
-   * Return remaining unprocessed flags so that caller can
-   * warn of unknown flags if the open_flag value is not set
-   * as zero.
-   */
-  return open_flag;
-}
-
-u_int DataSeriesOutputModule::processOpenFlags2(void **args_map,
-					       u_int open_flag) {
-
-  /*
-   * Process each individual flag bits that has been set
-   * in the argument open_flag.
-   */
-  // set read only flag
-  process_Flag_and_Mode_Args2(args_map, open_flag, O_RDONLY,
 			    SYSCALL_FIELD_FLAG_READ_ONLY);
   // set write only flag
-  process_Flag_and_Mode_Args2(args_map, open_flag, O_WRONLY,
+  process_Flag_and_Mode_Args(args_map, open_flag, O_WRONLY,
 			     SYSCALL_FIELD_FLAG_WRITE_ONLY);
   // set both read and write flag
-  process_Flag_and_Mode_Args2(args_map, open_flag, O_RDWR,
+  process_Flag_and_Mode_Args(args_map, open_flag, O_RDWR,
 			     SYSCALL_FIELD_FLAG_READ_AND_WRITE);
   // set append flag
-  process_Flag_and_Mode_Args2(args_map, open_flag, O_APPEND,
+  process_Flag_and_Mode_Args(args_map, open_flag, O_APPEND,
 			     SYSCALL_FIELD_FLAG_APPEND);
   // set async flag
-  process_Flag_and_Mode_Args2(args_map, open_flag, O_ASYNC,
+  process_Flag_and_Mode_Args(args_map, open_flag, O_ASYNC,
 			     SYSCALL_FIELD_FLAG_ASYNC);
   // set close-on-exec flag
-  process_Flag_and_Mode_Args2(args_map, open_flag, O_CLOEXEC,
+  process_Flag_and_Mode_Args(args_map, open_flag, O_CLOEXEC,
 			     SYSCALL_FIELD_FLAG_CLOSE_ON_EXEC);
   // set create flag
-  process_Flag_and_Mode_Args2(args_map, open_flag, O_CREAT,
+  process_Flag_and_Mode_Args(args_map, open_flag, O_CREAT,
 			     SYSCALL_FIELD_FLAG_CREATE);
   // set direct flag
-  process_Flag_and_Mode_Args2(args_map, open_flag, O_DIRECT,
+  process_Flag_and_Mode_Args(args_map, open_flag, O_DIRECT,
 			     SYSCALL_FIELD_FLAG_DIRECT);
   // set directory flag
-  process_Flag_and_Mode_Args2(args_map, open_flag, O_DIRECTORY,
+  process_Flag_and_Mode_Args(args_map, open_flag, O_DIRECTORY,
 			     SYSCALL_FIELD_FLAG_DIRECTORY);
   // set exclusive flag
-  process_Flag_and_Mode_Args2(args_map, open_flag, O_EXCL,
+  process_Flag_and_Mode_Args(args_map, open_flag, O_EXCL,
 			     SYSCALL_FIELD_FLAG_EXCLUSIVE);
   // set largefile flag
-  process_Flag_and_Mode_Args2(args_map, open_flag, O_LARGEFILE,
+  process_Flag_and_Mode_Args(args_map, open_flag, O_LARGEFILE,
 			     SYSCALL_FIELD_FLAG_LARGEFILE);
   // set last access time flag
-  process_Flag_and_Mode_Args2(args_map, open_flag, O_NOATIME,
+  process_Flag_and_Mode_Args(args_map, open_flag, O_NOATIME,
 			     SYSCALL_FIELD_FLAG_NO_ACCESS_TIME);
   // set controlling terminal flag
-  process_Flag_and_Mode_Args2(args_map, open_flag, O_NOCTTY,
+  process_Flag_and_Mode_Args(args_map, open_flag, O_NOCTTY,
 			     SYSCALL_FIELD_FLAG_NO_CONTROLLING_TERMINAL);
   // set no_follow flag (in case of symbolic link)
-  process_Flag_and_Mode_Args2(args_map, open_flag, O_NOFOLLOW,
+  process_Flag_and_Mode_Args(args_map, open_flag, O_NOFOLLOW,
 			     SYSCALL_FIELD_FLAG_NO_FOLLOW);
   // set non blocking mode flag
-  process_Flag_and_Mode_Args2(args_map, open_flag, O_NONBLOCK,
+  process_Flag_and_Mode_Args(args_map, open_flag, O_NONBLOCK,
 			     SYSCALL_FIELD_FLAG_NO_BLOCKING_MODE);
   // set no delay flag
-  process_Flag_and_Mode_Args2(args_map, open_flag, O_NDELAY,
+  process_Flag_and_Mode_Args(args_map, open_flag, O_NDELAY,
 			    SYSCALL_FIELD_FLAG_NO_DELAY);
   // set synchronized IO flag
-  process_Flag_and_Mode_Args2(args_map, open_flag, O_SYNC,
+  process_Flag_and_Mode_Args(args_map, open_flag, O_SYNC,
 			     SYSCALL_FIELD_FLAG_SYNCHRONOUS);
   // set truncate mode flag
-  process_Flag_and_Mode_Args2(args_map, open_flag, O_TRUNC,
+  process_Flag_and_Mode_Args(args_map, open_flag, O_TRUNC,
 			     SYSCALL_FIELD_FLAG_TRUNCATE);
 
   /*
@@ -1161,46 +948,7 @@ u_int DataSeriesOutputModule::processOpenFlags2(void **args_map,
  * @param mode_offset: represents index of mode value in the actual
  *		       system call.
  */
-mode_t DataSeriesOutputModule::processMode(SysCallArgsMap &args_map,
-					   long *args,
-					   u_int mode_offset) {
-  // Save the mode argument with mode_value file in map
-  args_map["mode_value"] = &args[mode_offset];
-  mode_t mode = args[mode_offset];
-
-  // set user-ID bit
-  process_Flag_and_Mode_Args(args_map, mode, S_ISUID, "mode_uid");
-  // set group-ID bit
-  process_Flag_and_Mode_Args(args_map, mode, S_ISGID, "mode_gid");
-  //set sticky bit
-  process_Flag_and_Mode_Args(args_map, mode, S_ISVTX, "mode_sticky_bit");
-  // set user read permission bit
-  process_Flag_and_Mode_Args(args_map, mode, S_IRUSR, "mode_R_user");
-  // set user write permission bit
-  process_Flag_and_Mode_Args(args_map, mode, S_IWUSR, "mode_W_user");
-  // set user execute permission bit
-  process_Flag_and_Mode_Args(args_map, mode, S_IXUSR, "mode_X_user");
-  // set group read permission bit
-  process_Flag_and_Mode_Args(args_map, mode, S_IRGRP, "mode_R_group");
-  // set group write permission bit
-  process_Flag_and_Mode_Args(args_map, mode, S_IWGRP, "mode_W_group");
-  // set group execute permission bit
-  process_Flag_and_Mode_Args(args_map, mode, S_IXGRP, "mode_X_group");
-  // set others read permission bit
-  process_Flag_and_Mode_Args(args_map, mode, S_IROTH, "mode_R_others");
-  // set others write permission bit
-  process_Flag_and_Mode_Args(args_map, mode, S_IWOTH, "mode_W_others");
-  // set others execute permission bit
-  process_Flag_and_Mode_Args(args_map, mode, S_IXOTH, "mode_X_others");
-
-  /*
-   * Return remaining unprocessed modes so that caller can warn
-   * of unknown modes if the mode value is not set as zero.
-   */
-  return mode;
-}
-
-mode_t DataSeriesOutputModule::processMode2(void **args_map,
+mode_t DataSeriesOutputModule::processMode(void **args_map,
 					   long *args,
 					   u_int mode_offset) {
   // Save the mode argument with mode_value file in map
@@ -1208,29 +956,29 @@ mode_t DataSeriesOutputModule::processMode2(void **args_map,
   mode_t mode = args[mode_offset];
 
   // set user-ID bit
-  process_Flag_and_Mode_Args2(args_map, mode, S_ISUID, SYSCALL_FIELD_MODE_UID);
+  process_Flag_and_Mode_Args(args_map, mode, S_ISUID, SYSCALL_FIELD_MODE_UID);
   // set group-ID bit
-  process_Flag_and_Mode_Args2(args_map, mode, S_ISGID,  SYSCALL_FIELD_MODE_GID);
+  process_Flag_and_Mode_Args(args_map, mode, S_ISGID,  SYSCALL_FIELD_MODE_GID);
   //set sticky bit
-  process_Flag_and_Mode_Args2(args_map, mode, S_ISVTX,  SYSCALL_FIELD_MODE_STICKY_BIT);
+  process_Flag_and_Mode_Args(args_map, mode, S_ISVTX,  SYSCALL_FIELD_MODE_STICKY_BIT);
   // set user read permission bit
-  process_Flag_and_Mode_Args2(args_map, mode, S_IRUSR,  SYSCALL_FIELD_MODE_R_USER);
+  process_Flag_and_Mode_Args(args_map, mode, S_IRUSR,  SYSCALL_FIELD_MODE_R_USER);
   // set user write permission bit
-  process_Flag_and_Mode_Args2(args_map, mode, S_IWUSR,  SYSCALL_FIELD_MODE_W_USER);
+  process_Flag_and_Mode_Args(args_map, mode, S_IWUSR,  SYSCALL_FIELD_MODE_W_USER);
   // set user execute permission bit
-  process_Flag_and_Mode_Args2(args_map, mode, S_IXUSR,  SYSCALL_FIELD_MODE_X_USER);
+  process_Flag_and_Mode_Args(args_map, mode, S_IXUSR,  SYSCALL_FIELD_MODE_X_USER);
   // set group read permission bit
-  process_Flag_and_Mode_Args2(args_map, mode, S_IRGRP,  SYSCALL_FIELD_MODE_R_GROUP);
+  process_Flag_and_Mode_Args(args_map, mode, S_IRGRP,  SYSCALL_FIELD_MODE_R_GROUP);
   // set group write permission bit
-  process_Flag_and_Mode_Args2(args_map, mode, S_IWGRP,  SYSCALL_FIELD_MODE_W_GROUP);
+  process_Flag_and_Mode_Args(args_map, mode, S_IWGRP,  SYSCALL_FIELD_MODE_W_GROUP);
   // set group execute permission bit
-  process_Flag_and_Mode_Args2(args_map, mode, S_IXGRP,  SYSCALL_FIELD_MODE_X_GROUP);
+  process_Flag_and_Mode_Args(args_map, mode, S_IXGRP,  SYSCALL_FIELD_MODE_X_GROUP);
   // set others read permission bit
-  process_Flag_and_Mode_Args2(args_map, mode, S_IROTH,  SYSCALL_FIELD_MODE_R_OTHERS);
+  process_Flag_and_Mode_Args(args_map, mode, S_IROTH,  SYSCALL_FIELD_MODE_R_OTHERS);
   // set others write permission bit
-  process_Flag_and_Mode_Args2(args_map, mode, S_IWOTH,  SYSCALL_FIELD_MODE_W_OTHERS);
+  process_Flag_and_Mode_Args(args_map, mode, S_IWOTH,  SYSCALL_FIELD_MODE_W_OTHERS);
   // set others execute permission bit
-  process_Flag_and_Mode_Args2(args_map, mode, S_IXOTH,  SYSCALL_FIELD_MODE_X_OTHERS);
+  process_Flag_and_Mode_Args(args_map, mode, S_IXOTH,  SYSCALL_FIELD_MODE_X_OTHERS);
 
   /*
    * Return remaining unprocessed modes so that caller can warn
@@ -1256,15 +1004,7 @@ uint64_t DataSeriesOutputModule::timespec_to_Tfrac(struct timespec ts) {
   return time_Tfracs;
 }
 
-void DataSeriesOutputModule::makeReadArgsMap(SysCallArgsMap &args_map,
-					     long *args,
-					     void **v_args) {
-  args_map["descriptor"] = &args[0];
-  args_map["data_read"] = &v_args[0];
-  args_map["bytes_requested"] = &args[2];
-}
-
-void DataSeriesOutputModule::makeReadArgsMap2(void **args_map,
+void DataSeriesOutputModule::makeReadArgsMap(void **args_map,
 					     long *args,
 					     void **v_args) {
   args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
@@ -1272,15 +1012,7 @@ void DataSeriesOutputModule::makeReadArgsMap2(void **args_map,
   args_map[SYSCALL_FIELD_BYTES_REQUESTED] = &args[2];
 }
 
-void DataSeriesOutputModule::makeWriteArgsMap(SysCallArgsMap &args_map,
-					      long *args,
-					      void **v_args) {
-  args_map["descriptor"] = &args[0];
-  args_map["data_written"] = &v_args[0];
-  args_map["bytes_requested"] = &args[2];
-}
-
-void DataSeriesOutputModule::makeWriteArgsMap2(void **args_map,
+void DataSeriesOutputModule::makeWriteArgsMap(void **args_map,
 					      long *args,
 					      void **v_args) {
   args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
@@ -1419,24 +1151,12 @@ void DataSeriesOutputModule::makeChmodArgsMap(SysCallArgsMap &args_map,
   }
 }
 
-void DataSeriesOutputModule::makeUmaskArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeUmaskArgsMap(void **args_map,
 					      long *args,
 					      void **v_args) {
   initArgsMap(args_map, "umask");
   int mode_offset = 0;
   mode_t mode = processMode(args_map, args, mode_offset);
-  if (mode != 0) {
-    std::cerr << "Umask: These modes are not processed/unknown->0";
-    std::cerr << std::oct << mode << std::dec << std::endl;
-  }
-}
-
-void DataSeriesOutputModule::makeUmaskArgsMap2(void **args_map,
-					      long *args,
-					      void **v_args) {
-  initArgsMap2(args_map, "umask");
-  int mode_offset = 0;
-  mode_t mode = processMode2(args_map, args, mode_offset);
   if (mode != 0) {
     std::cerr << "Umask: These modes are not processed/unknown->0";
     std::cerr << std::oct << mode << std::dec << std::endl;
@@ -1843,32 +1563,11 @@ void DataSeriesOutputModule::makeTruncateArgsMap(SysCallArgsMap &args_map,
   args_map["truncate_length"] = &args[1];
 }
 
-void DataSeriesOutputModule::makeAccessArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeAccessArgsMap(void **args_map,
 					       long *args,
 					       void **v_args) {
   // Initialize all non-nullable boolean fields to False.
   initArgsMap(args_map, "access");
-  u_int mode_offset = 1;
-
-  if (v_args[0] != NULL) {
-    args_map["given_pathname"] = &v_args[0];
-  } else {
-    std::cerr << "Access: Pathname is set as NULL!!" << std::endl;
-  }
-
-  // Map the individual mode fields
-  mode_t mode = processAccessMode(args_map, args, mode_offset);
-  if (mode != 0) {
-    std::cerr << "Access: These modes are not processed/unknown->0";
-    std::cerr << std::oct << mode << std::dec << std::endl;
-  }
-}
-
-void DataSeriesOutputModule::makeAccessArgsMap2(void **args_map,
-					       long *args,
-					       void **v_args) {
-  // Initialize all non-nullable boolean fields to False.
-  initArgsMap2(args_map, "access");
   u_int mode_offset = 1;
 
   if (v_args[0] != NULL) {
@@ -1878,7 +1577,7 @@ void DataSeriesOutputModule::makeAccessArgsMap2(void **args_map,
   }
 
   // Map the individual mode fields
-  mode_t mode = processAccessMode2(args_map, args, mode_offset);
+  mode_t mode = processAccessMode(args_map, args, mode_offset);
   if (mode != 0) {
     std::cerr << "Access: These modes are not processed/unknown->0";
     std::cerr << std::oct << mode << std::dec << std::endl;
@@ -1948,30 +1647,7 @@ u_int DataSeriesOutputModule::processFAccessatFlags(SysCallArgsMap &args_map,
  * @param mode_offset: represents index of mode value in the actual
  *		       system call.
  */
-mode_t DataSeriesOutputModule::processAccessMode(SysCallArgsMap &args_map,
-						 long *args,
-						 u_int mode_offset) {
-  // Save the mode argument with mode_value field in the map
-  args_map["mode_value"] = &args[mode_offset];
-  mode_t mode = args[mode_offset];
-
-  // set read permission bit
-  process_Flag_and_Mode_Args(args_map, mode, R_OK, "mode_read");
-  // set write permission bit
-  process_Flag_and_Mode_Args(args_map, mode, W_OK, "mode_write");
-  // set execute permission bit
-  process_Flag_and_Mode_Args(args_map, mode, X_OK, "mode_execute");
-  // set existence bit
-  process_Flag_and_Mode_Args(args_map, mode, F_OK, "mode_exist");
-
-  /*
-   * Return remaining unprocessed modes so that caller can warn
-   * of unknown modes if the mode value is not set as zero.
-   */
-  return mode;
-}
-
-mode_t DataSeriesOutputModule::processAccessMode2(void **args_map,
+mode_t DataSeriesOutputModule::processAccessMode(void **args_map,
 						 long *args,
 						 u_int mode_offset) {
   // Save the mode argument with mode_value field in the map
@@ -1979,13 +1655,13 @@ mode_t DataSeriesOutputModule::processAccessMode2(void **args_map,
   mode_t mode = args[mode_offset];
 
   // set read permission bit
-  process_Flag_and_Mode_Args2(args_map, mode, R_OK, SYSCALL_FIELD_MODE_READ);
+  process_Flag_and_Mode_Args(args_map, mode, R_OK, SYSCALL_FIELD_MODE_READ);
   // set write permission bit
-  process_Flag_and_Mode_Args2(args_map, mode, W_OK, SYSCALL_FIELD_MODE_WRITE);
+  process_Flag_and_Mode_Args(args_map, mode, W_OK, SYSCALL_FIELD_MODE_WRITE);
   // set execute permission bit
-  process_Flag_and_Mode_Args2(args_map, mode, X_OK, SYSCALL_FIELD_MODE_EXECUTE);
+  process_Flag_and_Mode_Args(args_map, mode, X_OK, SYSCALL_FIELD_MODE_EXECUTE);
   // set existence bit
-  process_Flag_and_Mode_Args2(args_map, mode, F_OK, SYSCALL_FIELD_MODE_EXIST);
+  process_Flag_and_Mode_Args(args_map, mode, F_OK, SYSCALL_FIELD_MODE_EXIST);
 
   /*
    * Return remaining unprocessed modes so that caller can warn
@@ -1994,15 +1670,7 @@ mode_t DataSeriesOutputModule::processAccessMode2(void **args_map,
   return mode;
 }
 
-void DataSeriesOutputModule::makeLSeekArgsMap(SysCallArgsMap &args_map,
-					      long *args,
-					      void **v_args) {
-  args_map["descriptor"] = &args[0];
-  args_map["offset"] = &args[1];
-  args_map["whence"] = &args[2];
-}
-
-void DataSeriesOutputModule::makeLSeekArgsMap2(void **args_map,
+void DataSeriesOutputModule::makeLSeekArgsMap(void **args_map,
 					      long *args,
 					      void **v_args) {
   args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
@@ -2061,45 +1729,7 @@ void DataSeriesOutputModule::makeSetsidArgsMap(SysCallArgsMap &args_map,
   // Takes no arguments
 }
 
-void DataSeriesOutputModule::makeStatArgsMap(SysCallArgsMap &args_map,
-					     long *args,
-					     void **v_args) {
-  if (v_args[0] != NULL) {
-    args_map["given_pathname"] = &v_args[0];
-  } else {
-    std::cerr << "Stat: Pathname is set as NULL!!" << std::endl;
-  }
-
-  if (v_args[1] != NULL) {
-    struct stat *statbuf = (struct stat *) v_args[1];
-
-    args_map["stat_result_dev"] = &statbuf->st_dev;
-    args_map["stat_result_ino"] = &statbuf->st_ino;
-    args_map["stat_result_mode"] = &statbuf->st_mode;
-    args_map["stat_result_nlink"] = &statbuf->st_nlink;
-    args_map["stat_result_uid"] = &statbuf->st_uid;
-    args_map["stat_result_gid"] = &statbuf->st_gid;
-    args_map["stat_result_rdev"] = &statbuf->st_rdev;
-    args_map["stat_result_size"] = &statbuf->st_size;
-    args_map["stat_result_blksize"] = &statbuf->st_blksize;
-    args_map["stat_result_blocks"] = &statbuf->st_blocks;
-
-    /*
-     * Convert stat_result_atime, stat_result_mtime and
-     * stat_result_ctime to Tfracs.
-     */
-    static uint64_t atime_Tfrac = timespec_to_Tfrac(statbuf->st_atim);
-    static uint64_t mtime_Tfrac = timespec_to_Tfrac(statbuf->st_mtim);
-    static uint64_t ctime_Tfrac = timespec_to_Tfrac(statbuf->st_ctim);
-    args_map["stat_result_atime"] = &atime_Tfrac;
-    args_map["stat_result_mtime"] = &mtime_Tfrac;
-    args_map["stat_result_ctime"] = &ctime_Tfrac;
-  } else {
-    std::cerr << "Stat: Struct stat buffer is set as NULL!!" << std::endl;
-  }
-}
-
-void DataSeriesOutputModule::makeStatArgsMap2(void ** args_map,
+void DataSeriesOutputModule::makeStatArgsMap(void ** args_map,
 					     long *args,
 					     void **v_args) {
   if (v_args[0] != NULL) {
@@ -2137,48 +1767,11 @@ void DataSeriesOutputModule::makeStatArgsMap2(void ** args_map,
   }
 }
 
-void DataSeriesOutputModule::makeStatfsArgsMap(SysCallArgsMap &args_map,
-					       long *args,
-					       void **v_args) {
-  // Initialize all non-nullable boolean fields to False.
-  initArgsMap(args_map, "statfs");
-
-  if (v_args[0] != NULL) {
-    args_map["given_pathname"] = &v_args[0];
-  } else {
-    std::cerr << "Statfs: Pathname is set as NULL!!" << std::endl;
-  }
-
-  if (v_args[1] != NULL) {
-    struct statfs *statfsbuf = (struct statfs *) v_args[1];
-
-    args_map["statfs_result_type"] = &statfsbuf->f_type;
-    args_map["statfs_result_bsize"] = &statfsbuf->f_bsize;
-    args_map["statfs_result_blocks"] = &statfsbuf->f_blocks;
-    args_map["statfs_result_bfree"] = &statfsbuf->f_bfree;
-    args_map["statfs_result_bavail"] = &statfsbuf->f_bavail;
-    args_map["statfs_result_files"] = &statfsbuf->f_files;
-    args_map["statfs_result_ffree"] = &statfsbuf->f_ffree;
-    args_map["statfs_result_fsid"] = &statfsbuf->f_fsid;
-    args_map["statfs_result_namelen"] = &statfsbuf->f_namelen;
-    args_map["statfs_result_frsize"] = &statfsbuf->f_frsize;
-    args_map["statfs_result_flags"] = &statfsbuf->f_flags;
-
-    u_int flag = processStatfsFlags(args_map, statfsbuf->f_flags);
-    if (flag != 0) {
-      std::cerr << "Statfs: These flag are not processed/unknown->0x";
-      std::cerr << std::hex << flag << std::dec << std::endl;
-    }
-  } else {
-    std::cerr << "Statfs: Struct statfs is set as NULL!!" << std::endl;
-  }
-}
-
-void DataSeriesOutputModule::makeStatfsArgsMap2(void **args_map,
+void DataSeriesOutputModule::makeStatfsArgsMap(void **args_map,
                                               long *args,
                                               void **v_args) {
   // Initialize all non-nullable boolean fields to False.
-  initArgsMap2(args_map, "statfs");
+  initArgsMap(args_map, "statfs");
 
   if (v_args[0] != NULL) {
     args_map[SYSCALL_FIELD_GIVEN_PATHNAME] = &v_args[0];
@@ -2201,7 +1794,7 @@ void DataSeriesOutputModule::makeStatfsArgsMap2(void **args_map,
     args_map[SYSCALL_FIELD_STATFS_RESULT_FRSIZE] = &statfsbuf->f_frsize;
     args_map[SYSCALL_FIELD_STATFS_RESULT_FLAGS] = &statfsbuf->f_flags;
 
-    u_int flag = processStatfsFlags2(args_map, statfsbuf->f_flags);
+    u_int flag = processStatfsFlags(args_map, statfsbuf->f_flags);
     if (flag != 0) {
       std::cerr << "Statfs: These flag are not processed/unknown->0x";
       std::cerr << std::hex << flag << std::dec << std::endl;
@@ -2245,86 +1838,41 @@ void DataSeriesOutputModule::makeFStatfsArgsMap(SysCallArgsMap &args_map,
   }
 }
 
-u_int DataSeriesOutputModule::processStatfsFlags(SysCallArgsMap &args_map,
-						 u_int statfs_flags) {
-  /*
-   * Process each individual statfs flag bit that has been set
-   * in the argument stafs_flags.
-   */
-  // set mandatory lock flag
-  process_Flag_and_Mode_Args(args_map, statfs_flags, ST_MANDLOCK,
-			     "flags_mandatory_lock");
-  // set no access time flag
-  process_Flag_and_Mode_Args(args_map, statfs_flags, ST_NOATIME,
-			     "flags_no_access_time");
-  // set no dev flag
-  process_Flag_and_Mode_Args(args_map, statfs_flags, ST_NODEV,
-			     "flags_no_dev");
-  // set no directory access time flag
-  process_Flag_and_Mode_Args(args_map, statfs_flags, ST_NODIRATIME,
-			     "flags_no_directory_access_time");
-  // set no exec flag
-  process_Flag_and_Mode_Args(args_map, statfs_flags, ST_NOEXEC,
-			     "flags_no_exec");
-  // set no set uid flag
-  process_Flag_and_Mode_Args(args_map, statfs_flags, ST_NOSUID,
-			     "flags_no_set_uid");
-  // set read only flag
-  process_Flag_and_Mode_Args(args_map, statfs_flags, ST_RDONLY,
-			     "flags_read_only");
-  // set relative access time flag
-  process_Flag_and_Mode_Args(args_map, statfs_flags, ST_RELATIME,
-			     "flags_relative_access_time");
-  // set synchronous flag
-  process_Flag_and_Mode_Args(args_map, statfs_flags, ST_SYNCHRONOUS,
-			     "flags_synchronous");
-  // set valid flag (f_flags support is implemented)
-  process_Flag_and_Mode_Args(args_map, statfs_flags, ST_VALID,
-           "flags_valid");
-
-  /*
-   * Return remaining statfs flags so that caller can
-   * warn of unknown flags if the statfs_flags is not set
-   * as zero.
-   */
-  return statfs_flags;
-}
-
-u_int DataSeriesOutputModule::processStatfsFlags2(void **args_map,
+u_int DataSeriesOutputModule::processStatfsFlags(void **args_map,
                                                 u_int statfs_flags) {
   /*
    * Process each individual statfs flag bit that has been set
    * in the argument stafs_flags.
    */
   // set mandatory lock flag
-  process_Flag_and_Mode_Args2(args_map, statfs_flags, ST_MANDLOCK,
+  process_Flag_and_Mode_Args(args_map, statfs_flags, ST_MANDLOCK,
                             SYSCALL_FIELD_STATFS_RESULT_FLAGS_MANDATORY_LOCK);
   // set no access time flag
-  process_Flag_and_Mode_Args2(args_map, statfs_flags, ST_NOATIME,
+  process_Flag_and_Mode_Args(args_map, statfs_flags, ST_NOATIME,
                             SYSCALL_FIELD_STATFS_RESULT_FLAGS_NO_ACCESS_TIME);
   // set no dev flag
-  process_Flag_and_Mode_Args2(args_map, statfs_flags, ST_NODEV,
+  process_Flag_and_Mode_Args(args_map, statfs_flags, ST_NODEV,
                             SYSCALL_FIELD_STATFS_RESULT_FLAGS_NO_DEV);
   // set no directory access time flag
-  process_Flag_and_Mode_Args2(args_map, statfs_flags, ST_NODIRATIME,
+  process_Flag_and_Mode_Args(args_map, statfs_flags, ST_NODIRATIME,
                             SYSCALL_FIELD_STATFS_RESULT_FLAGS_NO_DIRECTORY_ACCESS_TIME);
   // set no exec flag
-  process_Flag_and_Mode_Args2(args_map, statfs_flags, ST_NOEXEC,
+  process_Flag_and_Mode_Args(args_map, statfs_flags, ST_NOEXEC,
                             SYSCALL_FIELD_STATFS_RESULT_FLAGS_NO_EXEC);
   // set no set uid flag
-  process_Flag_and_Mode_Args2(args_map, statfs_flags, ST_NOSUID,
+  process_Flag_and_Mode_Args(args_map, statfs_flags, ST_NOSUID,
                             SYSCALL_FIELD_STATFS_RESULT_FLAGS_NO_SET_UID);
   // set read only flag
-  process_Flag_and_Mode_Args2(args_map, statfs_flags, ST_RDONLY,
+  process_Flag_and_Mode_Args(args_map, statfs_flags, ST_RDONLY,
                             SYSCALL_FIELD_STATFS_RESULT_FLAGS_READ_ONLY);
   // set relative access time flag
-  process_Flag_and_Mode_Args2(args_map, statfs_flags, ST_RELATIME,
+  process_Flag_and_Mode_Args(args_map, statfs_flags, ST_RELATIME,
                             SYSCALL_FIELD_STATFS_RESULT_FLAGS_RELATIVE_ACCESS_TIME);
   // set synchronous flag
-  process_Flag_and_Mode_Args2(args_map, statfs_flags, ST_SYNCHRONOUS,
+  process_Flag_and_Mode_Args(args_map, statfs_flags, ST_SYNCHRONOUS,
                             SYSCALL_FIELD_STATFS_RESULT_FLAGS_SYNCHRONOUS);
   // set valid flag (f_flags support is implemented)
-  process_Flag_and_Mode_Args2(args_map, statfs_flags, ST_VALID,
+  process_Flag_and_Mode_Args(args_map, statfs_flags, ST_VALID,
            SYSCALL_FIELD_STATFS_RESULT_FLAGS_VALID);
 
   /*
@@ -2486,41 +2034,7 @@ void DataSeriesOutputModule::makeLStatArgsMap(SysCallArgsMap &args_map,
   }
 }
 
-void DataSeriesOutputModule::makeFStatArgsMap(SysCallArgsMap &args_map,
-					      long *args,
-					      void **v_args) {
-  args_map["descriptor"] = &args[0];
-
-  if (v_args[0] != NULL) {
-    struct stat *statbuf = (struct stat *) v_args[0];
-
-    args_map["stat_result_dev"] = &statbuf->st_dev;
-    args_map["stat_result_ino"] = &statbuf->st_ino;
-    args_map["stat_result_mode"] = &statbuf->st_mode;
-    args_map["stat_result_nlink"] = &statbuf->st_nlink;
-    args_map["stat_result_uid"] = &statbuf->st_uid;
-    args_map["stat_result_gid"] = &statbuf->st_gid;
-    args_map["stat_result_rdev"] = &statbuf->st_rdev;
-    args_map["stat_result_size"] = &statbuf->st_size;
-    args_map["stat_result_blksize"] = &statbuf->st_blksize;
-    args_map["stat_result_blocks"] = &statbuf->st_blocks;
-
-    /*
-     * Convert stat_result_atime, stat_result_mtime and
-     * stat_result_ctime to Tfracs.
-     */
-    static uint64_t atime_Tfrac = timespec_to_Tfrac(statbuf->st_atim);
-    static uint64_t mtime_Tfrac = timespec_to_Tfrac(statbuf->st_mtim);
-    static uint64_t ctime_Tfrac = timespec_to_Tfrac(statbuf->st_ctim);
-    args_map["stat_result_atime"] = &atime_Tfrac;
-    args_map["stat_result_mtime"] = &mtime_Tfrac;
-    args_map["stat_result_ctime"] = &ctime_Tfrac;
-  } else {
-    std::cerr << "FStat: Struct stat buffer is set as NULL!!" << std::endl;
-  }
-}
-
-void DataSeriesOutputModule::makeFStatArgsMap2(void **args_map,
+void DataSeriesOutputModule::makeFStatArgsMap(void **args_map,
 					      long *args,
 					      void **v_args) {
   args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
@@ -3211,67 +2725,14 @@ u_int DataSeriesOutputModule::processFcntlNotify(SysCallArgsMap &args_map,
   return notify_value;
 }
 
-void DataSeriesOutputModule::makeExitArgsMap(SysCallArgsMap &args_map,
-					     long *args,
-					     void **v_args) {
-  args_map["exit_status"] = &args[0];
-  args_map["generated"] = v_args[0];
-}
-
-void DataSeriesOutputModule::makeExitArgsMap2(void **args_map,
+void DataSeriesOutputModule::makeExitArgsMap(void **args_map,
 					     long *args,
 					     void **v_args) {
   args_map[SYSCALL_FIELD_EXIT_STATUS] = &args[0];
   args_map[SYSCALL_FIELD_GENERATED] = v_args[0];
 }
 
-void DataSeriesOutputModule::makeExecveArgsMap(SysCallArgsMap &args_map,
-					       long *args,
-					       void **v_args) {
-  int continuation_number = *(int *) v_args[0];
-  args_map["continuation_number"] = v_args[0];
-
-  /*
-   * Continuation number equal to '0' denotes the first record of
-   * single execve system call. For first record, we only save the
-   * continuation number and given pathname fields.
-   */
-  if (continuation_number == 0) {
-    if (v_args[1] != NULL)
-      args_map["given_pathname"] = &v_args[1];
-    else
-      std::cerr << "Execve: Pathname is set as NULL!!" << std::endl;
-  } else if (continuation_number > 0) {
-    /*
-     * If continuation number is greater than '0', then add
-     * record to set the argument or environment variables.
-     */
-    char *arg_env = (char *) v_args[2];
-    if (strcmp(arg_env, "arg") == 0) {
-      /*
-       * If arg_env is equal to "arg", then we only save the
-       * continuation number and argument fields in the new
-       * record.
-       */
-      if (v_args[1] != NULL)
-	args_map["argument"] = &v_args[1];
-      else
-	std::cerr << "Execve: Argument is set as NULL!!" << std::endl;
-    } else if (strcmp(arg_env, "env") == 0) {
-      /*
-       * If arg_env is equal to "env", then we only save the
-       * continuation number and environment fields in the
-       * new record.
-       */
-      if (v_args[1] != NULL)
-	args_map["environment"] = &v_args[1];
-      else
-	std::cerr << "Execve : Environment is set as NULL!!" << std::endl;
-    }
-  }
-}
-
-void DataSeriesOutputModule::makeExecveArgsMap2(void **args_map,
+void DataSeriesOutputModule::makeExecveArgsMap(void **args_map,
 					       long *args,
 					       void **v_args) {
   int continuation_number = *(int *) v_args[0];
@@ -3317,16 +2778,16 @@ void DataSeriesOutputModule::makeExecveArgsMap2(void **args_map,
   }
 }
 
-void DataSeriesOutputModule::makeMmapArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeMmapArgsMap(void **args_map,
 					     long *args,
 					     void **v_args) {
   // Initialize all non-nullable boolean fields to False.
   initArgsMap(args_map, "mmap");
 
-  args_map["start_address"] = &args[0];
-  args_map["length"] = &args[1];
+  args_map[SYSCALL_FIELD_START_ADDRESS] = &args[0];
+  args_map[SYSCALL_FIELD_LENGTH] = &args[1];
 
-  args_map["protection_value"] = &args[2];
+  args_map[SYSCALL_FIELD_PROTECTION_VALUE] = &args[2];
   // Set individual mmap protection bits
   u_int prot_flags = processMmapProtectionArgs(args_map, args[2]);
   if (prot_flags != 0) {
@@ -3334,38 +2795,9 @@ void DataSeriesOutputModule::makeMmapArgsMap(SysCallArgsMap &args_map,
     std::cerr << std::hex << prot_flags << std::dec << std::endl;
   }
 
-  args_map["flags_value"] = &args[3];
-  // Set individual mmap flag bits
-  u_int flag = processMmapFlags(args_map, args[3]);
-  if (flag != 0) {
-    std::cerr << "Mmap: These flag are not processed/unknown->0x";
-    std::cerr << std::hex << flag << std::dec << std::endl;
-  }
-
-  args_map["descriptor"] = &args[4];
-  args_map["offset"] = &args[5];
-}
-
-void DataSeriesOutputModule::makeMmapArgsMap2(void **args_map,
-					     long *args,
-					     void **v_args) {
-  // Initialize all non-nullable boolean fields to False.
-  initArgsMap2(args_map, "mmap");
-
-  args_map[SYSCALL_FIELD_START_ADDRESS] = &args[0];
-  args_map[SYSCALL_FIELD_LENGTH] = &args[1];
-
-  args_map[SYSCALL_FIELD_PROTECTION_VALUE] = &args[2];
-  // Set individual mmap protection bits
-  u_int prot_flags = processMmapProtectionArgs2(args_map, args[2]);
-  if (prot_flags != 0) {
-    std::cerr << "Mmap: These protection flags are not processed/unknown->0x";
-    std::cerr << std::hex << prot_flags << std::dec << std::endl;
-  }
-
   args_map[SYSCALL_FIELD_FLAGS_VALUE] = &args[3];
   // Set individual mmap flag bits
-  u_int flag = processMmapFlags2(args_map, args[3]);
+  u_int flag = processMmapFlags(args_map, args[3]);
   if (flag != 0) {
     std::cerr << "Mmap: These flag are not processed/unknown->0x";
     std::cerr << std::hex << flag << std::dec << std::endl;
@@ -3375,7 +2807,7 @@ void DataSeriesOutputModule::makeMmapArgsMap2(void **args_map,
   args_map[SYSCALL_FIELD_OFFSET] = &args[5];
 }
 
-u_int DataSeriesOutputModule::processMmapProtectionArgs(SysCallArgsMap &args_map,
+u_int DataSeriesOutputModule::processMmapProtectionArgs(void **args_map,
 							u_int mmap_prot_flags) {
   /*
    * Process each individual mmap protection bit that has been set
@@ -3383,42 +2815,15 @@ u_int DataSeriesOutputModule::processMmapProtectionArgs(SysCallArgsMap &args_map
    */
   // set exec protection flag
   process_Flag_and_Mode_Args(args_map, mmap_prot_flags, PROT_EXEC,
-			     "protection_exec");
-  // set read protection flag
-  process_Flag_and_Mode_Args(args_map, mmap_prot_flags, PROT_READ,
-			     "protection_read");
-  // set write protection flag
-  process_Flag_and_Mode_Args(args_map, mmap_prot_flags, PROT_WRITE,
-			     "protection_write");
-  // set none protection flag
-  process_Flag_and_Mode_Args(args_map, mmap_prot_flags, PROT_NONE,
-			     "protection_none");
-
-  /*
-   * Return remaining mmap protection flags so that caller can
-   * warn of unknown flags if the mmap_prot_flags is not set
-   * as zero.
-   */
-  return mmap_prot_flags;
-}
-
-u_int DataSeriesOutputModule::processMmapProtectionArgs2(void **args_map,
-							u_int mmap_prot_flags) {
-  /*
-   * Process each individual mmap protection bit that has been set
-   * in the argument mmap_prot_flags.
-   */
-  // set exec protection flag
-  process_Flag_and_Mode_Args2(args_map, mmap_prot_flags, PROT_EXEC,
 			     SYSCALL_FIELD_PROTECTION_EXEC);
   // set read protection flag
-  process_Flag_and_Mode_Args2(args_map, mmap_prot_flags, PROT_READ,
+  process_Flag_and_Mode_Args(args_map, mmap_prot_flags, PROT_READ,
 			     SYSCALL_FIELD_PROTECTION_READ);
   // set write protection flag
-  process_Flag_and_Mode_Args2(args_map, mmap_prot_flags, PROT_WRITE,
+  process_Flag_and_Mode_Args(args_map, mmap_prot_flags, PROT_WRITE,
 			     SYSCALL_FIELD_PROTECTION_WRITE);
   // set none protection flag
-  process_Flag_and_Mode_Args2(args_map, mmap_prot_flags, PROT_NONE,
+  process_Flag_and_Mode_Args(args_map, mmap_prot_flags, PROT_NONE,
 			     SYSCALL_FIELD_PROTECTION_NONE);
 
   /*
@@ -3429,7 +2834,7 @@ u_int DataSeriesOutputModule::processMmapProtectionArgs2(void **args_map,
   return mmap_prot_flags;
 }
 
-u_int DataSeriesOutputModule::processMmapFlags(SysCallArgsMap &args_map,
+u_int DataSeriesOutputModule::processMmapFlags(void **args_map,
 					       u_int mmap_flags) {
   /*
    * Process each individual mmap flag bit that has been set
@@ -3437,108 +2842,48 @@ u_int DataSeriesOutputModule::processMmapFlags(SysCallArgsMap &args_map,
    */
   // set mmap fixed flag
   process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_FIXED,
-			     "flag_fixed");
-  // set mmap shared flag
-  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_SHARED,
-			     "flag_shared");
-  // set mmap private flag
-  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_PRIVATE,
-			     "flag_private");
-  // set mmap 32bit flag
-  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_32BIT,
-			     "flag_32bit");
-  // set mmap anonymous flag
-  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_ANONYMOUS,
-			     "flag_anonymous");
-  // set mmap denywrite flag
-  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_DENYWRITE,
-			     "flag_denywrite");
-  // set mmap executable flag
-  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_EXECUTABLE,
-			     "flag_executable");
-  // set mmap file flag
-  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_FILE,
-			     "flag_file");
-  // set mmap grows_down flag
-  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_GROWSDOWN,
-			     "flag_grows_down");
-  // set mmap huge TLB flag
-  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_HUGETLB,
-			     "flag_huge_tlb");
-  // set mmap locked flag
-  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_LOCKED,
-			     "flag_locked");
-  // set mmap non-blocking flag
-  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_NONBLOCK,
-			     "flag_non_block");
-  // set mmap no reserve flag
-  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_NORESERVE,
-			     "flag_no_reserve");
-  // set mmap populate flag
-  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_POPULATE,
-			     "flag_populate");
-  // set mmap stack flag
-  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_STACK,
-			     "flag_stack");
-
-  /*
-   * Return remaining mmap flags so that caller can
-   * warn of unknown flags if the mmap_flags is not set
-   * as zero.
-   */
-  return mmap_flags;
-}
-
-u_int DataSeriesOutputModule::processMmapFlags2(void **args_map,
-					       u_int mmap_flags) {
-  /*
-   * Process each individual mmap flag bit that has been set
-   * in the argument mmap_flags.
-   */
-  // set mmap fixed flag
-  process_Flag_and_Mode_Args2(args_map, mmap_flags, MAP_FIXED,
 			     SYSCALL_FIELD_FLAG_FIXED);
   // set mmap shared flag
-  process_Flag_and_Mode_Args2(args_map, mmap_flags, MAP_SHARED,
+  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_SHARED,
 			     SYSCALL_FIELD_FLAG_SHARED);
   // set mmap private flag
-  process_Flag_and_Mode_Args2(args_map, mmap_flags, MAP_PRIVATE,
+  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_PRIVATE,
 			     SYSCALL_FIELD_FLAG_PRIVATE);
   // set mmap 32bit flag
-  process_Flag_and_Mode_Args2(args_map, mmap_flags, MAP_32BIT,
+  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_32BIT,
 			     SYSCALL_FIELD_FLAG_32BIT);
   // set mmap anonymous flag
-  process_Flag_and_Mode_Args2(args_map, mmap_flags, MAP_ANONYMOUS,
+  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_ANONYMOUS,
 			     SYSCALL_FIELD_FLAG_ANONYMOUS);
   // set mmap denywrite flag
-  process_Flag_and_Mode_Args2(args_map, mmap_flags, MAP_DENYWRITE,
+  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_DENYWRITE,
 			     SYSCALL_FIELD_FLAG_DENYWRITE);
   // set mmap executable flag
-  process_Flag_and_Mode_Args2(args_map, mmap_flags, MAP_EXECUTABLE,
+  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_EXECUTABLE,
 			     SYSCALL_FIELD_FLAG_EXECUTABLE);
   // set mmap file flag
-  process_Flag_and_Mode_Args2(args_map, mmap_flags, MAP_FILE,
+  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_FILE,
 			     SYSCALL_FIELD_FLAG_FILE);
   // set mmap grows_down flag
-  process_Flag_and_Mode_Args2(args_map, mmap_flags, MAP_GROWSDOWN,
+  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_GROWSDOWN,
 			     SYSCALL_FIELD_FLAG_GROWS_DOWN);
   // set mmap huge TLB flag
-  process_Flag_and_Mode_Args2(args_map, mmap_flags, MAP_HUGETLB,
+  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_HUGETLB,
 			     SYSCALL_FIELD_FLAG_HUGE_TLB);
   // set mmap locked flag
-  process_Flag_and_Mode_Args2(args_map, mmap_flags, MAP_LOCKED,
+  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_LOCKED,
 			     SYSCALL_FIELD_FLAG_LOCKED);
   // set mmap non-blocking flag
-  process_Flag_and_Mode_Args2(args_map, mmap_flags, MAP_NONBLOCK,
+  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_NONBLOCK,
 			     SYSCALL_FIELD_FLAG_NON_BLOCK);
   // set mmap no reserve flag
-  process_Flag_and_Mode_Args2(args_map, mmap_flags, MAP_NORESERVE,
+  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_NORESERVE,
 			     SYSCALL_FIELD_FLAG_NO_RESERVE);
   // set mmap populate flag
-  process_Flag_and_Mode_Args2(args_map, mmap_flags, MAP_POPULATE,
+  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_POPULATE,
 			     SYSCALL_FIELD_FLAG_POPULATE);
   // set mmap stack flag
-  process_Flag_and_Mode_Args2(args_map, mmap_flags, MAP_STACK,
+  process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_STACK,
 			     SYSCALL_FIELD_FLAG_STACK);
 
   /*
@@ -3549,29 +2894,14 @@ u_int DataSeriesOutputModule::processMmapFlags2(void **args_map,
   return mmap_flags;
 }
 
-void DataSeriesOutputModule::makeMunmapArgsMap(SysCallArgsMap &args_map,
-					       long *args,
-					       void **v_args) {
-  args_map["start_address"] = &args[0];
-  args_map["length"] = &args[1];
-}
-
-void DataSeriesOutputModule::makeMunmapArgsMap2(void **args_map,
+void DataSeriesOutputModule::makeMunmapArgsMap(void **args_map,
 					       long *args,
 					       void **v_args) {
   args_map[SYSCALL_FIELD_START_ADDRESS] = &args[0];
   args_map[SYSCALL_FIELD_LENGTH] = &args[1];
 }
 
-void DataSeriesOutputModule::makeGetdentsArgsMap(SysCallArgsMap &args_map,
-						 long *args,
-						 void **v_args) {
-  args_map["descriptor"] = &args[0];
-  args_map["dirent_buffer"] = &v_args[0];
-  args_map["count"] = &args[2];
-}
-
-void DataSeriesOutputModule::makeGetdentsArgsMap2(void **args_map,
+void DataSeriesOutputModule::makeGetdentsArgsMap(void **args_map,
                                                 long *args,
                                                 void **v_args) {
   args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
@@ -3599,17 +2929,7 @@ void DataSeriesOutputModule::makeGetrlimitArgsMap(SysCallArgsMap &args_map,
   }
 }
 
-void DataSeriesOutputModule::makeIoctlArgsMap(SysCallArgsMap &args_map,
-					      long *args,
-					      void **v_args) {
-  args_map["descriptor"] = &args[0];
-  args_map["request"] = &args[1];
-  args_map["parameter"] = &args[2];
-  args_map["ioctl_buffer"] = &v_args[0];
-  args_map["buffer_size"] = &ioctl_size_;
-}
-
-void DataSeriesOutputModule::makeIoctlArgsMap2(void **args_map,
+void DataSeriesOutputModule::makeIoctlArgsMap(void **args_map,
                                              long *args,
                                              void **v_args) {
   args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];

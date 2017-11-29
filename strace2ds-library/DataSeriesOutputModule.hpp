@@ -25,7 +25,8 @@
 
 #ifndef DATA_SERIES_OUTPUT_MODULE_HPP
 #define DATA_SERIES_OUTPUT_MODULE_HPP
-
+#ifndef USE_ENUMS
+#define USE_ENUMS
 #include <cassert>
 
 #include <iostream>
@@ -90,19 +91,12 @@ typedef std::unordered_map<std::string, OutputModule*> OutputModuleMap;
 typedef std::unordered_map<std::string, void *> SysCallArgsMap;
 
 // function pointer type for system call args map
-typedef void (DataSeriesOutputModule::*SysCallArgsMapFuncPtr)(SysCallArgsMap &,
+typedef void (DataSeriesOutputModule::*SysCallArgsMapFuncPtr)(void **,
 							      long *,
 							      void **);
+
 // map<extent_name, SysCallArgsMapFuncPtr>
 typedef std::unordered_map<std::string, SysCallArgsMapFuncPtr> FuncPtrMap;
-
-// function pointer type for system call args map
-typedef void (DataSeriesOutputModule::*SysCallArgsMapFuncPtr2)(void **,
-							      long *,
-							      void **);
-// map<extent_name, SysCallArgsMapFuncPtr>
-typedef std::unordered_map<std::string, SysCallArgsMapFuncPtr2> FuncPtrMap2;
-
 
 extern unsigned nsyscalls;
 
@@ -110,8 +104,6 @@ class DataSeriesOutputModule {
 public:
   static bool true_;
   static bool false_;
-  //#define USE_ENUMS 1
- // void *SysCallArgsArray[MAX_SYSCALL_FIELDS];
   std::string FieldNames[MAX_SYSCALL_FIELDS];
 
   // A map of untraced syscalls number and their respective counts
@@ -184,13 +176,11 @@ private:
    * of its corresponding sys call args map function
    */
   FuncPtrMap func_ptr_map_;
-  FuncPtrMap2 func_ptr_map_2;
   /*
    * Since FuncPtrMap's value is of type SysCallArgsMapFuncPtr, we create
    * a cache of type SysCallArgsMapFuncPtr
    */
   SysCallArgsMapFuncPtr *func_ptr_map_cache_;
-  SysCallArgsMapFuncPtr2 *func_ptr_map_cache_2;
 
   // Disable copy constructor
   DataSeriesOutputModule(const DataSeriesOutputModule&);
@@ -233,37 +223,19 @@ private:
 			       const int &field_enum);
 
   // Initialize args map for given system call
-  void initArgsMap(SysCallArgsMap &args_map, const char *extent_name);
-
-  // Initialize args map for given system call
-  void initArgsMap2(void **args_map, const char *extent_name);
+  void initArgsMap(void **args_map, const char *extent_name);
 
   // Maps Close System Call <field, value> pairs
-  void makeCloseArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
-
-  // Maps Close System Call <field, value> pairs
-  void makeCloseArgsMap2(void **args_map, long *args, void **v_args);
+  void makeCloseArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Open System Call <field, value> pairs
-  void makeOpenArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
-
-  // Maps Open System Call <field, value> pairs
-  void makeOpenArgsMap2(void **args_map, long *args, void **v_args);
+  void makeOpenArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Openat System Call <field, value> pairs
-  void makeOpenatArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
-
-  // Maps Openat System Call <field, value> pairs
-  void makeOpenatArgsMap2(void **args_map, long *args, void **v_args);
+  void makeOpenatArgsMap(void **args_map, long *args, void **v_args);
 
   // Processes individual flag and mode bits
-  void process_Flag_and_Mode_Args(SysCallArgsMap &args_map,
-				  unsigned int &num,
-				  int value,
-				  std::string field_name);
-
-  // Processes individual flag and mode bits
-  void process_Flag_and_Mode_Args2(void **args_map,
+  void process_Flag_and_Mode_Args(void **args_map,
 				  unsigned int &num,
 				  int value,
 				  int field_enum);
@@ -272,19 +244,10 @@ private:
    * Maps individual flag value for Open system call to its corresponding
    * field name.
    */
-  u_int processOpenFlags(SysCallArgsMap &args_map, u_int flag);
-
-  /*
-   * Maps individual flag value for Open system call to its corresponding
-   * field name.
-   */
-  u_int processOpenFlags2(void **args_map, u_int flag);
+  u_int processOpenFlags(void **args_map, u_int flag);
 
   // Maps individual mode bits of mode argument to its corresponding field name
-  mode_t processMode(SysCallArgsMap &args_map, long *args, u_int offset);
-
-  // Maps individual mode bits of mode argument to its corresponding field name
-  mode_t processMode2(void **args_map, long *args, u_int offset);
+  mode_t processMode(void **args_map, long *args, u_int offset);
 
   // Convert time from a timeval to a uint64_t in Tfracs
   uint64_t timeval_to_Tfrac(struct timeval tv);
@@ -296,16 +259,10 @@ private:
   uint64_t timespec_to_Tfrac(struct timespec ts);
 
   // Maps Read System Call <field, value> pairs
-  void makeReadArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
-
-  // Maps Read System Call <field, value> pairs
-  void makeReadArgsMap2(void **args_map, long *args, void **v_args);
+  void makeReadArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Write System Call <field, value> pairs
-  void makeWriteArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
-
-  // Maps Write System Call <field, value> pairs
-  void makeWriteArgsMap2(void **args_map, long *args, void **v_args);
+  void makeWriteArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Chdir System Call <field, value> pairs
   void makeChdirArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
@@ -332,10 +289,7 @@ private:
   void makeChmodArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
   // Maps Umask System Calls <field, value> pairs
-  void makeUmaskArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
-
-  // Maps Umask System Calls <field, value> pairs
-  void makeUmaskArgsMap2(void **args_map, long *args, void **v_args);
+  void makeUmaskArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Setxattr System Calls <field, value> pairs
   void makeSetxattrArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
@@ -401,10 +355,7 @@ private:
   void makeFTruncateArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
   // Maps Access System Call <field, value> pairs
-  void makeAccessArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
-
-  // Maps Access System Call <field, value> pairs
-  void makeAccessArgsMap2(void **args_map, long *args, void **v_args);
+  void makeAccessArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps FAccessat System Call <field, value> pairs
   void makeFAccessatArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
@@ -416,20 +367,12 @@ private:
   u_int processFAccessatFlags(SysCallArgsMap &args_map, u_int faccessat_flags);
 
   // Maps individual Access mode bits to the corresponding field names
-  mode_t processAccessMode(SysCallArgsMap &args_map,
-			   long *args,
-			   u_int mode_offset);
-
-  // Maps individual Access mode bits to the corresponding field names
-  mode_t processAccessMode2(void **args_map,
+  mode_t processAccessMode(void **args_map,
 			   long *args,
 			   u_int mode_offset);
 
   // Maps LSeek System Call <field, value> pairs
-  void makeLSeekArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
-
-  // Maps LSeek System Call <field, value> pairs
-  void makeLSeekArgsMap2(void **args_map, long *args, void **v_args);
+  void makeLSeekArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps PRead System Call <field, value> pairs
   void makePReadArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
@@ -444,24 +387,16 @@ private:
   void makeSetsidArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
   // Maps Stat System Call <field, value> pairs
-  void makeStatArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
-
-  // Maps Stat System Call <field, value> pairs
-  void makeStatArgsMap2(void **args_map, long *args, void **v_args);
+  void makeStatArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Statfs System Call <field, value> pairs
-  void makeStatfsArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
-
-  // Maps Statfs System Call <field, value> pairs
-  void makeStatfsArgsMap2(void **args_map, long *args, void **v_args);
+  void makeStatfsArgsMap(void **args_map, long *args, void **v_args);
 
   /*
    * Maps individual mount option flags for statfs system call to its
    * corresponding field name
    */
-  u_int processStatfsFlags(SysCallArgsMap &args_map, u_int statfs_flags);
-
-  u_int processStatfsFlags2(void **args_map, u_int statfs_flags);
+  u_int processStatfsFlags(void **args_map, u_int statfs_flags);
 
   // Maps FStatfs System Call <field, value> pairs
   void makeFStatfsArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
@@ -485,10 +420,7 @@ private:
   void makeLStatArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
   // Maps FStat System Call <field, value> pairs
-  void makeFStatArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
-
-  // Maps FStat System Call <field, value> pairs
-  void makeFStatArgsMap2(void **args_map, long *args, void **v_args);
+  void makeFStatArgsMap(void **args_map, long *args, void **v_args);
 
   /*
    * Maps individual mount option flags for fstatat system call to its
@@ -571,58 +503,31 @@ private:
   u_int processFcntlNotify(SysCallArgsMap &args_map, long *args);
 
   // Maps Exit System Call <field, value> pairs
-  void makeExitArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
-
-  // Maps Exit System Call <field, value> pairs
-  void makeExitArgsMap2(void **args_map, long *args, void **v_args);
+  void makeExitArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Execve System Call <field, value> pairs
-  void makeExecveArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
-
-  // Maps Execve System Call <field, value> pairs
-  void makeExecveArgsMap2(void **args_map, long *args, void **v_args);
+  void makeExecveArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Mmap System Call <field, value> pairs
-  void makeMmapArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
-
-  // Maps Mmap System Call <field, value> pairs
-  void makeMmapArgsMap2(void **args_map, long *args, void **v_args);
+  void makeMmapArgsMap(void **args_map, long *args, void **v_args);
 
   /*
    * Maps individual protection bits for Mmap system call to its corresponding
    * field name.
    */
-  u_int processMmapProtectionArgs(SysCallArgsMap &args_map, u_int mmap_prot_flags);
-
-  /*
-   * Maps individual protection bits for Mmap system call to its corresponding
-   * field name.
-   */
-  u_int processMmapProtectionArgs2(void **args_map, u_int mmap_prot_flags);
+  u_int processMmapProtectionArgs(void **args_map, u_int mmap_prot_flags);
 
   /*
    * Maps individual flag value for Mmap system call to its corresponding
    * field name.
    */
-  u_int processMmapFlags(SysCallArgsMap &args_map, u_int flag);
-
-  /*
-   * Maps individual flag value for Mmap system call to its corresponding
-   * field name.
-   */
-  u_int processMmapFlags2(void **args_map, u_int flag);
+  u_int processMmapFlags(void **args_map, u_int flag);
 
   // Maps Munmap System Call <field, value> pairs
-  void makeMunmapArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
-
-  // Maps Munmap System Call <field, value> pairs
-  void makeMunmapArgsMap2(void **args_map, long *args, void **v_args);
+  void makeMunmapArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Getdents System Call <field, value> pairs
-  void makeGetdentsArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
-
-  // Maps Getdents System Call <field, value> pairs
-  void makeGetdentsArgsMap2(void **args_map, long *args, void **v_args);
+  void makeGetdentsArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Getrlimit System Call <field, value> pairs
   void makeGetrlimitArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
@@ -631,10 +536,7 @@ private:
   void makeSetrlimitArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
   // Maps Ioctl System Call <field, value> pairs
-  void makeIoctlArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
-
-  // Maps Ioctl System Call <field, value> pairs
-  void makeIoctlArgsMap2(void **args_map, long *args, void **v_args);
+  void makeIoctlArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Clone System Call <field, value> pairs
   void makeCloneArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
@@ -658,4 +560,5 @@ private:
   void makeSocketArgsMap(SysCallArgsMap &args_map,
 		  	 long *args, void **v_args);
 };
+#endif //USE_ENUMS
 #endif // DATA_SERIES_OUTPUT_MODULE_HPP

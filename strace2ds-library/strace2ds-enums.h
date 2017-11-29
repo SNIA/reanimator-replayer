@@ -1,8 +1,8 @@
 /*
- * This file was auto generated on Fri Nov 10 16:25:19 2017.
+ * This file was auto generated on Mon Nov 27 16:43:02 2017.
  * DO NOT EDIT BY HAND.
  */
-#ifndef USE_ENUMS
+#ifdef USE_ENUMS
 enum syscall_names {
 	SYSCALL_NAME_COMMON = 0,
 	SYSCALL_NAME_READ = 1,
