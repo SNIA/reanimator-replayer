@@ -1040,35 +1040,35 @@ void DataSeriesOutputModule::makeRmdirArgsMap(void **args_map,
   }
 }
 
-void DataSeriesOutputModule::makeUnlinkArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeUnlinkArgsMap(void **args_map,
 					       long *args,
 					       void **v_args) {
   if (v_args[0] != NULL) {
-    args_map["given_pathname"] = &v_args[0];
+    args_map[SYSCALL_FIELD_GIVEN_PATHNAME] = &v_args[0];
   } else {
     std::cerr << "Unlink: Pathname is set as NULL!!" << std::endl;
   }
 }
 
-void DataSeriesOutputModule::makeUnlinkatArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeUnlinkatArgsMap(void **args_map,
 						 long *args,
 						 void **v_args) {
   initArgsMap(args_map, "unlinkat");
 
-  args_map["descriptor"] = &args[0];
+  args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
   if (args[0] == AT_FDCWD) {
-    args_map["descriptor_current_working_directory"] = &true_;
+    args_map[SYSCALL_FIELD_DESCRIPTOR_CURRENT_WORKING_DIRECTORY] = &true_;
   }
   if (v_args[0] != NULL) {
-    args_map["given_pathname"] = &v_args[0];
+    args_map[SYSCALL_FIELD_GIVEN_PATHNAME] = &v_args[0];
   } else {
     std::cerr << "Unlinkat: Pathname is set as NULL!!" << std::endl;
   }
 
-  args_map["flag_value"] = &args[2];
+  args_map[SYSCALL_FIELD_FLAG_VALUE] = &args[2];
   u_int flag = args[2];
   process_Flag_and_Mode_Args(args_map, flag, AT_REMOVEDIR,
-			     "flag_remove_directory");
+			     SYSCALL_FIELD_FLAG_REMOVE_DIRECTORY);
   if (flag != 0) {
     std::cerr << "Unlinkat: These flags are not processed/unknown->"
 	      << std::hex << flag << std::dec << std::endl;
@@ -1459,75 +1459,75 @@ void DataSeriesOutputModule::makeFChmodatArgsMap(SysCallArgsMap &args_map,
   }
 }
 
-void DataSeriesOutputModule::makeLinkArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeLinkArgsMap(void **args_map,
 					     long *args,
 					     void **v_args) {
   if (v_args[0] != NULL) {
-    args_map["given_oldpathname"] = &v_args[0];
+    args_map[SYSCALL_FIELD_GIVEN_OLDPATHNAME] = &v_args[0];
   } else {
     std::cerr << "Link: Old Pathname is set as NULL!!" << std::endl;
   }
   if (v_args[1] != NULL) {
-    args_map["given_newpathname"] = &v_args[1];
+    args_map[SYSCALL_FIELD_GIVEN_NEWPATHNAME] = &v_args[1];
   } else {
     std::cerr << "Link: New Pathname is set as NULL!!" << std::endl;
   }
 }
 
-void DataSeriesOutputModule::makeLinkatArgsMap(SysCallArgsMap &args_map,
-					     long *args,
-					     void **v_args) {
+void DataSeriesOutputModule::makeLinkatArgsMap(void **args_map,
+					       long *args,
+					       void **v_args) {
   initArgsMap(args_map, "linkat");
 
-  args_map["old_descriptor"] = &args[0];
+  args_map[SYSCALL_FIELD_OLD_DESCRIPTOR] = &args[0];
   if (args[0] == AT_FDCWD) {
-    args_map["old_descriptor_current_working_directory"] = &true_;
+    args_map[SYSCALL_FIELD_OLD_DESCRIPTOR_CURRENT_WORKING_DIRECTORY] = &true_;
   }
 
-  args_map["new_descriptor"] = &args[2];
+  args_map[SYSCALL_FIELD_NEW_DESCRIPTOR] = &args[2];
   if (args[2] == AT_FDCWD) {
-    args_map["new_descriptor_current_working_directory"] = &true_;
+    args_map[SYSCALL_FIELD_NEW_DESCRIPTOR_CURRENT_WORKING_DIRECTORY] = &true_;
   }
 
   if (v_args[0] != NULL) {
-    args_map["given_oldpathname"] = &v_args[0];
+    args_map[SYSCALL_FIELD_GIVEN_OLDPATHNAME] = &v_args[0];
   } else {
     std::cerr << "Linkat: Old Pathname is set as NULL!!" << std::endl;
   }
   if (v_args[1] != NULL) {
-    args_map["given_newpathname"] = &v_args[1];
+    args_map[SYSCALL_FIELD_GIVEN_NEWPATHNAME] = &v_args[1];
   } else {
     std::cerr << "Linkat: New Pathname is set as NULL!!" << std::endl;
   }
 
-  args_map["flag_value"] = &args[4];
+  args_map[SYSCALL_FIELD_FLAG_VALUE] = &args[4];
   u_int flag = args[4];
   process_Flag_and_Mode_Args(args_map, flag, AT_EMPTY_PATH,
-			     "flag_empty_path");
+			     SYSCALL_FIELD_FLAG_EMPTY_PATH);
   process_Flag_and_Mode_Args(args_map, flag, AT_SYMLINK_FOLLOW,
-			     "flag_symlink_follow");
+			     SYSCALL_FIELD_FLAG_SYMLINK_FOLLOW);
   if (flag != 0) {
     std::cerr << "Linkat: These flags are not processed/unknown->"
 	      << std::hex << flag << std::dec << std::endl;
   }
 }
 
-void DataSeriesOutputModule::makeSymlinkArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeSymlinkArgsMap(void **args_map,
 						long *args,
 						void **v_args) {
   if (v_args[0] != NULL) {
-    args_map["target_pathname"] = &v_args[0];
+    args_map[SYSCALL_FIELD_TARGET_PATHNAME] = &v_args[0];
   } else {
     std::cerr << "Symlink: Target Pathname is set as NULL!!" << std::endl;
   }
   if (v_args[1] != NULL) {
-    args_map["given_pathname"] = &v_args[1];
+    args_map[SYSCALL_FIELD_GIVEN_PATHNAME] = &v_args[1];
   } else {
     std::cerr << "Symlink: Pathname is set as NULL!!" << std::endl;
   }
 }
 
-void DataSeriesOutputModule::makeSymlinkatArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeSymlinkatArgsMap(void **args_map,
 						  long *args,
 						  void **v_args) {
   static bool true_ = true;
@@ -1535,18 +1535,18 @@ void DataSeriesOutputModule::makeSymlinkatArgsMap(SysCallArgsMap &args_map,
   initArgsMap(args_map, "symlinkat");
 
   if (v_args[0] != NULL) {
-    args_map["target_pathname"] = &v_args[0];
+    args_map[SYSCALL_FIELD_TARGET_PATHNAME] = &v_args[0];
   } else {
     std::cerr << "Symlinkat: Target Pathname is set as NULL!!" << std::endl;
   }
 
-  args_map["new_descriptor"] = &args[2];
+  args_map[SYSCALL_FIELD_NEW_DESCRIPTOR] = &args[2];
   if (args[2] == AT_FDCWD) {
-    args_map["new_descriptor_current_working_directory"] = &true_;
+    args_map[SYSCALL_FIELD_NEW_DESCRIPTOR_CURRENT_WORKING_DIRECTORY] = &true_;
   }
 
   if (v_args[1] != NULL) {
-    args_map["given_pathname"] = &v_args[1];
+    args_map[SYSCALL_FIELD_GIVEN_PATHNAME] = &v_args[1];
   } else {
     std::cerr << "Symlinkat: Pathname is set as NULL!!" << std::endl;
   }
@@ -1903,16 +1903,16 @@ void DataSeriesOutputModule::makeChownArgsMap(SysCallArgsMap &args_map,
   args_map["new_group"] = &args[2];
 }
 
-void DataSeriesOutputModule::makeReadlinkArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeReadlinkArgsMap(void **args_map,
 						 long *args,
 						 void **v_args) {
   if (v_args[0] != NULL) {
-    args_map["given_pathname"] = &v_args[0];
+    args_map[SYSCALL_FIELD_GIVEN_PATHNAME] = &v_args[0];
   } else {
     std::cerr << "Readlink: Pathname is set as NULL!!" << std::endl;
   }
-  args_map["link_value"] = &v_args[1];
-  args_map["buffer_size"] = &args[2];
+  args_map[SYSCALL_FIELD_LINK_VALUE] = &v_args[1];
+  args_map[SYSCALL_FIELD_BUFFER_SIZE] = &args[2];
 }
 
 void DataSeriesOutputModule::makeReadvArgsMap(void **args_map,

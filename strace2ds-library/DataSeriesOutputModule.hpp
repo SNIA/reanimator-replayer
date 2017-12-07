@@ -271,10 +271,10 @@ private:
   void makeRmdirArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Unlink System Call <field, value> pairs
-  void makeUnlinkArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeUnlinkArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Unlinkat System Call <field, value> pairs
-  void makeUnlinkatArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeUnlinkatArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Mkdir System Call <field, value> pairs
   void makeMkdirArgsMap(void **args_map, long *args, void **v_args);
@@ -337,16 +337,16 @@ private:
   void makeFChmodatArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
   // Maps Link System Call <field, value> pairs
-  void makeLinkArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeLinkArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Linkat System Call <field, value> pairs
-  void makeLinkatArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeLinkatArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Symlink System Call <field, value> pairs
-  void makeSymlinkArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeSymlinkArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Symlinkat System Call <field, value> pairs
-  void makeSymlinkatArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeSymlinkatArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Truncate System Call <field, value> pairs
   void makeTruncateArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
@@ -405,7 +405,7 @@ private:
   void makeChownArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
   // Maps Readlink System Call <field, value> pairs
-  void makeReadlinkArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeReadlinkArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Readv System Call <field, value> pairs
   void makeReadvArgsMap(void **args_map, long *args, void **v_args);
