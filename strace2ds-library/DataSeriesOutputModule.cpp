@@ -1678,22 +1678,22 @@ void DataSeriesOutputModule::makeLSeekArgsMap(void **args_map,
   args_map[SYSCALL_FIELD_WHENCE] = &args[2];
 }
 
-void DataSeriesOutputModule::makePReadArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makePReadArgsMap(void **args_map,
 					      long *args,
 					      void **v_args) {
-  args_map["descriptor"] = &args[0];
-  args_map["data_read"] = &v_args[0];
-  args_map["bytes_requested"] = &args[2];
-  args_map["offset"] = &args[3];
+  args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
+  args_map[SYSCALL_FIELD_DATA_READ] = &v_args[0];
+  args_map[SYSCALL_FIELD_BYTES_REQUESTED] = &args[2];
+  args_map[SYSCALL_FIELD_OFFSET] = &args[3];
 }
 
-void DataSeriesOutputModule::makePWriteArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makePWriteArgsMap(void **args_map,
 					       long *args,
 					       void **v_args) {
-  args_map["descriptor"] = &args[0];
-  args_map["data_written"] = &v_args[0];
-  args_map["bytes_requested"] = &args[2];
-  args_map["offset"] = &args[3];
+  args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
+  args_map[SYSCALL_FIELD_DATA_WRITTEN] = &v_args[0];
+  args_map[SYSCALL_FIELD_BYTES_REQUESTED] = &args[2];
+  args_map[SYSCALL_FIELD_OFFSET] = &args[3];
 }
 
 void DataSeriesOutputModule::makeSetpgidArgsMap(SysCallArgsMap &args_map,
@@ -1915,7 +1915,7 @@ void DataSeriesOutputModule::makeReadlinkArgsMap(SysCallArgsMap &args_map,
   args_map["buffer_size"] = &args[2];
 }
 
-void DataSeriesOutputModule::makeReadvArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeReadvArgsMap(void **args_map,
 					      long *args,
 					      void **v_args) {
   int iov_number = *(int *) v_args[0];
@@ -1927,23 +1927,23 @@ void DataSeriesOutputModule::makeReadvArgsMap(SysCallArgsMap &args_map,
    * requested and do not set the data_read field.
    */
   if (iov_number == -1) {
-    args_map["descriptor"] = &args[0];
-    args_map["count"] = &args[2];
-    args_map["iov_number"] = v_args[0];
-    args_map["bytes_requested"] = v_args[1];
+    args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
+    args_map[SYSCALL_FIELD_COUNT] = &args[2];
+    args_map[SYSCALL_FIELD_IOV_NUMBER] = v_args[0];
+    args_map[SYSCALL_FIELD_BYTES_REQUESTED] = v_args[1];
   } else {
     /*
      * For rest of the records, we do not save file descriptor and
      * count fields. We only save the iov_number, bytes_requested
      * and data_read.
      */
-    args_map["iov_number"] = v_args[0];
-    args_map["bytes_requested"] = v_args[1];
-    args_map["data_read"] = &v_args[2];
+    args_map[SYSCALL_FIELD_IOV_NUMBER] = v_args[0];
+    args_map[SYSCALL_FIELD_BYTES_REQUESTED] = v_args[1];
+    args_map[SYSCALL_FIELD_DATA_READ] = &v_args[2];
   }
 }
 
-void DataSeriesOutputModule::makeWritevArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeWritevArgsMap(void **args_map,
 					       long *args,
 					       void **v_args) {
   int iov_number = *(int *) v_args[0];
@@ -1955,19 +1955,19 @@ void DataSeriesOutputModule::makeWritevArgsMap(SysCallArgsMap &args_map,
    * requested and do not set the data_written field.
    */
   if (iov_number == -1) {
-    args_map["descriptor"] = &args[0];
-    args_map["count"] = &args[2];
-    args_map["iov_number"] = v_args[0];
-    args_map["bytes_requested"] = v_args[1];
+    args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
+    args_map[SYSCALL_FIELD_COUNT] = &args[2];
+    args_map[SYSCALL_FIELD_IOV_NUMBER] = v_args[0];
+    args_map[SYSCALL_FIELD_BYTES_REQUESTED] = v_args[1];
   } else {
     /*
      * For rest of the records, we do not save file descriptor and
      * count fields. We only save the iov_number, bytes_requested
      * and data_written fields.
      */
-    args_map["iov_number"] = v_args[0];
-    args_map["bytes_requested"] = v_args[1];
-    args_map["data_written"] = &v_args[2];
+    args_map[SYSCALL_FIELD_IOV_NUMBER] = v_args[0];
+    args_map[SYSCALL_FIELD_BYTES_REQUESTED] = v_args[1];
+    args_map[SYSCALL_FIELD_DATA_WRITTEN] = &v_args[2];
   }
 }
 

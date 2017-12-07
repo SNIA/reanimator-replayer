@@ -375,10 +375,10 @@ private:
   void makeLSeekArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps PRead System Call <field, value> pairs
-  void makePReadArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makePReadArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps PWrite System Call <field, value> pairs
-  void makePWriteArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makePWriteArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Setpgid System Call <field, value> pairs
   void makeSetpgidArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
@@ -408,10 +408,10 @@ private:
   void makeReadlinkArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
   // Maps Readv System Call <field, value> pairs
-  void makeReadvArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeReadvArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Writev System Call <field, value> pairs
-  void makeWritevArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeWritevArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Utime System Call <field, value> pairs
   void makeUtimeArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
