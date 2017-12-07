@@ -1805,28 +1805,28 @@ void DataSeriesOutputModule::makeStatfsArgsMap(void **args_map,
 }
 
 
-void DataSeriesOutputModule::makeFStatfsArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeFStatfsArgsMap(void **args_map,
 						long *args,
 						void **v_args) {
   // Initialize all non-nullable boolean fields to False.
   initArgsMap(args_map, "fstatfs");
 
-  args_map["descriptor"] = &args[0];
+  args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
 
   if (v_args[0] != NULL) {
     struct statfs *statfsbuf = (struct statfs *) v_args[0];
 
-    args_map["statfs_result_type"] = &statfsbuf->f_type;
-    args_map["statfs_result_bsize"] = &statfsbuf->f_bsize;
-    args_map["statfs_result_blocks"] = &statfsbuf->f_blocks;
-    args_map["statfs_result_bfree"] = &statfsbuf->f_bfree;
-    args_map["statfs_result_bavail"] = &statfsbuf->f_bavail;
-    args_map["statfs_result_files"] = &statfsbuf->f_files;
-    args_map["statfs_result_ffree"] = &statfsbuf->f_ffree;
-    args_map["statfs_result_fsid"] = &statfsbuf->f_fsid;
-    args_map["statfs_result_namelen"] = &statfsbuf->f_namelen;
-    args_map["statfs_result_frsize"] = &statfsbuf->f_frsize;
-    args_map["statfs_result_flags"] = &statfsbuf->f_flags;
+    args_map[SYSCALL_FIELD_STATFS_RESULT_TYPE] = &statfsbuf->f_type;
+    args_map[SYSCALL_FIELD_STATFS_RESULT_BSIZE] = &statfsbuf->f_bsize;
+    args_map[SYSCALL_FIELD_STATFS_RESULT_BLOCKS] = &statfsbuf->f_blocks;
+    args_map[SYSCALL_FIELD_STATFS_RESULT_BFREE] = &statfsbuf->f_bfree;
+    args_map[SYSCALL_FIELD_STATFS_RESULT_BAVAIL] = &statfsbuf->f_bavail;
+    args_map[SYSCALL_FIELD_STATFS_RESULT_FILES] = &statfsbuf->f_files;
+    args_map[SYSCALL_FIELD_STATFS_RESULT_FFREE] = &statfsbuf->f_ffree;
+    args_map[SYSCALL_FIELD_STATFS_RESULT_FSID] = &statfsbuf->f_fsid;
+    args_map[SYSCALL_FIELD_STATFS_RESULT_NAMELEN] = &statfsbuf->f_namelen;
+    args_map[SYSCALL_FIELD_STATFS_RESULT_FRSIZE] = &statfsbuf->f_frsize;
+    args_map[SYSCALL_FIELD_STATFS_RESULT_FLAGS] = &statfsbuf->f_flags;
 
     u_int flag = processStatfsFlags(args_map, statfsbuf->f_flags);
     if (flag != 0) {
@@ -1996,11 +1996,11 @@ void DataSeriesOutputModule::makeUtimeArgsMap(SysCallArgsMap &args_map,
   }
 }
 
-void DataSeriesOutputModule::makeLStatArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeLStatArgsMap(void **args_map,
 					      long *args,
 					      void **v_args) {
   if (v_args[0] != NULL) {
-    args_map["given_pathname"] = &v_args[0];
+    args_map[SYSCALL_FIELD_GIVEN_PATHNAME] = &v_args[0];
   } else {
     std::cerr << "LStat: Pathname is set as NULL!!" << std::endl;
   }
@@ -2008,16 +2008,16 @@ void DataSeriesOutputModule::makeLStatArgsMap(SysCallArgsMap &args_map,
   if (v_args[1] != NULL) {
     struct stat *statbuf = (struct stat *) v_args[1];
 
-    args_map["stat_result_dev"] = &statbuf->st_dev;
-    args_map["stat_result_ino"] = &statbuf->st_ino;
-    args_map["stat_result_mode"] = &statbuf->st_mode;
-    args_map["stat_result_nlink"] = &statbuf->st_nlink;
-    args_map["stat_result_uid"] = &statbuf->st_uid;
-    args_map["stat_result_gid"] = &statbuf->st_gid;
-    args_map["stat_result_rdev"] = &statbuf->st_rdev;
-    args_map["stat_result_size"] = &statbuf->st_size;
-    args_map["stat_result_blksize"] = &statbuf->st_blksize;
-    args_map["stat_result_blocks"] = &statbuf->st_blocks;
+    args_map[SYSCALL_FIELD_STAT_RESULT_DEV] = &statbuf->st_dev;
+    args_map[SYSCALL_FIELD_STAT_RESULT_INO] = &statbuf->st_ino;
+    args_map[SYSCALL_FIELD_STAT_RESULT_MODE] = &statbuf->st_mode;
+    args_map[SYSCALL_FIELD_STAT_RESULT_NLINK] = &statbuf->st_nlink;
+    args_map[SYSCALL_FIELD_STAT_RESULT_UID] = &statbuf->st_uid;
+    args_map[SYSCALL_FIELD_STAT_RESULT_GID] = &statbuf->st_gid;
+    args_map[SYSCALL_FIELD_STAT_RESULT_RDEV] = &statbuf->st_rdev;
+    args_map[SYSCALL_FIELD_STAT_RESULT_SIZE] = &statbuf->st_size;
+    args_map[SYSCALL_FIELD_STAT_RESULT_BLKSIZE] = &statbuf->st_blksize;
+    args_map[SYSCALL_FIELD_STAT_RESULT_BLOCKS] = &statbuf->st_blocks;
 
     /*
      * Convert stat_result_atime, stat_result_mtime and
@@ -2026,9 +2026,9 @@ void DataSeriesOutputModule::makeLStatArgsMap(SysCallArgsMap &args_map,
     static uint64_t atime_Tfrac = timespec_to_Tfrac(statbuf->st_atim);
     static uint64_t mtime_Tfrac = timespec_to_Tfrac(statbuf->st_mtim);
     static uint64_t ctime_Tfrac = timespec_to_Tfrac(statbuf->st_ctim);
-    args_map["stat_result_atime"] = &atime_Tfrac;
-    args_map["stat_result_mtime"] = &mtime_Tfrac;
-    args_map["stat_result_ctime"] = &ctime_Tfrac;
+    args_map[SYSCALL_FIELD_STAT_RESULT_ATIME] = &atime_Tfrac;
+    args_map[SYSCALL_FIELD_STAT_RESULT_MTIME] = &mtime_Tfrac;
+    args_map[SYSCALL_FIELD_STAT_RESULT_CTIME] = &ctime_Tfrac;
   } else {
     std::cerr << "LStat: Struct stat buffer is set as NULL!!" << std::endl;
   }
@@ -2068,16 +2068,16 @@ void DataSeriesOutputModule::makeFStatArgsMap(void **args_map,
   }
 }
 
-void DataSeriesOutputModule::makeFStatatArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeFStatatArgsMap(void **args_map,
 						long *args,
 						void **v_args) {
   // Initialize all non-nullable boolean fields to False.
   initArgsMap(args_map, "fstatat");
 
-  args_map["descriptor"] = &args[0];
+  args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
 
   if (v_args[0] != NULL) {
-    args_map["given_pathname"] = &v_args[0];
+    args_map[SYSCALL_FIELD_GIVEN_PATHNAME] = &v_args[0];
   } else {
     std::cerr << "FStatat: Pathname is set as NULL!!" << std::endl;
   }
@@ -2085,16 +2085,16 @@ void DataSeriesOutputModule::makeFStatatArgsMap(SysCallArgsMap &args_map,
   if (v_args[1] != NULL) {
     struct stat *statbuf = (struct stat *) v_args[1];
 
-    args_map["stat_result_dev"] = &statbuf->st_dev;
-    args_map["stat_result_ino"] = &statbuf->st_ino;
-    args_map["stat_result_mode"] = &statbuf->st_mode;
-    args_map["stat_result_nlink"] = &statbuf->st_nlink;
-    args_map["stat_result_uid"] = &statbuf->st_uid;
-    args_map["stat_result_gid"] = &statbuf->st_gid;
-    args_map["stat_result_rdev"] = &statbuf->st_rdev;
-    args_map["stat_result_size"] = &statbuf->st_size;
-    args_map["stat_result_blksize"] = &statbuf->st_blksize;
-    args_map["stat_result_blocks"] = &statbuf->st_blocks;
+    args_map[SYSCALL_FIELD_STAT_RESULT_DEV] = &statbuf->st_dev;
+    args_map[SYSCALL_FIELD_STAT_RESULT_INO] = &statbuf->st_ino;
+    args_map[SYSCALL_FIELD_STAT_RESULT_MODE] = &statbuf->st_mode;
+    args_map[SYSCALL_FIELD_STAT_RESULT_NLINK] = &statbuf->st_nlink;
+    args_map[SYSCALL_FIELD_STAT_RESULT_UID] = &statbuf->st_uid;
+    args_map[SYSCALL_FIELD_STAT_RESULT_GID] = &statbuf->st_gid;
+    args_map[SYSCALL_FIELD_STAT_RESULT_RDEV] = &statbuf->st_rdev;
+    args_map[SYSCALL_FIELD_STAT_RESULT_SIZE] = &statbuf->st_size;
+    args_map[SYSCALL_FIELD_STAT_RESULT_BLKSIZE] = &statbuf->st_blksize;
+    args_map[SYSCALL_FIELD_STAT_RESULT_BLOCKS] = &statbuf->st_blocks;
 
     /*
      * Convert stat_result_atime, stat_result_mtime and
@@ -2103,14 +2103,14 @@ void DataSeriesOutputModule::makeFStatatArgsMap(SysCallArgsMap &args_map,
     static uint64_t atime_Tfrac = timespec_to_Tfrac(statbuf->st_atim);
     static uint64_t mtime_Tfrac = timespec_to_Tfrac(statbuf->st_mtim);
     static uint64_t ctime_Tfrac = timespec_to_Tfrac(statbuf->st_ctim);
-    args_map["stat_result_atime"] = &atime_Tfrac;
-    args_map["stat_result_mtime"] = &mtime_Tfrac;
-    args_map["stat_result_ctime"] = &ctime_Tfrac;
+    args_map[SYSCALL_FIELD_STAT_RESULT_ATIME] = &atime_Tfrac;
+    args_map[SYSCALL_FIELD_STAT_RESULT_MTIME] = &mtime_Tfrac;
+    args_map[SYSCALL_FIELD_STAT_RESULT_CTIME] = &ctime_Tfrac;
   } else {
     std::cerr << "FStatat: Struct stat buffer is set as NULL!!" << std::endl;
   }
 
-  args_map["flags_value"] = &args[3];
+  args_map[SYSCALL_FIELD_FLAGS_VALUE] = &args[3];
 
   u_int flag = processFStatatFlags(args_map, args[3]);
   if (flag != 0) {
@@ -2119,7 +2119,7 @@ void DataSeriesOutputModule::makeFStatatArgsMap(SysCallArgsMap &args_map,
   }
 }
 
-u_int DataSeriesOutputModule::processFStatatFlags(SysCallArgsMap &args_map,
+u_int DataSeriesOutputModule::processFStatatFlags(void **args_map,
 						  u_int fstatat_flags) {
   /*
    * Process each individual statfs flag bit that has been set
@@ -2127,13 +2127,13 @@ u_int DataSeriesOutputModule::processFStatatFlags(SysCallArgsMap &args_map,
    */
   // set at empty path flag
   process_Flag_and_Mode_Args(args_map, fstatat_flags, AT_EMPTY_PATH,
-			     "flags_at_empty_path");
+			     SYSCALL_FIELD_FLAGS_AT_EMPTY_PATH);
   // set no auto mount flag
   process_Flag_and_Mode_Args(args_map, fstatat_flags, AT_NO_AUTOMOUNT,
-			     "flags_at_no_automount");
+			     SYSCALL_FIELD_FLAGS_AT_NO_AUTOMOUNT);
   // set symlink nofollow flag
   process_Flag_and_Mode_Args(args_map, fstatat_flags, AT_SYMLINK_NOFOLLOW,
-			     "flags_at_symlink_nofollow");
+			     SYSCALL_FIELD_FLAGS_AT_SYMLINK_NOFOLLOW);
 
   /*
    * Return remaining fstatat flags so that caller can

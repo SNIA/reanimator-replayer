@@ -399,7 +399,7 @@ private:
   u_int processStatfsFlags(void **args_map, u_int statfs_flags);
 
   // Maps FStatfs System Call <field, value> pairs
-  void makeFStatfsArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeFStatfsArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Chown System Call <field, value> pairs
   void makeChownArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
@@ -417,7 +417,7 @@ private:
   void makeUtimeArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
   // Maps LStat System Call <field, value> pairs
-  void makeLStatArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeLStatArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps FStat System Call <field, value> pairs
   void makeFStatArgsMap(void **args_map, long *args, void **v_args);
@@ -426,10 +426,10 @@ private:
    * Maps individual mount option flags for fstatat system call to its
    * corresponding field name
    */
-  u_int processFStatatFlags(SysCallArgsMap &args_map, u_int fstatat_flags);
+  u_int processFStatatFlags(void **args_map, u_int fstatat_flags);
 
   // Maps FStatat System Call <field, value> pairs
-  void makeFStatatArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeFStatatArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Utimes System Call <field, value> pairs
   void makeUtimesArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
