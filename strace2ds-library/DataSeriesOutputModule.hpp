@@ -265,10 +265,10 @@ private:
   void makeWriteArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Chdir System Call <field, value> pairs
-  void makeChdirArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeChdirArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Rmdir System Call <field, value> pairs
-  void makeRmdirArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeRmdirArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Unlink System Call <field, value> pairs
   void makeUnlinkArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
@@ -277,10 +277,10 @@ private:
   void makeUnlinkatArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
   // Maps Mkdir System Call <field, value> pairs
-  void makeMkdirArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeMkdirArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Mkdirat System Call <field, value> pairs
-  void makeMkdiratArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeMkdiratArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Creat System Call <field, value> pairs
   void makeCreatArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);

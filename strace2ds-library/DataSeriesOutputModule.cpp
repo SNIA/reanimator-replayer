@@ -1020,21 +1020,21 @@ void DataSeriesOutputModule::makeWriteArgsMap(void **args_map,
   args_map[SYSCALL_FIELD_BYTES_REQUESTED] = &args[2];
 }
 
-void DataSeriesOutputModule::makeChdirArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeChdirArgsMap(void **args_map,
 					      long *args,
 					      void **v_args) {
   if (v_args[0] != NULL) {
-    args_map["given_pathname"] = &v_args[0];
+    args_map[SYSCALL_FIELD_GIVEN_PATHNAME] = &v_args[0];
   } else {
     std::cerr << "Chdir: Pathname is set as NULL!!" << std::endl;
   }
 }
 
-void DataSeriesOutputModule::makeRmdirArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeRmdirArgsMap(void **args_map,
 					      long *args,
 					      void **v_args) {
   if (v_args[0] != NULL) {
-    args_map["given_pathname"] = &v_args[0];
+    args_map[SYSCALL_FIELD_GIVEN_PATHNAME] = &v_args[0];
   } else {
     std::cerr << "Rmdir: Pathname is set as NULL!!" << std::endl;
   }
@@ -1075,13 +1075,13 @@ void DataSeriesOutputModule::makeUnlinkatArgsMap(SysCallArgsMap &args_map,
   }
 }
 
-void DataSeriesOutputModule::makeMkdirArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeMkdirArgsMap(void **args_map,
 					      long *args,
 					      void **v_args) {
   initArgsMap(args_map, "mkdir");
   int mode_offset = 1;
   if (v_args[0] != NULL) {
-    args_map["given_pathname"] = &v_args[0];
+    args_map[SYSCALL_FIELD_GIVEN_PATHNAME] = &v_args[0];
   } else {
     std::cerr << "Mkdir: Pathname is set as NULL!!" << std::endl;
   }
@@ -1092,7 +1092,7 @@ void DataSeriesOutputModule::makeMkdirArgsMap(SysCallArgsMap &args_map,
   }
 }
 
-void DataSeriesOutputModule::makeMkdiratArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeMkdiratArgsMap(void **args_map,
 						long *args,
 						void **v_args) {
   int mode_offset = 2;
@@ -1100,13 +1100,13 @@ void DataSeriesOutputModule::makeMkdiratArgsMap(SysCallArgsMap &args_map,
   // Initialize all non-nullable boolean fields
   initArgsMap(args_map, "mkdirat");
 
-  args_map["descriptor"] = &args[0];
+  args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
   if (args[0] == AT_FDCWD) {
-    args_map["descriptor_current_working_directory"] = &true_;
+    args_map[SYSCALL_FIELD_DESCRIPTOR_CURRENT_WORKING_DIRECTORY] = &true_;
   }
 
   if (v_args[0] != NULL) {
-    args_map["given_pathname"] = &v_args[0];
+    args_map[SYSCALL_FIELD_GIVEN_PATHNAME] = &v_args[0];
   } else {
     std::cerr << "Mkdirat: Pathname is set as NULL!!" << std::endl;
   }
