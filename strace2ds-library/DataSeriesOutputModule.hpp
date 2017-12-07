@@ -319,7 +319,7 @@ private:
   void makeFListxattrArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps FLock System Calls <field, value> pairs
-  void makeFLockArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeFLockArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Removexattr System Calls <field, value> pairs
   void makeRemovexattrArgsMap(void **args_map, long *args, void **v_args);
@@ -381,10 +381,10 @@ private:
   void makePWriteArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Setpgid System Call <field, value> pairs
-  void makeSetpgidArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeSetpgidArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Setsid System Call <field, value> pairs
-  void makeSetsidArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeSetsidArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Stat System Call <field, value> pairs
   void makeStatArgsMap(void **args_map, long *args, void **v_args);
@@ -539,7 +539,7 @@ private:
   void makeIoctlArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Clone System Call <field, value> pairs
-  void makeCloneArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeCloneArgsMap(void **args_map, long *args, void **v_args);
 
   /*
    * Maps individual flag value for Clone system call to its corresponding
@@ -554,7 +554,7 @@ private:
   u_int processCloneSignals(SysCallArgsMap &args_map, u_int flag);
 
   // Maps VFork System Call <field, value> pairs
-  void makeVForkArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeVForkArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Socket System Call <field, value> pairs
   void makeSocketArgsMap(SysCallArgsMap &args_map,
