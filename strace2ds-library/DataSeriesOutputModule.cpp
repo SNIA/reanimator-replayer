@@ -1163,196 +1163,196 @@ void DataSeriesOutputModule::makeUmaskArgsMap(void **args_map,
   }
 }
 
-void DataSeriesOutputModule::makeSetxattrArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeSetxattrArgsMap(void **args_map,
 						 long *args,
 						 void **v_args) {
   // Initialize all non-nullable boolean fields to False.
   initArgsMap(args_map, "setxattr");
 
   if (v_args[0] != NULL) {
-    args_map["given_pathname"] = &v_args[0];
+    args_map[SYSCALL_FIELD_GIVEN_PATHNAME] = &v_args[0];
   } else {
     std::cerr << "Setxattr: Pathname is set as NULL!!" << std::endl;
   }
 
   if (v_args[1] != NULL) {
-    args_map["xattr_name"] = &v_args[1];
+    args_map[SYSCALL_FIELD_XATTR_NAME] = &v_args[1];
   } else {
     std::cerr << "Setxattr: Attribute name is set as NULL!!" << std::endl;
   }
 
-  args_map["value_written"] = &v_args[2];
-  args_map["value_size"] = &args[3];
+  args_map[SYSCALL_FIELD_VALUE_WRITTEN] = &v_args[2];
+  args_map[SYSCALL_FIELD_VALUE_SIZE] = &args[3];
 
   /* Setting flag values */
-  args_map["flag_value"] = &args[4];
+  args_map[SYSCALL_FIELD_FLAG_VALUE] = &args[4];
   u_int flag = args[4];
-  process_Flag_and_Mode_Args(args_map, flag, XATTR_CREATE, "flag_xattr_create");
-  process_Flag_and_Mode_Args(args_map, flag, XATTR_REPLACE, "flag_xattr_replace");
+  process_Flag_and_Mode_Args(args_map, flag, XATTR_CREATE, SYSCALL_FIELD_FLAG_XATTR_CREATE);
+  process_Flag_and_Mode_Args(args_map, flag, XATTR_REPLACE, SYSCALL_FIELD_FLAG_XATTR_REPLACE);
   if (flag != 0) {
     std::cerr << "Setxattr: These flags are not processed/unknown->0x";
     std::cerr << std::hex << flag << std::dec << std::endl;
   }
 }
 
-void DataSeriesOutputModule::makeLSetxattrArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeLSetxattrArgsMap(void **args_map,
 						  long *args,
 						  void **v_args) {
   // Initialize all non-nullable boolean fields to False.
   initArgsMap(args_map, "lsetxattr");
 
   if (v_args[0] != NULL) {
-    args_map["given_pathname"] = &v_args[0];
+    args_map[SYSCALL_FIELD_GIVEN_PATHNAME] = &v_args[0];
   } else {
     std::cerr << "LSetxattr: Pathname is set as NULL!!" << std::endl;
   }
 
   if (v_args[1] != NULL) {
-    args_map["xattr_name"] = &v_args[1];
+    args_map[SYSCALL_FIELD_XATTR_NAME] = &v_args[1];
   } else {
     std::cerr << "LSetxattr: Attribute name is set as NULL!!" << std::endl;
   }
 
-  args_map["value_written"] = &v_args[2];
-  args_map["value_size"] = &args[3];
+  args_map[SYSCALL_FIELD_VALUE_WRITTEN] = &v_args[2];
+  args_map[SYSCALL_FIELD_VALUE_SIZE] = &args[3];
 
   /* Setting flag values */
-  args_map["flag_value"] = &args[4];
+  args_map[SYSCALL_FIELD_FLAG_VALUE] = &args[4];
   u_int flag = args[4];
-  process_Flag_and_Mode_Args(args_map, flag, XATTR_CREATE, "flag_xattr_create");
-  process_Flag_and_Mode_Args(args_map, flag, XATTR_REPLACE, "flag_xattr_replace");
+  process_Flag_and_Mode_Args(args_map, flag, XATTR_CREATE, SYSCALL_FIELD_FLAG_XATTR_CREATE);
+  process_Flag_and_Mode_Args(args_map, flag, XATTR_REPLACE, SYSCALL_FIELD_FLAG_XATTR_REPLACE);
   if (flag != 0) {
     std::cerr << "LSetxattr: These flags are not processed/unknown->0x";
     std::cerr << std::hex << flag << std::dec << std::endl;
   }
 }
 
-void DataSeriesOutputModule::makeGetxattrArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeGetxattrArgsMap(void **args_map,
                                                  long *args,
                                                  void **v_args) {
   if (v_args[0] != NULL) {
-    args_map["given_pathname"] = &v_args[0];
+    args_map[SYSCALL_FIELD_GIVEN_PATHNAME] = &v_args[0];
   } else {
     std::cerr << "Getxattr: Pathname is set as NULL!!" << std::endl;
   }
 
   if (v_args[1] != NULL) {
-    args_map["xattr_name"] = &v_args[1];
+    args_map[SYSCALL_FIELD_XATTR_NAME] = &v_args[1];
   } else {
     std::cerr << "Getxattr: Attribute name is set as NULL!!" << std::endl;
   }
 
-  args_map["value_read"] = &v_args[2];
-  args_map["value_size"] = &args[3];
+  args_map[SYSCALL_FIELD_VALUE_READ] = &v_args[2];
+  args_map[SYSCALL_FIELD_VALUE_SIZE] = &args[3];
 }
 
-void DataSeriesOutputModule::makeLGetxattrArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeLGetxattrArgsMap(void **args_map,
                                                   long *args,
                                                   void **v_args) {
   if (v_args[0] != NULL) {
-    args_map["given_pathname"] = &v_args[0];
+    args_map[SYSCALL_FIELD_GIVEN_PATHNAME] = &v_args[0];
   } else {
     std::cerr << "LGetxattr: Pathname is set as NULL!!" << std::endl;
   }
 
   if (v_args[1] != NULL) {
-    args_map["xattr_name"] = &v_args[1];
+    args_map[SYSCALL_FIELD_XATTR_NAME] = &v_args[1];
   } else {
     std::cerr << "LGetxattr: Attribute name is set as NULL!!" << std::endl;
   }
 
-  args_map["value_read"] = &v_args[2];
-  args_map["value_size"] = &args[3];
+  args_map[SYSCALL_FIELD_VALUE_READ] = &v_args[2];
+  args_map[SYSCALL_FIELD_VALUE_SIZE] = &args[3];
 }
 
-void DataSeriesOutputModule::makeFSetxattrArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeFSetxattrArgsMap(void **args_map,
 						  long *args,
 						  void **v_args) {
   // Initialize all non-nullable boolean fields to False.
   initArgsMap(args_map, "fsetxattr");
-  args_map["descriptor"] = &args[0];
+  args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
   if (v_args[0] != NULL) {
-    args_map["xattr_name"] = &v_args[0];
+    args_map[SYSCALL_FIELD_XATTR_NAME] = &v_args[0];
   } else {
     std::cerr << "FSetxattr: Attribute name is set as NULL!!" << std::endl;
   }
 
-  args_map["value_written"] = &v_args[1];
-  args_map["value_size"] = &args[3];
+  args_map[SYSCALL_FIELD_VALUE_WRITTEN] = &v_args[1];
+  args_map[SYSCALL_FIELD_VALUE_SIZE] = &args[3];
 
   /* Setting flag values */
-  args_map["flag_value"] = &args[4];
+  args_map[SYSCALL_FIELD_FLAG_VALUE] = &args[4];
   u_int flag = args[4];
-  process_Flag_and_Mode_Args(args_map, flag, XATTR_CREATE, "flag_xattr_create");
-  process_Flag_and_Mode_Args(args_map, flag, XATTR_REPLACE, "flag_xattr_replace");
+  process_Flag_and_Mode_Args(args_map, flag, XATTR_CREATE, SYSCALL_FIELD_FLAG_XATTR_CREATE);
+  process_Flag_and_Mode_Args(args_map, flag, XATTR_REPLACE, SYSCALL_FIELD_FLAG_XATTR_REPLACE);
   if (flag != 0) {
     std::cerr << "FSetxattr: These flag are not processed/unknown->0x";
     std::cerr << std::hex << flag << std::dec << std::endl;
   }
 }
 
-void DataSeriesOutputModule::makeFGetxattrArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeFGetxattrArgsMap(void **args_map,
 						  long *args,
 						  void **v_args) {
-  args_map["descriptor"] = &args[0];
+  args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
 
   if (v_args[0] != NULL) {
-    args_map["xattr_name"] = &v_args[0];
+    args_map[SYSCALL_FIELD_XATTR_NAME] = &v_args[0];
   } else {
     std::cerr << "FGetxattr: Attribute name is set as NULL!!" << std::endl;
   }
-  args_map["value_read"] = &v_args[1];
-  args_map["value_size"] = &args[3];
+  args_map[SYSCALL_FIELD_VALUE_READ] = &v_args[1];
+  args_map[SYSCALL_FIELD_VALUE_SIZE] = &args[3];
 }
 
-void DataSeriesOutputModule::makeListxattrArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeListxattrArgsMap(void **args_map,
 						  long *args,
 						  void **v_args) {
   if (v_args[0] != NULL) {
-    args_map["given_pathname"] = &v_args[0];
+    args_map[SYSCALL_FIELD_GIVEN_PATHNAME] = &v_args[0];
   } else {
     std::cerr << "Listxattr: Pathname is set as NULL!!" << std::endl;
   }
 
   if (v_args[1] != NULL) {
-    args_map["xattr_list"] = &v_args[1];
+    args_map[SYSCALL_FIELD_XATTR_LIST] = &v_args[1];
   } else {
     std::cerr << "Listxattr: Attribute list is set as NULL!!" << std::endl;
   }
 
-  args_map["list_size"] = &args[2];
+  args_map[SYSCALL_FIELD_LIST_SIZE] = &args[2];
 }
 
-void DataSeriesOutputModule::makeLListxattrArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeLListxattrArgsMap(void **args_map,
 						   long *args,
 						   void **v_args) {
   if (v_args[0] != NULL) {
-    args_map["given_pathname"] = &v_args[0];
+    args_map[SYSCALL_FIELD_GIVEN_PATHNAME] = &v_args[0];
   } else {
     std::cerr << "LListxattr: Pathname is set as NULL!!" << std::endl;
   }
 
   if (v_args[1] != NULL) {
-    args_map["xattr_list"] = &v_args[1];
+    args_map[SYSCALL_FIELD_XATTR_LIST] = &v_args[1];
   } else {
     std::cerr << "LListxattr: Attribute list is set as NULL!!" << std::endl;
   }
 
-  args_map["list_size"] = &args[2];
+  args_map[SYSCALL_FIELD_LIST_SIZE] = &args[2];
 }
 
-void DataSeriesOutputModule::makeFListxattrArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeFListxattrArgsMap(void **args_map,
 						   long *args,
 						   void **v_args) {
-  args_map["descriptor"] = &args[0];
+  args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
 
   if (v_args[0] != NULL) {
-    args_map["xattr_list"] = &v_args[0];
+    args_map[SYSCALL_FIELD_XATTR_LIST] = &v_args[0];
   } else {
     std::cerr << "FListxattr: Attribute list is set as NULL!!" << std::endl;
   }
 
-  args_map["list_size"] = &args[2];
+  args_map[SYSCALL_FIELD_LIST_SIZE] = &args[2];
 }
 
 void DataSeriesOutputModule::makeFLockArgsMap(SysCallArgsMap &args_map,
@@ -1370,45 +1370,45 @@ void DataSeriesOutputModule::makeFLockArgsMap(SysCallArgsMap &args_map,
   args_map["operation"] = &args[1];
 }
 
-void DataSeriesOutputModule::makeRemovexattrArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeRemovexattrArgsMap(void **args_map,
 						    long *args,
 						    void **v_args) {
   if (v_args[0] != NULL) {
-    args_map["given_pathname"] = &v_args[0];
+    args_map[SYSCALL_FIELD_GIVEN_PATHNAME] = &v_args[0];
   } else {
     std::cerr << "Removexattr: Pathname is set as NULL!!" << std::endl;
   }
 
   if (v_args[1] != NULL) {
-    args_map["xattr_name"] = &v_args[1];
+    args_map[SYSCALL_FIELD_XATTR_NAME] = &v_args[1];
   } else {
     std::cerr << "Removexattr: Attribute name is set as NULL!!" << std::endl;
   }
 }
 
-void DataSeriesOutputModule::makeLRemovexattrArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeLRemovexattrArgsMap(void **args_map,
 						     long *args,
 						     void **v_args) {
   if (v_args[0] != NULL) {
-    args_map["given_pathname"] = &v_args[0];
+    args_map[SYSCALL_FIELD_GIVEN_PATHNAME] = &v_args[0];
   } else {
     std::cerr << "LRemovexattr: Pathname is set as NULL!!" << std::endl;
   }
 
   if (v_args[1] != NULL) {
-    args_map["xattr_name"] = &v_args[1];
+    args_map[SYSCALL_FIELD_XATTR_NAME] = &v_args[1];
   } else {
     std::cerr << "LRemovexattr: Attribute name is set as NULL!!" << std::endl;
   }
 }
 
-void DataSeriesOutputModule::makeFRemovexattrArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeFRemovexattrArgsMap(void **args_map,
 						     long *args,
 						     void **v_args) {
-  args_map["descriptor"] = &args[0];
+  args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
 
   if (v_args[0] != NULL) {
-    args_map["xattr_name"] = &v_args[0];
+    args_map[SYSCALL_FIELD_XATTR_NAME] = &v_args[0];
   } else {
     std::cerr << "FRemovexattr: Attribute name is set as NULL!!" << std::endl;
   }

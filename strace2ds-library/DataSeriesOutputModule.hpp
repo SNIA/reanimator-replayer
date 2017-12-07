@@ -292,43 +292,43 @@ private:
   void makeUmaskArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Setxattr System Calls <field, value> pairs
-  void makeSetxattrArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeSetxattrArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps LSetxattr System Calls <field, value> pairs
-  void makeLSetxattrArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeLSetxattrArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Getxattr System Calls <field, value> pairs
-  void makeGetxattrArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeGetxattrArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps LGetxattr System Calls <field, value> pairs
-  void makeLGetxattrArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeLGetxattrArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps FSetxattr System Calls <field, value> pairs
-  void makeFSetxattrArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeFSetxattrArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps FGetxattr System Calls <field, value> pairs
-  void makeFGetxattrArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeFGetxattrArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Listxattr System Calls <field, value> pairs
-  void makeListxattrArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeListxattrArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps LListxattr System Calls <field, value> pairs
-  void makeLListxattrArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeLListxattrArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps FListxattr System Calls <field, value> pairs
-  void makeFListxattrArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeFListxattrArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps FLock System Calls <field, value> pairs
   void makeFLockArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
   // Maps Removexattr System Calls <field, value> pairs
-  void makeRemovexattrArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeRemovexattrArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps LRemovexattr System Calls <field, value> pairs
-  void makeLRemovexattrArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeLRemovexattrArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps FRemovexattr System Calls <field, value> pairs
-  void makeFRemovexattrArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeFRemovexattrArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps FChmod System Calls <field, value> pairs
   void makeFChmodArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
