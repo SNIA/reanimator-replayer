@@ -67,6 +67,16 @@ void MkdiratSystemCallTraceReplayModule::processRow() {
   const char *pathname = (char *)given_pathname_.val();
   mode_t mode = get_mode(mode_value_.val());
 
+  if (dirfd == SYSCALL_SIMULATED && pathname != NULL && pathname[0] != '/') {
+    /*
+     * dirfd originated from a socket, hence mkdirat cannot be replayed.
+     * Traced system call would have failed with ENOTDIR.
+     * The system call will not be replayed.
+     * Traced return value will be returned.
+     */
+    replayed_ret_val_ = return_value_.val();
+    return;
+  }
   // Replay the mkdirat system call
   replayed_ret_val_ = mkdirat(dirfd, pathname, mode);
 }

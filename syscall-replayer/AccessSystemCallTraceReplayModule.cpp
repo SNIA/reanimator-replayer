@@ -70,9 +70,10 @@ void FAccessatSystemCallTraceReplayModule::processRow() {
   int mode = get_mode(mode_value_.val());
   int flags = flags_value_.val();
 
-  if (replayed_fd == SYSCALL_SIMULATED) {
+  if (replayed_fd == SYSCALL_SIMULATED && pathname != NULL && pathname[0] != '/') {
     /*
-     * FD for the faccessat call originated from a socket().
+     * replayed_fd originated from a socket, hence faccessat cannot be replayed.
+     * Traced system call would have failed with ENOTDIR.
      * The system call will not be replayed.
      * Traced return value will be returned.
      */

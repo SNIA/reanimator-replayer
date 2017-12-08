@@ -64,6 +64,16 @@ void UnlinkatSystemCallTraceReplayModule::processRow() {
   char *path = (char *) given_pathname_.val();
   int flags = flag_value_.val();
 
+  if (dirfd == SYSCALL_SIMULATED && path != NULL && path[0] != '/') {
+    /*
+     * dirfd originated from a socket, hence unlinkat cannot be replayed.
+     * Traced system call would have failed with ENOTDIR.
+     * The system call will not be replayed.
+     * Traced return value will be returned.
+     */
+    replayed_ret_val_ = return_value_.val();
+    return;
+  }
   // Replay the unlinkat system call
   replayed_ret_val_ = unlinkat(dirfd, path, flags);
 }

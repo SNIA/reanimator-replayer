@@ -31,8 +31,7 @@
 #include <iostream>
 #include <utility>
 #include <unordered_map>
-#include <boost/algorithm/string.hpp>
-#include <boost/tokenizer.hpp>
+#include <sstream>
 
 #include <DataSeries/ExtentType.hpp>
 #include <DataSeries/DataSeriesFile.hpp>
