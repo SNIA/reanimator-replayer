@@ -1117,13 +1117,13 @@ void DataSeriesOutputModule::makeMkdiratArgsMap(void **args_map,
   }
 }
 
-void DataSeriesOutputModule::makeCreatArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeCreatArgsMap(void **args_map,
 					      long *args,
 					      void **v_args) {
   initArgsMap(args_map, "creat");
   int mode_offset = 1;
   if (v_args[0] != NULL) {
-    args_map["given_pathname"] = &v_args[0];
+    args_map[SYSCALL_FIELD_GIVEN_PATHNAME] = &v_args[0];
   } else {
     std::cerr << "Creat: Pathname is set as NULL!!" << std::endl;
   }
@@ -1552,15 +1552,15 @@ void DataSeriesOutputModule::makeSymlinkatArgsMap(void **args_map,
   }
 }
 
-void DataSeriesOutputModule::makeTruncateArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeTruncateArgsMap(void **args_map,
 						 long *args,
 						 void **v_args) {
   if (v_args[0] != NULL) {
-    args_map["given_pathname"] = &v_args[0];
+    args_map[SYSCALL_FIELD_GIVEN_PATHNAME] = &v_args[0];
   } else {
     std::cerr << "Truncate: Pathname is set as NULL!!" << std::endl;
   }
-  args_map["truncate_length"] = &args[1];
+  args_map[SYSCALL_FIELD_TRUNCATE_LENGTH] = &args[1];
 }
 
 void DataSeriesOutputModule::makeAccessArgsMap(void **args_map,
@@ -1883,11 +1883,11 @@ u_int DataSeriesOutputModule::processStatfsFlags(void **args_map,
   return statfs_flags;
 }
 
-void DataSeriesOutputModule::makeFTruncateArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeFTruncateArgsMap(void **args_map,
 						  long *args,
 						  void **v_args) {
-  args_map["descriptor"] = &args[0];
-  args_map["truncate_length"] = &args[1];
+  args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
+  args_map[SYSCALL_FIELD_TRUNCATE_LENGTH] = &args[1];
 }
 
 void DataSeriesOutputModule::makeChownArgsMap(SysCallArgsMap &args_map,
@@ -2214,26 +2214,26 @@ void DataSeriesOutputModule::makeUtimensatArgsMap(SysCallArgsMap &args_map,
   }
 }
 
-void DataSeriesOutputModule::makeRenameArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeRenameArgsMap(void **args_map,
 					       long *args,
 					       void **v_args) {
   if (v_args[0] != NULL) {
-    args_map["given_oldname"] = &v_args[0];
+    args_map[SYSCALL_FIELD_GIVEN_OLDNAME] = &v_args[0];
   } else {
     std::cerr << "Rename: Old name is set as NULL!!" << std::endl;
   }
 
   if (v_args[1] != NULL) {
-    args_map["given_newname"] = &v_args[1];
+    args_map[SYSCALL_FIELD_GIVEN_NEWNAME] = &v_args[1];
   } else {
     std::cerr << "Rename: New name is set as NULL!!" << std::endl;
   }
 }
 
-void DataSeriesOutputModule::makeFsyncArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeFsyncArgsMap(void **args_map,
 					      long *args,
 					      void **v_args) {
-  args_map["descriptor"] = &args[0];
+  args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
 }
 
 void DataSeriesOutputModule::makeMknodArgsMap(SysCallArgsMap &args_map,
@@ -2328,7 +2328,7 @@ mode_t DataSeriesOutputModule::processMknodType(SysCallArgsMap &args_map,
   return mode;
 }
 
-void DataSeriesOutputModule::makePipeArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makePipeArgsMap(void **args_map,
 					     long *args,
 					     void **v_args) {
   static int pipefd[2];
@@ -2346,21 +2346,21 @@ void DataSeriesOutputModule::makePipeArgsMap(SysCallArgsMap &args_map,
     std::cerr << "Pipe: File descriptor array is set as NULL!!" << std::endl;
   }
 
-  args_map["read_descriptor"] = &pipefd[0];
-  args_map["write_descriptor"] = &pipefd[1];
+  args_map[SYSCALL_FIELD_READ_DESCRIPTOR] = &pipefd[0];
+  args_map[SYSCALL_FIELD_WRITE_DESCRIPTOR] = &pipefd[1];
 }
 
-void DataSeriesOutputModule::makeDupArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeDupArgsMap(void **args_map,
 					    long *args,
 					    void **v_args) {
-  args_map["descriptor"] = &args[0];
+  args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
 }
 
-void DataSeriesOutputModule::makeDup2ArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeDup2ArgsMap(void **args_map,
 					     long *args,
 					     void **v_args) {
-  args_map["old_descriptor"] = &args[0];
-  args_map["new_descriptor"] = &args[1];
+  args_map[SYSCALL_FIELD_OLD_DESCRIPTOR] = &args[0];
+  args_map[SYSCALL_FIELD_NEW_DESCRIPTOR] = &args[1];
 }
 
 void DataSeriesOutputModule::makeFcntlArgsMap(SysCallArgsMap &args_map,

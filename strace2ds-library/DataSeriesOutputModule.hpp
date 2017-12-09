@@ -283,7 +283,7 @@ private:
   void makeMkdiratArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Creat System Call <field, value> pairs
-  void makeCreatArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeCreatArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Chmod System Calls <field, value> pairs
   void makeChmodArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
@@ -349,10 +349,10 @@ private:
   void makeSymlinkatArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Truncate System Call <field, value> pairs
-  void makeTruncateArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeTruncateArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps FTruncate System Call <field, value> pairs
-  void makeFTruncateArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeFTruncateArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Access System Call <field, value> pairs
   void makeAccessArgsMap(void **args_map, long *args, void **v_args);
@@ -438,10 +438,10 @@ private:
   void makeUtimensatArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
 
   // Maps Rename System Call <field, value> pairs
-  void makeRenameArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeRenameArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Fsync System Call <field, value> pairs
-  void makeFsyncArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeFsyncArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Mknod System Call <field, value> pairs
   void makeMknodArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
@@ -453,13 +453,13 @@ private:
   mode_t processMknodType(SysCallArgsMap &args_map, mode_t mode);
 
   // Maps Pipe System Call <field, value> pairs
-  void makePipeArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makePipeArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Dup System Call <field, value> pairs
-  void makeDupArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeDupArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Dup2 System Call <field, value> pairs
-  void makeDup2ArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeDup2ArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Fcntl System Call <field, value> pairs
   void makeFcntlArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
