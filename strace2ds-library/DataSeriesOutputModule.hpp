@@ -286,7 +286,7 @@ private:
   void makeCreatArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Chmod System Calls <field, value> pairs
-  void makeChmodArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeChmodArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Umask System Calls <field, value> pairs
   void makeUmaskArgsMap(void **args_map, long *args, void **v_args);
@@ -331,10 +331,10 @@ private:
   void makeFRemovexattrArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps FChmod System Calls <field, value> pairs
-  void makeFChmodArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeFChmodArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps FChmodat System Calls <field, value> pairs
-  void makeFChmodatArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeFChmodatArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Link System Call <field, value> pairs
   void makeLinkArgsMap(void **args_map, long *args, void **v_args);
@@ -402,7 +402,7 @@ private:
   void makeFStatfsArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Chown System Call <field, value> pairs
-  void makeChownArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeChownArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Readlink System Call <field, value> pairs
   void makeReadlinkArgsMap(void **args_map, long *args, void **v_args);
@@ -414,7 +414,7 @@ private:
   void makeWritevArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Utime System Call <field, value> pairs
-  void makeUtimeArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeUtimeArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps LStat System Call <field, value> pairs
   void makeLStatArgsMap(void **args_map, long *args, void **v_args);
@@ -432,10 +432,10 @@ private:
   void makeFStatatArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Utimes System Call <field, value> pairs
-  void makeUtimesArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeUtimesArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Utimensat System Call <field, value> pairs
-  void makeUtimensatArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeUtimensatArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Rename System Call <field, value> pairs
   void makeRenameArgsMap(void **args_map, long *args, void **v_args);
@@ -444,13 +444,13 @@ private:
   void makeFsyncArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Mknod System Call <field, value> pairs
-  void makeMknodArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeMknodArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Mknodat System Call <field, value> pairs
-  void makeMknodatArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeMknodatArgsMap(void **args_map, long *args, void **v_args);
 
   // Processes, encodes, and maps the type field for the Mknod system call
-  mode_t processMknodType(SysCallArgsMap &args_map, mode_t mode);
+  mode_t processMknodType(void **args_map, mode_t mode);
 
   // Maps Pipe System Call <field, value> pairs
   void makePipeArgsMap(void **args_map, long *args, void **v_args);

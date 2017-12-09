@@ -1134,13 +1134,13 @@ void DataSeriesOutputModule::makeCreatArgsMap(void **args_map,
   }
 }
 
-void DataSeriesOutputModule::makeChmodArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeChmodArgsMap(void **args_map,
 					      long *args,
 					      void **v_args) {
   initArgsMap(args_map, "chmod");
   int mode_offset = 1;
   if (v_args[0] != NULL) {
-    args_map["given_pathname"] = &v_args[0];
+    args_map[SYSCALL_FIELD_GIVEN_PATHNAME] = &v_args[0];
   } else {
     std::cerr << "Chmod: Pathname is set as NULL!!" << std::endl;
   }
@@ -1414,12 +1414,12 @@ void DataSeriesOutputModule::makeFRemovexattrArgsMap(void **args_map,
   }
 }
 
-void DataSeriesOutputModule::makeFChmodArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeFChmodArgsMap(void **args_map,
 					       long *args,
 					       void **v_args) {
   initArgsMap(args_map, "fchmod");
   int mode_offset = 1;
-  args_map["descriptor"] = &args[0];
+  args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
   mode_t mode = processMode(args_map, args, 1);
   if (mode != 0) {
     std::cerr << "FChmod: These modes are not processed/unknown->0";
@@ -1427,16 +1427,16 @@ void DataSeriesOutputModule::makeFChmodArgsMap(SysCallArgsMap &args_map,
   }
 }
 
-void DataSeriesOutputModule::makeFChmodatArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeFChmodatArgsMap(void **args_map,
 						 long *args,
 						 void **v_args) {
   int mode_offset = 2;
   initArgsMap(args_map, "fchmodat");
 
-  args_map["descriptor"] = &args[0];
+  args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
 
   if (v_args[0] != NULL) {
-    args_map["given_pathname"] = &v_args[0];
+    args_map[SYSCALL_FIELD_GIVEN_PATHNAME] = &v_args[0];
   } else {
     std::cerr << "FChmodat: Pathname is set as NULL!!" << std::endl;
   }
@@ -1449,10 +1449,10 @@ void DataSeriesOutputModule::makeFChmodatArgsMap(SysCallArgsMap &args_map,
   }
 
   // set flag values
-  args_map["flag_value"] = &args[3];
+  args_map[SYSCALL_FIELD_FLAG_VALUE] = &args[3];
   u_int flag = args[3];
   process_Flag_and_Mode_Args(args_map, flag, AT_SYMLINK_NOFOLLOW, \
-			     "flag_at_symlink_nofollow");
+			     SYSCALL_FIELD_FLAG_AT_SYMLINK_NOFOLLOW);
   if (flag != 0) {
     std::cerr << "FChmodat: These flags are not processed/unknown->0";
     std::cerr << std::oct << flag << std::dec << std::endl;
@@ -1890,17 +1890,17 @@ void DataSeriesOutputModule::makeFTruncateArgsMap(void **args_map,
   args_map[SYSCALL_FIELD_TRUNCATE_LENGTH] = &args[1];
 }
 
-void DataSeriesOutputModule::makeChownArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeChownArgsMap(void **args_map,
 					      long *args,
 					      void **v_args) {
   if (v_args[0] != NULL) {
-    args_map["given_pathname"] = &v_args[0];
+    args_map[SYSCALL_FIELD_GIVEN_PATHNAME] = &v_args[0];
   } else {
     std::cerr << "Chown: Pathname is set as NULL!!" << std::endl;
   }
 
-  args_map["new_owner"] = &args[1];
-  args_map["new_group"] = &args[2];
+  args_map[SYSCALL_FIELD_NEW_OWNER] = &args[1];
+  args_map[SYSCALL_FIELD_NEW_GROUP] = &args[2];
 }
 
 void DataSeriesOutputModule::makeReadlinkArgsMap(void **args_map,
@@ -1971,14 +1971,14 @@ void DataSeriesOutputModule::makeWritevArgsMap(void **args_map,
   }
 }
 
-void DataSeriesOutputModule::makeUtimeArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeUtimeArgsMap(void **args_map,
 					      long *args,
 					      void **v_args) {
   static uint64_t access_time_Tfrac;
   static uint64_t mod_time_Tfrac;
 
   if (v_args[0] != NULL) {
-    args_map["given_pathname"] = &v_args[0];
+    args_map[SYSCALL_FIELD_GIVEN_PATHNAME] = &v_args[0];
   } else {
     std::cerr << "Utime: Pathname is set as NULL!!" << std::endl;
   }
@@ -1991,8 +1991,8 @@ void DataSeriesOutputModule::makeUtimeArgsMap(SysCallArgsMap &args_map,
     access_time_Tfrac = sec_to_Tfrac(times->actime);
     mod_time_Tfrac = sec_to_Tfrac(times->modtime);
 
-    args_map["access_time"] = &access_time_Tfrac;
-    args_map["mod_time"] = &mod_time_Tfrac;
+    args_map[SYSCALL_FIELD_ACCESS_TIME] = &access_time_Tfrac;
+    args_map[SYSCALL_FIELD_MOD_TIME] = &mod_time_Tfrac;
   }
 }
 
@@ -2143,14 +2143,14 @@ u_int DataSeriesOutputModule::processFStatatFlags(void **args_map,
   return fstatat_flags;
 }
 
-void DataSeriesOutputModule::makeUtimesArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeUtimesArgsMap(void **args_map,
 					       long *args,
 					       void **v_args) {
   static uint64_t access_time_Tfrac;
   static uint64_t mod_time_Tfrac;
 
   if (v_args[0] != NULL) {
-    args_map["given_pathname"] = &v_args[0];
+    args_map[SYSCALL_FIELD_GIVEN_PATHNAME] = &v_args[0];
   } else {
     std::cerr << "Utimes: Pathname is set as NULL!!" << std::endl;
   }
@@ -2163,25 +2163,25 @@ void DataSeriesOutputModule::makeUtimesArgsMap(SysCallArgsMap &args_map,
     access_time_Tfrac = timeval_to_Tfrac(tv[0]);
     mod_time_Tfrac = timeval_to_Tfrac(tv[1]);
 
-    args_map["access_time"] = &access_time_Tfrac;
-    args_map["mod_time"] = &mod_time_Tfrac;
+    args_map[SYSCALL_FIELD_ACCESS_TIME] = &access_time_Tfrac;
+    args_map[SYSCALL_FIELD_MOD_TIME] = &mod_time_Tfrac;
   }
 }
 
-void DataSeriesOutputModule::makeUtimensatArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeUtimensatArgsMap(void **args_map,
 						  long *args,
 						  void **v_args) {
   static uint64_t access_time_Tfrac;
   static uint64_t mod_time_Tfrac;
   initArgsMap(args_map, "utimensat");
 
-  args_map["descriptor"] = &args[0];
+  args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
   if (args[0] == AT_FDCWD) {
-    args_map["descriptor_current_working_directory"] = &true_;
+    args_map[SYSCALL_FIELD_DESCRIPTOR_CURRENT_WORKING_DIRECTORY] = &true_;
   }
 
   if (v_args[0] != NULL) {
-    args_map["given_pathname"] = &v_args[0];
+    args_map[SYSCALL_FIELD_GIVEN_PATHNAME] = &v_args[0];
   } else {
     std::cerr << "Utimensat: Pathname is set as NULL!!" << std::endl;
   }
@@ -2192,22 +2192,22 @@ void DataSeriesOutputModule::makeUtimensatArgsMap(SysCallArgsMap &args_map,
 
     // Check for the special values UTIME_NOW and UTIME_OMIT
     if ((ts[0].tv_nsec == UTIME_NOW) || (ts[1].tv_nsec == UTIME_NOW))
-      args_map["utime_now"] = &true_;
+      args_map[SYSCALL_FIELD_UTIME_NOW] = &true_;
     if ((ts[0].tv_nsec == UTIME_OMIT) || (ts[1].tv_nsec == UTIME_OMIT))
-      args_map["utime_omit"] = &true_;
+      args_map[SYSCALL_FIELD_UTIME_OMIT] = &true_;
 
     // Convert timespec arguments to Tfracs (uint64_t)
     access_time_Tfrac = timespec_to_Tfrac(ts[0]);
     mod_time_Tfrac = timespec_to_Tfrac(ts[1]);
 
-    args_map["access_time"] = &access_time_Tfrac;
-    args_map["mod_time"] = &mod_time_Tfrac;
+    args_map[SYSCALL_FIELD_ACCESS_TIME] = &access_time_Tfrac;
+    args_map[SYSCALL_FIELD_MOD_TIME] = &mod_time_Tfrac;
   }
 
-  args_map["flag_value"] = &args[3];
+  args_map[SYSCALL_FIELD_FLAG_VALUE] = &args[3];
   u_int flag = args[3];
   process_Flag_and_Mode_Args(args_map, flag, AT_SYMLINK_NOFOLLOW,
-			     "flag_symlink_nofollow");
+			     SYSCALL_FIELD_FLAG_SYMLINK_NOFOLLOW);
   if (flag != 0) {
     std::cerr << "Utimensat: These flags are not processed/unknown->"
 	      << std::hex << flag << std::dec << std::endl;
@@ -2236,13 +2236,13 @@ void DataSeriesOutputModule::makeFsyncArgsMap(void **args_map,
   args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
 }
 
-void DataSeriesOutputModule::makeMknodArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeMknodArgsMap(void **args_map,
 					      long *args,
 					      void **v_args) {
   static int32_t dev;
   initArgsMap(args_map, "mknod");
   if (v_args[0] != NULL) {
-    args_map["given_pathname"] = &v_args[0];
+    args_map[SYSCALL_FIELD_GIVEN_PATHNAME] = &v_args[0];
   } else {
     std::cerr << "Mknod: Pathname is set as NULL!!" << std::endl;
   }
@@ -2258,18 +2258,18 @@ void DataSeriesOutputModule::makeMknodArgsMap(SysCallArgsMap &args_map,
 
   if ((args[1] & S_IFCHR) || (args[1] & S_IFBLK)) {
     dev = (int32_t) args[2];
-    args_map["dev"] = &dev;
+    args_map[SYSCALL_FIELD_DEV] = &dev;
   }
 }
 
-void DataSeriesOutputModule::makeMknodatArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeMknodatArgsMap(void **args_map,
 						long *args,
 						void **v_args) {
   static int32_t dev;
-  args_map["descriptor"] = &args[0];
+  args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
   initArgsMap(args_map, "mknodat");
   if (v_args[0] != NULL) {
-    args_map["given_pathname"] = &v_args[0];
+    args_map[SYSCALL_FIELD_GIVEN_PATHNAME] = &v_args[0];
   } else {
     std::cerr << "Mknodat: Pathname is set as NULL!!" << std::endl;
   }
@@ -2286,11 +2286,11 @@ void DataSeriesOutputModule::makeMknodatArgsMap(SysCallArgsMap &args_map,
 
   if ((args[2] & S_IFCHR) || (args[2] & S_IFBLK)) {
     dev = (int32_t) args[3];
-    args_map["dev"] = &dev;
+    args_map[SYSCALL_FIELD_DEV] = &dev;
   }
 }
 
-mode_t DataSeriesOutputModule::processMknodType(SysCallArgsMap &args_map,
+mode_t DataSeriesOutputModule::processMknodType(void **args_map,
 						mode_t mode) {
   static u_int type;
 
@@ -2319,7 +2319,7 @@ mode_t DataSeriesOutputModule::processMknodType(SysCallArgsMap &args_map,
     type = DS_FILE_TYPE_SOCK;
     mode &= ~S_IFSOCK;
   }
-  args_map["type"] = &type;
+  args_map[SYSCALL_FIELD_TYPE] = &type;
 
   /*
    * Return remaining unprocessed modes so that caller can warn
