@@ -530,10 +530,10 @@ private:
   void makeGetdentsArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Getrlimit System Call <field, value> pairs
-  void makeGetrlimitArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeGetrlimitArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Setrlimit System Call <field, value> pairs
-  void makeSetrlimitArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeSetrlimitArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Ioctl System Call <field, value> pairs
   void makeIoctlArgsMap(void **args_map, long *args, void **v_args);
