@@ -1584,17 +1584,17 @@ void DataSeriesOutputModule::makeAccessArgsMap(void **args_map,
   }
 }
 
-void DataSeriesOutputModule::makeFAccessatArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeFAccessatArgsMap(void **args_map,
 						  long *args,
 						  void **v_args) {
   // Initialize all non-nullable boolean fields to False.
   initArgsMap(args_map, "faccessat");
   u_int mode_offset = 2;
 
-  args_map["descriptor"] = &args[0];
+  args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
 
   if (v_args[0] != NULL) {
-    args_map["given_pathname"] = &v_args[0];
+    args_map[SYSCALL_FIELD_GIVEN_PATHNAME] = &v_args[0];
   } else {
     std::cerr << "FAccessat: Pathname is set as NULL!!" << std::endl;
   }
@@ -1606,7 +1606,7 @@ void DataSeriesOutputModule::makeFAccessatArgsMap(SysCallArgsMap &args_map,
     std::cerr << std::oct << mode << std::dec << std::endl;
   }
 
-  args_map["flags_value"] = &args[3];
+  args_map[SYSCALL_FIELD_FLAGS_VALUE] = &args[3];
   // Map the inividual flag values
   u_int flag = processFAccessatFlags(args_map, args[3]);
   if (flag != 0) {
@@ -1615,7 +1615,7 @@ void DataSeriesOutputModule::makeFAccessatArgsMap(SysCallArgsMap &args_map,
   }
 }
 
-u_int DataSeriesOutputModule::processFAccessatFlags(SysCallArgsMap &args_map,
+u_int DataSeriesOutputModule::processFAccessatFlags(void **args_map,
 						    u_int faccessat_flags) {
   /*
    * Process each individual faccessat flag bit that has been set
@@ -1623,10 +1623,10 @@ u_int DataSeriesOutputModule::processFAccessatFlags(SysCallArgsMap &args_map,
    */
   // set eaccess flag
   process_Flag_and_Mode_Args(args_map, faccessat_flags, AT_EACCESS,
-			     "flags_at_eaccess");
+			     SYSCALL_FIELD_FLAGS_AT_EACCESS);
   // set symlink nofollow flag
   process_Flag_and_Mode_Args(args_map, faccessat_flags, AT_SYMLINK_NOFOLLOW,
-			     "flags_at_symlink_nofollow");
+			     SYSCALL_FIELD_FLAGS_AT_SYMLINK_NOFOLLOW);
 
   /*
    * Return remaining faccessat flags so that caller can
@@ -1768,8 +1768,8 @@ void DataSeriesOutputModule::makeStatArgsMap(void **args_map,
 }
 
 void DataSeriesOutputModule::makeStatfsArgsMap(void **args_map,
-                                              long *args,
-                                              void **v_args) {
+                                               long *args,
+                                               void **v_args) {
   // Initialize all non-nullable boolean fields to False.
   initArgsMap(args_map, "statfs");
 
@@ -1839,7 +1839,7 @@ void DataSeriesOutputModule::makeFStatfsArgsMap(void **args_map,
 }
 
 u_int DataSeriesOutputModule::processStatfsFlags(void **args_map,
-                                                u_int statfs_flags) {
+                                                 u_int statfs_flags) {
   /*
    * Process each individual statfs flag bit that has been set
    * in the argument stafs_flags.

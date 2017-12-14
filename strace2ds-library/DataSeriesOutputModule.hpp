@@ -358,13 +358,13 @@ private:
   void makeAccessArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps FAccessat System Call <field, value> pairs
-  void makeFAccessatArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeFAccessatArgsMap(void **args_map, long *args, void **v_args);
 
   /*
    * Maps individual mount option flags for faccessat system call to its
    * corresponding field name
    */
-  u_int processFAccessatFlags(SysCallArgsMap &args_map, u_int faccessat_flags);
+  u_int processFAccessatFlags(void **args_map, u_int faccessat_flags);
 
   // Maps individual Access mode bits to the corresponding field names
   mode_t processAccessMode(void **args_map,
@@ -545,13 +545,13 @@ private:
    * Maps individual flag value for Clone system call to its corresponding
    * field name.
    */
-  u_int processCloneFlags(SysCallArgsMap &args_map, u_int flag);
+  u_int processCloneFlags(void **args_map, u_int flag);
 
   /*
    * Maps individual signal value for Clone system call to its corresponding
    * field name.
    */
-  u_int processCloneSignals(SysCallArgsMap &args_map, u_int flag);
+  u_int processCloneSignals(void **args_map, u_int flag);
 
   // Maps VFork System Call <field, value> pairs
   void makeVForkArgsMap(void **args_map, long *args, void **v_args);
