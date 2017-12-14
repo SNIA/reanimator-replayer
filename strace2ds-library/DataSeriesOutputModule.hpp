@@ -87,8 +87,6 @@ typedef std::unordered_map<std::string, FieldMap> ExtentMap;
 // map<extent name, OutputModule>
 typedef std::unordered_map<std::string, OutputModule*> OutputModuleMap;
 
-// map<extent name, void *>
-typedef std::unordered_map<std::string, void *> SysCallArgsMap;
 
 // function pointer type for system call args map
 typedef void (DataSeriesOutputModule::*SysCallArgsMapFuncPtr)(void **,
@@ -557,7 +555,7 @@ private:
   void makeVForkArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Socket System Call <field, value> pairs
-  void makeSocketArgsMap(SysCallArgsMap &args_map,
+  void makeSocketArgsMap(void **args_map,
 		  	 long *args, void **v_args);
 };
 #endif //USE_ENUMS

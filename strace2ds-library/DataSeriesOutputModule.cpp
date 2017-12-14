@@ -3207,10 +3207,10 @@ void DataSeriesOutputModule::makeVForkArgsMap(void **args_map,
    */
 }
 
-void DataSeriesOutputModule::makeSocketArgsMap(SysCallArgsMap &args_map,
+void DataSeriesOutputModule::makeSocketArgsMap(void **args_map,
 					       long *args,
 					       void **v_args) {
-  args_map["domain"] = &args[0];
-  args_map["type"] = &args[1];
-  args_map["protocol"] = &args[2];
+  args_map[SYSCALL_FIELD_DOMAIN] = &args[0];
+  args_map[SYSCALL_FIELD_TYPE] = &args[1];
+  args_map[SYSCALL_FIELD_PROTOCOL] = &args[2];
 }
