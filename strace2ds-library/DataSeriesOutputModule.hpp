@@ -462,45 +462,45 @@ private:
   void makeDup2ArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Fcntl System Call <field, value> pairs
-  void makeFcntlArgsMap(SysCallArgsMap &args_map, long *args, void **v_args);
+  void makeFcntlArgsMap(void **args_map, long *args, void **v_args);
 
   /*
    * Maps the status flag value passed to an Fcntl system call with the
    * F_SETFL command to the corresponding map fields
    */
-  u_int processFcntlStatusFlags(SysCallArgsMap &args_map, u_int status_flag);
+  u_int processFcntlStatusFlags(void **args_map, u_int status_flag);
 
   /*
    * Maps the values in an flock structure passed to an Fcntl system call
    * with a F_SETLK, F_SETLKW, or F_GETLK command to the corresponding
    * map fields
    */
-  void processFcntlFlock(SysCallArgsMap &args_map, struct flock *lock);
+  void processFcntlFlock(void **args_map, struct flock *lock);
 
   /*
    * Processes the type value in an flock structure passed to an Fcntl
    * system call and sets the corresponding map field to True
    */
-  void processFcntlFlockType(SysCallArgsMap &args_map, struct flock *lock);
+  void processFcntlFlockType(void **args_map, struct flock *lock);
 
   /*
    * Processes the whence value in an flock structure passed to an Fcntl
    * system call and sets the corresponding map field to True
    */
-  void processFcntlFlockWhence(SysCallArgsMap &args_map, struct flock *lock);
+  void processFcntlFlockWhence(void **args_map, struct flock *lock);
 
   /*
    * Processes the lease argument passed to an Fcntl system call with a
    * F_SETLEASE or F_GETLEASE command and sets the corresponding map
    * field to True
    */
-  void processFcntlLease(SysCallArgsMap &args_map, int lease);
+  void processFcntlLease(void **args_map, int lease);
 
   /*
    * Processes the notify argument passed to an Fcntl system call with
    * a F_NOTIFY command to the corresponding map fields
    */
-  u_int processFcntlNotify(SysCallArgsMap &args_map, long *args);
+  u_int processFcntlNotify(void **args_map, long *args);
 
   // Maps Exit System Call <field, value> pairs
   void makeExitArgsMap(void **args_map, long *args, void **v_args);
