@@ -66,8 +66,8 @@ class DataSeriesOutputModule;
  */
 #define DEFAULT_EXTENT_SIZE 0x400000 /* 4MB */
 
-/* map<fieldname, pair<nullable, ExtentType> */
-typedef std::unordered_map<int,
+/* map<fieldenum, pair<nullable, ExtentType> */
+typedef std::unordered_map<unsigned int,
 		 std::pair<bool, ExtentType::fieldType>
 		 > config_table_entry_type;
 
@@ -102,7 +102,6 @@ class DataSeriesOutputModule {
 public:
   static bool true_;
   static bool false_;
-  std::string FieldNames[MAX_SYSCALL_FIELDS];
 
   // A map of untraced syscalls number and their respective counts
   std::unordered_map<long, int> untraced_sys_call_counts_;
@@ -179,6 +178,8 @@ private:
    * a cache of type SysCallArgsMapFuncPtr
    */
   SysCallArgsMapFuncPtr *func_ptr_map_cache_;
+
+  std::string field_names[MAX_SYSCALL_FIELDS];
 
   // Disable copy constructor
   DataSeriesOutputModule(const DataSeriesOutputModule&);

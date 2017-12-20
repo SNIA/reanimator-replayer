@@ -399,13 +399,12 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
 
   // Write values to the new record
   for (auto const &extent_config_table_entry : (*extent_config_table_)) {
-    const int field_enum = extent_config_table_entry.first;
-    const std::string& field_name = FieldNames[field_enum];
+    const unsigned int field_enum = extent_config_table_entry.first;
+    const std::string& field_name = field_names[field_enum];
     const bool nullable = extent_config_table_entry.second.first;
     const ExtentFieldTypePair& extent_field_value_ = (*field_map)[field_name];
     var32_len = 0;
-
-      if(sys_call_args_map[field_enum] != NULL) {
+    if (sys_call_args_map[field_enum] != NULL) {
       void *field_value = sys_call_args_map[field_enum];
       /*
        * If field is of type Variable32, then retrieve the length of the
@@ -501,14 +500,18 @@ void DataSeriesOutputModule::initConfigTable(std::ifstream &table_stream) {
     std::string field_name;
     std::string nullable_str;
     std::string field_type;
-    int field_enum;
+    unsigned int field_enum;
     /* We are ignoring  split_data[1]: syscall_id, split_data[2]: field_id for now */
     if (split_data.size() == 6) {  
       field_name = split_data[3];
       nullable_str = split_data[4];
       field_type = split_data[5];
-      field_enum = atoi(split_data[2].c_str());
-      FieldNames[field_enum] = field_name;
+      field_enum = static_cast<int> std::stoul(split_data[2]);
+      if (field_enum > MAX_SYSCALL_FIELDS) {
+        std::cout << "Illegal field table file : field id" << std::endl;
+        exit(1);
+      }
+      field_names[field_enum] = field_name;
     }
     bool nullable = false;
     if (nullable_str == "1")
@@ -700,7 +703,7 @@ void DataSeriesOutputModule::doSetField(const
  * system call as described in SNIA document.
  */
 int DataSeriesOutputModule::getVariable32FieldLength(void **args_map,
-						     const int &field_enum) {
+						     const int field_enum) {
   int length = 0;
   if (args_map[field_enum] != NULL) {
     /*
@@ -709,7 +712,7 @@ int DataSeriesOutputModule::getVariable32FieldLength(void **args_map,
      * the length.  Strlen does not count the terminating null character,
      * so we add 1 to its return value to get the full length of the pathname.
      */
-    if ((field_enum ==SYSCALL_FIELD_GIVEN_PATHNAME) ||
+    if ((field_enum == SYSCALL_FIELD_GIVEN_PATHNAME) ||
       (field_enum == SYSCALL_FIELD_GIVEN_OLDPATHNAME) ||
       (field_enum == SYSCALL_FIELD_GIVEN_NEWPATHNAME) ||
       (field_enum == SYSCALL_FIELD_TARGET_PATHNAME) ||
@@ -732,9 +735,9 @@ int DataSeriesOutputModule::getVariable32FieldLength(void **args_map,
       length = ioctl_size_;
     }
   } else {
-    std::cerr << "WARNING: field_name = " << field_enum << " ";
+    std::cerr << "WARNING: field_enum = " << field_enum << " ";
     std::cerr << "is not set in the arguments map";
-  }
+  } 
   return length;
 }
 
@@ -746,7 +749,7 @@ void DataSeriesOutputModule::initArgsMap(void **args_map,
   FieldMap& extent_field_map_ = extents_[extent_name];
   for (auto const &extent_config_table_entry : extent_config_table_) {
     int field_enum = extent_config_table_entry.first;
-    const std::string& field_name = FieldNames[field_enum];
+    const std::string& field_name = field_names[field_enum];
     const bool nullable = extent_config_table_entry.second.first;
     if (!nullable && extent_field_map_[field_name].second == ExtentType::ft_bool)
       args_map[field_enum] = &false_;
