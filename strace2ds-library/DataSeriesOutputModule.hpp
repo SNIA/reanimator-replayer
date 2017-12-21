@@ -28,6 +28,7 @@
 #ifndef USE_ENUMS
 #define USE_ENUMS
 #include <cassert>
+#include <cstring>
 
 #include <iostream>
 #include <utility>
@@ -219,7 +220,7 @@ private:
 
   // Returns the length for field of type variable32
   int getVariable32FieldLength(void **args_map,
-			       const int &field_enum);
+			       const int field_enum);
 
   // Initialize args map for given system call
   void initArgsMap(void **args_map, const char *extent_name);

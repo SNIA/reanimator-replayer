@@ -506,7 +506,7 @@ void DataSeriesOutputModule::initConfigTable(std::ifstream &table_stream) {
       field_name = split_data[3];
       nullable_str = split_data[4];
       field_type = split_data[5];
-      field_enum = static_cast<int> std::stoul(split_data[2]);
+      field_enum = static_cast<int> (std::stoul(split_data[2]));
       if (field_enum > MAX_SYSCALL_FIELDS) {
         std::cout << "Illegal field table file : field id" << std::endl;
         exit(1);
