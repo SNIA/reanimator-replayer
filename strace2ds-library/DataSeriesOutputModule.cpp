@@ -271,11 +271,11 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
 					 *common_fields[DS_NUM_COMMON_FIELDS],
 					 void **v_args) {
 
-  void *sys_call_args_map[MAX_SYSCALL_FIELDS] = { NULL };
+  void *sys_call_args_map[MAX_SYSCALL_FIELDS];
   struct timeval tv_time_recorded;
   int var32_len;
   uint64_t time_called_Tfrac, time_returned_Tfrac;
-
+  memset(sys_call_args_map, 0, sizeof(void*) * MAX_SYSCALL_FIELDS);
   /*
    * Create a map from field names to field values.
    * Iterate through every possible fields (via table_).
