@@ -88,7 +88,7 @@ DataSeriesOutputModule::DataSeriesOutputModule(std::ifstream &table_stream,
 void DataSeriesOutputModule::initCache() {
   modules_cache_ = new OutputModule*[nsyscalls];
   extents_cache_ = new FieldMap*[nsyscalls];
-  config_table_cache_ = new config_table_entry_type*[nsyscalls];
+  config_table_cache_ = new config_table_entry_pair**[nsyscalls];
   func_ptr_map_cache_ = new SysCallArgsMapFuncPtr[nsyscalls];
   for(int i = 0; i < nsyscalls; i++) {
     modules_cache_[i] = NULL;
@@ -340,7 +340,7 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
   SysCallArgsMapFuncPtr fxn = NULL;
   OutputModule *output_module = NULL;
   FieldMap *field_map = NULL;
-  config_table_entry_type *extent_config_table_ = NULL;
+  config_table_entry_pair **extent_config_table_ = NULL;
 
   if (scno >= 0) {
     // lookup func_ptr_map_cache_ here, if cached directly use
@@ -371,7 +371,7 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
     if (config_table_cache_[scno] != NULL) {
       extent_config_table_ = config_table_cache_[scno];
     } else {
-      extent_config_table_ = &config_table_[extent_name];
+      extent_config_table_ = config_table_[extent_name];
       config_table_cache_[scno] = extent_config_table_;
     }
 
@@ -398,10 +398,14 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
   sys_call_args_map[SYSCALL_FIELD_TIME_RECORDED] = &time_recorded_Tfrac;
 
   // Write values to the new record
-  for (auto const &extent_config_table_entry : (*extent_config_table_)) {
-    const unsigned int field_enum = extent_config_table_entry.first;
+  unsigned int field_enum;
+  for (field_enum = 0; field_enum < MAX_SYSCALL_FIELDS; field_enum++) {
+
+    if (extent_config_table_[field_enum] == NULL)
+      continue;
+
     const std::string& field_name = field_names[field_enum];
-    const bool nullable = extent_config_table_entry.second.first;
+    const bool nullable = extent_config_table_[field_enum]->first;
     const ExtentFieldTypePair& extent_field_value_ = (*field_map)[field_name];
     var32_len = 0;
     if (sys_call_args_map[field_enum] != NULL) {
@@ -452,12 +456,16 @@ u_int DataSeriesOutputModule::getCloneCTIDIndex() {
 
 // Destructor to delete the module
 DataSeriesOutputModule::~DataSeriesOutputModule() {
+
+  int i;
+  config_table_entry_pair **extent_config_table;
+
   /*
    * Need to delete dynamically-allocated fields before we can delete
    * ExtentSeries objects
    */
-  for(auto const &extent_map_iter: extents_){
-    for(auto const &field_map_iter: extent_map_iter.second){
+  for (auto const &extent_map_iter: extents_) {
+    for (auto const &field_map_iter: extent_map_iter.second) {
       delete (Field *)field_map_iter.second.first;
     }
   }
@@ -468,6 +476,53 @@ DataSeriesOutputModule::~DataSeriesOutputModule() {
     module_map_iter.second->close();
     delete (ExtentSeries *)&module_map_iter.second->getSeries();
     delete module_map_iter.second;
+  }
+
+  /*Pointers to common fields are shared and shouldn't be deleted more than once!*/
+  extent_config_table = config_table_["read"];
+  delete extent_config_table[SYSCALL_FIELD_TIME_CALLED];
+  delete extent_config_table[SYSCALL_FIELD_TIME_RECORDED];
+  delete extent_config_table[SYSCALL_FIELD_TIME_RETURNED];
+  delete extent_config_table[SYSCALL_FIELD_ERRNO_NUMBER];
+  delete extent_config_table[SYSCALL_FIELD_ERRNO_STRING];
+  delete extent_config_table[SYSCALL_FIELD_EXECUTING_PGID];
+  delete extent_config_table[SYSCALL_FIELD_EXECUTING_PID];
+  delete extent_config_table[SYSCALL_FIELD_EXECUTING_PPID];
+  delete extent_config_table[SYSCALL_FIELD_EXECUTING_SID];
+  delete extent_config_table[SYSCALL_FIELD_EXECUTING_TID];
+  delete extent_config_table[SYSCALL_FIELD_EXECUTING_UID];
+  delete extent_config_table[SYSCALL_FIELD_RETURN_VALUE];
+  delete extent_config_table[SYSCALL_FIELD_UNIQUE_ID];
+
+  for (auto const &config_table_iter : config_table_) {
+    extent_config_table = config_table_iter.second;
+
+    /*delete std::pair objects*/
+    for (i = 0; i < MAX_SYSCALL_FIELDS; i++) {
+
+      /*don't delete common fields*/
+      switch(i){
+	case SYSCALL_FIELD_TIME_CALLED:
+	case SYSCALL_FIELD_TIME_RECORDED:
+	case SYSCALL_FIELD_TIME_RETURNED:
+	case SYSCALL_FIELD_ERRNO_NUMBER:
+	case SYSCALL_FIELD_ERRNO_STRING:
+	case SYSCALL_FIELD_EXECUTING_PGID:
+	case SYSCALL_FIELD_EXECUTING_PID:
+	case SYSCALL_FIELD_EXECUTING_PPID:
+	case SYSCALL_FIELD_EXECUTING_SID:
+	case SYSCALL_FIELD_EXECUTING_TID:
+	case SYSCALL_FIELD_EXECUTING_UID:
+	case SYSCALL_FIELD_RETURN_VALUE:
+	case SYSCALL_FIELD_UNIQUE_ID:
+	  continue;
+	default:
+	  if(extent_config_table[i] != NULL)
+	    delete extent_config_table[i];
+      }
+    }
+    /*now delete the array of pointers*/
+    delete[] extent_config_table;
   }
 
   delete[] modules_cache_;
@@ -481,7 +536,11 @@ void DataSeriesOutputModule::initConfigTable(std::ifstream &table_stream) {
   std::string line;
 
   /* Special case for Common fields */
-  config_table_entry_type common_field_map;
+  config_table_entry_pair **common_field_map;
+
+  common_field_map = new config_table_entry_pair *[MAX_SYSCALL_FIELDS];
+  memset(common_field_map, 0x00, (MAX_SYSCALL_FIELDS * sizeof(config_table_entry_pair *)));
+
   while (getline(table_stream, line)) {
     /* Skipping Comment lines */
     if (line.find_first_of('#', 0) != std::string::npos) {
@@ -513,6 +572,7 @@ void DataSeriesOutputModule::initConfigTable(std::ifstream &table_stream) {
       }
       field_names[field_enum] = field_name;
     }
+
     bool nullable = false;
     if (nullable_str == "1")
       nullable = true;
@@ -532,14 +592,19 @@ void DataSeriesOutputModule::initConfigTable(std::ifstream &table_stream) {
       ftype = ExtentType::ft_variable32;
 
     if (extent_name == "Common")
-      common_field_map[field_enum] = std::make_pair(nullable, ftype);
+      common_field_map[field_enum] = new config_table_entry_pair(nullable, ftype);
     else if (config_table_.find(extent_name) != config_table_.end())
-      config_table_[extent_name][field_enum] = std::make_pair(nullable, ftype);
+      config_table_[extent_name][field_enum] = new config_table_entry_pair(nullable, ftype);
     else { /* New extent detected */
-      config_table_[extent_name] = common_field_map;
-      config_table_[extent_name][field_enum] = std::make_pair(nullable, ftype);
+      config_table_[extent_name] = new config_table_entry_pair *[MAX_SYSCALL_FIELDS];
+      /*copy all the pointers from common_field_map into the new array*/
+      memcpy(config_table_[extent_name], common_field_map,
+	     (MAX_SYSCALL_FIELDS * sizeof(config_table_entry_pair *)));
+
+      config_table_[extent_name][field_enum] = new config_table_entry_pair(nullable, ftype);
     }
   }
+  delete[] common_field_map;
 }
 
 // Add an extent(system call)
@@ -744,13 +809,18 @@ int DataSeriesOutputModule::getVariable32FieldLength(void **args_map,
 // Initialize all non-nullable boolean fields as False of given extent_name.
 void DataSeriesOutputModule::initArgsMap(void **args_map,
 					 const char *extent_name) {
-  const config_table_entry_type& extent_config_table_ =
+  config_table_entry_pair** extent_config_table_ =
     config_table_[extent_name];
   FieldMap& extent_field_map_ = extents_[extent_name];
-  for (auto const &extent_config_table_entry : extent_config_table_) {
-    int field_enum = extent_config_table_entry.first;
+
+  unsigned int field_enum;
+  for (field_enum = 0; field_enum < MAX_SYSCALL_FIELDS; field_enum++) {
+
+    if (extent_config_table_[field_enum] == NULL)
+      continue;
+
     const std::string& field_name = field_names[field_enum];
-    const bool nullable = extent_config_table_entry.second.first;
+    const bool nullable = extent_config_table_[field_enum]->first;
     if (!nullable && extent_field_map_[field_name].second == ExtentType::ft_bool)
       args_map[field_enum] = &false_;
   }

@@ -67,14 +67,12 @@ class DataSeriesOutputModule;
  */
 #define DEFAULT_EXTENT_SIZE 0x400000 /* 4MB */
 
-/* map<fieldenum, pair<nullable, ExtentType> */
-typedef std::unordered_map<unsigned int,
-		 std::pair<bool, ExtentType::fieldType>
-		 > config_table_entry_type;
+/*pair<nullable, ExtentType>*/
+typedef std::pair<bool, ExtentType::fieldType> config_table_entry_pair;
 
-/* map<extentname, config_table_entry_type> */
+/* map<extentname, config_table_entry_pair **> */
 typedef std::unordered_map<std::string,
-	config_table_entry_type> config_table_type;
+		 config_table_entry_pair **> config_table_type;
 
 /* pair<DS Field, DS field type> */
 typedef std::pair<void *, ExtentType::fieldType> ExtentFieldTypePair;
@@ -155,10 +153,10 @@ private:
   DataSeriesSink ds_sink_;
   config_table_type config_table_;
   /*
-   * Since config_table_type's value is of type config_table_entry_type,
-   * we create a cache of type config_table_entry_type
+   * Since config_table_type's value is of type config_table_entry_pair,
+   * we create a cache of type config_table_entry_pair
    */
-  config_table_entry_type **config_table_cache_;
+  config_table_entry_pair ***config_table_cache_;
 
   int64_t record_num_;
   // ioctl_size_ is the size of a buffer passed to an ioctl system call
