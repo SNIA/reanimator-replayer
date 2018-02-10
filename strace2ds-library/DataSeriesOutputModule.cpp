@@ -41,6 +41,9 @@ DataSeriesOutputModule::DataSeriesOutputModule(std::ifstream &table_stream,
   extents_.reserve(nsyscalls);
   config_table_.reserve(nsyscalls);
 
+  // Initialize field enum - name cache
+  field_enum_cache = new std::unordered_map<std::string, int>();
+
   // Initialize config table
   initConfigTable(table_stream);
 
@@ -73,6 +76,9 @@ DataSeriesOutputModule::DataSeriesOutputModule(std::ifstream &table_stream,
 					     extent_type, extent_size);
     addExtent(extent_name, *extent_series);
   }
+
+  // We do not need field enum cache anymore
+  delete field_enum_cache;
 
   // Write out the extent type extent.
   ds_sink_.writeExtentLibrary(extent_type_library);
@@ -400,13 +406,12 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
   // Write values to the new record
   unsigned int field_enum;
   for (field_enum = 0; field_enum < MAX_SYSCALL_FIELDS; field_enum++) {
-
     if (extent_config_table_[field_enum] == NULL)
       continue;
 
     const std::string& field_name = field_names[field_enum];
     const bool nullable = extent_config_table_[field_enum]->first;
-    const ExtentFieldTypePair& extent_field_value_ = (*field_map)[field_name];
+    const ExtentFieldTypePair& extent_field_value_ = (*field_map)[field_enum];
     var32_len = 0;
     if (sys_call_args_map[field_enum] != NULL) {
       void *field_value = sys_call_args_map[field_enum];
@@ -464,9 +469,9 @@ DataSeriesOutputModule::~DataSeriesOutputModule() {
    * Need to delete dynamically-allocated fields before we can delete
    * ExtentSeries objects
    */
-  for (auto const &extent_map_iter: extents_) {
-    for (auto const &field_map_iter: extent_map_iter.second) {
-      delete (Field *)field_map_iter.second.first;
+  for (auto const &extent_map_iter : extents_) {
+    for (auto const &field_map_iter : extent_map_iter.second) {
+      delete (Field *)field_map_iter.first;
     }
   }
 
@@ -559,7 +564,11 @@ void DataSeriesOutputModule::initConfigTable(std::ifstream &table_stream) {
     std::string field_name;
     std::string nullable_str;
     std::string field_type;
-    unsigned int field_enum;
+    /*
+     * We are initializing field_num with the max value
+     * Because there are syscalls are taking zero parameter
+     */
+    unsigned int field_enum = MAX_SYSCALL_FIELDS;
     /* We are ignoring  split_data[1]: syscall_id, split_data[2]: field_id for now */
     if (split_data.size() == 6) {  
       field_name = split_data[3];
@@ -571,6 +580,7 @@ void DataSeriesOutputModule::initConfigTable(std::ifstream &table_stream) {
         exit(1);
       }
       field_names[field_enum] = field_name;
+      (*field_enum_cache)[field_name] = field_enum;
     }
 
     bool nullable = false;
@@ -591,17 +601,22 @@ void DataSeriesOutputModule::initConfigTable(std::ifstream &table_stream) {
     else if (field_type == "variable32")
       ftype = ExtentType::ft_variable32;
 
-    if (extent_name == "Common")
+    if (extent_name == "Common") {
       common_field_map[field_enum] = new config_table_entry_pair(nullable, ftype);
-    else if (config_table_.find(extent_name) != config_table_.end())
-      config_table_[extent_name][field_enum] = new config_table_entry_pair(nullable, ftype);
-    else { /* New extent detected */
+    } else if (config_table_.find(extent_name) != config_table_.end()) {
+      // we have to check whether syscall has any arg. or not
+      if (field_enum < MAX_SYSCALL_FIELDS) {
+        config_table_[extent_name][field_enum] = new config_table_entry_pair(nullable, ftype);
+      }
+    } else { /* New extent detected */
       config_table_[extent_name] = new config_table_entry_pair *[MAX_SYSCALL_FIELDS];
       /*copy all the pointers from common_field_map into the new array*/
       memcpy(config_table_[extent_name], common_field_map,
 	     (MAX_SYSCALL_FIELDS * sizeof(config_table_entry_pair *)));
-
-      config_table_[extent_name][field_enum] = new config_table_entry_pair(nullable, ftype);
+      // we have to check whether syscall has any arg. or not
+      if (field_enum < MAX_SYSCALL_FIELDS) {
+        config_table_[extent_name][field_enum] = new config_table_entry_pair(nullable, ftype);
+      }
     }
   }
   delete[] common_field_map;
@@ -666,7 +681,8 @@ void DataSeriesOutputModule::addField(const std::string &extent_name,
 				      const std::string &field_name,
 				      void *field,
 				      const ExtentType::fieldType field_type) {
-  extents_[extent_name][field_name] = std::make_pair(field, field_type);
+  auto field_enum = (*field_enum_cache)[field_name];
+  extents_[extent_name][field_enum] = std::make_pair(field, field_type);
 }
 
 /*
@@ -815,13 +831,13 @@ void DataSeriesOutputModule::initArgsMap(void **args_map,
 
   unsigned int field_enum;
   for (field_enum = 0; field_enum < MAX_SYSCALL_FIELDS; field_enum++) {
-
     if (extent_config_table_[field_enum] == NULL)
       continue;
 
     const std::string& field_name = field_names[field_enum];
     const bool nullable = extent_config_table_[field_enum]->first;
-    if (!nullable && extent_field_map_[field_name].second == ExtentType::ft_bool)
+    if (!nullable &&
+        extent_field_map_[field_enum].second == ExtentType::ft_bool)
       args_map[field_enum] = &false_;
   }
 }

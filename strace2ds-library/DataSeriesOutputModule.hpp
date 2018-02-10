@@ -78,7 +78,7 @@ typedef std::unordered_map<std::string,
 typedef std::pair<void *, ExtentType::fieldType> ExtentFieldTypePair;
 
 /* map<fieldName, <DS Field, DS field type>*/
-typedef std::unordered_map<std::string, ExtentFieldTypePair> FieldMap;
+typedef ExtentFieldTypePair FieldMap[MAX_SYSCALL_FIELDS];
 
 /* map<syscallName, FieldMap> */
 typedef std::unordered_map<std::string, FieldMap> ExtentMap;
@@ -143,6 +143,14 @@ private:
   OutputModule **modules_cache_;
 
   ExtentMap extents_;
+
+  /*
+   * it is map for optimizing for accessing field maps
+   * we initialize in constructor and delete inside constructor too
+   * that is why we can not access outside of the constructor
+   */
+  std::unordered_map<std::string, int> *field_enum_cache;
+
   /*
    * Since ExtentMap's value is of type FieldMap, we create a cache
    * of type FieldMap
