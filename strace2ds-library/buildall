@@ -28,7 +28,8 @@ runcmd ../configure --enable-shared --disable-static --prefix=$HOME/lib/strace2d
 runcmd make clean
 # if all you're changing is C/C++ code, just "cd BUILD" and run next
 # two commands.
-runcmd make
+numberOfCores="$(nproc --all)" 
+runcmd make -j$numberOfCores
 if [ "$#" -eq 1 ] && [ "$1" = "install" ]
 then
     runcmd make install
