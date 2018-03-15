@@ -75,6 +75,9 @@ libstrace2ds_la_SOURCES = DataSeriesOutputModule.cpp 	\
 			  MakeCloneArgsMap.cpp		\
 			  MakeVForkArgsMap.cpp		\
 			  MakeSocketArgsMap.cpp		\
+			  MakeConnectArgsMap.cpp	\
+			  MakeBindArgsMap.cpp		\
+			  MakeAcceptArgsMap.cpp		\
 			  strace2ds.cpp
 
 include_HEADERS = strace2ds.h
@@ -156,7 +159,10 @@ XML_FILES=			\
 	xml/setxattr.xml	\
 	xml/symlinkat.xml	\
 	xml/umask.xml		\
-	xml/socket.xml
+	xml/socket.xml		\
+	xml/connect.xml		\
+	xml/bind.xml		\
+	xml/accept.xml
 
 EXTRA_DIST=$(SNIA_SYSCALL_FIELDS_TABLE_FILE) $(XML_FILES) buildall
 tablesdir = $(prefix)/tables

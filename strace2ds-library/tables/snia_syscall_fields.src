@@ -715,3 +715,12 @@ setrlimit	resource_hard_limit	0	int64
 socket	domain	0	int32
 socket	type	0	int32
 socket	protocol	0	int32
+connect	descriptor	0	int32
+connect	sockaddr_buffer	1	variable32
+connect	sockaddr_length	0	int32
+bind	descriptor      0	int32
+bind	sockaddr_buffer 1	variable32
+bind	sockaddr_length	0	int32
+accept	descriptor      0	int32
+accept	sockaddr_buffer 1	variable32
+accept	sockaddr_length	1	int32

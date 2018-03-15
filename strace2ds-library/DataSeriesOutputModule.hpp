@@ -563,8 +563,17 @@ private:
   void makeVForkArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Socket System Call <field, value> pairs
-  void makeSocketArgsMap(void **args_map,
-		  	 long *args, void **v_args);
+  void makeSocketArgsMap(void **args_map, long *args, void **v_args);
+
+  // Maps Connect System Call <field, value> pairs
+  void makeConnectArgsMap(void **args_map, long *args, void **v_args);
+
+  // Maps Bind System Call <field, value> pairs
+  void makeBindArgsMap(void **args_map, long *args, void **v_args);
+
+  // Maps Accept System Call <field, value> pairs
+  void makeAcceptArgsMap(void **args_map, long *args, void **v_args);
 };
+
 #endif //USE_ENUMS
 #endif // DATA_SERIES_OUTPUT_MODULE_HPP

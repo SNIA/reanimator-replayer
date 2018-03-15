@@ -109,8 +109,12 @@ void DataSeriesOutputModule::initCache() {
  * into func_ptr_map_.
  */
 void DataSeriesOutputModule::initArgsMapFuncPtr() {
+  // accept system call
+  func_ptr_map_["accept"] = &DataSeriesOutputModule::makeAcceptArgsMap;
   // access system call
   func_ptr_map_["access"] = &DataSeriesOutputModule::makeAccessArgsMap;
+  // bind system call
+  func_ptr_map_["bind"] = &DataSeriesOutputModule::makeBindArgsMap;
   // chdir system call
   func_ptr_map_["chdir"] = &DataSeriesOutputModule::makeChdirArgsMap;
   // chmod system call
@@ -121,6 +125,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["clone"] = &DataSeriesOutputModule::makeCloneArgsMap;
   // close system call
   func_ptr_map_["close"] = &DataSeriesOutputModule::makeCloseArgsMap;
+  // connect system call
+  func_ptr_map_["connect"] = &DataSeriesOutputModule::makeConnectArgsMap;
   // creat system call
   func_ptr_map_["creat"] = &DataSeriesOutputModule::makeCreatArgsMap;
   // dup system call
@@ -814,6 +820,8 @@ int DataSeriesOutputModule::getVariable32FieldLength(void **args_map,
       length = *(int *)(args_map[SYSCALL_FIELD_RETURN_VALUE]);
     } else if (field_enum == SYSCALL_FIELD_IOCTL_BUFFER) {
       length = ioctl_size_;
+    } else if (field_enum == SYSCALL_FIELD_SOCKADDR_BUFFER) {
+      length = *(int *)(args_map[SYSCALL_FIELD_SOCKADDR_LENGTH]);
     }
   } else {
     std::cerr << "WARNING: field_enum = " << field_enum << " ";
