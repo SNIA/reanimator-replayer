@@ -28,12 +28,17 @@ void DataSeriesOutputModule::makeUtimensatArgsMap(void **args_map,
   args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
   if (args[0] == AT_FDCWD) {
     args_map[SYSCALL_FIELD_DESCRIPTOR_CURRENT_WORKING_DIRECTORY] = &true_;
+    if (v_args[0] == NULL) {
+      std::cerr << "Utimensat: Pathname is set as NULL and dirfd is set as AT_FDCWD!!" << std::endl;
+    }
+  } else {
+    if (v_args[0] == NULL && (args[3] & AT_SYMLINK_NOFOLLOW) {
+      std::cerr << "Utimensat: Pathname is set as NULL and dirfd is not set as AT_FDCWD and flag contains AT_SYMLINK_NOFOLLOW" << std::endl;
+    }
   }
 
   if (v_args[0] != NULL) {
     args_map[SYSCALL_FIELD_GIVEN_PATHNAME] = &v_args[0];
-  } else {
-    std::cerr << "Utimensat: Pathname is set as NULL!!" << std::endl;
   }
 
   // If the timespec array is not NULL, set the corresponding values in the map

@@ -46,10 +46,9 @@ void DataSeriesOutputModule::makeExecveArgsMap(void **args_map,
        * continuation number and argument fields in the new
        * record.
        */
-      if (v_args[1] != NULL)
+      if (v_args[1] != NULL) {
 	args_map[SYSCALL_FIELD_ARGUMENT] = &v_args[1];
-      else
-	std::cerr << "Execve: Argument is set as NULL!!" << std::endl;
+      }
     } else if (strcmp(arg_env, "env") == 0) {
       /*
        * If arg_env is equal to "env", then we only save the

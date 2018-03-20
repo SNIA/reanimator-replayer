@@ -25,8 +25,6 @@ void DataSeriesOutputModule::makeFListxattrArgsMap(void **args_map,
 
   if (v_args[0] != NULL) {
     args_map[SYSCALL_FIELD_XATTR_LIST] = &v_args[0];
-  } else {
-    std::cerr << "FListxattr: Attribute list is set as NULL!!" << std::endl;
   }
 
   args_map[SYSCALL_FIELD_LIST_SIZE] = &args[2];

@@ -23,8 +23,6 @@ void DataSeriesOutputModule::makeLListxattrArgsMap(void **args_map,
 						   void **v_args) {
   if (v_args[0] != NULL) {
     args_map[SYSCALL_FIELD_GIVEN_PATHNAME] = &v_args[0];
-  } else {
-    std::cerr << "LListxattr: Pathname is set as NULL!!" << std::endl;
   }
 
   if (v_args[1] != NULL) {
