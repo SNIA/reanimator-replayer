@@ -8,25 +8,25 @@
   <field field_id="70" name="executing_tid" type="int32" opt_nullable="yes"/>
   <field field_id="71" name="executing_uid" type="int32" opt_nullable="yes"/>
   <field field_id="214" name="return_value" type="int64" opt_nullable="yes"/>
-  <field field_id="284" name="time_called" type="int64" opt_nullable="yes"/>
-  <field field_id="285" name="time_recorded" type="int64" opt_nullable="yes"/>
-  <field field_id="286" name="time_returned" type="int64" opt_nullable="yes"/>
-  <field field_id="289" name="unique_id" type="int64" opt_nullable="no"/>
+  <field field_id="286" name="time_called" type="int64" opt_nullable="yes"/>
+  <field field_id="287" name="time_recorded" type="int64" opt_nullable="yes"/>
+  <field field_id="288" name="time_returned" type="int64" opt_nullable="yes"/>
+  <field field_id="291" name="unique_id" type="int64" opt_nullable="no"/>
   <field field_id="31" name="buffer_address" type="int64" opt_nullable="yes"/>
   <field field_id="145" name="full_pathname" type="variable32" opt_nullable="yes"/>
   <field field_id="151" name="given_pathname" type="variable32" opt_nullable="no"/>
-  <field field_id="247" name="stat_result_atime" type="int64" opt_nullable="yes"/>
-  <field field_id="248" name="stat_result_blksize" type="int32" opt_nullable="yes"/>
-  <field field_id="249" name="stat_result_blocks" type="int32" opt_nullable="yes"/>
-  <field field_id="250" name="stat_result_ctime" type="int64" opt_nullable="yes"/>
-  <field field_id="251" name="stat_result_dev" type="int32" opt_nullable="yes"/>
-  <field field_id="252" name="stat_result_gid" type="int32" opt_nullable="yes"/>
-  <field field_id="253" name="stat_result_ino" type="int32" opt_nullable="yes"/>
-  <field field_id="254" name="stat_result_mode" type="int32" opt_nullable="yes"/>
-  <field field_id="255" name="stat_result_mtime" type="int64" opt_nullable="yes"/>
-  <field field_id="256" name="stat_result_nlink" type="int32" opt_nullable="yes"/>
-  <field field_id="257" name="stat_result_raw" type="variable32" opt_nullable="yes"/>
-  <field field_id="258" name="stat_result_rdev" type="int32" opt_nullable="yes"/>
-  <field field_id="259" name="stat_result_size" type="int64" opt_nullable="yes"/>
-  <field field_id="260" name="stat_result_uid" type="int32" opt_nullable="yes"/>
+  <field field_id="249" name="stat_result_atime" type="int64" opt_nullable="yes"/>
+  <field field_id="250" name="stat_result_blksize" type="int32" opt_nullable="yes"/>
+  <field field_id="251" name="stat_result_blocks" type="int32" opt_nullable="yes"/>
+  <field field_id="252" name="stat_result_ctime" type="int64" opt_nullable="yes"/>
+  <field field_id="253" name="stat_result_dev" type="int32" opt_nullable="yes"/>
+  <field field_id="254" name="stat_result_gid" type="int32" opt_nullable="yes"/>
+  <field field_id="255" name="stat_result_ino" type="int32" opt_nullable="yes"/>
+  <field field_id="256" name="stat_result_mode" type="int32" opt_nullable="yes"/>
+  <field field_id="257" name="stat_result_mtime" type="int64" opt_nullable="yes"/>
+  <field field_id="258" name="stat_result_nlink" type="int32" opt_nullable="yes"/>
+  <field field_id="259" name="stat_result_raw" type="variable32" opt_nullable="yes"/>
+  <field field_id="260" name="stat_result_rdev" type="int32" opt_nullable="yes"/>
+  <field field_id="261" name="stat_result_size" type="int64" opt_nullable="yes"/>
+  <field field_id="262" name="stat_result_uid" type="int32" opt_nullable="yes"/>
 </ExtentType>

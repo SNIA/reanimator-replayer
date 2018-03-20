@@ -32,7 +32,7 @@ void DataSeriesOutputModule::makeUtimensatArgsMap(void **args_map,
       std::cerr << "Utimensat: Pathname is set as NULL and dirfd is set as AT_FDCWD!!" << std::endl;
     }
   } else {
-    if (v_args[0] == NULL && (args[3] & AT_SYMLINK_NOFOLLOW) {
+    if (v_args[0] == NULL && (args[3] & AT_SYMLINK_NOFOLLOW)) {
       std::cerr << "Utimensat: Pathname is set as NULL and dirfd is not set as AT_FDCWD and flag contains AT_SYMLINK_NOFOLLOW" << std::endl;
     }
   }
