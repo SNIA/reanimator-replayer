@@ -31,7 +31,7 @@ DataSeriesOutputModule::DataSeriesOutputModule(std::ifstream &table_stream,
    * compression_level should both be 0 to disable compression (can always use ds-repack to
    * compress a ds file).
    */
-  ds_sink_(output_file, 0, 0), record_num_(1) {
+  ds_sink_(output_file, 0, 0), record_num_(0) {
 
   /* 
    * Provide a hint to the library to set the number of buckets to be the most appropriate for 
@@ -453,7 +453,7 @@ uint64_t DataSeriesOutputModule::getIoctlSize() {
   return ioctl_size_;
 }
 
-int64_t DataSeriesOutputModule::getNextID() {
+uint64_t DataSeriesOutputModule::getNextID() {
   return record_num_++;
 }
 

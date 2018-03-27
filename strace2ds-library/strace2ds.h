@@ -63,14 +63,24 @@ DataSeriesOutputModule *ds_create_module(const char *output_file,
 void ds_write_umask_at_start(DataSeriesOutputModule *ds_module, int pid);
 
 /*
- * Write a record into the DataSeries output file
- * return NULL if failed
+ * Write a record into the DataSeries output file.
+ * We are incrementing record number atomically.
  */
 void ds_write_record(DataSeriesOutputModule *ds_module,
 		     const char *extent_name,
 		     long *args,
 		     void *common_fields[DS_NUM_COMMON_FIELDS],
 		     void **v_args);
+
+/*
+ * Write data into the same record in the DataSeries output file.
+ * Note: We are not incrementing record number here.
+ */
+void ds_write_into_same_record(DataSeriesOutputModule *ds_module,
+                                 const char *extent_name,
+                                 long *args,
+                                 void *common_fields[DS_NUM_COMMON_FIELDS],
+                                 void **v_args);
 
 /*
  * If the program attempts to trace a system call not supported
@@ -101,7 +111,7 @@ int ds_get_ioctl_size(DataSeriesOutputModule *ds_module);
 /*
  * Return the next record number in this dataseries file
  */
-int64_t ds_get_next_id(DataSeriesOutputModule *ds_module);
+uint64_t ds_get_next_id(DataSeriesOutputModule *ds_module);
 
 /*
  * Record the index of the child thread id argument passed to a clone
