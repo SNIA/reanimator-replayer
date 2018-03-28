@@ -181,6 +181,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["linkat"] = &DataSeriesOutputModule::makeLinkatArgsMap;
   // listxattr system call
   func_ptr_map_["listxattr"] = &DataSeriesOutputModule::makeListxattrArgsMap;
+  // listen system call
+  func_ptr_map_["listen"] = &DataSeriesOutputModule::makeListenArgsMap;
   // llistxattr system call
   func_ptr_map_["llistxattr"] = &DataSeriesOutputModule::makeLListxattrArgsMap;
   // lremovexattr system call
