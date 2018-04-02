@@ -34,6 +34,7 @@
 #include <utility>
 #include <unordered_map>
 #include <sstream>
+#include <atomic>
 
 #include <DataSeries/ExtentType.hpp>
 #include <DataSeries/DataSeriesFile.hpp>
@@ -123,7 +124,7 @@ public:
   /**
    * Gets the next record number
    */
-  int64_t getNextID();
+  uint64_t getNextID();
 
   // Sets the clone_ctid_index_ variable for a Clone System Call
   void setCloneCTIDIndex(u_int ctid_index);
@@ -166,7 +167,7 @@ private:
    */
   config_table_entry_pair ***config_table_cache_;
 
-  int64_t record_num_;
+  std::atomic<uint64_t> record_num_;
   // ioctl_size_ is the size of a buffer passed to an ioctl system call
   uint64_t ioctl_size_;
   /*
@@ -573,6 +574,9 @@ private:
 
   // Maps Accept System Call <field, value> pairs
   void makeAcceptArgsMap(void **args_map, long *args, void **v_args);
+
+  // Maps Listen System Call <field, value> pairs
+  void makeListenArgsMap(void **args_map, long *args, void **v_args);
 };
 
 #endif //USE_ENUMS

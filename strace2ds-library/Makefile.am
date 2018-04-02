@@ -78,6 +78,7 @@ libstrace2ds_la_SOURCES = DataSeriesOutputModule.cpp 	\
 			  MakeConnectArgsMap.cpp	\
 			  MakeBindArgsMap.cpp		\
 			  MakeAcceptArgsMap.cpp		\
+			  MakeListenArgsMap.cpp		\
 			  strace2ds.cpp
 
 include_HEADERS = strace2ds.h
@@ -162,6 +163,7 @@ XML_FILES=			\
 	xml/socket.xml		\
 	xml/connect.xml		\
 	xml/bind.xml		\
+	xml/listen.xml		\
 	xml/accept.xml
 
 EXTRA_DIST=$(SNIA_SYSCALL_FIELDS_TABLE_FILE) $(XML_FILES) buildall

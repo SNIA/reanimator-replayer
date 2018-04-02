@@ -95,17 +95,29 @@ void ds_write_umask_at_start(DataSeriesOutputModule *ds_module, int pid) {
 }
 
 /*
- * Write a record into the DataSeries output file
- * return NULL if failed
+ * Write a record into the DataSeries output file.
+ * We are incrementing record number atomically.
  */
 void ds_write_record(DataSeriesOutputModule *ds_module,
 		     const char *extent_name,
 		     long *args,
 		     void *common_fields[DS_NUM_COMMON_FIELDS],
 		     void **v_args) {
+  uint64_t unique_id = ds_module->getNextID();
+  common_fields[DS_COMMON_FIELD_UNIQUE_ID] = &unique_id;
+  ds_module->writeRecord(extent_name, args, common_fields, v_args);
+}
 
-  ((DataSeriesOutputModule *)ds_module)->writeRecord(extent_name, args,
-						     common_fields, v_args);
+/*
+ * Write data into the same record in the DataSeries output file.
+ * Note: We are not incrementing record number here.
+ */
+void ds_write_into_same_record(DataSeriesOutputModule *ds_module,
+                                 const char *extent_name,
+                                 long *args,
+                                 void *common_fields[DS_NUM_COMMON_FIELDS],
+                                 void **v_args) {
+  ds_module->writeRecord(extent_name, args, common_fields, v_args);
 }
 
 /*
@@ -158,8 +170,8 @@ int ds_get_ioctl_size(DataSeriesOutputModule *ds_module) {
 /*
  * Return the next record number in this dataseries file
  */
-int64_t ds_get_next_id(DataSeriesOutputModule *ds_module) {
-  ((DataSeriesOutputModule *) ds_module)->getNextID();
+uint64_t ds_get_next_id(DataSeriesOutputModule *ds_module) {
+  return ds_module->getNextID();
 }
 
 /*
