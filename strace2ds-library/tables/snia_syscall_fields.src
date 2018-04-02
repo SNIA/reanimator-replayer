@@ -726,3 +726,5 @@ accept	sockaddr_buffer 1	variable32
 accept	sockaddr_length	1	int32
 listen	descriptor	0	int32
 listen	backlog		0	int32
+shutdown	descriptor	0	int32
+shutdown	how	0	int32
