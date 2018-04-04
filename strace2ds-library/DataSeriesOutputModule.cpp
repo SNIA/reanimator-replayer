@@ -167,6 +167,10 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["ftruncate"] = &DataSeriesOutputModule::makeFTruncateArgsMap;
   // getdents system call
   func_ptr_map_["getdents"] = &DataSeriesOutputModule::makeGetdentsArgsMap;
+  // getpeername system call
+  func_ptr_map_["getpeername"] = &DataSeriesOutputModule::makeGetpeernameArgsMap;
+  // getsockname system call
+  func_ptr_map_["getsockname"] = &DataSeriesOutputModule::makeGetsocknameArgsMap;
   // getrlimit system call
   func_ptr_map_["getrlimit"] = &DataSeriesOutputModule::makeGetrlimitArgsMap;
   // getxattr system call

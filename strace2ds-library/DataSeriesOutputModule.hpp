@@ -575,6 +575,12 @@ private:
   // Maps Accept System Call <field, value> pairs
   void makeAcceptArgsMap(void **args_map, long *args, void **v_args);
 
+  // Maps Getsockname System Call <field, value> pairs
+  void makeGetsocknameArgsMap(void **args_map, long *args, void **v_args);
+
+  // Maps Getpeername System Call <field, value> pairs
+  void makeGetpeernameArgsMap(void **args_map, long *args, void **v_args);
+
   // Maps Listen System Call <field, value> pairs
   void makeListenArgsMap(void **args_map, long *args, void **v_args);
 };

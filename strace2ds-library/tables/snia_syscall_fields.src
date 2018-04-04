@@ -724,5 +724,11 @@ bind	sockaddr_length	0	int32
 accept	descriptor      0	int32
 accept	sockaddr_buffer 1	variable32
 accept	sockaddr_length	1	int32
+getsockname    descriptor      0       int32
+getsockname    sockaddr_buffer 1       variable32
+getsockname    sockaddr_length 1       int32
+getpeername    descriptor      0       int32
+getpeername    sockaddr_buffer 1       variable32
+getpeername    sockaddr_length 1       int32
 listen	descriptor	0	int32
 listen	backlog		0	int32

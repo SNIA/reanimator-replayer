@@ -78,6 +78,8 @@ libstrace2ds_la_SOURCES = DataSeriesOutputModule.cpp 	\
 			  MakeConnectArgsMap.cpp	\
 			  MakeBindArgsMap.cpp		\
 			  MakeAcceptArgsMap.cpp		\
+			  MakeGetpeernameArgsMap.cpp    \
+			  MakeGetsocknameArgsMap.cpp    \
 			  MakeListenArgsMap.cpp		\
 			  strace2ds.cpp
 
@@ -164,7 +166,10 @@ XML_FILES=			\
 	xml/connect.xml		\
 	xml/bind.xml		\
 	xml/listen.xml		\
-	xml/accept.xml
+	xml/accept.xml		\
+	xml/getsockname.xml     \
+	xml/getpeername.xml
+
 
 EXTRA_DIST=$(SNIA_SYSCALL_FIELDS_TABLE_FILE) $(XML_FILES) buildall
 tablesdir = $(prefix)/tables

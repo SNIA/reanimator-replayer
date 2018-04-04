@@ -18,13 +18,13 @@
 /*
  * NOTE: this implementation is incomplete. We do not currently
  * record the struct sockaddr buffer and it is set as NULL for now.
- * Nor do we record the value of the buffer's original length
+ * Nor do we record the value of the buffer's original length 
  * on syscall entry.
  */
 
-void DataSeriesOutputModule::makeAcceptArgsMap(void **args_map,
-					       long *args,
-					       void **v_args) {
+void DataSeriesOutputModule::makeGetpeernameArgsMap(void **args_map,
+						    long *args,
+						    void **v_args) {  
   args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
   args_map[SYSCALL_FIELD_SOCKADDR_BUFFER] = NULL;
   args_map[SYSCALL_FIELD_SOCKADDR_LENGTH] = v_args[0];
