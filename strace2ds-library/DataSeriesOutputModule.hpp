@@ -583,6 +583,9 @@ private:
 
   // Maps Listen System Call <field, value> pairs
   void makeListenArgsMap(void **args_map, long *args, void **v_args);
+
+  // Maps Shutdown System Call <field, value> pairs
+  void makeShutdownArgsMap(void **args_map, long *args, void **v_args);
 };
 
 #endif //USE_ENUMS

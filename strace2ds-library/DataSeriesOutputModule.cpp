@@ -239,6 +239,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["setrlimit"] = &DataSeriesOutputModule::makeSetrlimitArgsMap;
   // setsid system call
   func_ptr_map_["setsid"] = &DataSeriesOutputModule::makeSetsidArgsMap;
+  // shutdown system call
+  func_ptr_map_["shutdown"] = &DataSeriesOutputModule::makeShutdownArgsMap;
   // socket system call
   func_ptr_map_["socket"] = &DataSeriesOutputModule::makeSocketArgsMap;
   // stat system call
