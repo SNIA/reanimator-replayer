@@ -19,5 +19,5 @@ void DataSeriesOutputModule::makeListenArgsMap(void **args_map,
                                              long *args,
                                              void **v_args) {
 	args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
-	args_map[SYSCALL_FIELD_BACKLOG] = &v_args[1];
+	args_map[SYSCALL_FIELD_BACKLOG] = &args[1];
 }
