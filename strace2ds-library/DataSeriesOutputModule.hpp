@@ -586,6 +586,15 @@ private:
 
   // Maps Shutdown System Call <field, value> pairs
   void makeShutdownArgsMap(void **args_map, long *args, void **v_args);
+
+  // Maps Getsockopt System Call <field, value> pairs
+  void makeGetsockoptArgsMap(void **args_map, long *args, void **v_args);
+
+  // Maps Setsockopt System Call <field, value> pairs
+  void makeSetsockoptArgsMap(void **args_map, long *args, void **v_args);
+
+  // Maps Socketpair System Call <field, value> pairs
+  void makeSocketpairArgsMap(void **args_map, long *args, void **v_args);
 };
 
 #endif //USE_ENUMS

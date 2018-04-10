@@ -169,10 +169,12 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["getdents"] = &DataSeriesOutputModule::makeGetdentsArgsMap;
   // getpeername system call
   func_ptr_map_["getpeername"] = &DataSeriesOutputModule::makeGetpeernameArgsMap;
-  // getsockname system call
-  func_ptr_map_["getsockname"] = &DataSeriesOutputModule::makeGetsocknameArgsMap;
   // getrlimit system call
   func_ptr_map_["getrlimit"] = &DataSeriesOutputModule::makeGetrlimitArgsMap;
+  // getsockname system call
+  func_ptr_map_["getsockname"] = &DataSeriesOutputModule::makeGetsocknameArgsMap;
+  // getsockopt system call
+  func_ptr_map_["getsockopt"] = &DataSeriesOutputModule::makeGetsockoptArgsMap;
   // getxattr system call
   func_ptr_map_["getxattr"] = &DataSeriesOutputModule::makeGetxattrArgsMap;
   // ioctl system call
@@ -239,10 +241,14 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["setrlimit"] = &DataSeriesOutputModule::makeSetrlimitArgsMap;
   // setsid system call
   func_ptr_map_["setsid"] = &DataSeriesOutputModule::makeSetsidArgsMap;
+  // setsockopt system call
+  func_ptr_map_["setsockopt"] = &DataSeriesOutputModule::makeSetsockoptArgsMap;
   // shutdown system call
   func_ptr_map_["shutdown"] = &DataSeriesOutputModule::makeShutdownArgsMap;
   // socket system call
   func_ptr_map_["socket"] = &DataSeriesOutputModule::makeSocketArgsMap;
+  // socketpair system call
+  func_ptr_map_["socketpair"] = &DataSeriesOutputModule::makeSocketpairArgsMap;
   // stat system call
   func_ptr_map_["stat"] = &DataSeriesOutputModule::makeStatArgsMap;
   // statfs system call
@@ -830,6 +836,8 @@ int DataSeriesOutputModule::getVariable32FieldLength(void **args_map,
       length = ioctl_size_;
     } else if (field_enum == SYSCALL_FIELD_SOCKADDR_BUFFER) {
       length = *(int *)(args_map[SYSCALL_FIELD_SOCKADDR_LENGTH]);
+    } else if (field_enum == SYSCALL_FIELD_OPTION_VALUE) {
+      length = *(int *)(args_map[SYSCALL_FIELD_BUFFER_SIZE]);
     }
   } else {
     std::cerr << "WARNING: field_enum = " << field_enum << " ";
