@@ -604,6 +604,9 @@ private:
    * field name.
    */
   u_int processSendFlags(void **args_map, u_int send_flags);
+
+  // Maps Sendto System Call <field, value> pairs
+  void makeSendtoArgsMap(void **args_map, long *args, void **v_args);
 };
 
 #endif //USE_ENUMS

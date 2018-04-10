@@ -761,3 +761,17 @@ send	flag_eor	0	bool
 send	flag_more	0	bool
 send	flag_nosignal	0	bool
 send	flag_oob	0	bool
+sendto	descriptor	0	int32
+sendto	buffer_ptr	1	int64
+sendto	bytes_requested	0	int64
+sendto	data_written	1	variable32
+sendto	sockaddr_buffer	1	variable32
+sendto	sockaddr_length	0	int32
+sendto	flags_value	1	int32
+sendto	flag_confirm	0	bool
+sendto	flag_dontroute	0	bool
+sendto	flag_dontwait	0	bool
+sendto	flag_eor	0	bool
+sendto	flag_more	0	bool
+sendto	flag_nosignal	0	bool
+sendto	flag_oob	0	bool

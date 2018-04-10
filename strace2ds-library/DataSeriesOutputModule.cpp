@@ -235,6 +235,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["rmdir"] = &DataSeriesOutputModule::makeRmdirArgsMap;
   //send system call
   func_ptr_map_["send"] = &DataSeriesOutputModule::makeSendArgsMap;
+  //sendto system call
+  func_ptr_map_["sendto"] = &DataSeriesOutputModule::makeSendtoArgsMap;
   // setxattr system call
   func_ptr_map_["setxattr"] = &DataSeriesOutputModule::makeSetxattrArgsMap;
   // setpgid system call
