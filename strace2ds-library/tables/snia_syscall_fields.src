@@ -749,3 +749,15 @@ socketpair	type		0	int32
 socketpair	protocol	0	int32
 socketpair	read_descriptor	0	int32
 socketpair	write_descriptor	0	int32
+send	descriptor	0	int32
+send	buffer_ptr	1	int64
+send	bytes_requested	0	int64
+send	data_written	1	variable32
+send	flags_value	1	int32
+send	flag_confirm	0	bool
+send	flag_dontroute	0	bool
+send	flag_dontwait	0	bool
+send	flag_eor	0	bool
+send	flag_more	0	bool
+send	flag_nosignal	0	bool
+send	flag_oob	0	bool

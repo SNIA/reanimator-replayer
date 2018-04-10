@@ -85,6 +85,7 @@ libstrace2ds_la_SOURCES = DataSeriesOutputModule.cpp 	\
 			  MakeGetsockoptArgsMap.cpp	\
 			  MakeSetsockoptArgsMap.cpp	\
 			  MakeSocketpairArgsMap.cpp	\
+			  MakeSendArgsMap.cpp		\
 			  strace2ds.cpp
 
 include_HEADERS = strace2ds.h
@@ -176,7 +177,8 @@ XML_FILES=			\
 	xml/shutdown.xml	\
 	xml/getsockopt.xml	\
 	xml/setsockopt.xml	\
-	xml/socketpair.xml
+	xml/socketpair.xml	\
+	xml/send.xml
 
 
 EXTRA_DIST=$(SNIA_SYSCALL_FIELDS_TABLE_FILE) $(XML_FILES) buildall

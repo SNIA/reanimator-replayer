@@ -48,6 +48,7 @@
 #include <sys/mman.h>
 #include <sys/statfs.h>
 #include <sys/statvfs.h>
+#include <sys/socket.h>
 #include <sched.h>
 #include <signal.h>
 #include <sys/xattr.h>
@@ -595,6 +596,14 @@ private:
 
   // Maps Socketpair System Call <field, value> pairs
   void makeSocketpairArgsMap(void **args_map, long *args, void **v_args);
+
+  // Maps Send System Call <field, value> pairs
+  void makeSendArgsMap(void **args_map, long *args, void **v_args);
+  /*
+   * Maps individual flag value for Send system call to its corresponding
+   * field name.
+   */
+  u_int processSendFlags(void **args_map, u_int send_flags);
 };
 
 #endif //USE_ENUMS
