@@ -607,6 +607,9 @@ private:
 
   // Maps Sendto System Call <field, value> pairs
   void makeSendtoArgsMap(void **args_map, long *args, void **v_args);
+
+  // Maps Sendmsg System Call <field, value> pairs
+  void makeSendmsgArgsMap(void **args_map, long *args, void **v_args);
 };
 
 #endif //USE_ENUMS

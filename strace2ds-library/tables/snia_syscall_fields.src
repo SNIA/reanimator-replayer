@@ -775,3 +775,15 @@ sendto	flag_eor	0	bool
 sendto	flag_more	0	bool
 sendto	flag_nosignal	0	bool
 sendto	flag_oob	0	bool
+sendmsg	descriptor	0	int32
+sendmsg	flags_value	1	int32
+sendmsg	flag_confirm	0	bool
+sendmsg	flag_dontroute	0	bool
+sendmsg	flag_dontwait	0	bool
+sendmsg	flag_eor	0	bool
+sendmsg	flag_more	0	bool
+sendmsg	flag_nosignal	0	bool
+sendmsg	flag_oob	0	bool
+sendmsg	iov_number	0	int32
+sendmsg	bytes_requested	0	int64
+sendmsg	data_written	1	variable32
