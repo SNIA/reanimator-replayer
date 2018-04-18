@@ -71,7 +71,6 @@ void FcntlSystemCallTraceReplayModule::processRow() {
     * Original return value will be returned.
     */
     replayed_ret_val_ = return_value_.val();
-    return;
   }
   /*
    * Replay the fcntl system call If fcntl was passed a command that requires a struct flock,

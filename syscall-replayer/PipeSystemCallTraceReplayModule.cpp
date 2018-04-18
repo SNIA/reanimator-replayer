@@ -77,6 +77,6 @@ void PipeSystemCallTraceReplayModule::processRow() {
    * If flags is 0, then pipe2() is the same as pipe(). Therefore, fds created by
    * pipe have flags 0.
    */
-  replayer_resources_manager_.add_fd(pid, read_descriptor_.val(), pipefd[0], 0);
-  replayer_resources_manager_.add_fd(pid, write_descriptor_.val(), pipefd[1], 0);
+  replayer_resources_manager_.add_fd(pid, read_descriptor_.val(), SYSCALL_SIMULATED, 0);
+  replayer_resources_manager_.add_fd(pid, write_descriptor_.val(), SYSCALL_SIMULATED, 0);
 }

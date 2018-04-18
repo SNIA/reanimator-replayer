@@ -99,7 +99,12 @@ bool ReplayerResourcesManager::has_fd(pid_t pid, int traced_fd) {
 
 int ReplayerResourcesManager::generate_unused_fd(pid_t pid) {
   assert(fd_table_map_.find(pid) != fd_table_map_.end());
-  std::unordered_set<int> used_fds = fd_table_map_[pid]->get_all_replayed_fds();
+  std::unordered_set<int> used_fds;
+
+  for (auto fds : fd_table_map_) {
+    auto fd_table = fds.second->get_all_replayed_fds();
+    used_fds.insert(fd_table.begin(), fd_table.end());
+  }
   // Add cached replayer fds to used fds (ex. logger fd)
   used_fds.insert(replayer_used_fds_.begin(), replayer_used_fds_.end());
   int unused = 0;
