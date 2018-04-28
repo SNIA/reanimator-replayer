@@ -724,6 +724,17 @@ socketpair	type		0	int32
 socketpair	protocol	0	int32
 socketpair	read_descriptor	0	int32
 socketpair	write_descriptor	0	int32
+recv	descriptor	0	int32
+recv	bytes_requested	0	int64
+recv	data_read	1	variable32
+recv	flags_value	1	int32
+recv	flag_cmsg_cloexec	0	bool
+recv	flag_donwait	0	bool
+recv	flag_errqueue	0	bool
+recv	flag_oob	0	bool
+recv	flag_peek	0	bool
+recv	flag_trunc	0	bool
+recv	flag_waitall	0	bool
 send	descriptor	0	int32
 send	bytes_requested	0	int64
 send	data_written	1	variable32

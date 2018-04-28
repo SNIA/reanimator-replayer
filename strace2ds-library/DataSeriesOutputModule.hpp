@@ -597,6 +597,14 @@ private:
   // Maps Socketpair System Call <field, value> pairs
   void makeSocketpairArgsMap(void **args_map, long *args, void **v_args);
 
+  // Maps Recv System Call <field, value> pairs
+  void makeRecvArgsMap(void **args_map, long *args, void **v_args);
+  /*
+   * Maps individual flag value for recv system call to its corresponding
+   * field name.
+   */
+  u_int processRecvFlags(void **args_map, u_int recv_flags);
+
   // Maps Send System Call <field, value> pairs
   void makeSendArgsMap(void **args_map, long *args, void **v_args);
   /*
