@@ -229,6 +229,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["readv"] = &DataSeriesOutputModule::makeReadvArgsMap;
   // recv system call
   func_ptr_map_["recv"] = &DataSeriesOutputModule::makeRecvArgsMap;
+  // recvfrom system call
+  func_ptr_map_["recvfrom"] = &DataSeriesOutputModule::makeRecvfromArgsMap;
   // removexattr system call
   func_ptr_map_["removexattr"] = &DataSeriesOutputModule::makeRemovexattrArgsMap;
   // rename system call

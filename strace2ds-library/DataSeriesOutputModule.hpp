@@ -605,6 +605,9 @@ private:
    */
   u_int processRecvFlags(void **args_map, u_int recv_flags);
 
+  // Maps Recvfrom System Call <field, value> pairs
+  void makeRecvfromArgsMap(void **args_map, long *args, void **v_args);
+
   // Maps Send System Call <field, value> pairs
   void makeSendArgsMap(void **args_map, long *args, void **v_args);
   /*
