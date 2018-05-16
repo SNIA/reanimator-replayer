@@ -87,6 +87,7 @@ libstrace2ds_la_SOURCES = DataSeriesOutputModule.cpp 	\
 			  MakeSocketpairArgsMap.cpp	\
 			  MakeRecvArgsMap.cpp		\
 			  MakeRecvfromArgsMap.cpp	\
+			  MakeRecvmsgArgsMap.cpp	\
 			  MakeSendArgsMap.cpp		\
 			  MakeSendtoArgsMap.cpp		\
 			  MakeSendmsgArgsMap.cpp	\
@@ -184,6 +185,7 @@ XML_FILES=			\
 	xml/socketpair.xml	\
 	xml/recv.xml		\
 	xml/recvfrom.xml	\
+	xml/recvmsg.xml		\
 	xml/send.xml		\
 	xml/sendto.xml		\
 	xml/sendmsg.xml
