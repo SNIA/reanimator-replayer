@@ -27,7 +27,7 @@ void DataSeriesOutputModule::makeReadvArgsMap(void **args_map,
    * iov_number equal to '-1' denotes the first record for the
    * readv system call. For first record, we save the file
    * descriptor, count, iov_number and total number of bytes
-   * requested and do not set the data_read field.
+   * requested and do not set the iov_data_read field.
    */
   if (iov_number == -1) {
     args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
@@ -38,10 +38,10 @@ void DataSeriesOutputModule::makeReadvArgsMap(void **args_map,
     /*
      * For rest of the records, we do not save file descriptor and
      * count fields. We only save the iov_number, bytes_requested
-     * and data_read.
+     * and iov_data_read.
      */
     args_map[SYSCALL_FIELD_IOV_NUMBER] = v_args[0];
     args_map[SYSCALL_FIELD_BYTES_REQUESTED] = v_args[1];
-    args_map[SYSCALL_FIELD_DATA_READ] = &v_args[2];
+    args_map[SYSCALL_FIELD_IOV_DATA_READ] = &v_args[2];
   }
 }

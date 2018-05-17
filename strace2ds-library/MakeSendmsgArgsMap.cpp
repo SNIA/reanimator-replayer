@@ -30,7 +30,7 @@ void DataSeriesOutputModule::makeSendmsgArgsMap(void **args_map,
    * iov_number equal to '-1' denotes the first record for the
    * sendmsg system call. For first record, we save the file
    * descriptor, iov_number and total number of bytes
-   * requested and do not set the data_written field.
+   * requested and do not set the iov_data_written field.
    */
   if (iov_number == -1) {
     // Initialize all non-nullable boolean fields to False.
@@ -53,10 +53,10 @@ void DataSeriesOutputModule::makeSendmsgArgsMap(void **args_map,
     /*
      * For rest of the records, we do not save file descriptor and
      * count fields. We only save the iov_number, bytes_requested
-     * and data_written fields.
+     * and iov_data_written fields.
      */
     args_map[SYSCALL_FIELD_IOV_NUMBER] = v_args[0];
     args_map[SYSCALL_FIELD_BYTES_REQUESTED] = v_args[1];
-    args_map[SYSCALL_FIELD_DATA_WRITTEN] = &v_args[2];
+    args_map[SYSCALL_FIELD_IOV_DATA_WRITTEN] = &v_args[2];
   }
 }

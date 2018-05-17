@@ -28,7 +28,7 @@ ReadvSystemCallTraceReplayModule(DataSeriesModule &source,
   descriptor_(series, "descriptor", Field::flag_nullable),
   count_(series, "count", Field::flag_nullable),
   iov_number_(series, "iov_number"),
-  data_read_(series, "data_read", Field::flag_nullable),
+  data_read_(series, "iov_data_read", Field::flag_nullable),
   bytes_requested_(series, "bytes_requested") {
   sys_call_name_ = "readv";
 }

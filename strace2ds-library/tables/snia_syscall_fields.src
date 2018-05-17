@@ -95,12 +95,12 @@ readv	descriptor	1	int32
 readv	count	1	int32
 readv	iov_number	0	int32
 readv	bytes_requested	0	int64
-readv	data_read	1	variable32
+readv	iov_data_read	1	variable32
 writev	descriptor	1	int32
 writev	count	1	int32
 writev	iov_number	0	int32
 writev	bytes_requested	0	int64
-writev	data_written	1	variable32
+writev	iov_data_written	1	variable32
 fcntl	descriptor	0	int32
 fcntl	command_value	1	int32
 fcntl	argument_value	1	int32
@@ -750,7 +750,7 @@ recvfrom	flag_waitall	0	bool
 recvmsg	descriptor	0	int32
 recvmsg	iov_number	0	int32
 recvmsg	bytes_requested	0	int64
-recvmsg	data_read	1	variable32
+recvmsg	iov_data_read	1	variable32
 recvmsg	flags_value	1	int32
 recvmsg	flag_cmsg_cloexec	0	bool
 recvmsg	flag_dontwait	0	bool
@@ -794,4 +794,4 @@ sendmsg	flag_nosignal	0	bool
 sendmsg	flag_oob	0	bool
 sendmsg	iov_number	0	int32
 sendmsg	bytes_requested	0	int64
-sendmsg	data_written	1	variable32
+sendmsg	iov_data_written	1	variable32

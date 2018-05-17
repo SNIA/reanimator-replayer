@@ -825,31 +825,46 @@ int DataSeriesOutputModule::getVariable32FieldLength(void **args_map,
      * the length.  Strlen does not count the terminating null character,
      * so we add 1 to its return value to get the full length of the pathname.
      */
-    if ((field_enum == SYSCALL_FIELD_GIVEN_PATHNAME) ||
-      (field_enum == SYSCALL_FIELD_GIVEN_OLDPATHNAME) ||
-      (field_enum == SYSCALL_FIELD_GIVEN_NEWPATHNAME) ||
-      (field_enum == SYSCALL_FIELD_TARGET_PATHNAME) ||
-      (field_enum == SYSCALL_FIELD_GIVEN_OLDNAME) ||
-      (field_enum == SYSCALL_FIELD_GIVEN_NEWNAME) ||
-      (field_enum == SYSCALL_FIELD_ARGUMENT) ||
-      (field_enum == SYSCALL_FIELD_ENVIRONMENT)) {
-      void *field_value = args_map[field_enum];
-      length = strlen(*(char **) field_value) + 1;
-      /*
-       * If field_name refers to the actual data read or written, then length
-       * of buffer must be the return value of that corresponding system call.
-       */
-    } else if ((field_enum == SYSCALL_FIELD_DATA_READ) ||
-      (field_enum == SYSCALL_FIELD_DATA_WRITTEN) ||
-      (field_enum == SYSCALL_FIELD_LINK_VALUE) ||
-      (field_enum == SYSCALL_FIELD_DIRENT_BUFFER)) {
-      length = *(int *)(args_map[SYSCALL_FIELD_RETURN_VALUE]);
-    } else if (field_enum == SYSCALL_FIELD_IOCTL_BUFFER) {
-      length = ioctl_size_;
-    } else if (field_enum == SYSCALL_FIELD_SOCKADDR_BUFFER) {
-      length = *(int *)(args_map[SYSCALL_FIELD_SOCKADDR_LENGTH]);
-    } else if (field_enum == SYSCALL_FIELD_OPTION_VALUE) {
-      length = *(int *)(args_map[SYSCALL_FIELD_BUFFER_SIZE]);
+    switch (field_enum) {
+	case SYSCALL_FIELD_GIVEN_PATHNAME:
+	case SYSCALL_FIELD_GIVEN_OLDPATHNAME:
+	case SYSCALL_FIELD_GIVEN_NEWPATHNAME:
+	case SYSCALL_FIELD_TARGET_PATHNAME:
+	case SYSCALL_FIELD_GIVEN_OLDNAME:
+	case SYSCALL_FIELD_GIVEN_NEWNAME:
+	case SYSCALL_FIELD_ARGUMENT:
+	case SYSCALL_FIELD_ENVIRONMENT:
+	  {
+	    void *field_value = args_map[field_enum];
+	    length = strlen(*(char **) field_value) + 1;
+	    break;
+	  }
+	  /*
+	   * If field_name refers to the actual data read or written, then length
+	   * of buffer must be the return value of that corresponding system call.
+	   */
+	case SYSCALL_FIELD_DATA_READ:
+	case SYSCALL_FIELD_DATA_WRITTEN:
+	case SYSCALL_FIELD_LINK_VALUE:
+	case SYSCALL_FIELD_DIRENT_BUFFER:
+	  length = *(int *)(args_map[SYSCALL_FIELD_RETURN_VALUE]);
+	  break;
+	case SYSCALL_FIELD_IOCTL_BUFFER:
+	  length = ioctl_size_;
+	  break;
+	case SYSCALL_FIELD_SOCKADDR_BUFFER:
+	  length = *(int *)(args_map[SYSCALL_FIELD_SOCKADDR_LENGTH]);
+	  break;
+	case SYSCALL_FIELD_OPTION_VALUE:
+	  length = *(int *)(args_map[SYSCALL_FIELD_BUFFER_SIZE]);
+	  break;
+	case SYSCALL_FIELD_IOV_DATA_READ:
+	case SYSCALL_FIELD_IOV_DATA_WRITTEN:
+	  length = *(int *)(args_map[SYSCALL_FIELD_BYTES_REQUESTED]);
+	  break;
+	default:
+	  length = 0;
+	  break;
     }
   } else {
     std::cerr << "WARNING: field_enum = " << field_enum << " ";
