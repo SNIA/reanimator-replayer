@@ -12,22 +12,30 @@
 #include <vector>
 #include <boost/thread/barrier.hpp>
 
-std::mutex m;
+std::mutex mtxQueue;
+std::mutex mtxVector;
 std::condition_variable cv;
 std::atomic<int> data(0);
 bool processed = false;
 
+class Syscalls {
+ public:
+  int uniqueId;
+  int pid;
+  int timeline;
+
+  Syscalls(int id, int tid, int timeline)
+      : pid(tid), uniqueId(id), timeline(timeline) {}
+};
+
 class ComparePair {
-public:
-  bool operator()(std::pair<int, int> t1, std::pair<int, int> t2) {
-    return t1.first >= t2.first;
+ public:
+  bool operator()(Syscalls *t1, Syscalls *t2) {
+    return t1->uniqueId >= t2->uniqueId;
   }
 };
 
-std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>,
-                    ComparePair>
-    pq;
-
+std::priority_queue<Syscalls *, std::vector<Syscalls *>, ComparePair> pq;
 std::unordered_map<std::thread::id, int> tidMap;
 
 boost::barrier bar(3);
@@ -36,31 +44,29 @@ void worker_thread() {
   bar.wait();
   auto tid = tidMap[std::this_thread::get_id()];
   while (1) {
-    std::unique_lock<std::mutex> lk(m);
-    cv.wait(lk, [&] { return pq.empty() || pq.top().second == tid; });
+    std::unique_lock<std::mutex> lock(mtxQueue);
+    cv.wait(lock, [&] { return pq.empty() || (pq.top()->pid == tid); });
 
     if (pq.empty()) {
       return;
     }
 
-    auto top = pq.top().second;
+    auto top = pq.top();
+    auto topPid = top->pid;
     pq.pop();
 
-    lk.unlock();
+    lock.unlock();
     cv.notify_all();
 
-    data += top;
-
-    // std::cout << "Worker thread " << std::this_thread::get_id()
-    //           << " data " << data <<"\n";
+    data += topPid;
   }
 }
 
 int main() {
-  pq.push(std::make_pair(1, 1));
-  pq.push(std::make_pair(2, 2));
-  pq.push(std::make_pair(3, 1));
-  pq.push(std::make_pair(4, 2));
+  pq.push(new Syscalls(1, 1, 1));
+  pq.push(new Syscalls(2, 2, 1));
+  pq.push(new Syscalls(3, 1, 2));
+  pq.push(new Syscalls(4, 2, 3));
 
   std::thread worker(worker_thread);
   tidMap[worker.get_id()] = 1;
@@ -68,12 +74,12 @@ int main() {
   tidMap[worker2.get_id()] = 2;
   bar.wait();
 
-  { std::lock_guard<std::mutex> lk(m); }
+  { std::lock_guard<std::mutex> lock(mtxQueue); }
   cv.notify_all();
 
   {
-    std::unique_lock<std::mutex> lk(m);
-    cv.wait(lk, [] { return pq.empty(); });
+    std::unique_lock<std::mutex> lock(mtxQueue);
+    cv.wait(lock, [] { return pq.empty(); });
   }
 
   worker.join();
