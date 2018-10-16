@@ -2,17 +2,19 @@
 
 #include <atomic>
 #include <boost/thread/barrier.hpp>
+#include <chrono>
 #include <condition_variable>
 #include <iostream>
 #include <mutex>
 #include <queue>
+#include <random>
 #include <string>
 #include <thread>
 #include <unordered_map>
 #include <utility>
 #include <vector>
-#include <chrono>
-#include <random>
+
+// #define VERBOSE
 
 std::mutex mtxQueue;
 std::condition_variable cvEnter;
@@ -69,6 +71,12 @@ void worker_thread() {
     cvExit.wait(lockVector, [&] {
       for (auto s : currentRunning) {
         if (s->endTime < top->startTime) {
+#ifdef VERBOSE
+          std::cout << tid << " " << top->startTime << " " << top->endTime
+                    << " violates \n"
+                    << s->pid << " " << s->startTime << " " << s->endTime
+                    << "\n";
+#endif
           return false;
         }
       }
@@ -80,27 +88,43 @@ void worker_thread() {
     lock.unlock();
     cvEnter.notify_all();
 
-    std::cout << topPid << " " << top->startTime << " " << top->endTime << "\n";
-    std::this_thread::sleep_for(std::chrono::milliseconds(dis(gen)));
+    lockVector.unlock();
+    cvExit.notify_all();
+
+#ifdef VERBOSE
+    std::cout << std::this_thread::get_id() << " " << topPid << " "
+              << top->startTime << " " << top->endTime << " started"
+              << "\n";
+#endif
+    if (tid == 2) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(30));
+    }
+
+    // std::this_thread::sleep_for(std::chrono::milliseconds(dis(gen)));
     data += topPid;
 
     currentRunning.erase(
         std::remove(currentRunning.begin(), currentRunning.end(), top),
         currentRunning.end());
-
-    lockVector.unlock();
+#ifdef VERBOSE
+    std::cout << std::this_thread::get_id() << " " << topPid << " "
+              << top->startTime << " " << top->endTime << " finished"
+              << "\n";
+#else
+    std::cout << topPid << " " << top->startTime << " " << top->endTime << "\n";
+#endif
     cvExit.notify_all();
   }
 }
 
 int main() {
   pq.push(new Syscalls(1, 1, 1, 3));
-  pq.push(new Syscalls(2, 2, 1, 3));
-  pq.push(new Syscalls(3, 1, 2, 4));
-  pq.push(new Syscalls(4, 2, 3, 5));
-  pq.push(new Syscalls(5, 1, 4, 6));
+  pq.push(new Syscalls(2, 2, 1, 2));
+  pq.push(new Syscalls(3, 1, 3, 4));
+  pq.push(new Syscalls(4, 2, 3, 4));
+  pq.push(new Syscalls(5, 1, 5, 5));
   pq.push(new Syscalls(6, 2, 5, 6));
-  pq.push(new Syscalls(7, 1, 5, 5));
+  pq.push(new Syscalls(7, 1, 5, 6));
   pq.push(new Syscalls(8, 2, 6, 8));
 
   std::thread worker(worker_thread);
