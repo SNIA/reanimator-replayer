@@ -21,6 +21,7 @@ std::condition_variable cvEnter;
 std::mutex mtxVector;
 std::condition_variable cvExit;
 std::mutex correctVector;
+std::mutex mtxCurrent;
 
 std::atomic<int> data(0);
 
@@ -68,16 +69,24 @@ void worker_thread() {
     pq.pop();
 
     std::unique_lock<std::mutex> lockVector(mtxVector);
-    cvExit.wait(lockVector, [&] {
-      for (auto s : currentRunning) {
-        if (s->endTime < top->startTime) {
+    cvExit.wait(lockVector, [top] {
+      while (1) {
+        bool counterExample = false;
+        for (auto s : currentRunning) {
+          if (s->endTime < top->startTime) {
 #ifdef VERBOSE
-          std::cout << tid << " " << top->startTime << " " << top->endTime
-                    << " violates \n"
-                    << s->pid << " " << s->startTime << " " << s->endTime
-                    << "\n";
+            std::cout << tid << " " << top->startTime << " " << top->endTime
+                      << " violates \n"
+                      << s->pid << " " << s->startTime << " " << s->endTime
+                      << "\n";
 #endif
-          return false;
+            // return false;
+            counterExample = true;
+            break;
+          }
+        }
+        if (counterExample == false) {
+          break;
         }
       }
       return true;
@@ -103,13 +112,15 @@ void worker_thread() {
     // std::this_thread::sleep_for(std::chrono::milliseconds(dis(gen)));
     data += topPid;
 
-    currentRunning.erase(
-        std::remove(currentRunning.begin(), currentRunning.end(), top),
-        currentRunning.end());
+    mtxCurrent.lock();
+    auto pos = std::find(currentRunning.begin(), currentRunning.end(), top);
+    currentRunning.erase(pos);
+    mtxCurrent.unlock();
+
 #ifdef VERBOSE
     std::cout << std::this_thread::get_id() << " " << topPid << " "
-              << top->startTime << " " << top->endTime << " finished"
-              << "\n";
+              << top->startTime << " " << top->endTime << " finished "
+              << currentRunning.size() << "\n";
 #else
     std::cout << topPid << " " << top->startTime << " " << top->endTime << "\n";
 #endif
