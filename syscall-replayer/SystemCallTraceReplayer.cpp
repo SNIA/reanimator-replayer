@@ -21,6 +21,9 @@
  */
 
 #include "SystemCallTraceReplayer.hpp"
+#include <chrono>
+#include <fstream>
+#include <unordered_map>
 
 /**
  * min heap uses this function to sort elements in the tree.
@@ -772,6 +775,11 @@ int main(int argc, char *argv[]) {
   std::string log_filename = "";
   std::vector<std::string> input_files;
 
+  std::ofstream syscallFile("syscalls.txt");
+  std::unordered_map<std::string, int> syscallMap;
+
+  std::chrono::high_resolution_clock::time_point t5 = std::chrono::high_resolution_clock::now();
+
   // Process options found on the command line.
   process_options(argc, argv, verbose,
 		  verify, warn_level, pattern_data,
@@ -820,14 +828,36 @@ int main(int argc, char *argv[]) {
   SystemCallTraceReplayModule *execute_replayer = NULL;
   int num_syscalls_processed = 0;
 
-  // Process all the records in the dataseries
+  std::chrono::high_resolution_clock::time_point t6 = std::chrono::high_resolution_clock::now();
+  std::cerr << "warmup: " << std::chrono::duration_cast<std::chrono::milliseconds>(t6 - t5).count() << "\n";
+
+  std::chrono::high_resolution_clock::time_point t7 = std::chrono::high_resolution_clock::now();
+
+  int duration = 0;
+  int fileReading = 0;
+  int gettingRecord = 0;
+  int loop = 0;
+  // Process all the records in thmice dataseries
   while(!replayers_heap.empty()) {
+    std::chrono::high_resolution_clock::time_point t12 = std::chrono::high_resolution_clock::now();
     // Get a module that has min unique_id
+    std::chrono::high_resolution_clock::time_point t10 = std::chrono::high_resolution_clock::now();
     execute_replayer = replayers_heap.top();
     replayers_heap.pop();
+    std::chrono::high_resolution_clock::time_point t11 = std::chrono::high_resolution_clock::now();
+    gettingRecord += std::chrono::duration_cast<std::chrono::nanoseconds>(t11 - t10).count();
     // Replay the operation that has min unique_id
+    if (syscallMap.find(execute_replayer->sys_call_name()) == syscallMap.end()) {
+      syscallMap[execute_replayer->sys_call_name()] = 1;
+    } else {
+      syscallMap[execute_replayer->sys_call_name()]++;
+    }
+    std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
     execute_replayer->execute();
+    std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+    duration += std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count();
     // Check to see if all the extents in the module are processed
+    std::chrono::high_resolution_clock::time_point t3 = std::chrono::high_resolution_clock::now();
     if (execute_replayer->cur_extent_has_more_record() ||
       execute_replayer->getSharedExtent() != NULL) {
       // No, there are more extents, so we add it to min_heap
@@ -836,14 +866,28 @@ int main(int argc, char *argv[]) {
       // No, there are no more extents, so we delete the module
       delete execute_replayer;
     }
+    std::chrono::high_resolution_clock::time_point t4 = std::chrono::high_resolution_clock::now();
+    fileReading += std::chrono::duration_cast<std::chrono::nanoseconds>(t4 - t3).count();
     // Increment number of system calls processed.
     num_syscalls_processed++;
     // Verify that the state of resources manager is consistent for every SCAN_FD_FREQUENCY sys calls.
-    if (num_syscalls_processed % SCAN_FD_FREQUENCY == 0) {
-      SystemCallTraceReplayModule::replayer_resources_manager_.validate_consistency();
+    // if (num_syscalls_processed % SCAN_FD_FREQUENCY == 0) {
+    //   SystemCallTraceReplayModule::replayer_resources_manager_.validate_consistency();
+    // }
+    if (num_syscalls_processed == 1000000) {
+      std::chrono::high_resolution_clock::time_point t8 = std::chrono::high_resolution_clock::now();
+      std::cerr << "rest of the execution: " << std::chrono::duration_cast<std::chrono::milliseconds>(t8 - t7).count() << "\n";
+      std::cerr << "actual execution time: " << duration/1000000 << "\n";
+      std::cerr << "actual file reading time: " << fileReading/1000000 << "\n";
+      std::cerr << "actual getting record time: " << gettingRecord/1000000 << "\n";
+      std::cerr << "actual loop time: " << loop/1000000 << "\n";
     }
+    std::chrono::high_resolution_clock::time_point t13 = std::chrono::high_resolution_clock::now();
+    loop += std::chrono::duration_cast<std::chrono::nanoseconds>(t13 - t12).count();
   }
-
+  for (auto syscall : syscallMap) {
+    syscallFile << syscall.first << " " << syscall.second << "\n";
+  }
   // Close /dev/urandom file
   if (pattern_data == "urandom") {
     SystemCallTraceReplayModule::random_file_.close();

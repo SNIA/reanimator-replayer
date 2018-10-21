@@ -92,6 +92,9 @@ protected:
    */
   void compare_retval_and_errno();
 
+  virtual void prepareRow() {
+    return;
+  }
   /**
    * This function is where all the replaying takes action.
    * It will be called by execute() function for each record
