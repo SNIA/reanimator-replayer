@@ -32,6 +32,10 @@ private:
   Int32Field descriptor_;
   Int64Field offset_;
   ByteField whence_;
+  pid_t pid;
+  int replayed_fd;
+  long offset;
+  uint8_t whence;
 
   /**
    * Print lseek sys call field values in a nice format
@@ -48,5 +52,6 @@ public:
   LSeekSystemCallTraceReplayModule(DataSeriesModule &source,
 				   bool verbose_flag,
 				   int warn_level_flag);
+  void prepareRow();
 };
 #endif /* LSEEK_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

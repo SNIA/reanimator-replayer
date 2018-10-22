@@ -30,6 +30,7 @@ private:
   Int32Field exit_status_;
   BoolField generated_;
 
+  pid_t pid;
   /**
    * Print exit sys call field values in a nice format
    */
@@ -40,11 +41,11 @@ private:
    * exit system call.
    */
   void processRow();
-
 public:
   ExitSystemCallTraceReplayModule(DataSeriesModule &source,
 				  bool verbose_flag,
 				  int warn_level_flag);
+  void prepareRow();
 };
 
 #endif /* EXIT_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

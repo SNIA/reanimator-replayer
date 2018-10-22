@@ -85,7 +85,7 @@ class StatSystemCallTraceReplayModule :
 private:
   // System Call Field pathname stored in DataSeries file
   Variable32Field given_pathname_;
-
+  char *pathname;
   /**
    * Print stat sys call field values in a nice format
    */
@@ -102,6 +102,7 @@ public:
 				  bool verbose_flag,
 				  bool verify_flag,
 				  int warn_level_flag);
+  void prepareRow();
 };
 
 class LStatSystemCallTraceReplayModule :
@@ -133,6 +134,8 @@ class FStatSystemCallTraceReplayModule :
 private:
   // System Call Field descriptor stored in Dataseries ilfe
   Int32Field descriptor_;
+  pid_t pid;
+  int fd;
 
   /**
    * Print fstat sys call field values in a nice format
@@ -150,6 +153,7 @@ public:
 				   bool verbose_flag,
 				   bool verify_flag,
 				   int warn_level_flag);
+  void prepareRow();
 };
 
 class FStatatSystemCallTraceReplayModule :

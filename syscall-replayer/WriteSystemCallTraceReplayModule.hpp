@@ -32,6 +32,10 @@ protected:
   Int32Field descriptor_;
   Variable32Field data_written_;
   Int64Field bytes_requested_;
+  char *data_buffer;
+  size_t nbytes;
+  pid_t pid;
+  int traced_fd;
 
   /**
    * Print write sys call field values in a nice format
@@ -51,6 +55,7 @@ public:
 				   bool verify_flag,
 				   int warn_level_flag,
 				   std::string pattern_data);
+  void prepareRow();
 };
 
 class PWriteSystemCallTraceReplayModule : public WriteSystemCallTraceReplayModule {

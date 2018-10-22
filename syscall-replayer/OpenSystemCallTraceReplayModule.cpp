@@ -18,6 +18,8 @@
  */
 
 #include "OpenSystemCallTraceReplayModule.hpp"
+#include <cstring>
+#include <memory>
 
 OpenSystemCallTraceReplayModule::
 OpenSystemCallTraceReplayModule(DataSeriesModule &source,
@@ -38,11 +40,6 @@ void OpenSystemCallTraceReplayModule::print_specific_fields() {
 }
 
 void OpenSystemCallTraceReplayModule::processRow() {
-  const char *pathname = (char *)given_pathname_.val();
-  int flags = open_value_.val();
-  mode_t mode = get_mode(mode_value_.val());
-  int traced_fd = (int)return_value_.val();
-
   // replay the open system call
   replayed_ret_val_ = open(pathname, flags, mode);
   if (traced_fd == -1 && replayed_ret_val_ != -1) {
@@ -57,9 +54,19 @@ void OpenSystemCallTraceReplayModule::processRow() {
      * we will still add the entry and replay it.
      * Add a mapping from fd in trace file to actual replayed fd
      */
-    pid_t pid = executing_pid();
     replayer_resources_manager_.add_fd(pid, traced_fd, replayed_ret_val_, flags);
   }
+  delete pathname;
+}
+
+void OpenSystemCallTraceReplayModule::prepareRow() {
+  auto pathBuf = reinterpret_cast<const char *>(given_pathname_.val());
+  pathname = new char[std::strlen(pathBuf)+1];
+  std::strcpy(pathname, pathBuf);
+  flags = open_value_.val();
+  mode = get_mode(mode_value_.val());
+  traced_fd = (int)return_value_.val();
+  pid = executing_pid();
 }
 
 OpenatSystemCallTraceReplayModule::

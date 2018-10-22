@@ -43,19 +43,14 @@ void WriteSystemCallTraceReplayModule::print_specific_fields() {
 }
 
 void WriteSystemCallTraceReplayModule::processRow() {
-  size_t nbytes = bytes_requested_.val();
-  pid_t pid = executing_pid();
-  int traced_fd = descriptor_.val();
   int replayed_fd = replayer_resources_manager_.get_fd(pid, traced_fd);
-  char *data_buffer;
-
+  
   if (replayed_fd == SYSCALL_SIMULATED) {
     /*
      * FD for the write call originated from a socket().
      * The system call will not be replayed.
      * Original return value will be returned.
      */
-    replayed_ret_val_ = return_value_.val();
     return;
   }
 
@@ -79,18 +74,23 @@ void WriteSystemCallTraceReplayModule::processRow() {
        */
       memset(data_buffer, pattern, nbytes);
     }
-  } else {
-    // Write the traced data
-    data_buffer = (char *)data_written_.val();
   }
 
   // Replay write system call as normal.
   replayed_ret_val_ = write(replayed_fd, data_buffer, nbytes);
 
   // Free the buffer
-  if (!pattern_data_.empty()){
-    delete[] data_buffer;
-  }
+  delete[] data_buffer;
+}
+
+void WriteSystemCallTraceReplayModule::prepareRow() {
+  nbytes = bytes_requested_.val();
+  pid = executing_pid();
+  traced_fd = descriptor_.val();
+  replayed_ret_val_ = return_value_.val();
+  auto dataBuf = reinterpret_cast<const char *>(data_written_.val());
+  data_buffer = new char[nbytes];
+  std::strcpy(data_buffer, dataBuf);
 }
 
 PWriteSystemCallTraceReplayModule::

@@ -33,19 +33,20 @@ void ExitSystemCallTraceReplayModule::print_specific_fields() {
     "generated(", generated_.val(), ")");
 }
 
+/*
+ * NOTE: On replaying exit system call, our replayer will terminate.
+ * Hence we do not replay exit system call, but we update replayer resources
+ */
 void ExitSystemCallTraceReplayModule::processRow() {
-  /*
-   * NOTE: On replaying exit system call, our replayer will terminate.
-   * Hence we do not replay exit system call, but we update replayer resources
-   */
-  pid_t pid = executing_pid();
   // Remove umask table
   SystemCallTraceReplayModule::replayer_resources_manager_.remove_umask(pid);
   // Remove fd table
-  std::unordered_set<int> fds_to_close = replayer_resources_manager_.remove_fd_table(pid);
-  for (std::unordered_set<int>::iterator iter = fds_to_close.begin();
-    iter != fds_to_close.end();
-    iter++) {
-    close(*iter);
+  auto fds_to_close = replayer_resources_manager_.remove_fd_table(pid);
+  for (auto fd : fds_to_close) {
+    close(fd);
   }
+}
+
+void ExitSystemCallTraceReplayModule::prepareRow() {
+  pid = executing_pid();
 }

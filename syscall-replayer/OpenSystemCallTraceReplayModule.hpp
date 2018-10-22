@@ -35,6 +35,11 @@ protected:
   Variable32Field given_pathname_;
   Int32Field open_value_;
   Int32Field mode_value_;
+  int flags;
+  mode_t mode;
+  int traced_fd;
+  pid_t pid;
+  char *pathname;
 
   /**
    * Print open sys call field values in a nice format
@@ -52,6 +57,7 @@ public:
 				  bool verbose_flag,
 				  int warn_level_flag);
 
+  void prepareRow();
 };
 
 class OpenatSystemCallTraceReplayModule :

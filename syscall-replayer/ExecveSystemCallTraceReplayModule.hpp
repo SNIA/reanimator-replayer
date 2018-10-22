@@ -32,7 +32,9 @@ private:
   Int32Field continuation_number_;
   Variable32Field argument_;
   Variable32Field environment_;
-
+  pid_t pid;
+  int32_t continuation_num;
+  int64_t retVal;
   /**
    * Print execve common and sys call field values
    * This function is overridden from its base class
@@ -56,6 +58,7 @@ public:
   ExecveSystemCallTraceReplayModule(DataSeriesModule &source,
 				    bool verbose_flag,
 				    int warn_level_flag);
+  void prepareRow();
 };
 
 #endif /* EXECVE_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

@@ -17,6 +17,8 @@
  */
 
 #include "AccessSystemCallTraceReplayModule.hpp"
+#include <cstring>
+#include <memory>
 
 AccessSystemCallTraceReplayModule::
 AccessSystemCallTraceReplayModule(DataSeriesModule &source,
@@ -35,11 +37,16 @@ void AccessSystemCallTraceReplayModule::print_specific_fields() {
 }
 
 void AccessSystemCallTraceReplayModule::processRow() {
-  const char *pathname = (char *)given_pathname_.val();
-  int mode_value = get_mode(mode_value_.val());
-
   // Replay the access system call
   replayed_ret_val_ = access(pathname, mode_value);
+  delete pathname;
+}
+
+void AccessSystemCallTraceReplayModule::prepareRow() {
+  auto pathBuf = reinterpret_cast<const char *>(given_pathname_.val());
+  pathname = new char[std::strlen(pathBuf)+1];
+  std::strcpy(pathname, pathBuf);
+  mode_value = get_mode(mode_value_.val());
 }
 
 FAccessatSystemCallTraceReplayModule::

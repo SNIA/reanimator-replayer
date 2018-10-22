@@ -32,6 +32,8 @@ protected:
   // Access System Call Trace Fields in Dataseries file
   Variable32Field given_pathname_;
   Int32Field mode_value_;
+  char *pathname;
+  int mode_value;
 
   /**
    * Print this sys call field values in a nice format
@@ -48,6 +50,7 @@ public:
   AccessSystemCallTraceReplayModule(DataSeriesModule &source,
 				    bool verbose_flag,
 				    int warn_level_flag);
+  void prepareRow();
 };
 
 class FAccessatSystemCallTraceReplayModule : public AccessSystemCallTraceReplayModule {

@@ -833,10 +833,10 @@ int main(int argc, char *argv[]) {
 
   std::chrono::high_resolution_clock::time_point t7 = std::chrono::high_resolution_clock::now();
 
-  int duration = 0;
-  int fileReading = 0;
-  int gettingRecord = 0;
-  int loop = 0;
+  int64_t duration = 0;
+  int64_t fileReading = 0;
+  int64_t gettingRecord = 0;
+  int64_t loop = 0;
   // Process all the records in thmice dataseries
   while(!replayers_heap.empty()) {
     std::chrono::high_resolution_clock::time_point t12 = std::chrono::high_resolution_clock::now();
@@ -852,6 +852,10 @@ int main(int argc, char *argv[]) {
     } else {
       syscallMap[execute_replayer->sys_call_name()]++;
     }
+    std::chrono::high_resolution_clock::time_point t15 = std::chrono::high_resolution_clock::now();
+    execute_replayer->prepareRow();
+    std::chrono::high_resolution_clock::time_point t16 = std::chrono::high_resolution_clock::now();
+    fileReading += std::chrono::duration_cast<std::chrono::nanoseconds>(t16 - t15).count();
     std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
     execute_replayer->execute();
     std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();

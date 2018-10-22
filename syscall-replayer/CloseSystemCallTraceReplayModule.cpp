@@ -36,8 +36,7 @@ void CloseSystemCallTraceReplayModule::print_specific_fields() {
 
 void CloseSystemCallTraceReplayModule::processRow() {
   // Get actual file descriptor
-  pid_t pid = executing_pid();
-  int fd = replayer_resources_manager_.remove_fd(pid, descriptor_.val());
+  int fd = replayer_resources_manager_.remove_fd(pid, descVal);
 
   if (fd == SYSCALL_SIMULATED) {
     /*
@@ -45,9 +44,14 @@ void CloseSystemCallTraceReplayModule::processRow() {
      * The system call will not be replayed.
      * Traced return value will be returned.
      */
-    replayed_ret_val_ = return_value_.val();
     return;
   }
 
   replayed_ret_val_ = close(fd);
+}
+
+void CloseSystemCallTraceReplayModule::prepareRow() {
+  pid = executing_pid();
+  replayed_ret_val_ = return_value_.val();
+  descVal = descriptor_.val();
 }

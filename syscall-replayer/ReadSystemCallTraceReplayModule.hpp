@@ -33,6 +33,11 @@ protected:
   Int32Field descriptor_;
   Variable32Field data_read_;
   Int64Field bytes_requested_;
+  pid_t pid;
+  int traced_fd;
+  int replayed_fd;
+  int nbytes;
+  char *buffer;
 
   /**
    * Print read sys call field values in a nice format
@@ -50,6 +55,7 @@ public:
 				  bool verbose_flag,
 				  bool verify_flag,
 				  int warn_level_flag);
+  void prepareRow();
 };
 
 class PReadSystemCallTraceReplayModule : public ReadSystemCallTraceReplayModule {

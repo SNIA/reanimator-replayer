@@ -18,6 +18,8 @@
  */
 
 #include "BasicStatSystemCallTraceReplayModule.hpp"
+#include <cstring>
+#include <memory>
 
 BasicStatSystemCallTraceReplayModule::
 BasicStatSystemCallTraceReplayModule(DataSeriesModule &source,
@@ -170,7 +172,6 @@ void StatSystemCallTraceReplayModule::print_specific_fields() {
 
 void StatSystemCallTraceReplayModule::processRow() {
   struct stat stat_buf;
-  char *pathname = (char *) given_pathname_.val();
 
   // replay the stat system call
   replayed_ret_val_ = stat(pathname, &stat_buf);
@@ -178,6 +179,12 @@ void StatSystemCallTraceReplayModule::processRow() {
   if (verify_ == true) {
     BasicStatSystemCallTraceReplayModule::verifyResult(stat_buf);
   }
+}
+
+void StatSystemCallTraceReplayModule::prepareRow() {
+  auto pathBuf = reinterpret_cast<const char *>(given_pathname_.val());
+  pathname = new char[std::strlen(pathBuf)+1];
+  std::strcpy(pathname, pathBuf);
 }
 
 LStatSystemCallTraceReplayModule::
@@ -229,16 +236,12 @@ void FStatSystemCallTraceReplayModule::print_specific_fields() {
 
 void FStatSystemCallTraceReplayModule::processRow() {
   struct stat stat_buf;
-  pid_t pid = executing_pid();
-  int fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
-
   if (fd == SYSCALL_SIMULATED) {
     /*
      * FD for the fstat system call originated from a socket().
      * The system call will not be replayed.
      * Original return value will be returned.
      */
-    replayed_ret_val_ = return_value_.val();
     return;
   }
 
@@ -248,6 +251,12 @@ void FStatSystemCallTraceReplayModule::processRow() {
   if (verify_ == true) {
     BasicStatSystemCallTraceReplayModule::verifyResult(stat_buf);
   }
+}
+
+void FStatSystemCallTraceReplayModule::prepareRow() {
+  pid = executing_pid();
+  fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
+  replayed_ret_val_ = return_value_.val();
 }
 
 FStatatSystemCallTraceReplayModule::

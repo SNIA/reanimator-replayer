@@ -69,30 +69,11 @@ void ExecveSystemCallTraceReplayModule::print_specific_fields() {
 }
 
 void ExecveSystemCallTraceReplayModule::processRow() {
-  int count = 1;
-  pid_t pid = executing_pid();
-
-  // Save the position of the first record
-  const void *first_record_pos = series.getCurPos();
-
-  // Count the number of rows processed
-  while (continuation_number_.val() >= 0 && series.morerecords()) {
-    ++series;
-    ++count;
-  }
-
-  // Set the number of record processed
-  rows_per_call_ = count;
-
-  // Again, set the pointer to the first record
-  series.setCurPos(first_record_pos);
-
   /*
    * NOTE: It is not appropriate to replay execve system call.
    * Hence we do not replay execve system call. However, we still need
    * to update fd manager.
    */
-  
   // Get all traced fds in this process
   std::unordered_set<int> traced_fds = replayer_resources_manager_.get_all_traced_fds(pid);
   for (std::unordered_set<int>::iterator iter = traced_fds.begin();
@@ -106,10 +87,32 @@ void ExecveSystemCallTraceReplayModule::processRow() {
      * is left open.)  If the FD_CLOEXEC bit is not set, the file descriptor will
      * remain open across an execve(2).
      */
-    if (flags & O_CLOEXEC && return_value() >= 0) {
+    if (flags & O_CLOEXEC && retVal >= 0) {
       replayer_resources_manager_.remove_fd(pid, traced_fd);
     }
   }
-  
+
   return;
+}
+
+void ExecveSystemCallTraceReplayModule::prepareRow() {
+  int count = 1;
+  pid = executing_pid();
+  continuation_num = continuation_number_.val();
+  retVal = return_value();
+
+  // Save the position of the first record
+  const void *first_record_pos = series.getCurPos();
+
+  // Count the number of rows processed
+  while (continuation_num >= 0 && series.morerecords()) {
+    ++series;
+    ++count;
+  }
+
+  // Set the number of record processed
+  rows_per_call_ = count;
+
+  // Again, set the pointer to the first record
+  series.setCurPos(first_record_pos);
 }
