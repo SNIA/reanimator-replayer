@@ -30,7 +30,6 @@ private:
   Int32Field exit_status_;
   BoolField generated_;
 
-  pid_t pid;
   /**
    * Print exit sys call field values in a nice format
    */

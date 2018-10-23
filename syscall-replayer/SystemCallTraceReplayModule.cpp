@@ -57,31 +57,31 @@ std::string SystemCallTraceReplayModule::sys_call_name() const {
 }
 
 uint64_t SystemCallTraceReplayModule::time_called() const {
-  return (uint64_t)time_called_.val();
+  return timeCalledVal;
 }
 
 uint64_t SystemCallTraceReplayModule::time_returned() const {
-  return (uint64_t)time_returned_.val();
+  return timeReturnedVal;
 }
 
 uint64_t SystemCallTraceReplayModule::time_recorded() const {
-  return (uint64_t)time_recorded_.val();
+  return timeRecordedVal;
 }
 
 uint32_t SystemCallTraceReplayModule::executing_pid() const {
-  return (uint32_t)executing_pid_.val();
+  return executingPidVal;
 }
 
 int SystemCallTraceReplayModule::errno_number() const {
-  return (int)errno_number_.val();
+  return errorNoVal;
 }
 
 int64_t SystemCallTraceReplayModule::return_value() const {
-  return (int64_t)return_value_.val();
+  return returnVal;
 }
 
 int64_t SystemCallTraceReplayModule::unique_id() const {
-  return (int64_t)unique_id_.val();
+  return uniqueIdVal;
 }
 
 Extent::Ptr SystemCallTraceReplayModule::getSharedExtent() {
@@ -118,6 +118,18 @@ bool SystemCallTraceReplayModule::is_version_compatible(unsigned int major_v, un
   return series.getTypePtr()->versionCompatible(major_v, minor_v);
 }
 
+void SystemCallTraceReplayModule::prepareRow() {
+  uniqueIdVal = (int64_t)unique_id_.val();
+  timeCalledVal = (uint64_t)time_called_.val();
+  timeReturnedVal = (uint64_t)time_returned_.val();
+  timeRecordedVal = (uint64_t)time_recorded_.val();
+  executingPidVal = (uint32_t)executing_pid_.val();
+  errorNoVal = (int)errno_number_.val();
+  returnVal = (int64_t)return_value_.val();
+  for (int i = 1; i <= rows_per_call_; i++)
+    ++series;
+}
+
 void SystemCallTraceReplayModule::execute() {
   processRow();
   completeProcessing();
@@ -125,8 +137,6 @@ void SystemCallTraceReplayModule::execute() {
 
 void SystemCallTraceReplayModule::completeProcessing() {
   after_sys_call();
-  for (int i = 1; i <= rows_per_call_; i++)
-    ++series;
 }
 
 void SystemCallTraceReplayModule::after_sys_call() {

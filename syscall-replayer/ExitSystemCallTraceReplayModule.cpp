@@ -39,14 +39,14 @@ void ExitSystemCallTraceReplayModule::print_specific_fields() {
  */
 void ExitSystemCallTraceReplayModule::processRow() {
   // Remove umask table
-  SystemCallTraceReplayModule::replayer_resources_manager_.remove_umask(pid);
+  SystemCallTraceReplayModule::replayer_resources_manager_.remove_umask(executingPidVal);
   // Remove fd table
-  auto fds_to_close = replayer_resources_manager_.remove_fd_table(pid);
+  auto fds_to_close = replayer_resources_manager_.remove_fd_table(executingPidVal);
   for (auto fd : fds_to_close) {
     close(fd);
   }
 }
 
 void ExitSystemCallTraceReplayModule::prepareRow() {
-  pid = executing_pid();
+  SystemCallTraceReplayModule::prepareRow();
 }

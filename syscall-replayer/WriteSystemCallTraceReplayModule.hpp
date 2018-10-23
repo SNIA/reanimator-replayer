@@ -34,7 +34,6 @@ protected:
   Int64Field bytes_requested_;
   char *data_buffer;
   size_t nbytes;
-  pid_t pid;
   int traced_fd;
 
   /**

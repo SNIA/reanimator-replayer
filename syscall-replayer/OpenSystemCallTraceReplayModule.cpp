@@ -41,7 +41,7 @@ void OpenSystemCallTraceReplayModule::print_specific_fields() {
 
 void OpenSystemCallTraceReplayModule::processRow() {
   // replay the open system call
-  replayed_ret_val_ = open(pathname, flags, mode);
+  replayed_ret_val_ = open(pathname, flags, get_mode(modeVal));
   if (traced_fd == -1 && replayed_ret_val_ != -1) {
     /*
      * Original system open failed, but replay system succeeds.
@@ -54,7 +54,7 @@ void OpenSystemCallTraceReplayModule::processRow() {
      * we will still add the entry and replay it.
      * Add a mapping from fd in trace file to actual replayed fd
      */
-    replayer_resources_manager_.add_fd(pid, traced_fd, replayed_ret_val_, flags);
+    replayer_resources_manager_.add_fd(executingPidVal, traced_fd, replayed_ret_val_, flags);
   }
   delete pathname;
 }
@@ -64,9 +64,9 @@ void OpenSystemCallTraceReplayModule::prepareRow() {
   pathname = new char[std::strlen(pathBuf)+1];
   std::strcpy(pathname, pathBuf);
   flags = open_value_.val();
-  mode = get_mode(mode_value_.val());
+  modeVal = mode_value_.val();
   traced_fd = (int)return_value_.val();
-  pid = executing_pid();
+  SystemCallTraceReplayModule::prepareRow();
 }
 
 OpenatSystemCallTraceReplayModule::

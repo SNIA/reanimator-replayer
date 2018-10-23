@@ -28,7 +28,6 @@ class CloseSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 private:
   // DataSeries Close System Call Trace Fields
   Int32Field descriptor_;
-  pid_t pid;
   int32_t descVal;
   /**
    * Print close sys call field values in a nice format

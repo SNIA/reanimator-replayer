@@ -36,9 +36,8 @@ protected:
   Int32Field open_value_;
   Int32Field mode_value_;
   int flags;
-  mode_t mode;
+  int modeVal;
   int traced_fd;
-  pid_t pid;
   char *pathname;
 
   /**

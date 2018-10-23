@@ -36,7 +36,7 @@ void CloseSystemCallTraceReplayModule::print_specific_fields() {
 
 void CloseSystemCallTraceReplayModule::processRow() {
   // Get actual file descriptor
-  int fd = replayer_resources_manager_.remove_fd(pid, descVal);
+  int fd = replayer_resources_manager_.remove_fd(executingPidVal, descVal);
 
   if (fd == SYSCALL_SIMULATED) {
     /*
@@ -51,7 +51,7 @@ void CloseSystemCallTraceReplayModule::processRow() {
 }
 
 void CloseSystemCallTraceReplayModule::prepareRow() {
-  pid = executing_pid();
   replayed_ret_val_ = return_value_.val();
   descVal = descriptor_.val();
+  SystemCallTraceReplayModule::prepareRow();
 }

@@ -32,7 +32,6 @@ private:
   Int32Field continuation_number_;
   Variable32Field argument_;
   Variable32Field environment_;
-  pid_t pid;
   int32_t continuation_num;
   int64_t retVal;
   /**

@@ -28,7 +28,7 @@ class UmaskSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 protected:
   // Umask System Call Trace Fields in Dataseries file
   Int32Field mode_value_;
-
+  mode_t mode;
   /**
    * Print umask sys call field values in a nice format
    */
@@ -44,6 +44,6 @@ public:
   UmaskSystemCallTraceReplayModule(DataSeriesModule &source,
 				   bool verbose_flag,
 				   int warn_level_flag);
-
+  void prepareRow();
 };
 #endif /* UMASK_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

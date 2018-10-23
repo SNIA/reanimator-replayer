@@ -185,6 +185,7 @@ void StatSystemCallTraceReplayModule::prepareRow() {
   auto pathBuf = reinterpret_cast<const char *>(given_pathname_.val());
   pathname = new char[std::strlen(pathBuf)+1];
   std::strcpy(pathname, pathBuf);
+  SystemCallTraceReplayModule::prepareRow();
 }
 
 LStatSystemCallTraceReplayModule::
@@ -236,6 +237,7 @@ void FStatSystemCallTraceReplayModule::print_specific_fields() {
 
 void FStatSystemCallTraceReplayModule::processRow() {
   struct stat stat_buf;
+  int fd = replayer_resources_manager_.get_fd(executingPidVal, descriptorVal);
   if (fd == SYSCALL_SIMULATED) {
     /*
      * FD for the fstat system call originated from a socket().
@@ -254,9 +256,9 @@ void FStatSystemCallTraceReplayModule::processRow() {
 }
 
 void FStatSystemCallTraceReplayModule::prepareRow() {
-  pid = executing_pid();
-  fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
+  descriptorVal = descriptor_.val();
   replayed_ret_val_ = return_value_.val();
+  SystemCallTraceReplayModule::prepareRow();
 }
 
 FStatatSystemCallTraceReplayModule::

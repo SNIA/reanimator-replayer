@@ -33,9 +33,7 @@ protected:
   Int32Field descriptor_;
   Variable32Field data_read_;
   Int64Field bytes_requested_;
-  pid_t pid;
   int traced_fd;
-  int replayed_fd;
   int nbytes;
   char *buffer;
 

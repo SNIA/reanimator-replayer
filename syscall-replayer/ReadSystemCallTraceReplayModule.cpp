@@ -41,6 +41,7 @@ void ReadSystemCallTraceReplayModule::print_specific_fields() {
 }
 
 void ReadSystemCallTraceReplayModule::processRow() {
+  auto replayed_fd = replayer_resources_manager_.get_fd(executingPidVal, traced_fd);
   if (replayed_fd == SYSCALL_SIMULATED) {
     /*
      * FD for the read call originated from an AF_UNIX socket().
@@ -79,13 +80,12 @@ void ReadSystemCallTraceReplayModule::processRow() {
 
 void ReadSystemCallTraceReplayModule::prepareRow() {
   // Get replaying file descriptor.
-  pid = executing_pid();
   traced_fd = descriptor_.val();
-  replayed_fd = replayer_resources_manager_.get_fd(pid, traced_fd);
   nbytes = bytes_requested_.val();
   replayed_ret_val_ = return_value_.val();
   buffer = new char[nbytes];
   // TODO(umit) handle verify case for data read
+  SystemCallTraceReplayModule::prepareRow();
 }
 
 PReadSystemCallTraceReplayModule::

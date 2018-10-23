@@ -134,8 +134,7 @@ class FStatSystemCallTraceReplayModule :
 private:
   // System Call Field descriptor stored in Dataseries ilfe
   Int32Field descriptor_;
-  pid_t pid;
-  int fd;
+  int descriptorVal;
 
   /**
    * Print fstat sys call field values in a nice format

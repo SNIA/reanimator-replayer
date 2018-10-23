@@ -67,6 +67,14 @@ protected:
   int rows_per_call_; // It stores the number of rows processed per system call.
   int replayed_ret_val_;
 
+  int64_t uniqueIdVal;
+  int64_t timeCalledVal;
+  int64_t timeReturnedVal;
+  int64_t timeRecordedVal;
+  int64_t executingPidVal;
+  int errorNoVal;
+  int64_t returnVal;
+
   /**
    * Print common and specific sys call field values in a nice format
    */
@@ -327,9 +335,7 @@ public:
    */
   bool isReplayable();
 
-  virtual void prepareRow() {
-    return;
-  }
+  virtual void prepareRow();
 };
 
 #endif /* SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

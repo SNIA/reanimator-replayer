@@ -32,6 +32,7 @@
 struct CompareByUniqueID {
   bool operator()(SystemCallTraceReplayModule* m1,
 		  SystemCallTraceReplayModule* m2) const {
+    // std::cout << m1->unique_id() << " " << m2->unique_id() << "\n";
     return (m1->unique_id() >= m2->unique_id());
   }
 };
@@ -705,7 +706,11 @@ void load_syscall_modules(std::priority_queue<SystemCallTraceReplayModule*,
           << std::endl;
         exit(0);
       }
+      module->prepareRow();
       replayers_heap.push(module);
+      // std::cerr << module->unique_id() << " "
+      //           << module->sys_call_name() << " "
+      //           << module->executing_pid() << "\n";
     } else {
       // Delete the module since it has no system call to replay.
       delete module;
@@ -750,14 +755,15 @@ void prepare_replay(std::priority_queue<SystemCallTraceReplayModule*,
     SystemCallTraceReplayModule::replayer_resources_manager_.initialize(
       SystemCallTraceReplayModule::syscall_logger_,
       traced_app_pid, std_fd_map);
-
     syscall_replayer.pop();
+
     // Replay umask operation.
     syscall_module->execute();
     // Check to see if all the extents in the umask module are processed
     if (syscall_module->cur_extent_has_more_record() ||
       syscall_module->getSharedExtent() != NULL) {
       // No, there are more umask records, so we add it to min_heap
+      syscall_module->prepareRow();
       syscall_replayer.push(syscall_module);
     } else {
       // Yes, let's delete umask module
@@ -853,10 +859,10 @@ int main(int argc, char *argv[]) {
       syscallMap[execute_replayer->sys_call_name()]++;
     }
     std::chrono::high_resolution_clock::time_point t15 = std::chrono::high_resolution_clock::now();
-    execute_replayer->prepareRow();
     std::chrono::high_resolution_clock::time_point t16 = std::chrono::high_resolution_clock::now();
     fileReading += std::chrono::duration_cast<std::chrono::nanoseconds>(t16 - t15).count();
     std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
+    // std::cerr << execute_replayer->unique_id() << " " << execute_replayer->sys_call_name() << "\n";
     execute_replayer->execute();
     std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
     duration += std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count();
@@ -865,6 +871,7 @@ int main(int argc, char *argv[]) {
     if (execute_replayer->cur_extent_has_more_record() ||
       execute_replayer->getSharedExtent() != NULL) {
       // No, there are more extents, so we add it to min_heap
+      execute_replayer->prepareRow();
       replayers_heap.push(execute_replayer);
     } else {
       // No, there are no more extents, so we delete the module

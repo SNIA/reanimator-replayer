@@ -38,7 +38,7 @@ void AccessSystemCallTraceReplayModule::print_specific_fields() {
 
 void AccessSystemCallTraceReplayModule::processRow() {
   // Replay the access system call
-  replayed_ret_val_ = access(pathname, mode_value);
+  replayed_ret_val_ = access(pathname, get_mode(mode_value));
   delete pathname;
 }
 
@@ -46,7 +46,8 @@ void AccessSystemCallTraceReplayModule::prepareRow() {
   auto pathBuf = reinterpret_cast<const char *>(given_pathname_.val());
   pathname = new char[std::strlen(pathBuf)+1];
   std::strcpy(pathname, pathBuf);
-  mode_value = get_mode(mode_value_.val());
+  mode_value = mode_value_.val();
+  SystemCallTraceReplayModule::prepareRow();
 }
 
 FAccessatSystemCallTraceReplayModule::

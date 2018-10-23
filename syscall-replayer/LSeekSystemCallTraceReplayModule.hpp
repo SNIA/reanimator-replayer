@@ -32,10 +32,10 @@ private:
   Int32Field descriptor_;
   Int64Field offset_;
   ByteField whence_;
-  pid_t pid;
   int replayed_fd;
   long offset;
   uint8_t whence;
+  int descriptorVal;
 
   /**
    * Print lseek sys call field values in a nice format

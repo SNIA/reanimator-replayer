@@ -43,7 +43,7 @@ void WriteSystemCallTraceReplayModule::print_specific_fields() {
 }
 
 void WriteSystemCallTraceReplayModule::processRow() {
-  int replayed_fd = replayer_resources_manager_.get_fd(pid, traced_fd);
+  int replayed_fd = replayer_resources_manager_.get_fd(executingPidVal, traced_fd);
   
   if (replayed_fd == SYSCALL_SIMULATED) {
     /*
@@ -85,12 +85,12 @@ void WriteSystemCallTraceReplayModule::processRow() {
 
 void WriteSystemCallTraceReplayModule::prepareRow() {
   nbytes = bytes_requested_.val();
-  pid = executing_pid();
   traced_fd = descriptor_.val();
   replayed_ret_val_ = return_value_.val();
   auto dataBuf = reinterpret_cast<const char *>(data_written_.val());
   data_buffer = new char[nbytes];
   std::strcpy(data_buffer, dataBuf);
+  SystemCallTraceReplayModule::prepareRow();
 }
 
 PWriteSystemCallTraceReplayModule::
