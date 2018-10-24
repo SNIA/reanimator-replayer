@@ -55,7 +55,19 @@ public:
   OpenSystemCallTraceReplayModule(DataSeriesModule &source,
 				  bool verbose_flag,
 				  int warn_level_flag);
-
+  SystemCallTraceReplayModule *move() {
+    auto movePtr = new OpenSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    movePtr->setMove(pathname, modeVal, flags, traced_fd);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
+                       executingPidVal, errorNoVal, returnVal);
+    return movePtr;
+  }
+  void setMove(char* path, int mode, int flag, int fd) {
+    pathname = path;
+    modeVal = mode;
+    traced_fd = fd;
+    flags = flag;
+  }
   void prepareRow();
 };
 

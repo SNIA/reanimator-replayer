@@ -50,6 +50,17 @@ public:
   AccessSystemCallTraceReplayModule(DataSeriesModule &source,
 				    bool verbose_flag,
 				    int warn_level_flag);
+  SystemCallTraceReplayModule *move() {
+    auto movePtr = new AccessSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    movePtr->setMove(pathname, mode_value);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
+                       executingPidVal, errorNoVal, returnVal);
+    return movePtr;
+  }
+  void setMove(char* path, int mode) {
+    pathname = path;
+    mode_value = mode;
+  }
   void prepareRow();
 };
 

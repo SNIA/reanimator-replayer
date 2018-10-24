@@ -53,6 +53,19 @@ public:
 				  bool verbose_flag,
 				  bool verify_flag,
 				  int warn_level_flag);
+  SystemCallTraceReplayModule *move() {
+    auto movePtr = new ReadSystemCallTraceReplayModule(source, verbose_,
+                                                       verify_, warn_level_);
+    movePtr->setMove(buffer, nbytes, traced_fd);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
+                       executingPidVal, errorNoVal, returnVal);
+    return movePtr;
+  }
+  void setMove(char* buf, int byte, int fd) {
+    buffer = buf;
+    nbytes = byte;
+    traced_fd = fd;
+  }
   void prepareRow();
 };
 

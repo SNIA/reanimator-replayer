@@ -45,6 +45,12 @@ public:
   MunmapSystemCallTraceReplayModule(DataSeriesModule &source,
 				    bool verbose_flag,
 				    int warn_level_flag);
+  SystemCallTraceReplayModule *move() {
+    auto movePtr = new MunmapSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
+                       executingPidVal, errorNoVal, returnVal);
+    return movePtr;
+  }
 };
 
 #endif /* MUNMAP_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

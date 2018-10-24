@@ -52,6 +52,19 @@ public:
   LSeekSystemCallTraceReplayModule(DataSeriesModule &source,
 				   bool verbose_flag,
 				   int warn_level_flag);
+  SystemCallTraceReplayModule *move() {
+    auto movePtr = new LSeekSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    movePtr->setMove(descriptorVal, offset, whence, replayed_fd);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
+                       executingPidVal, errorNoVal, returnVal);
+    return movePtr;
+  }
+  void setMove(int desc, long off, uint8_t whence, int fd) {
+    descriptorVal = desc;
+    offset = off;
+    whence = whence;
+    replayed_fd = fd;
+  }
   void prepareRow();
 };
 #endif /* LSEEK_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

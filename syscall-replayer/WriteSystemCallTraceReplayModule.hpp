@@ -54,6 +54,20 @@ public:
 				   bool verify_flag,
 				   int warn_level_flag,
 				   std::string pattern_data);
+  SystemCallTraceReplayModule *move() {
+    auto movePtr = new WriteSystemCallTraceReplayModule(source, verbose_,
+                                                        verify_, warn_level_,
+                                                        pattern_data_);
+    movePtr->setMove(data_buffer, nbytes, traced_fd);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
+                       executingPidVal, errorNoVal, returnVal);
+    return movePtr;
+  }
+  void setMove(char* buf, int byte, int fd) {
+    data_buffer = buf;
+    nbytes = byte;
+    traced_fd = fd;
+  }
   void prepareRow();
 };
 

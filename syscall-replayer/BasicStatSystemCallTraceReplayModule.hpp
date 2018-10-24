@@ -102,6 +102,17 @@ public:
 				  bool verbose_flag,
 				  bool verify_flag,
 				  int warn_level_flag);
+  SystemCallTraceReplayModule *move() {
+    auto movePtr = new StatSystemCallTraceReplayModule(source, verbose_,
+                                                       verify_,  warn_level_);
+    movePtr->setMove(pathname);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
+                       executingPidVal, errorNoVal, returnVal);
+    return movePtr;
+  }
+  void setMove(char* path) {
+    pathname = path;
+  }
   void prepareRow();
 };
 
@@ -152,6 +163,17 @@ public:
 				   bool verbose_flag,
 				   bool verify_flag,
 				   int warn_level_flag);
+  SystemCallTraceReplayModule *move() {
+    auto movePtr = new FStatSystemCallTraceReplayModule(source, verbose_,
+                                                        verify_, warn_level_);
+    movePtr->setMove(descriptorVal);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
+                       executingPidVal, errorNoVal, returnVal);
+    return movePtr;
+  }
+  void setMove(int desc) {
+    descriptorVal = desc;
+  }
   void prepareRow();
 };
 

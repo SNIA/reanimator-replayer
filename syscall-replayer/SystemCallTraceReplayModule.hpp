@@ -336,6 +336,20 @@ public:
   bool isReplayable();
 
   virtual void prepareRow();
+  void setCommon(int64_t id, int64_t called,
+                 int64_t returned, int64_t recorded,
+                 int64_t pid, int error, int ret) {
+    uniqueIdVal = id;
+    timeCalledVal = called;
+    timeReturnedVal = returned;
+    timeRecordedVal = recorded;
+    executingPidVal = pid;
+    errorNoVal = error;
+    returnVal = ret;
+  }
+  virtual SystemCallTraceReplayModule *move() {
+    return NULL;
+  }
 };
 
 #endif /* SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

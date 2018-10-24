@@ -19,7 +19,7 @@
 # make - compile source files that are out-dated
 # make test - test the replayer to see if it is working
 
-OPTFLAGS = -g -O3 -Wall
+OPTFLAGS = -g -O0 -Wall
 
 CPPFLAGS = -I/usr/local/dataseries/include -I/usr/include/libxml2/ \
 	   -I$(HOME)/lib/strace2ds/include -std=c++11
@@ -102,3 +102,5 @@ test: $(TARGETS)
 
 clean:
 	rm -f $(TARGETS) $(SYSTEM_CALL_REPLAY_MODULE_OBJECTS) $(SYSTEM_CALL_REPLAY_RESOURCES_MANAGER) *~ \#*\#
+
+

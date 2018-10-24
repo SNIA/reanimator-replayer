@@ -44,6 +44,12 @@ public:
   ExitSystemCallTraceReplayModule(DataSeriesModule &source,
 				  bool verbose_flag,
 				  int warn_level_flag);
+  SystemCallTraceReplayModule *move() {
+    auto movePtr = new ExitSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
+                       executingPidVal, errorNoVal, returnVal);
+    return movePtr;
+  }
   void prepareRow();
 };
 
