@@ -613,40 +613,57 @@ void load_syscall_modules(
   }
 }
 
+std::unordered_map<std::string, SystemCallTraceReplayModule *> syscallMapLast;
+
 void batch_syscall_modules(
     std::priority_queue<SystemCallTraceReplayModule *,
                         std::vector<SystemCallTraceReplayModule *>,
                         CompareByUniqueID> &replayers_heap) {
-  // Add all the modules to min heap if the module has extents
-  auto topModule = replayers_heap.top();
+  bool comingFromIdx = false;
+  int count = 50;
+
+  auto topModule  = replayers_heap.top();
+  if (syscallMapLast[topModule->sys_call_name()]) {
+    topModule = syscallMapLast[topModule->sys_call_name()];
+    comingFromIdx = true;
+  }
+
   if (!(topModule->cur_extent_has_more_record() ||
         topModule->getSharedExtent() != NULL)) {
     return;
   }
 
-  replayers_heap.pop();
+  if (!comingFromIdx) {
+    replayers_heap.pop();
+  }
+
   std::priority_queue<SystemCallTraceReplayModule *,
                       std::vector<SystemCallTraceReplayModule *>,
                       CompareByUniqueID>
       read_queue;
   read_queue.push(topModule);
   auto copy = topModule->move();
-  int count = 50;
   auto readMod = read_queue.top();
 
-  while (count--) {
+  while (--count) {
     read_queue.pop();
     if (readMod->cur_extent_has_more_record() ||
         readMod->getSharedExtent() != NULL) {
       readMod->prepareRow();
-      std::cerr << "\tadd " << readMod->unique_id() << " "
-                << readMod->sys_call_name() << "\n";
-      replayers_heap.push(readMod->move());
+      if (count != 1) {
+        replayers_heap.push(readMod->move());
+      }
       read_queue.push(readMod);
+    } else {
+      syscallMapLast[readMod->sys_call_name()] = readMod;
+      break;
     }
   }
   if (count == 0) {
-    replayers_heap.push(readMod);
+    if (readMod->cur_extent_has_more_record() ||
+        readMod->getSharedExtent() != NULL) {
+      syscallMapLast[readMod->sys_call_name()] = readMod;
+    }
   }
   replayers_heap.push(copy);
 }
@@ -767,7 +784,7 @@ int main(int argc, char *argv[]) {
                       std::vector<SystemCallTraceReplayModule *>,
                       CompareByUniqueID>
       replayers_heap;
-  auto &syscallCont = Container(replayers_heap);
+  // auto &syscallCont = Container(replayers_heap);
   load_syscall_modules(replayers_heap, system_call_trace_replay_modules);
   prepare_replay(replayers_heap);
   SystemCallTraceReplayModule *execute_replayer = NULL;
@@ -789,12 +806,6 @@ int main(int argc, char *argv[]) {
   int64_t loop = 0;
   // Process all the records in thmice dataseries
   while (!replayers_heap.empty()) {
-    // int countSys = 0;
-    // for (auto s : syscallCont) {
-    //   std::cerr << s->unique_id() << "-" << s->sys_call_name() << " ";
-    //   countSys++;
-    // }
-    // std::cerr << countSys << "\n";
     std::chrono::high_resolution_clock::time_point t12 =
         std::chrono::high_resolution_clock::now();
     // Get a module that has min unique_id
@@ -802,6 +813,16 @@ int main(int argc, char *argv[]) {
         std::chrono::high_resolution_clock::now();
     execute_replayer = replayers_heap.top();
     replayers_heap.pop();
+    // if (execute_replayer->unique_id() > 20490 &&
+    //     execute_replayer->unique_id() <= 20494) {
+    //   int countSys = 0;
+    //   for (auto s : syscallCont) {
+    //     std::cerr << "\t\t" << s->unique_id() << "-" << s->sys_call_name() <<
+    //     "\n";
+    //     countSys++;
+    //   }
+    //   std::cerr << countSys << "\n";
+    // }
     std::chrono::high_resolution_clock::time_point t11 =
         std::chrono::high_resolution_clock::now();
     gettingRecord +=
@@ -813,12 +834,6 @@ int main(int argc, char *argv[]) {
     } else {
       syscallMap[execute_replayer->sys_call_name()]++;
     }
-    std::chrono::high_resolution_clock::time_point t15 =
-        std::chrono::high_resolution_clock::now();
-    std::chrono::high_resolution_clock::time_point t16 =
-        std::chrono::high_resolution_clock::now();
-    fileReading +=
-        std::chrono::duration_cast<std::chrono::nanoseconds>(t16 - t15).count();
     std::chrono::high_resolution_clock::time_point t1 =
         std::chrono::high_resolution_clock::now();
     // std::cerr << "exe " << execute_replayer->unique_id() << " "
@@ -831,15 +846,15 @@ int main(int argc, char *argv[]) {
     // Check to see if all the extents in the module are processed
     std::chrono::high_resolution_clock::time_point t3 =
         std::chrono::high_resolution_clock::now();
-    // batch_syscall_modules(replayers_heap);
-    if (execute_replayer->cur_extent_has_more_record() ||
-        execute_replayer->getSharedExtent() != NULL) {
-      execute_replayer->prepareRow();
-      replayers_heap.push(execute_replayer);
-    } else {
-      // No, there are no more extents, so we delete the module
-      delete execute_replayer;
-    }
+    batch_syscall_modules(replayers_heap);
+    // if (execute_replayer->cur_extent_has_more_record() ||
+    //     execute_replayer->getSharedExtent() != NULL) {
+    //   execute_replayer->prepareRow();
+    //   replayers_heap.push(execute_replayer);
+    // } else {
+    //   // No, there are no more extents, so we delete the module
+    //   delete execute_replayer;
+    // }
     std::chrono::high_resolution_clock::time_point t4 =
         std::chrono::high_resolution_clock::now();
     fileReading +=
@@ -851,7 +866,7 @@ int main(int argc, char *argv[]) {
     // if (num_syscalls_processed % SCAN_FD_FREQUENCY == 0) {
     //   SystemCallTraceReplayModule::replayer_resources_manager_.validate_consistency();
     // }
-    if (num_syscalls_processed == 1000000) {
+    if (!(num_syscalls_processed % 200000)) {
       std::chrono::high_resolution_clock::time_point t8 =
           std::chrono::high_resolution_clock::now();
       std::cerr << "rest of the execution: "
