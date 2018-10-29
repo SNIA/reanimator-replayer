@@ -24,7 +24,7 @@ OPTFLAGS = -g -O0 -Wall
 CPPFLAGS = -I/usr/local/dataseries/include -I/usr/include/libxml2/ \
 	   -I$(HOME)/lib/strace2ds/include -std=c++11
 
-LDFLAGS =  -lboost_program_options -laio -lDataSeries \
+LDFLAGS =  -ltbb -lboost_program_options -laio -lDataSeries \
 	   -lLintel -L/usr/local/dataseries/lib
 
 CXXFLAGS = $(OPTFLAGS) -D_GNU_SOURCE -D_LARGEFILE_SOURCE \

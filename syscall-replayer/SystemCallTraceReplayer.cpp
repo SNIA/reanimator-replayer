@@ -638,7 +638,7 @@ void batch_syscall_modules(
                         std::vector<SystemCallTraceReplayModule *>,
                         CompareByUniqueID> &replayers_heap) {
   bool comingFromIdx = false;
-  int count = 1000;
+  int count = 3;
 
   auto current = replayers_heap.top();
   if (finishedModules[current->sys_call_name()]) {
