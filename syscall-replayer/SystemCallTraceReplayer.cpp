@@ -35,7 +35,6 @@
 struct CompareByUniqueID {
   bool operator()(SystemCallTraceReplayModule *m1,
                   SystemCallTraceReplayModule *m2) const {
-    // std::cout << m1->unique_id() << " " << m2->unique_id() << "\n";
     return (m1->unique_id() >= m2->unique_id());
   }
 };
@@ -615,11 +614,9 @@ void load_syscall_modules(
         exit(0);
       }
       module->prepareRow();
-      replayers_heap.push(module);
+      replayers_heap.push(module->move());
+      syscallMapLast[module->sys_call_name()] = module;
       finishedModules[module->sys_call_name()] = false;
-      // std::cerr << module->unique_id() << " "
-      //           << module->sys_call_name() << " "
-      //           << module->executing_pid() << "\n";
     }
     // else {
     //   // Delete the module since it has no system call to replay.
@@ -637,12 +634,16 @@ void batch_syscall_modules(
     tbb::concurrent_priority_queue<SystemCallTraceReplayModule *,
                                    CompareByUniqueID> &replayers_heap) {
   bool comingFromIdx = false;
-  int count = 10000;
+  bool isFirstTime = false;
+  int count = 500;
 
-  SystemCallTraceReplayModule *currentFromTop, *currentFromIdx, *current;
+  SystemCallTraceReplayModule *currentFromTop = NULL, *currentFromIdx = NULL,
+                              *current = NULL;
 
   replayers_heap.try_pop(currentFromTop);
   if (finishedModules[currentFromTop->sys_call_name()]) {
+    // std::cerr << "\tadd finish " << currentFromTop->unique_id() << " "
+    //           << currentFromTop->sys_call_name() << "\n";
     replayers_heap.push(currentFromTop);
     return;
   }
@@ -652,10 +653,16 @@ void batch_syscall_modules(
   }
 
   if (comingFromIdx) {
+    // std::cerr << "\tadd index " << currentFromTop->unique_id() << " "
+    //           << currentFromTop->sys_call_name() << "\n";
     replayers_heap.push(currentFromTop);
     current = currentFromIdx;
   } else {
     current = currentFromTop;
+  }
+
+  if (currentFromTop->unique_id() == currentFromIdx->unique_id()) {
+    isFirstTime = true;
   }
 
   bool endOfRecord = false;
@@ -676,6 +683,8 @@ void batch_syscall_modules(
       std::chrono::high_resolution_clock::time_point t3 =
           std::chrono::high_resolution_clock::now();
       if (count != 1) {
+        // std::cerr << "\tadd " << readMod->unique_id() << " "
+        //           << readMod->sys_call_name() << "\n";
         replayers_heap.push(readMod->move());
       }
       std::chrono::high_resolution_clock::time_point t4 =
@@ -695,7 +704,12 @@ void batch_syscall_modules(
       syscallMapLast[readMod->sys_call_name()] = readMod;
     }
   }
-  replayers_heap.push(copy);
+
+  if (!isFirstTime) {
+    // std::cerr << "\tadd copy " << copy->unique_id() << " "
+    //           << copy->sys_call_name() << "\n";
+    replayers_heap.push(copy);
+  }
 }
 
 /**
@@ -738,20 +752,8 @@ void prepare_replay(
     SystemCallTraceReplayModule::replayer_resources_manager_.initialize(
         SystemCallTraceReplayModule::syscall_logger_, traced_app_pid,
         std_fd_map);
-    // syscall_replayer.pop();
-
     // Replay umask operation.
     syscall_module->execute();
-    // Check to see if all the extents in the umask module are processed
-    // if (syscall_module->cur_extent_has_more_record() ||
-    //   syscall_module->getSharedExtent() != NULL) {
-    //   // No, there are more umask records, so we add it to min_heap
-    //   syscall_module->prepareRow();
-    //   syscall_replayer.push(syscall_module);
-    // } else {
-    //   // Yes, let's delete umask module
-    //   delete syscall_module;
-    // }
   }
 }
 
@@ -809,7 +811,6 @@ int main(int argc, char *argv[]) {
    * Define a min heap that stores each module. The heap is ordered
    * by unique_id field.
    */
-  // SyscallPQ replayers_heap(1000000);
   tbb::concurrent_priority_queue<SystemCallTraceReplayModule *,
                                  CompareByUniqueID>
       replayers_heap(10000000);
@@ -852,6 +853,8 @@ int main(int argc, char *argv[]) {
     }
     std::chrono::high_resolution_clock::time_point t1 =
         std::chrono::high_resolution_clock::now();
+    // std::cerr << "exe " << execute_replayer->unique_id() << " "
+    //           << execute_replayer->sys_call_name() << "\n";
     execute_replayer->execute();
     std::chrono::high_resolution_clock::time_point t2 =
         std::chrono::high_resolution_clock::now();

@@ -57,6 +57,18 @@ public:
   ExecveSystemCallTraceReplayModule(DataSeriesModule &source,
 				    bool verbose_flag,
 				    int warn_level_flag);
+  SystemCallTraceReplayModule *move() {
+    auto movePtr = new ExecveSystemCallTraceReplayModule(source, verbose_,
+                                                       warn_level_);
+    movePtr->setMove(continuation_num, retVal);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
+                       executingPidVal, errorNoVal, returnVal);
+    return movePtr;
+  }
+  void setMove(int32_t contNum, int64_t ret) {
+    continuation_num = contNum;
+    retVal = ret;
+  }
   void prepareRow();
 };
 
