@@ -30,8 +30,6 @@ void ReplayerResourcesManager::initialize(SystemCallTraceReplayLogger *logger,
   logger_ = logger;
   // Create a new UmaskEntry for trace application
   umask_table_[pid] = new UmaskEntry(0);
-  std::cerr << "add umask pid " << pid << " " << umask_table_[pid] << "\n";
-
   fd_table_map_[pid] = new FileDescriptorTableEntry();
   for (std::map<int, int>::iterator iter = fd_map.begin(); iter != fd_map.end();
        ++iter) {
@@ -229,19 +227,16 @@ void ReplayerResourcesManager::print_fd_manager() {
 }
 
 mode_t ReplayerResourcesManager::get_umask(pid_t pid) {
-  std::cerr << "get umask pid " << pid << "\n";
   assert(umask_table_.find(pid) != umask_table_.end());
   return umask_table_[pid]->get_umask();
 }
 
 void ReplayerResourcesManager::set_umask(pid_t pid, mode_t mode) {
-  std::cerr << "set umask pid " << pid << "\n";
   assert(umask_table_.find(pid) != umask_table_.end());
   umask_table_[pid]->set_umask(mode);
 }
 
 void ReplayerResourcesManager::clone_umask(pid_t ppid, pid_t pid, bool shared) {
-  std::cerr << "clone umask pid " << pid << "\n";
   assert(umask_table_.find(ppid) != umask_table_.end());
   // Check if two processes share same umask
   if (shared) {
@@ -257,7 +252,6 @@ void ReplayerResourcesManager::clone_umask(pid_t ppid, pid_t pid, bool shared) {
 }
 
 void ReplayerResourcesManager::remove_umask(pid_t pid) {
-  std::cerr << "remove umask pid " << pid << "\n";
   assert(umask_table_.find(pid) != umask_table_.end());
   // Decrement the reference count for this process's umask.
   unsigned int rc = umask_table_[pid]->decrement_rc();

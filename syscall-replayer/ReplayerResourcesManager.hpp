@@ -375,6 +375,6 @@ public:
    * Check to see whether the given fd is currently used in the replayer.
    * Return true if it is currently in-used, false otherwise.
    */
-   bool is_fd_in_use(int fd);
+  bool is_fd_in_use(int fd);
 };
 #endif /* REPLAYER_RESOURCES_MANAGER_HPP */
