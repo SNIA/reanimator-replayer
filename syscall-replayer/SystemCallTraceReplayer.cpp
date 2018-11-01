@@ -633,35 +633,21 @@ int64_t fileReading_Batch_map = 0;
 void batch_syscall_modules(
     tbb::concurrent_priority_queue<SystemCallTraceReplayModule *,
                                    CompareByUniqueID> &replayers_heap) {
-  bool comingFromIdx = false;
   bool isFirstTime = false;
-  int count = 500;
+  int count = 1000;
 
-  SystemCallTraceReplayModule *currentFromTop = NULL, *currentFromIdx = NULL,
-                              *current = NULL;
+  SystemCallTraceReplayModule *currentFromTop = NULL, *current = NULL;
 
   replayers_heap.try_pop(currentFromTop);
   if (finishedModules[currentFromTop->sys_call_name()]) {
-    // std::cerr << "\tadd finish " << currentFromTop->unique_id() << " "
-    //           << currentFromTop->sys_call_name() << "\n";
     replayers_heap.push(currentFromTop);
     return;
   }
-  if (syscallMapLast[currentFromTop->sys_call_name()]) {
-    currentFromIdx = syscallMapLast[currentFromTop->sys_call_name()];
-    comingFromIdx = true;
-  }
 
-  if (comingFromIdx) {
-    // std::cerr << "\tadd index " << currentFromTop->unique_id() << " "
-    //           << currentFromTop->sys_call_name() << "\n";
-    replayers_heap.push(currentFromTop);
-    current = currentFromIdx;
-  } else {
-    current = currentFromTop;
-  }
+  current = syscallMapLast[currentFromTop->sys_call_name()];
+  replayers_heap.push(currentFromTop);
 
-  if (currentFromTop->unique_id() == currentFromIdx->unique_id()) {
+  if (currentFromTop->unique_id() == current->unique_id()) {
     isFirstTime = true;
   }
 
@@ -683,8 +669,6 @@ void batch_syscall_modules(
       std::chrono::high_resolution_clock::time_point t3 =
           std::chrono::high_resolution_clock::now();
       if (count != 1) {
-        // std::cerr << "\tadd " << readMod->unique_id() << " "
-        //           << readMod->sys_call_name() << "\n";
         replayers_heap.push(readMod->move());
       }
       std::chrono::high_resolution_clock::time_point t4 =
@@ -706,8 +690,6 @@ void batch_syscall_modules(
   }
 
   if (!isFirstTime) {
-    // std::cerr << "\tadd copy " << copy->unique_id() << " "
-    //           << copy->sys_call_name() << "\n";
     replayers_heap.push(copy);
   }
 }
