@@ -24,6 +24,7 @@
 #include "tbb/concurrent_priority_queue.h"
 #include <chrono>
 #include <fstream>
+#include <thread>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -49,16 +50,12 @@ S &Container(std::priority_queue<T, S, C> &q) {
   return HackedQueue::Container(q);
 }
 
-class SyscallPQ
-    : public std::priority_queue<SystemCallTraceReplayModule *,
-                                 std::vector<SystemCallTraceReplayModule *>,
-                                 CompareByUniqueID> {
-public:
-  explicit SyscallPQ(size_t reserve_size) {
-    std::cerr << "reserved " << reserve_size << std::endl;
-    this->c.reserve(reserve_size);
-  }
-};
+/*
+   * Define a min heap that stores each module. The heap is ordered
+   * by unique_id field.
+   */
+tbb::concurrent_priority_queue<SystemCallTraceReplayModule *, CompareByUniqueID>
+    replayers_heap(10000000);
 
 std::unordered_map<std::string, SystemCallTraceReplayModule *> syscallMapLast;
 std::unordered_map<std::string, bool> finishedModules;
@@ -631,7 +628,7 @@ int64_t fileReading_Batch_push = 0;
 int64_t fileReading_Batch_map = 0;
 bool isFirstBatch = true;
 
-void batch_syscall_modules(
+inline void batch_syscall_modules(
     tbb::concurrent_priority_queue<SystemCallTraceReplayModule *,
                                    CompareByUniqueID> &replayers_heap,
     SystemCallTraceReplayModule *module = nullptr, bool isFirstTime = false) {
@@ -792,13 +789,6 @@ int main(int argc, char *argv[]) {
     abort();
   }
 
-  /*
-   * Define a min heap that stores each module. The heap is ordered
-   * by unique_id field.
-   */
-  tbb::concurrent_priority_queue<SystemCallTraceReplayModule *,
-                                 CompareByUniqueID>
-      replayers_heap(10000000);
   // auto &syscallCont = Container(replayers_heap);
   load_syscall_modules(replayers_heap, system_call_trace_replay_modules);
   prepare_replay(replayers_heap);
@@ -849,17 +839,7 @@ int main(int argc, char *argv[]) {
     // Check to see if all the extents in the module are processed
     std::chrono::high_resolution_clock::time_point t3 =
         std::chrono::high_resolution_clock::now();
-    SystemCallTraceReplayModule *testTop = NULL;
-    if (replayers_heap.try_pop(testTop) &&
-        !finishedModules[testTop->sys_call_name()]) {
-      replayers_heap.push(testTop);
-      // batch_syscall_modules(replayers_heap);
-      batch_for_all_syscalls(replayers_heap);
-    } else {
-      if (testTop != NULL) {
-        replayers_heap.push(testTop);
-      }
-    }
+    batch_for_all_syscalls(replayers_heap);
     // if (execute_replayer->cur_extent_has_more_record() ||
     //     execute_replayer->getSharedExtent() != NULL) {
     //   execute_replayer->prepareRow();
