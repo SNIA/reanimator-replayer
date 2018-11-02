@@ -629,27 +629,21 @@ void load_syscall_modules(
 int64_t fileReading_Batch_file = 0;
 int64_t fileReading_Batch_push = 0;
 int64_t fileReading_Batch_map = 0;
+bool isFirstBatch = true;
 
 void batch_syscall_modules(
     tbb::concurrent_priority_queue<SystemCallTraceReplayModule *,
-                                   CompareByUniqueID> &replayers_heap) {
-  bool isFirstTime = false;
-  int count = 1000;
+                                   CompareByUniqueID> &replayers_heap,
+    SystemCallTraceReplayModule *module = nullptr, bool isFirstTime = false) {
+  int count = 50;
 
-  SystemCallTraceReplayModule *currentFromTop = NULL, *current = NULL;
+  SystemCallTraceReplayModule *current = NULL;
 
-  replayers_heap.try_pop(currentFromTop);
-  if (finishedModules[currentFromTop->sys_call_name()]) {
-    replayers_heap.push(currentFromTop);
+  if (finishedModules[module->sys_call_name()]) {
     return;
   }
 
-  current = syscallMapLast[currentFromTop->sys_call_name()];
-  replayers_heap.push(currentFromTop);
-
-  if (currentFromTop->unique_id() == current->unique_id()) {
-    isFirstTime = true;
-  }
+  current = syscallMapLast[module->sys_call_name()];
 
   bool endOfRecord = false;
   auto copy = current->move();
@@ -692,6 +686,15 @@ void batch_syscall_modules(
   if (!isFirstTime) {
     replayers_heap.push(copy);
   }
+}
+
+void batch_for_all_syscalls(
+    tbb::concurrent_priority_queue<SystemCallTraceReplayModule *,
+                                   CompareByUniqueID> &replayers_heap) {
+  for (auto module_pair : syscallMapLast) {
+    batch_syscall_modules(replayers_heap, module_pair.second, isFirstBatch);
+  }
+  isFirstBatch = false;
 }
 
 /**
@@ -836,7 +839,8 @@ int main(int argc, char *argv[]) {
     std::chrono::high_resolution_clock::time_point t1 =
         std::chrono::high_resolution_clock::now();
     // std::cerr << "exe " << execute_replayer->unique_id() << " "
-    //           << execute_replayer->sys_call_name() << "\n";
+    //           << execute_replayer->sys_call_name() << " "
+    //           << num_syscalls_processed << "\n";
     execute_replayer->execute();
     std::chrono::high_resolution_clock::time_point t2 =
         std::chrono::high_resolution_clock::now();
@@ -849,7 +853,8 @@ int main(int argc, char *argv[]) {
     if (replayers_heap.try_pop(testTop) &&
         !finishedModules[testTop->sys_call_name()]) {
       replayers_heap.push(testTop);
-      batch_syscall_modules(replayers_heap);
+      // batch_syscall_modules(replayers_heap);
+      batch_for_all_syscalls(replayers_heap);
     } else {
       if (testTop != NULL) {
         replayers_heap.push(testTop);
