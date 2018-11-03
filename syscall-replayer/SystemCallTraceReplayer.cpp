@@ -21,6 +21,7 @@
  */
 
 #include "SystemCallTraceReplayer.hpp"
+#include "tbb/atomic.h"
 #include "tbb/concurrent_priority_queue.h"
 #include <chrono>
 #include <fstream>
@@ -50,6 +51,7 @@ S &Container(std::priority_queue<T, S, C> &q) {
   return HackedQueue::Container(q);
 }
 
+tbb::atomic<int64_t> syscallsInQueue = 0;
 /*
    * Define a min heap that stores each module. The heap is ordered
    * by unique_id field.
@@ -612,6 +614,7 @@ void load_syscall_modules(
       }
       module->prepareRow();
       replayers_heap.push(module->move());
+      syscallsInQueue++;
       syscallMapLast[module->sys_call_name()] = module;
       finishedModules[module->sys_call_name()] = false;
     }
@@ -661,6 +664,7 @@ inline void batch_syscall_modules(
           std::chrono::high_resolution_clock::now();
       if (count != 1) {
         replayers_heap.push(readMod->move());
+        syscallsInQueue++;
       }
       std::chrono::high_resolution_clock::time_point t4 =
           std::chrono::high_resolution_clock::now();
@@ -681,6 +685,7 @@ inline void batch_syscall_modules(
   }
 
   if (!isFirstTime) {
+    syscallsInQueue++;
     replayers_heap.push(copy);
   }
 }
@@ -705,6 +710,7 @@ void prepare_replay(
   SystemCallTraceReplayModule *syscall_module;
   // Process first record in the dataseries
   if (syscall_replayer.try_pop(syscall_module)) {
+    syscallsInQueue--;
     // Get a module that has min unique_id
     // First module to replay should be umask.
     assert(syscall_module->sys_call_name() == "umask");
@@ -812,54 +818,54 @@ int main(int argc, char *argv[]) {
   // Process all the records in thmice dataseries
   std::chrono::high_resolution_clock::time_point t10 =
       std::chrono::high_resolution_clock::now();
-  while (replayers_heap.try_pop(execute_replayer) /*!replayers_heap.empty()*/) {
+  while (replayers_heap.try_pop(execute_replayer)) {
+    syscallsInQueue--;
     std::chrono::high_resolution_clock::time_point t11 =
         std::chrono::high_resolution_clock::now();
     gettingRecord +=
         std::chrono::duration_cast<std::chrono::nanoseconds>(t11 - t10).count();
     std::chrono::high_resolution_clock::time_point t12 =
         std::chrono::high_resolution_clock::now();
-    // Replay the operation that has min unique_id
+
     if (syscallMap.find(execute_replayer->sys_call_name()) ==
         syscallMap.end()) {
       syscallMap[execute_replayer->sys_call_name()] = 1;
     } else {
       syscallMap[execute_replayer->sys_call_name()]++;
     }
+
     std::chrono::high_resolution_clock::time_point t1 =
         std::chrono::high_resolution_clock::now();
+
     // std::cerr << "exe " << execute_replayer->unique_id() << " "
     //           << execute_replayer->sys_call_name() << " "
     //           << num_syscalls_processed << "\n";
     execute_replayer->execute();
+
     std::chrono::high_resolution_clock::time_point t2 =
         std::chrono::high_resolution_clock::now();
     duration +=
         std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count();
-    // Check to see if all the extents in the module are processed
+
     std::chrono::high_resolution_clock::time_point t3 =
         std::chrono::high_resolution_clock::now();
+
     batch_for_all_syscalls(replayers_heap);
-    // if (execute_replayer->cur_extent_has_more_record() ||
-    //     execute_replayer->getSharedExtent() != NULL) {
-    //   execute_replayer->prepareRow();
-    //   replayers_heap.push(execute_replayer);
-    // } else {
-    //   // No, there are no more extents, so we delete the module
-    //   delete execute_replayer;
-    // }
+
     std::chrono::high_resolution_clock::time_point t4 =
         std::chrono::high_resolution_clock::now();
     fileReading +=
         std::chrono::duration_cast<std::chrono::nanoseconds>(t4 - t3).count();
-    // Increment number of system calls processed.
+
     num_syscalls_processed++;
+
     // Verify that the state of resources manager is consistent for every
     // SCAN_FD_FREQUENCY sys calls.
     // if (num_syscalls_processed % SCAN_FD_FREQUENCY == 0) {
     //   SystemCallTraceReplayModule::replayer_resources_manager_
     //       .validate_consistency();
     // }
+
     if (!(num_syscalls_processed % 1000000)) {
       std::chrono::high_resolution_clock::time_point t8 =
           std::chrono::high_resolution_clock::now();
@@ -888,6 +894,7 @@ int main(int argc, char *argv[]) {
   for (auto syscall : syscallMap) {
     syscallFile << syscall.first << " " << syscall.second << "\n";
   }
+  syscallFile << "in queue syscalls: " << syscallsInQueue << "\n";
   // Close /dev/urandom file
   if (pattern_data == "urandom") {
     SystemCallTraceReplayModule::random_file_.close();
