@@ -23,6 +23,7 @@
 #include "SystemCallTraceReplayer.hpp"
 #include "tbb/atomic.h"
 #include "tbb/concurrent_priority_queue.h"
+#include "tbb/task_group.h"
 #include <chrono>
 #include <fstream>
 #include <thread>
@@ -634,8 +635,9 @@ bool isFirstBatch = true;
 inline void batch_syscall_modules(
     tbb::concurrent_priority_queue<SystemCallTraceReplayModule *,
                                    CompareByUniqueID> &replayers_heap,
-    SystemCallTraceReplayModule *module = nullptr, bool isFirstTime = false) {
-  int count = 50;
+    SystemCallTraceReplayModule *module = nullptr, bool isFirstTime = false,
+    int batch_size = 50) {
+  int count = batch_size;
 
   SystemCallTraceReplayModule *current = NULL;
 
@@ -692,9 +694,11 @@ inline void batch_syscall_modules(
 
 void batch_for_all_syscalls(
     tbb::concurrent_priority_queue<SystemCallTraceReplayModule *,
-                                   CompareByUniqueID> &replayers_heap) {
+                                   CompareByUniqueID> &replayers_heap,
+    int batch_size = 50) {
   for (auto module_pair : syscallMapLast) {
-    batch_syscall_modules(replayers_heap, module_pair.second, isFirstBatch);
+    batch_syscall_modules(replayers_heap, module_pair.second, isFirstBatch,
+                          batch_size);
   }
   isFirstBatch = false;
 }
@@ -753,9 +757,17 @@ int main(int argc, char *argv[]) {
   std::string pattern_data = "";
   std::string log_filename = "";
   std::vector<std::string> input_files;
-
+  SystemCallTraceReplayModule *execute_replayer = NULL;
+  tbb::atomic<int> num_syscalls_processed = 0;
   std::ofstream syscallFile("syscalls.txt");
   std::unordered_map<std::string, int> syscallMap;
+  tbb::task_group tasks;
+
+  //
+  int64_t duration = 0;
+  int64_t fileReading = 0;
+  int64_t gettingRecord = 0;
+  int64_t loop = 0;
 
   std::chrono::high_resolution_clock::time_point t5 =
       std::chrono::high_resolution_clock::now();
@@ -798,8 +810,29 @@ int main(int argc, char *argv[]) {
   // auto &syscallCont = Container(replayers_heap);
   load_syscall_modules(replayers_heap, system_call_trace_replay_modules);
   prepare_replay(replayers_heap);
-  SystemCallTraceReplayModule *execute_replayer = NULL;
-  int num_syscalls_processed = 0;
+  batch_for_all_syscalls(replayers_heap, 1000);
+  auto checkModulesFinished = [&]() -> bool {
+    bool isAllFinished = true;
+    std::for_each(finishedModules.begin(), finishedModules.end(),
+                  [&](std::pair<std::string, bool> module) {
+                    isAllFinished &= module.second;
+                  });
+    return isAllFinished;
+  };
+  tasks.run([&] {
+    while (!checkModulesFinished()) {
+      std::chrono::high_resolution_clock::time_point t3 =
+          std::chrono::high_resolution_clock::now();
+
+      // while (syscallsInQueue > 500) {}
+      batch_for_all_syscalls(replayers_heap, 100);
+
+      std::chrono::high_resolution_clock::time_point t4 =
+          std::chrono::high_resolution_clock::now();
+      fileReading +=
+          std::chrono::duration_cast<std::chrono::nanoseconds>(t4 - t3).count();
+    }
+  });
 
   std::chrono::high_resolution_clock::time_point t6 =
       std::chrono::high_resolution_clock::now();
@@ -811,10 +844,6 @@ int main(int argc, char *argv[]) {
   std::chrono::high_resolution_clock::time_point t7 =
       std::chrono::high_resolution_clock::now();
 
-  int64_t duration = 0;
-  int64_t fileReading = 0;
-  int64_t gettingRecord = 0;
-  int64_t loop = 0;
   // Process all the records in thmice dataseries
   std::chrono::high_resolution_clock::time_point t10 =
       std::chrono::high_resolution_clock::now();
@@ -847,16 +876,6 @@ int main(int argc, char *argv[]) {
     duration +=
         std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count();
 
-    std::chrono::high_resolution_clock::time_point t3 =
-        std::chrono::high_resolution_clock::now();
-
-    batch_for_all_syscalls(replayers_heap);
-
-    std::chrono::high_resolution_clock::time_point t4 =
-        std::chrono::high_resolution_clock::now();
-    fileReading +=
-        std::chrono::duration_cast<std::chrono::nanoseconds>(t4 - t3).count();
-
     num_syscalls_processed++;
 
     // Verify that the state of resources manager is consistent for every
@@ -866,7 +885,7 @@ int main(int argc, char *argv[]) {
     //       .validate_consistency();
     // }
 
-    if (!(num_syscalls_processed % 1000000)) {
+    if (!(num_syscalls_processed % 200000)) {
       std::chrono::high_resolution_clock::time_point t8 =
           std::chrono::high_resolution_clock::now();
       std::cerr << "rest of the execution: "
