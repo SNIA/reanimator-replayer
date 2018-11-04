@@ -768,6 +768,7 @@ int main(int argc, char *argv[]) {
   int64_t fileReading = 0;
   int64_t gettingRecord = 0;
   int64_t loop = 0;
+  int64_t executionSpinning = 0;
 
   std::chrono::high_resolution_clock::time_point t5 =
       std::chrono::high_resolution_clock::now();
@@ -824,8 +825,9 @@ int main(int argc, char *argv[]) {
       std::chrono::high_resolution_clock::time_point t3 =
           std::chrono::high_resolution_clock::now();
 
-      // while (syscallsInQueue > 500) {}
-      batch_for_all_syscalls(replayers_heap, 100);
+      while (syscallsInQueue > 500) {
+      }
+      batch_for_all_syscalls(replayers_heap, 5000);
 
       std::chrono::high_resolution_clock::time_point t4 =
           std::chrono::high_resolution_clock::now();
@@ -869,12 +871,36 @@ int main(int argc, char *argv[]) {
     // std::cerr << "exe " << execute_replayer->unique_id() << " "
     //           << execute_replayer->sys_call_name() << " "
     //           << num_syscalls_processed << "\n";
+    std::chrono::high_resolution_clock::time_point t20 =
+        std::chrono::high_resolution_clock::now();
+
+    while (syscallsInQueue < 200 && !checkModulesFinished()) {
+    }
+
+    std::chrono::high_resolution_clock::time_point t21 =
+        std::chrono::high_resolution_clock::now();
+    executionSpinning +=
+        std::chrono::duration_cast<std::chrono::nanoseconds>(t21 - t20).count();
+
     execute_replayer->execute();
 
     std::chrono::high_resolution_clock::time_point t2 =
         std::chrono::high_resolution_clock::now();
     duration +=
         std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count();
+
+    // std::chrono::high_resolution_clock::time_point t3 =
+    //     std::chrono::high_resolution_clock::now();
+
+    // // while (syscallsInQueue > 5000) {
+    // // }
+    // batch_for_all_syscalls(replayers_heap, 5000);
+
+    // std::chrono::high_resolution_clock::time_point t4 =
+    //     std::chrono::high_resolution_clock::now();
+    // fileReading +=
+    //     std::chrono::duration_cast<std::chrono::nanoseconds>(t4 -
+    //     t3).count();
 
     num_syscalls_processed++;
 
@@ -885,7 +911,7 @@ int main(int argc, char *argv[]) {
     //       .validate_consistency();
     // }
 
-    if (!(num_syscalls_processed % 200000)) {
+    if (!(num_syscalls_processed % 1000000)) {
       std::chrono::high_resolution_clock::time_point t8 =
           std::chrono::high_resolution_clock::now();
       std::cerr << "rest of the execution: "
@@ -903,6 +929,8 @@ int main(int argc, char *argv[]) {
       std::cerr << "actual getting record time: " << gettingRecord / 1000000
                 << "\n";
       std::cerr << "actual loop time: " << loop / 1000000 << "\n";
+      std::cerr << "in queue syscalls: " << syscallsInQueue << "\n";
+      std::cerr << "spinning: " << executionSpinning / 1000000 << "\n";
     }
     std::chrono::high_resolution_clock::time_point t13 =
         std::chrono::high_resolution_clock::now();
