@@ -33,6 +33,21 @@
 
 #define PROFILE_ENABLE
 
+#define PROFILE_START(start_id)                                                \
+  std::chrono::high_resolution_clock::time_point t##start_id =                 \
+      std::chrono::high_resolution_clock::now();
+
+#define PROFILE_END(start_id, end_id, acc)                                     \
+  std::chrono::high_resolution_clock::time_point t##end_id =                   \
+      std::chrono::high_resolution_clock::now();                               \
+  acc += std::chrono::duration_cast<std::chrono::nanoseconds>(t##end_id -      \
+                                                              t##start_id)     \
+             .count();
+
+#define PROFILE_SAMPLE(id) t##id = std::chrono::high_resolution_clock::now();
+
+#define PROFILE_PRINT(str, acc) std::cerr << str << acc / 1000000 << "\n";
+
 /**
  * min heap uses this function to sort elements in the tree.
  * The sorting key is unique id.
@@ -43,16 +58,6 @@ struct CompareByUniqueID {
     return (m1->unique_id() >= m2->unique_id());
   }
 };
-
-template <class T, class S, class C>
-S &Container(std::priority_queue<T, S, C> &q) {
-  struct HackedQueue : private std::priority_queue<T, S, C> {
-    static S &Container(std::priority_queue<T, S, C> &q) {
-      return q.*&HackedQueue::c;
-    }
-  };
-  return HackedQueue::Container(q);
-}
 
 tbb::atomic<int64_t> syscallsInQueue = 0;
 /*
@@ -620,12 +625,11 @@ void load_syscall_modules(
       syscallsInQueue++;
       syscallMapLast[module->sys_call_name()] = module;
       finishedModules[module->sys_call_name()] = false;
+    } else {
+      // Delete the module since it has no system call to replay.
+      system_call_trace_replay_modules[i] = NULL;
+      delete module;
     }
-    // else {
-    //   // Delete the module since it has no system call to replay.
-    //   system_call_trace_replay_modules[i] = NULL;
-    //   delete module;
-    // }
   }
 }
 
@@ -656,24 +660,16 @@ inline void batch_syscall_modules(
   while (--count) {
     if (readMod->cur_extent_has_more_record() ||
         readMod->getSharedExtent() != NULL) {
-      std::chrono::high_resolution_clock::time_point t1 =
-          std::chrono::high_resolution_clock::now();
+      PROFILE_START(1)
       readMod->prepareRow();
-      std::chrono::high_resolution_clock::time_point t2 =
-          std::chrono::high_resolution_clock::now();
-      fileReading_Batch_file +=
-          std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count();
+      PROFILE_END(1, 2, fileReading_Batch_file)
 
-      std::chrono::high_resolution_clock::time_point t3 =
-          std::chrono::high_resolution_clock::now();
+      PROFILE_START(3)
       if (count != 1) {
         replayers_heap.push(readMod->move());
         syscallsInQueue++;
       }
-      std::chrono::high_resolution_clock::time_point t4 =
-          std::chrono::high_resolution_clock::now();
-      fileReading_Batch_push +=
-          std::chrono::duration_cast<std::chrono::nanoseconds>(t4 - t3).count();
+      PROFILE_END(3, 4, fileReading_Batch_push)
     } else {
       syscallMapLast[readMod->sys_call_name()] = readMod;
       finishedModules[readMod->sys_call_name()] = true;
@@ -764,17 +760,15 @@ int main(int argc, char *argv[]) {
   std::ofstream syscallFile("syscalls.txt");
   std::unordered_map<std::string, int> syscallMap;
   tbb::task_group tasks;
-
-#ifdef PROFILE_ENABLE
   int64_t duration = 0;
+  int64_t warmup = 0;
   int64_t fileReading = 0;
   int64_t gettingRecord = 0;
   int64_t loop = 0;
   int64_t executionSpinning = 0;
 
-  std::chrono::high_resolution_clock::time_point t5 =
-      std::chrono::high_resolution_clock::now();
-#endif
+  PROFILE_START(5)
+
   // Process options found on the command line.
   process_options(argc, argv, verbose, verify, warn_level, pattern_data,
                   log_filename, input_files);
@@ -810,10 +804,9 @@ int main(int argc, char *argv[]) {
     abort();
   }
 
-  // auto &syscallCont = Container(replayers_heap);
   load_syscall_modules(replayers_heap, system_call_trace_replay_modules);
   prepare_replay(replayers_heap);
-  batch_for_all_syscalls(replayers_heap, 200);
+  batch_for_all_syscalls(replayers_heap, 1000);
   auto checkModulesFinished = [&]() -> bool {
     bool isAllFinished = true;
     std::for_each(finishedModules.begin(), finishedModules.end(),
@@ -822,56 +815,29 @@ int main(int argc, char *argv[]) {
                   });
     return isAllFinished;
   };
+
   tasks.run([&] {
     while (!checkModulesFinished()) {
-#ifdef PROFILE_ENABLE
-      std::chrono::high_resolution_clock::time_point t3 =
-          std::chrono::high_resolution_clock::now();
-#endif
-
-      while (syscallsInQueue > 180) {
+      PROFILE_START(3)
+      while (syscallsInQueue > 200) {
       }
-      batch_for_all_syscalls(replayers_heap, 200);
-
-#ifdef PROFILE_ENABLE
-      std::chrono::high_resolution_clock::time_point t4 =
-          std::chrono::high_resolution_clock::now();
-      fileReading +=
-          std::chrono::duration_cast<std::chrono::nanoseconds>(t4 - t3).count();
-#endif
+      batch_for_all_syscalls(replayers_heap, 250);
+      PROFILE_END(3, 4, fileReading)
     }
   });
 
-#ifdef PROFILE_ENABLE
-  std::chrono::high_resolution_clock::time_point t6 =
-      std::chrono::high_resolution_clock::now();
-  std::cerr
-      << "warmup: "
-      << std::chrono::duration_cast<std::chrono::milliseconds>(t6 - t5).count()
-      << "\n";
-#endif
+  PROFILE_END(5, 6, warmup)
+  std::cerr << "warmup: " << warmup / 1000000 << "\n";
 
   tasks.run([&] {
-#ifdef PROFILE_ENABLE
-    std::chrono::high_resolution_clock::time_point t7 =
-        std::chrono::high_resolution_clock::now();
+    PROFILE_START(10)
 
-    // Process all the records in thmice dataseries
-    std::chrono::high_resolution_clock::time_point t10 =
-        std::chrono::high_resolution_clock::now();
-#endif
     while (replayers_heap.try_pop(execute_replayer)) {
+      PROFILE_END(10, 11, gettingRecord)
+
       syscallsInQueue--;
 
-#ifdef PROFILE_ENABLE
-      std::chrono::high_resolution_clock::time_point t11 =
-          std::chrono::high_resolution_clock::now();
-      gettingRecord +=
-          std::chrono::duration_cast<std::chrono::nanoseconds>(t11 - t10)
-              .count();
-      std::chrono::high_resolution_clock::time_point t12 =
-          std::chrono::high_resolution_clock::now();
-#endif
+      PROFILE_START(12)
 
       // if (syscallMap.find(execute_replayer->sys_call_name()) ==
       //     syscallMap.end()) {
@@ -880,48 +846,14 @@ int main(int argc, char *argv[]) {
       //   syscallMap[execute_replayer->sys_call_name()]++;
       // }
 
-#ifdef PROFILE_ENABLE
-      std::chrono::high_resolution_clock::time_point t1 =
-          std::chrono::high_resolution_clock::now();
-#endif
-#ifdef VERBOSE
-      std::cerr << "exe " << execute_replayer->unique_id() << " "
-                << execute_replayer->sys_call_name() << " "
-                << num_syscalls_processed << "\n";
-#endif
-
-#ifdef PROFILE_ENABLE
-      std::chrono::high_resolution_clock::time_point t20 =
-          std::chrono::high_resolution_clock::now();
-#endif
-      while (syscallsInQueue < 80 && !checkModulesFinished()) {
+      PROFILE_START(20)
+      while (syscallsInQueue < 100 && !checkModulesFinished()) {
       }
+      PROFILE_END(20, 21, executionSpinning)
 
-#ifdef PROFILE_ENABLE
-      std::chrono::high_resolution_clock::time_point t21 =
-          std::chrono::high_resolution_clock::now();
-      executionSpinning +=
-          std::chrono::duration_cast<std::chrono::nanoseconds>(t21 - t20)
-              .count();
-#endif
+      PROFILE_START(1)
       execute_replayer->execute();
-
-#ifdef PROFILE_ENABLE
-      std::chrono::high_resolution_clock::time_point t2 =
-          std::chrono::high_resolution_clock::now();
-      duration +=
-          std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count();
-#endif
-
-#ifdef SERIAL_ENABLE
-      std::chrono::high_resolution_clock::time_point t3 =
-          std::chrono::high_resolution_clock::now();
-      batch_for_all_syscalls(replayers_heap, 5000);
-      std::chrono::high_resolution_clock::time_point t4 =
-          std::chrono::high_resolution_clock::now();
-      fileReading +=
-          std::chrono::duration_cast<std::chrono::nanoseconds>(t4 - t3).count();
-#endif
+      PROFILE_END(1, 2, duration)
 
       num_syscalls_processed++;
 
@@ -932,34 +864,22 @@ int main(int argc, char *argv[]) {
       //       .validate_consistency();
       // }
 
-#ifdef PROFILE_ENABLE
-      if (!(num_syscalls_processed % 200000)) {
-        std::chrono::high_resolution_clock::time_point t8 =
-            std::chrono::high_resolution_clock::now();
-        std::cerr << "rest of the execution: "
-                  << std::chrono::duration_cast<std::chrono::milliseconds>(t8 -
-                                                                           t7)
-                         .count()
-                  << "\n";
-        std::cerr << "actual execution time: " << duration / 1000000 << "\n";
-        std::cerr << "actual file reading time: " << fileReading / 1000000
-                  << "\n";
-        std::cerr << "actual batch file reading time: "
-                  << fileReading_Batch_file / 1000000 << "\n";
-        std::cerr << "actual batch push reading time: "
-                  << fileReading_Batch_push / 1000000 << "\n";
-        std::cerr << "actual getting record time: " << gettingRecord / 1000000
-                  << "\n";
-        std::cerr << "actual loop time: " << loop / 1000000 << "\n";
+      if (!(num_syscalls_processed % 1000000)) {
+        PROFILE_PRINT("total syscall execution time: ", duration)
+        PROFILE_PRINT("total spinning over I/O wait time: ", executionSpinning)
+        PROFILE_PRINT("total file reading time: ", fileReading)
+        PROFILE_PRINT("total loop over syscall time: ", loop)
+        PROFILE_PRINT("total DS file batch reading time: ",
+                      fileReading_Batch_file)
+        PROFILE_PRINT("total syscall record push to PQ time: ",
+                      fileReading_Batch_push)
+        PROFILE_PRINT("total syscall record try_pop to PQ time: ",
+                      gettingRecord)
         std::cerr << "in queue syscalls: " << syscallsInQueue << "\n";
-        std::cerr << "spinning: " << executionSpinning / 1000000 << "\n";
       }
-      std::chrono::high_resolution_clock::time_point t13 =
-          std::chrono::high_resolution_clock::now();
-      loop += std::chrono::duration_cast<std::chrono::nanoseconds>(t13 - t12)
-                  .count();
-      t10 = std::chrono::high_resolution_clock::now();
-#endif
+      PROFILE_END(12, 13, loop)
+      PROFILE_SAMPLE(10)
+      delete execute_replayer;
     }
   });
   tasks.wait();
@@ -968,6 +888,7 @@ int main(int argc, char *argv[]) {
   //   syscallFile << syscall.first << " " << syscall.second << "\n";
   // }
   // syscallFile << "in queue syscalls: " << syscallsInQueue << "\n";
+
   // Close /dev/urandom file
   if (pattern_data == "urandom") {
     SystemCallTraceReplayModule::random_file_.close();
