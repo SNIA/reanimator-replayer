@@ -19,12 +19,12 @@
 # make - compile source files that are out-dated
 # make test - test the replayer to see if it is working
 
-OPTFLAGS = -g -O4 -Wall
+OPTFLAGS = -O4 -Wall
 
 CPPFLAGS = -I/usr/local/dataseries/include -I/usr/include/libxml2/ \
 	   -I$(HOME)/lib/strace2ds/include -std=c++11
 
-LDFLAGS =  -ltbb -lboost_program_options -laio -lDataSeries \
+LDFLAGS =  -ltbb -lpthread -lboost_program_options -laio -lDataSeries \
 	   -lLintel -L/usr/local/dataseries/lib
 
 CXXFLAGS = $(OPTFLAGS) -D_GNU_SOURCE -D_LARGEFILE_SOURCE \

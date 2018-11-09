@@ -61,7 +61,7 @@ public:
                        executingPidVal, errorNoVal, returnVal);
     return movePtr;
   }
-  void setMove(char* buf, int byte, int fd) {
+  inline void setMove(char* buf, int byte, int fd) {
     buffer = buf;
     nbytes = byte;
     traced_fd = fd;

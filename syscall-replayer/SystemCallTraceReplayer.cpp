@@ -33,6 +33,7 @@
 
 #define PROFILE_ENABLE
 
+#ifdef PROFILE_ENABLE
 #define PROFILE_START(start_id)                                                \
   std::chrono::high_resolution_clock::time_point t##start_id =                 \
       std::chrono::high_resolution_clock::now();
@@ -47,7 +48,12 @@
 #define PROFILE_SAMPLE(id) t##id = std::chrono::high_resolution_clock::now();
 
 #define PROFILE_PRINT(str, acc) std::cerr << str << acc / 1000000 << "\n";
-
+#else
+#define PROFILE_START(start_id)
+#define PROFILE_END(start_id, end_id, acc)
+#define PROFILE_SAMPLE(id)
+#define PROFILE_PRINT(str, acc)
+#endif
 /**
  * min heap uses this function to sort elements in the tree.
  * The sorting key is unique id.
@@ -65,7 +71,7 @@ tbb::atomic<int64_t> syscallsInQueue = 0;
    * by unique_id field.
    */
 tbb::concurrent_priority_queue<SystemCallTraceReplayModule *, CompareByUniqueID>
-    replayers_heap(10000000);
+    replayers_heap(1000000);
 
 std::unordered_map<std::string, SystemCallTraceReplayModule *> syscallMapLast;
 std::unordered_map<std::string, bool> finishedModules;
@@ -636,6 +642,7 @@ void load_syscall_modules(
 int64_t fileReading_Batch_file = 0;
 int64_t fileReading_Batch_push = 0;
 int64_t fileReading_Batch_map = 0;
+int64_t fileReading_Batch_move = 0;
 bool isFirstBatch = true;
 
 inline void batch_syscall_modules(
@@ -664,12 +671,18 @@ inline void batch_syscall_modules(
       readMod->prepareRow();
       PROFILE_END(1, 2, fileReading_Batch_file)
 
-      PROFILE_START(3)
       if (count != 1) {
-        replayers_heap.push(readMod->move());
+        PROFILE_START(5)
+        auto ptr = readMod->move();
+        PROFILE_END(5, 6, fileReading_Batch_move)
+
+        PROFILE_START(3)
+        replayers_heap.push(ptr);
+        PROFILE_END(3, 4, fileReading_Batch_push)
+
         syscallsInQueue++;
       }
-      PROFILE_END(3, 4, fileReading_Batch_push)
+
     } else {
       syscallMapLast[readMod->sys_call_name()] = readMod;
       finishedModules[readMod->sys_call_name()] = true;
@@ -747,6 +760,91 @@ void prepare_replay(
   }
 }
 
+#ifdef PROFILE_ENABLE
+int64_t duration = 0;
+int64_t fileReading = 0;
+int64_t gettingRecord = 0;
+int64_t loop = 0;
+int64_t executionSpinning = 0;
+#endif
+
+auto checkModulesFinished = []() -> bool {
+  bool isAllFinished = true;
+  std::for_each(finishedModules.begin(), finishedModules.end(),
+                [&](std::pair<std::string, bool> module) {
+                  isAllFinished &= module.second;
+                });
+  return isAllFinished;
+};
+
+void readerThread(void) {
+  while (!checkModulesFinished()) {
+    PROFILE_START(3)
+    while (syscallsInQueue > 200) {
+    }
+    batch_for_all_syscalls(replayers_heap, 250);
+    PROFILE_END(3, 4, fileReading)
+  }
+}
+
+void executionThread(void) {
+  SystemCallTraceReplayModule *execute_replayer = NULL;
+  tbb::atomic<int> num_syscalls_processed = 0;
+
+  PROFILE_START(10)
+
+  while (replayers_heap.try_pop(execute_replayer)) {
+    PROFILE_END(10, 11, gettingRecord)
+
+    syscallsInQueue--;
+
+    PROFILE_START(12)
+
+    // if (syscallMap.find(execute_replayer->sys_call_name()) ==
+    //     syscallMap.end()) {
+    //   syscallMap[execute_replayer->sys_call_name()] = 1;
+    // } else {
+    //   syscallMap[execute_replayer->sys_call_name()]++;
+    // }
+
+    PROFILE_START(20)
+    while (syscallsInQueue < 100 && !checkModulesFinished()) {
+    }
+    PROFILE_END(20, 21, executionSpinning)
+
+    PROFILE_START(1)
+    execute_replayer->execute();
+    PROFILE_END(1, 2, duration)
+
+    num_syscalls_processed++;
+
+    // Verify that the state of resources manager is consistent for every
+    // SCAN_FD_FREQUENCY sys calls.
+    // if (num_syscalls_processed % SCAN_FD_FREQUENCY == 0) {
+    //   SystemCallTraceReplayModule::replayer_resources_manager_
+    //       .validate_consistency();
+    // }
+
+    if (!(num_syscalls_processed % 1000000)) {
+      PROFILE_PRINT("total syscall execution time: ", duration)
+      PROFILE_PRINT("total spinning over I/O wait time: ", executionSpinning)
+      PROFILE_PRINT("total file reading time: ", fileReading)
+      PROFILE_PRINT("total loop over syscall time: ", loop)
+      PROFILE_PRINT("total DS file batch reading time: ",
+                    fileReading_Batch_file)
+      PROFILE_PRINT("total syscall record push to PQ time: ",
+                    fileReading_Batch_push)
+      PROFILE_PRINT("total syscall record move to PQ time: ",
+                    fileReading_Batch_move)
+      PROFILE_PRINT("total syscall record try_pop to PQ time: ", gettingRecord)
+      std::cerr << "in queue syscalls: " << syscallsInQueue << "\n";
+    }
+    PROFILE_END(12, 13, loop)
+    delete execute_replayer;
+    PROFILE_SAMPLE(10)
+  }
+}
+
 int main(int argc, char *argv[]) {
   int ret = EXIT_SUCCESS;
   bool verbose = false;
@@ -755,18 +853,11 @@ int main(int argc, char *argv[]) {
   std::string pattern_data = "";
   std::string log_filename = "";
   std::vector<std::string> input_files;
-  SystemCallTraceReplayModule *execute_replayer = NULL;
-  tbb::atomic<int> num_syscalls_processed = 0;
   std::ofstream syscallFile("syscalls.txt");
   std::unordered_map<std::string, int> syscallMap;
-  tbb::task_group tasks;
-  int64_t duration = 0;
+#ifdef PROFILE_ENABLE
   int64_t warmup = 0;
-  int64_t fileReading = 0;
-  int64_t gettingRecord = 0;
-  int64_t loop = 0;
-  int64_t executionSpinning = 0;
-
+#endif
   PROFILE_START(5)
 
   // Process options found on the command line.
@@ -807,82 +898,15 @@ int main(int argc, char *argv[]) {
   load_syscall_modules(replayers_heap, system_call_trace_replay_modules);
   prepare_replay(replayers_heap);
   batch_for_all_syscalls(replayers_heap, 1000);
-  auto checkModulesFinished = [&]() -> bool {
-    bool isAllFinished = true;
-    std::for_each(finishedModules.begin(), finishedModules.end(),
-                  [&](std::pair<std::string, bool> module) {
-                    isAllFinished &= module.second;
-                  });
-    return isAllFinished;
-  };
 
-  tasks.run([&] {
-    while (!checkModulesFinished()) {
-      PROFILE_START(3)
-      while (syscallsInQueue > 200) {
-      }
-      batch_for_all_syscalls(replayers_heap, 250);
-      PROFILE_END(3, 4, fileReading)
-    }
-  });
+  std::thread reader(readerThread);
 
   PROFILE_END(5, 6, warmup)
-  std::cerr << "warmup: " << warmup / 1000000 << "\n";
+  PROFILE_PRINT("warmup: ", warmup)
 
-  tasks.run([&] {
-    PROFILE_START(10)
-
-    while (replayers_heap.try_pop(execute_replayer)) {
-      PROFILE_END(10, 11, gettingRecord)
-
-      syscallsInQueue--;
-
-      PROFILE_START(12)
-
-      // if (syscallMap.find(execute_replayer->sys_call_name()) ==
-      //     syscallMap.end()) {
-      //   syscallMap[execute_replayer->sys_call_name()] = 1;
-      // } else {
-      //   syscallMap[execute_replayer->sys_call_name()]++;
-      // }
-
-      PROFILE_START(20)
-      while (syscallsInQueue < 100 && !checkModulesFinished()) {
-      }
-      PROFILE_END(20, 21, executionSpinning)
-
-      PROFILE_START(1)
-      execute_replayer->execute();
-      PROFILE_END(1, 2, duration)
-
-      num_syscalls_processed++;
-
-      // Verify that the state of resources manager is consistent for every
-      // SCAN_FD_FREQUENCY sys calls.
-      // if (num_syscalls_processed % SCAN_FD_FREQUENCY == 0) {
-      //   SystemCallTraceReplayModule::replayer_resources_manager_
-      //       .validate_consistency();
-      // }
-
-      if (!(num_syscalls_processed % 1000000)) {
-        PROFILE_PRINT("total syscall execution time: ", duration)
-        PROFILE_PRINT("total spinning over I/O wait time: ", executionSpinning)
-        PROFILE_PRINT("total file reading time: ", fileReading)
-        PROFILE_PRINT("total loop over syscall time: ", loop)
-        PROFILE_PRINT("total DS file batch reading time: ",
-                      fileReading_Batch_file)
-        PROFILE_PRINT("total syscall record push to PQ time: ",
-                      fileReading_Batch_push)
-        PROFILE_PRINT("total syscall record try_pop to PQ time: ",
-                      gettingRecord)
-        std::cerr << "in queue syscalls: " << syscallsInQueue << "\n";
-      }
-      PROFILE_END(12, 13, loop)
-      PROFILE_SAMPLE(10)
-      delete execute_replayer;
-    }
-  });
-  tasks.wait();
+  std::thread executor(executionThread);
+  reader.join();
+  executor.join();
 
   // for (auto syscall : syscallMap) {
   //   syscallFile << syscall.first << " " << syscall.second << "\n";
