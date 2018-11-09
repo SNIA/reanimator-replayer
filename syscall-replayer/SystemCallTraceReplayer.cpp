@@ -24,12 +24,15 @@
 #include "tbb/atomic.h"
 #include "tbb/concurrent_priority_queue.h"
 #include "tbb/task_group.h"
+#include <boost/pool/object_pool.hpp>
 #include <chrono>
 #include <fstream>
 #include <thread>
 #include <unordered_map>
 #include <utility>
 #include <vector>
+
+boost::object_pool<ReadSystemCallTraceReplayModule> pool{2000, 0};
 
 #define PROFILE_ENABLE
 
@@ -765,6 +768,7 @@ int64_t duration = 0;
 int64_t fileReading = 0;
 int64_t gettingRecord = 0;
 int64_t loop = 0;
+int64_t destroy = 0;
 int64_t executionSpinning = 0;
 #endif
 
@@ -840,7 +844,11 @@ void executionThread(void) {
       std::cerr << "in queue syscalls: " << syscallsInQueue << "\n";
     }
     PROFILE_END(12, 13, loop)
-    delete execute_replayer;
+    // if (execute_replayer->sys_call_name() == "read") {
+    //   pool.destroy((ReadSystemCallTraceReplayModule *)execute_replayer);
+    // } else {
+    //   delete execute_replayer;
+    // }
     PROFILE_SAMPLE(10)
   }
 }
