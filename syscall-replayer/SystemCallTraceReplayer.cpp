@@ -23,8 +23,8 @@
 #include "SystemCallTraceReplayer.hpp"
 #include "tbb/atomic.h"
 #include "tbb/concurrent_priority_queue.h"
+#include "tbb/concurrent_queue.h"
 #include "tbb/task_group.h"
-#include <boost/pool/object_pool.hpp>
 #include <chrono>
 #include <fstream>
 #include <thread>
@@ -32,9 +32,7 @@
 #include <utility>
 #include <vector>
 
-boost::object_pool<ReadSystemCallTraceReplayModule> pool{2000, 0};
-
-#define PROFILE_ENABLE
+// #define PROFILE_ENABLE
 
 #ifdef PROFILE_ENABLE
 #define PROFILE_START(start_id)                                                \
@@ -78,6 +76,7 @@ tbb::concurrent_priority_queue<SystemCallTraceReplayModule *, CompareByUniqueID>
 
 std::unordered_map<std::string, SystemCallTraceReplayModule *> syscallMapLast;
 std::unordered_map<std::string, bool> finishedModules;
+tbb::concurrent_queue<SystemCallTraceReplayModule *> allocationQueue;
 
 /**
  * This function declares a group of options that will
@@ -785,6 +784,10 @@ void readerThread(void) {
   while (!checkModulesFinished()) {
     PROFILE_START(3)
     while (syscallsInQueue > 200) {
+      SystemCallTraceReplayModule *execute_replayer = NULL;
+      while (allocationQueue.try_pop(execute_replayer)) {
+        delete execute_replayer;
+      }
     }
     batch_for_all_syscalls(replayers_heap, 250);
     PROFILE_END(3, 4, fileReading)
@@ -844,11 +847,8 @@ void executionThread(void) {
       std::cerr << "in queue syscalls: " << syscallsInQueue << "\n";
     }
     PROFILE_END(12, 13, loop)
-    // if (execute_replayer->sys_call_name() == "read") {
-    //   pool.destroy((ReadSystemCallTraceReplayModule *)execute_replayer);
-    // } else {
-    //   delete execute_replayer;
-    // }
+    allocationQueue.push(execute_replayer);
+    // delete execute_replayer;
     PROFILE_SAMPLE(10)
   }
 }

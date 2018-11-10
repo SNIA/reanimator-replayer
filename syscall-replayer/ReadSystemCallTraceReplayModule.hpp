@@ -23,13 +23,7 @@
 #define READ_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 
 #include <unistd.h>
-#include "tbb/queuing_mutex.h"
-#include <boost/pool/object_pool.hpp>
 #include "SystemCallTraceReplayModule.hpp"
-
-class ReadSystemCallTraceReplayModule;
-
-extern boost::object_pool<ReadSystemCallTraceReplayModule> pool;
 
 class ReadSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 protected:
@@ -59,10 +53,8 @@ public:
 				  bool verify_flag,
 				  int warn_level_flag);
   SystemCallTraceReplayModule *move() {
-    // auto movePtr = new ReadSystemCallTraceReplayModule(source, verbose_,
-    //                                                    verify_, warn_level_);
-    auto movePtr = pool.construct<DataSeriesModule&, bool, bool, int>
-          (source, verbose_, verify_, warn_level_);
+    auto movePtr = new ReadSystemCallTraceReplayModule(source, verbose_,
+                                                       verify_, warn_level_);
     movePtr->setMove(buffer, nbytes, traced_fd);
     movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
                        executingPidVal, errorNoVal, returnVal);
