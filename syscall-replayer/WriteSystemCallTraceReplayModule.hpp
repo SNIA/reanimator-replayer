@@ -60,7 +60,7 @@ public:
                                                         pattern_data_);
     movePtr->setMove(data_buffer, nbytes, traced_fd);
     movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
-                       executingPidVal, errorNoVal, returnVal);
+                       executingPidVal, errorNoVal, returnVal, replayerIndex);
     return movePtr;
   }
   void setMove(char* buf, int byte, int fd) {

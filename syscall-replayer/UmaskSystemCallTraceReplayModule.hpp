@@ -49,7 +49,7 @@ public:
                                                        warn_level_);
     movePtr->setMove(mode);
     movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
-                       executingPidVal, errorNoVal, returnVal);
+                       executingPidVal, errorNoVal, returnVal, replayerIndex);
     return movePtr;
   }
   void setMove(mode_t mod) {

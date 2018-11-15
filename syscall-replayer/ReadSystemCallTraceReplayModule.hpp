@@ -57,7 +57,7 @@ public:
                                                        verify_, warn_level_);
     movePtr->setMove(buffer, nbytes, traced_fd);
     movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
-                       executingPidVal, errorNoVal, returnVal);
+                       executingPidVal, errorNoVal, returnVal, replayerIndex);
     return movePtr;
   }
   inline void setMove(char* buf, int byte, int fd) {

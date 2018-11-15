@@ -54,7 +54,7 @@ public:
     auto movePtr = new AccessSystemCallTraceReplayModule(source, verbose_, warn_level_);
     movePtr->setMove(pathname, mode_value);
     movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
-                       executingPidVal, errorNoVal, returnVal);
+                       executingPidVal, errorNoVal, returnVal, replayerIndex);
     return movePtr;
   }
   void setMove(char* path, int mode) {

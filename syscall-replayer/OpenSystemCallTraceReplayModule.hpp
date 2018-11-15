@@ -59,7 +59,7 @@ public:
     auto movePtr = new OpenSystemCallTraceReplayModule(source, verbose_, warn_level_);
     movePtr->setMove(pathname, modeVal, flags, traced_fd);
     movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
-                       executingPidVal, errorNoVal, returnVal);
+                       executingPidVal, errorNoVal, returnVal, replayerIndex);
     return movePtr;
   }
   void setMove(char* path, int mode, int flag, int fd) {

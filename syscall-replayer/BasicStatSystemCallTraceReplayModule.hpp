@@ -107,7 +107,7 @@ public:
                                                        verify_,  warn_level_);
     movePtr->setMove(pathname);
     movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
-                       executingPidVal, errorNoVal, returnVal);
+                       executingPidVal, errorNoVal, returnVal, replayerIndex);
     return movePtr;
   }
   void setMove(char* path) {
@@ -168,7 +168,7 @@ public:
                                                         verify_, warn_level_);
     movePtr->setMove(descriptorVal);
     movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
-                       executingPidVal, errorNoVal, returnVal);
+                       executingPidVal, errorNoVal, returnVal, replayerIndex);
     return movePtr;
   }
   void setMove(int desc) {

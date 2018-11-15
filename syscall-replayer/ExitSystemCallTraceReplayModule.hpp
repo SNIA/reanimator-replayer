@@ -47,7 +47,7 @@ public:
   SystemCallTraceReplayModule *move() {
     auto movePtr = new ExitSystemCallTraceReplayModule(source, verbose_, warn_level_);
     movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
-                       executingPidVal, errorNoVal, returnVal);
+                       executingPidVal, errorNoVal, returnVal, replayerIndex);
     return movePtr;
   }
   void prepareRow();

@@ -62,7 +62,7 @@ public:
                                                        warn_level_);
     movePtr->setMove(continuation_num, retVal);
     movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
-                       executingPidVal, errorNoVal, returnVal);
+                       executingPidVal, errorNoVal, returnVal, replayerIndex);
     return movePtr;
   }
   void setMove(int32_t contNum, int64_t ret) {

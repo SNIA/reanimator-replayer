@@ -25,6 +25,7 @@
 #include "tbb/concurrent_priority_queue.h"
 #include "tbb/concurrent_queue.h"
 #include "tbb/task_group.h"
+#include <algorithm>
 #include <chrono>
 #include <fstream>
 #include <thread>
@@ -55,6 +56,7 @@
 #define PROFILE_SAMPLE(id)
 #define PROFILE_PRINT(str, acc)
 #endif
+
 /**
  * min heap uses this function to sort elements in the tree.
  * The sorting key is unique id.
@@ -66,7 +68,8 @@ struct CompareByUniqueID {
   }
 };
 
-tbb::atomic<int64_t> syscallsInQueue = 0;
+tbb::atomic<uint64_t> *numberOfSyscalls;
+
 /*
    * Define a min heap that stores each module. The heap is ordered
    * by unique_id field.
@@ -600,6 +603,7 @@ create_system_call_trace_replay_modules(
   return system_call_trace_replay_modules;
 }
 
+int64_t replayerIdx = 0;
 /**
  * Add all system call replay modules to min heap if the module has extents
  */
@@ -630,15 +634,17 @@ void load_syscall_modules(
       }
       module->prepareRow();
       replayers_heap.push(module->move());
-      syscallsInQueue++;
       syscallMapLast[module->sys_call_name()] = module;
       finishedModules[module->sys_call_name()] = false;
+      module->setReplayerIndex(replayerIdx++);
     } else {
       // Delete the module since it has no system call to replay.
       system_call_trace_replay_modules[i] = NULL;
       delete module;
     }
   }
+  numberOfSyscalls = new tbb::atomic<uint64_t>[replayerIdx];
+  std::fill_n(numberOfSyscalls, replayerIdx, 1);
 }
 
 int64_t fileReading_Batch_file = 0;
@@ -682,13 +688,14 @@ inline void batch_syscall_modules(
         replayers_heap.push(ptr);
         PROFILE_END(3, 4, fileReading_Batch_push)
 
-        syscallsInQueue++;
+        numberOfSyscalls[ptr->getReplayerIndex()]++;
       }
 
     } else {
       syscallMapLast[readMod->sys_call_name()] = readMod;
       finishedModules[readMod->sys_call_name()] = true;
       endOfRecord = true;
+      numberOfSyscalls[readMod->getReplayerIndex()] = LLONG_MAX;
       break;
     }
   }
@@ -700,7 +707,7 @@ inline void batch_syscall_modules(
   }
 
   if (!isFirstTime) {
-    syscallsInQueue++;
+    numberOfSyscalls[copy->getReplayerIndex()]++;
     replayers_heap.push(copy);
   }
 }
@@ -727,7 +734,7 @@ void prepare_replay(
   SystemCallTraceReplayModule *syscall_module;
   // Process first record in the dataseries
   if (syscall_replayer.try_pop(syscall_module)) {
-    syscallsInQueue--;
+    numberOfSyscalls[syscall_module->getReplayerIndex()]--;
     // Get a module that has min unique_id
     // First module to replay should be umask.
     assert(syscall_module->sys_call_name() == "umask");
@@ -780,16 +787,24 @@ auto checkModulesFinished = []() -> bool {
   return isAllFinished;
 };
 
+auto getMinSyscall = []() -> int64_t {
+  tbb::atomic<uint64_t> min = ULONG_MAX;
+  for (int i = 0; i < replayerIdx; ++i) {
+    min = std::min(min, numberOfSyscalls[i]);
+  }
+  return min;
+};
+
 void readerThread(void) {
   while (!checkModulesFinished()) {
     PROFILE_START(3)
-    while (syscallsInQueue > 200) {
+    while (getMinSyscall() > 100) {
       SystemCallTraceReplayModule *execute_replayer = NULL;
       while (allocationQueue.try_pop(execute_replayer)) {
         delete execute_replayer;
       }
     }
-    batch_for_all_syscalls(replayers_heap, 250);
+    batch_for_all_syscalls(replayers_heap, 150);
     PROFILE_END(3, 4, fileReading)
   }
 }
@@ -803,19 +818,12 @@ void executionThread(void) {
   while (replayers_heap.try_pop(execute_replayer)) {
     PROFILE_END(10, 11, gettingRecord)
 
-    syscallsInQueue--;
+    numberOfSyscalls[execute_replayer->getReplayerIndex()]--;
 
     PROFILE_START(12)
 
-    // if (syscallMap.find(execute_replayer->sys_call_name()) ==
-    //     syscallMap.end()) {
-    //   syscallMap[execute_replayer->sys_call_name()] = 1;
-    // } else {
-    //   syscallMap[execute_replayer->sys_call_name()]++;
-    // }
-
     PROFILE_START(20)
-    while (syscallsInQueue < 100 && !checkModulesFinished()) {
+    while (getMinSyscall() < 10 && !checkModulesFinished()) {
     }
     PROFILE_END(20, 21, executionSpinning)
 
@@ -844,7 +852,6 @@ void executionThread(void) {
       PROFILE_PRINT("total syscall record move to PQ time: ",
                     fileReading_Batch_move)
       PROFILE_PRINT("total syscall record try_pop to PQ time: ", gettingRecord)
-      std::cerr << "in queue syscalls: " << syscallsInQueue << "\n";
     }
     PROFILE_END(12, 13, loop)
     allocationQueue.push(execute_replayer);
@@ -915,11 +922,6 @@ int main(int argc, char *argv[]) {
   std::thread executor(executionThread);
   reader.join();
   executor.join();
-
-  // for (auto syscall : syscallMap) {
-  //   syscallFile << syscall.first << " " << syscall.second << "\n";
-  // }
-  // syscallFile << "in queue syscalls: " << syscallsInQueue << "\n";
 
   // Close /dev/urandom file
   if (pattern_data == "urandom") {

@@ -56,7 +56,7 @@ public:
     auto movePtr = new LSeekSystemCallTraceReplayModule(source, verbose_, warn_level_);
     movePtr->setMove(descriptorVal, offset, whence, replayed_fd);
     movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
-                       executingPidVal, errorNoVal, returnVal);
+                       executingPidVal, errorNoVal, returnVal, replayerIndex);
     return movePtr;
   }
   void setMove(int desc, long off, uint8_t whence, int fd) {

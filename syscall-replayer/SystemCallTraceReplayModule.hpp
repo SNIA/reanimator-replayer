@@ -75,6 +75,8 @@ protected:
   int errorNoVal;
   int64_t returnVal;
 
+  int64_t replayerIndex;
+
   /**
    * Print common and specific sys call field values in a nice format
    */
@@ -338,7 +340,7 @@ public:
   virtual void prepareRow();
   void setCommon(int64_t id, int64_t called,
                  int64_t returned, int64_t recorded,
-                 int64_t pid, int error, int ret) {
+                 int64_t pid, int error, int ret, int64_t index) {
     uniqueIdVal = id;
     timeCalledVal = called;
     timeReturnedVal = returned;
@@ -346,9 +348,18 @@ public:
     executingPidVal = pid;
     errorNoVal = error;
     returnVal = ret;
+    replayerIndex = index;
   }
   virtual SystemCallTraceReplayModule *move() {
     return NULL;
+  }
+
+  int64_t getReplayerIndex() {
+    return replayerIndex;
+  }
+
+  void setReplayerIndex(int64_t idx) {
+    replayerIndex = idx;
   }
 };
 
