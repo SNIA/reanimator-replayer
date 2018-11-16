@@ -67,4 +67,4 @@ static const unsigned int supported_minor_version = 0;
  * of resource manager. Ex: 10 means that replayer will scan all fds
  * for every 10 system calls that are replayed.
  */
-#define SCAN_FD_FREQUENCY 10
+#define SCAN_FD_FREQUENCY 100000

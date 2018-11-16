@@ -55,7 +55,7 @@ void ReadSystemCallTraceReplayModule::processRow() {
 
   if (verify_ == true) {
     // Verify read data and data in the trace file are same
-    if (memcmp(data_read_.val(), buffer, replayed_ret_val_) != 0) {
+    if (memcmp(dataReadBuf, buffer, replayed_ret_val_) != 0) {
       // Data aren't same
       syscall_logger_->log_err("Verification of data in read failed.");
       if (!default_mode()) {
@@ -79,12 +79,16 @@ void ReadSystemCallTraceReplayModule::processRow() {
 }
 
 void ReadSystemCallTraceReplayModule::prepareRow() {
-  // Get replaying file descriptor.
   traced_fd = descriptor_.val();
   nbytes = bytes_requested_.val();
   replayed_ret_val_ = return_value_.val();
   buffer = new char[nbytes];
-  // TODO(umit) handle verify case for data read
+
+  if (verify_ == true) {
+    auto dataBuf = reinterpret_cast<const char *>(data_read_.val());
+    dataReadBuf = new char[replayed_ret_val_];
+    std::memcpy(dataReadBuf, dataBuf, replayed_ret_val_);
+  }
   SystemCallTraceReplayModule::prepareRow();
 }
 

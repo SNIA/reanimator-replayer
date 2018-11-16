@@ -89,7 +89,7 @@ void WriteSystemCallTraceReplayModule::prepareRow() {
   replayed_ret_val_ = return_value_.val();
   auto dataBuf = reinterpret_cast<const char *>(data_written_.val());
   data_buffer = new char[nbytes];
-  std::strcpy(data_buffer, dataBuf);
+  std::memcpy(data_buffer, dataBuf, replayed_ret_val_);
   SystemCallTraceReplayModule::prepareRow();
 }
 

@@ -35,6 +35,7 @@ protected:
   int traced_fd;
   int nbytes;
   char *buffer;
+  char *dataReadBuf;
 
   /**
    * Print read sys call field values in a nice format
@@ -55,15 +56,16 @@ public:
   SystemCallTraceReplayModule *move() {
     auto movePtr = new ReadSystemCallTraceReplayModule(source, verbose_,
                                                        verify_, warn_level_);
-    movePtr->setMove(buffer, nbytes, traced_fd);
+    movePtr->setMove(buffer, nbytes, traced_fd, dataReadBuf);
     movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
                        executingPidVal, errorNoVal, returnVal, replayerIndex);
     return movePtr;
   }
-  inline void setMove(char* buf, int byte, int fd) {
+  inline void setMove(char* buf, int byte, int fd, char* verifyBuf) {
     buffer = buf;
     nbytes = byte;
     traced_fd = fd;
+    dataReadBuf = verifyBuf;
   }
   void prepareRow();
 };

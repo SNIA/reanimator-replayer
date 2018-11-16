@@ -48,6 +48,21 @@ protected:
   Int64Field stat_result_mtime_;
   Int64Field stat_result_ctime_;
 
+  // value of data fields
+  uint32_t statDev;
+  uint32_t statINo;
+  uint32_t statMode;
+  uint32_t statNLink;
+  uint32_t statUID;
+  uint32_t statGID;
+  uint32_t statRDev;
+  uint32_t statBlkSize;
+  uint32_t statBlocks;
+  int64_t statSize;
+  uint64_t statATime;
+  uint64_t statMTime;
+  uint64_t statCTime;
+
   /**
    * Print stat, lstat, and fstat sys call field values in a nice format
    */
@@ -77,7 +92,24 @@ public:
 				       bool verbose_flag,
 				       bool verify_flag,
 				       int warn_level_flag);
-
+  void prepareRow();
+  void setMove(uint32_t dev, uint32_t ino, uint32_t mode, uint32_t nlink, uint32_t uid,
+               uint32_t gid, uint32_t rdev, uint32_t blksize, uint32_t blocks, int64_t size,
+               uint64_t atime, uint64_t mtime, uint64_t ctime) {
+    statDev = dev;
+    statINo = ino;
+    statMode = mode;
+    statNLink = nlink;
+    statUID = uid;
+    statGID = gid;
+    statRDev = rdev;
+    statBlkSize = blksize;
+    statBlocks = blocks;
+    statSize = size;
+    statATime = atime;
+    statMTime = mtime;
+    statCTime = ctime;
+  }
 };
 
 class StatSystemCallTraceReplayModule :
@@ -108,6 +140,12 @@ public:
     movePtr->setMove(pathname);
     movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
                        executingPidVal, errorNoVal, returnVal, replayerIndex);
+    if (verify_) {
+      BasicStatSystemCallTraceReplayModule::setMove(statDev, statINo, statMode, statNLink,
+                                                  statUID, statGID, statRDev, statBlkSize,
+                                                  statBlocks, statSize, statATime, statMTime,
+                                                  statCTime);
+    }
     return movePtr;
   }
   void setMove(char* path) {

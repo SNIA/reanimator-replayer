@@ -88,80 +88,93 @@ void BasicStatSystemCallTraceReplayModule::print_specific_fields() {
   	"file ctime(", boost::format(DEC_PRECISION) % Tfrac_to_sec(stat_result_ctime_.val()), ")");
 }
 
+void BasicStatSystemCallTraceReplayModule::prepareRow() {
+  statDev = stat_result_dev_.val();
+  statINo = stat_result_ino_.val();
+  statMode = stat_result_mode_.val();
+  statNLink =  stat_result_nlink_.val();
+  statUID =  stat_result_uid_.val();
+  statGID =  stat_result_gid_.val();
+  statRDev = stat_result_rdev_.val();
+  statBlkSize = stat_result_blksize_.val();
+  statBlocks = stat_result_blocks_.val();
+  statSize = stat_result_size_.val();
+  statATime = stat_result_atime_.val();
+  statMTime = stat_result_mtime_.val();
+  statCTime = stat_result_ctime_.val();
+}
+
 void BasicStatSystemCallTraceReplayModule::verifyResult(
 					      struct stat replayed_stat_buf) {
-  u_int stat_result_ino = (u_int) stat_result_ino_.val();
-  u_int stat_result_mode = stat_result_mode_.val();
-  u_int stat_result_nlink = (u_int) stat_result_nlink_.val();
-  u_int stat_result_uid = (u_int) stat_result_uid_.val();
-  u_int stat_result_gid = (u_int) stat_result_gid_.val();
-  long stat_result_size = stat_result_size_.val();
-  int stat_result_blksize = (int) stat_result_blksize_.val();
-  int stat_result_blocks = (int) stat_result_blocks_.val();
-
   /*
    * Verify stat buffer contents in the trace file are same
    * We are comparing only key fields captured in strace : st_ino,
    * st_mode, st_nlink, st_uid, st_gid, st_size, st_blksize and
    * st_blocks fileds of struct stat.
    */
-  if (stat_result_ino != replayed_stat_buf.st_ino ||
-      stat_result_mode != replayed_stat_buf.st_mode ||
-      stat_result_nlink != replayed_stat_buf.st_nlink ||
-      stat_result_uid != replayed_stat_buf.st_uid ||
-      stat_result_gid != replayed_stat_buf.st_gid ||
-      stat_result_size != replayed_stat_buf.st_size ||
-      stat_result_blksize != replayed_stat_buf.st_blksize ||
-      stat_result_blocks != replayed_stat_buf.st_blocks) {
-
-      // Stat buffers aren't same
-      syscall_logger_->log_err("Verification of ", sys_call_name_, \
-	      " buffer content failed.");
-      if (!default_mode()) {
-        syscall_logger_->log_warn("time called:", \
-          boost::format(DEC_PRECISION) % Tfrac_to_sec(time_called()), \
-          " Captured ", sys_call_name_, \
-          " content is different from replayed ", \
+  if (statINo != replayed_stat_buf.st_ino ||
+      statMode != replayed_stat_buf.st_mode ||
+      statNLink != replayed_stat_buf.st_nlink ||
+      statUID != replayed_stat_buf.st_uid ||
+      statGID != replayed_stat_buf.st_gid ||
+      statSize != replayed_stat_buf.st_size ||
+      statBlkSize != replayed_stat_buf.st_blksize ||
+      statBlocks != replayed_stat_buf.st_blocks) {
+    // Stat buffers aren't same
+    syscall_logger_->log_err("Verification of ", sys_call_name_,
+                             " buffer content failed.");
+    if (!default_mode()) {
+      syscall_logger_->log_warn(
+          "time called:",
+          boost::format(DEC_PRECISION) % Tfrac_to_sec(time_called()),
+          " Captured ", sys_call_name_, " content is different from replayed ",
           sys_call_name_, " content");
-        syscall_logger_->log_warn("Captured file inode: ", stat_result_ino, ", ", \
+      syscall_logger_->log_warn(
+          "Captured file inode: ", statINo, ", ",
           "Replayed file inode: ", replayed_stat_buf.st_ino);
-        syscall_logger_->log_warn("Captured file mode: ", \
-          boost::format("0x%02x") % print_mode_value(stat_result_mode), ", ", \
-          "Replayed file mode: ", \
-          boost::format("0x%02x") % print_mode_value(replayed_stat_buf.st_mode));
-      	syscall_logger_->log_warn("Captured file nlink: ", stat_result_nlink, ", ", \
+      syscall_logger_->log_warn(
+          "Captured file mode: ",
+          boost::format("0x%02x") % print_mode_value(statMode), ", ",
+          "Replayed file mode: ",
+          boost::format("0x%02x") %
+              print_mode_value(replayed_stat_buf.st_mode));
+      syscall_logger_->log_warn(
+          "Captured file nlink: ", statNLink, ", ",
           "Replayed file nlink: ", replayed_stat_buf.st_nlink);
-      	syscall_logger_->log_warn("Captured file UID: ", stat_result_uid, ", ", \
+      syscall_logger_->log_warn(
+          "Captured file UID: ", statUID, ", ",
           "Replayed file UID: ", replayed_stat_buf.st_uid);
-      	syscall_logger_->log_warn("Captured file GID: ", stat_result_gid, ", ", \
+      syscall_logger_->log_warn(
+          "Captured file GID: ", statGID, ", ",
           "Replayed file GID: ", replayed_stat_buf.st_gid);
-      	syscall_logger_->log_warn("Captured file size: ", stat_result_size, ", ", \
+      syscall_logger_->log_warn(
+          "Captured file size: ", statSize, ", ",
           "Replayed file size: ", replayed_stat_buf.st_size);
-      	syscall_logger_->log_warn("Captured file blksize: ", stat_result_blksize, ", ", \
+      syscall_logger_->log_warn(
+          "Captured file blksize: ", statBlkSize, ", ",
           "Replayed file blksize: ", replayed_stat_buf.st_blksize);
-      	syscall_logger_->log_warn("Captured file blocks: ", stat_result_blocks, ", ", \
+      syscall_logger_->log_warn(
+          "Captured file blocks: ", statBlocks, ", ",
           "Replayed file blocks: ", replayed_stat_buf.st_blocks);
 
-        if (abort_mode()) {
-          abort();
-        }
+      if (abort_mode()) {
+        abort();
       }
-    } else {
-      if (verbose_mode()) {
-        syscall_logger_->log_info("Verification of ", sys_call_name_, \
-          " buffer succeeded.");
-      }
+    }
+  } else {
+    if (verbose_mode()) {
+      syscall_logger_->log_info("Verification of ", sys_call_name_,
+                                " buffer succeeded.");
+    }
   }
 }
 
-StatSystemCallTraceReplayModule::
-StatSystemCallTraceReplayModule(DataSeriesModule &source,
-				bool verbose_flag,
-				bool verify_flag,
-				int warn_level_flag):
-  BasicStatSystemCallTraceReplayModule(source, verbose_flag, verify_flag,
-				       warn_level_flag),
-  given_pathname_(series, "given_pathname") {
+StatSystemCallTraceReplayModule::StatSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, bool verify_flag,
+    int warn_level_flag)
+    : BasicStatSystemCallTraceReplayModule(source, verbose_flag, verify_flag,
+                                           warn_level_flag),
+      given_pathname_(series, "given_pathname") {
   sys_call_name_ = "stat";
 }
 
@@ -183,19 +196,17 @@ void StatSystemCallTraceReplayModule::processRow() {
 
 void StatSystemCallTraceReplayModule::prepareRow() {
   auto pathBuf = reinterpret_cast<const char *>(given_pathname_.val());
-  pathname = new char[std::strlen(pathBuf)+1];
+  pathname = new char[std::strlen(pathBuf) + 1];
   std::strcpy(pathname, pathBuf);
   SystemCallTraceReplayModule::prepareRow();
 }
 
-LStatSystemCallTraceReplayModule::
-LStatSystemCallTraceReplayModule(DataSeriesModule &source,
-				 bool verbose_flag,
-				 bool verify_flag,
-				 int warn_level_flag):
-  BasicStatSystemCallTraceReplayModule(source, verbose_flag, verify_flag,
-				  warn_level_flag),
-  given_pathname_(series, "given_pathname") {
+LStatSystemCallTraceReplayModule::LStatSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, bool verify_flag,
+    int warn_level_flag)
+    : BasicStatSystemCallTraceReplayModule(source, verbose_flag, verify_flag,
+                                           warn_level_flag),
+      given_pathname_(series, "given_pathname") {
   sys_call_name_ = "lstat";
 }
 
@@ -206,7 +217,7 @@ void LStatSystemCallTraceReplayModule::print_specific_fields() {
 
 void LStatSystemCallTraceReplayModule::processRow() {
   struct stat stat_buf;
-  char *pathname = (char *) given_pathname_.val();
+  char *pathname = (char *)given_pathname_.val();
 
   // replay the lstat system call
   replayed_ret_val_ = lstat(pathname, &stat_buf);
@@ -216,14 +227,12 @@ void LStatSystemCallTraceReplayModule::processRow() {
   }
 }
 
-FStatSystemCallTraceReplayModule::
-FStatSystemCallTraceReplayModule(DataSeriesModule &source,
-				 bool verbose_flag,
-				 bool verify_flag,
-				 int warn_level_flag):
-  BasicStatSystemCallTraceReplayModule(source, verbose_flag, verify_flag,
-				  warn_level_flag),
-  descriptor_(series, "descriptor") {
+FStatSystemCallTraceReplayModule::FStatSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, bool verify_flag,
+    int warn_level_flag)
+    : BasicStatSystemCallTraceReplayModule(source, verbose_flag, verify_flag,
+                                           warn_level_flag),
+      descriptor_(series, "descriptor") {
   sys_call_name_ = "fstat";
 }
 
@@ -231,7 +240,7 @@ void FStatSystemCallTraceReplayModule::print_specific_fields() {
   pid_t pid = executing_pid();
   int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
   syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
-    "replayed fd(", replayed_fd, "), ");
+                            "replayed fd(", replayed_fd, "), ");
   BasicStatSystemCallTraceReplayModule::print_specific_fields();
 }
 
@@ -261,16 +270,14 @@ void FStatSystemCallTraceReplayModule::prepareRow() {
   SystemCallTraceReplayModule::prepareRow();
 }
 
-FStatatSystemCallTraceReplayModule::
-FStatatSystemCallTraceReplayModule(DataSeriesModule &source,
-                                   bool verbose_flag,
-                                   bool verify_flag,
-                                   int warn_level_flag):
-  BasicStatSystemCallTraceReplayModule(source, verbose_flag, verify_flag,
-                                warn_level_flag),
-  descriptor_(series, "descriptor"),
-  given_pathname_(series, "given_pathname"),
-  flags_value_(series, "flags_value", Field::flag_nullable) {
+FStatatSystemCallTraceReplayModule::FStatatSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, bool verify_flag,
+    int warn_level_flag)
+    : BasicStatSystemCallTraceReplayModule(source, verbose_flag, verify_flag,
+                                           warn_level_flag),
+      descriptor_(series, "descriptor"),
+      given_pathname_(series, "given_pathname"),
+      flags_value_(series, "flags_value", Field::flag_nullable) {
   sys_call_name_ = "fstatat";
 }
 
@@ -278,9 +285,9 @@ void FStatatSystemCallTraceReplayModule::print_specific_fields() {
   pid_t pid = executing_pid();
   int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
   syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
-    "replayed fd(", replayed_fd, ")",
-    "pathname(", given_pathname_.val(), "), ",
-    "flags_value(", flags_value_.val(), ")");
+                            "replayed fd(", replayed_fd, ")", "pathname(",
+                            given_pathname_.val(), "), ", "flags_value(",
+                            flags_value_.val(), ")");
   BasicStatSystemCallTraceReplayModule::print_specific_fields();
 }
 
@@ -288,7 +295,7 @@ void FStatatSystemCallTraceReplayModule::processRow() {
   struct stat stat_buf;
   pid_t pid = executing_pid();
   int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
-  char *pathname = (char *) given_pathname_.val();
+  char *pathname = (char *)given_pathname_.val();
 
   if (replayed_fd == SYSCALL_SIMULATED) {
     /*
@@ -300,7 +307,8 @@ void FStatatSystemCallTraceReplayModule::processRow() {
     return;
   }
   // replay the fstat system call
-  replayed_ret_val_ = fstatat(replayed_fd, pathname, &stat_buf, flags_value_.val());
+  replayed_ret_val_ =
+      fstatat(replayed_fd, pathname, &stat_buf, flags_value_.val());
 
   if (verify_ == true) {
     BasicStatSystemCallTraceReplayModule::verifyResult(stat_buf);

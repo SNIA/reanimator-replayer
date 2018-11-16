@@ -21,10 +21,6 @@
  */
 
 #include "SystemCallTraceReplayer.hpp"
-#include "tbb/atomic.h"
-#include "tbb/concurrent_priority_queue.h"
-#include "tbb/concurrent_queue.h"
-#include "tbb/task_group.h"
 #include <algorithm>
 #include <chrono>
 #include <fstream>
@@ -32,19 +28,23 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
+#include "tbb/atomic.h"
+#include "tbb/concurrent_priority_queue.h"
+#include "tbb/concurrent_queue.h"
+#include "tbb/task_group.h"
 
 // #define PROFILE_ENABLE
 
 #ifdef PROFILE_ENABLE
-#define PROFILE_START(start_id)                                                \
-  std::chrono::high_resolution_clock::time_point t##start_id =                 \
+#define PROFILE_START(start_id)                                \
+  std::chrono::high_resolution_clock::time_point t##start_id = \
       std::chrono::high_resolution_clock::now();
 
-#define PROFILE_END(start_id, end_id, acc)                                     \
-  std::chrono::high_resolution_clock::time_point t##end_id =                   \
-      std::chrono::high_resolution_clock::now();                               \
-  acc += std::chrono::duration_cast<std::chrono::nanoseconds>(t##end_id -      \
-                                                              t##start_id)     \
+#define PROFILE_END(start_id, end_id, acc)                                 \
+  std::chrono::high_resolution_clock::time_point t##end_id =               \
+      std::chrono::high_resolution_clock::now();                           \
+  acc += std::chrono::duration_cast<std::chrono::nanoseconds>(t##end_id -  \
+                                                              t##start_id) \
              .count();
 
 #define PROFILE_SAMPLE(id) t##id = std::chrono::high_resolution_clock::now();
@@ -104,9 +104,10 @@ boost::program_options::variables_map get_options(int argc, char *argv[]) {
    */
   po::options_description config("Configuration");
   config.add_options()("verbose,v", "system calls replay in verbose mode")(
-      "verify", "verifies that the data being written/read is "
-                "exactly what was used originally")(
-      "warn,w", po::value<int>(), "system call replays in warn mode")(
+      "verify",
+      "verifies that the data being written/read is "
+      "exactly what was used originally")("warn,w", po::value<int>(),
+                                          "system call replays in warn mode")(
       "pattern,p", po::value<std::string>(),
       "write repeated pattern data in write system call")(
       "logger,l", po::value<std::string>(),
@@ -234,8 +235,8 @@ void process_options(int argc, char *argv[], bool &verbose, bool &verify,
  ******Remember to modify here when supporting a new system call.********
  * Return a list of prefetch buffer modules
  */
-std::vector<PrefetchBufferModule *>
-create_prefetch_buffer_modules(std::vector<std::string> &input_files) {
+std::vector<PrefetchBufferModule *> create_prefetch_buffer_modules(
+    std::vector<std::string> &input_files) {
   // This is the prefix extent type of all system calls.
   const std::string kExtentTypePrefix = "IOTTAFSL::Trace::Syscall::";
 
@@ -811,7 +812,7 @@ void readerThread(void) {
 
 void executionThread(void) {
   SystemCallTraceReplayModule *execute_replayer = NULL;
-  tbb::atomic<int> num_syscalls_processed = 0;
+  tbb::atomic<uint64_t> num_syscalls_processed = 0;
 
   PROFILE_START(10)
 
@@ -835,10 +836,10 @@ void executionThread(void) {
 
     // Verify that the state of resources manager is consistent for every
     // SCAN_FD_FREQUENCY sys calls.
-    // if (num_syscalls_processed % SCAN_FD_FREQUENCY == 0) {
-    //   SystemCallTraceReplayModule::replayer_resources_manager_
-    //       .validate_consistency();
-    // }
+    if (num_syscalls_processed % SCAN_FD_FREQUENCY == 0) {
+      SystemCallTraceReplayModule::replayer_resources_manager_
+          .validate_consistency();
+    }
 
     if (!(num_syscalls_processed % 1000000)) {
       PROFILE_PRINT("total syscall execution time: ", duration)
@@ -878,7 +879,6 @@ int main(int argc, char *argv[]) {
   // Process options found on the command line.
   process_options(argc, argv, verbose, verify, warn_level, pattern_data,
                   log_filename, input_files);
-
   // Create an instance of logger class and open log file to write replayer logs
   SystemCallTraceReplayModule::syscall_logger_ =
       new SystemCallTraceReplayLogger(log_filename);
