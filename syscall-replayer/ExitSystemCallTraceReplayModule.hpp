@@ -30,6 +30,9 @@ private:
   Int32Field exit_status_;
   BoolField generated_;
 
+  int32_t exitStat;
+  bool generated;
+
   /**
    * Print exit sys call field values in a nice format
    */
@@ -46,9 +49,14 @@ public:
 				  int warn_level_flag);
   SystemCallTraceReplayModule *move() {
     auto movePtr = new ExitSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    movePtr->setMove(exitStat, generated);
     movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
                        executingPidVal, errorNoVal, returnVal, replayerIndex);
     return movePtr;
+  }
+  void setMove(int32_t exitStatus, bool isGenerated) {
+    exitStat = exitStatus;
+    generated = isGenerated;
   }
   void prepareRow();
 };

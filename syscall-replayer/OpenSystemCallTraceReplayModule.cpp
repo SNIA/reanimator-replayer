@@ -33,10 +33,10 @@ OpenSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void OpenSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("pathname(", given_pathname_.val(), "), flags(", \
-    open_value_.val(), "),",
-    "traced mode(", mode_value_.val(), "), ",
-    "replayed mode(", get_mode(mode_value_.val()), ")");
+  syscall_logger_->log_info("pathname(", pathname, "), flags(", \
+    flags, "),",
+    "traced mode(", modeVal, "), ",
+    "replayed mode(", get_mode(modeVal), ")");
 }
 
 void OpenSystemCallTraceReplayModule::processRow() {

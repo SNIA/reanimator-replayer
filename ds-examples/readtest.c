@@ -5,7 +5,7 @@
 
 #define TEST_BUF_SIZE	128
 #define MAX_READS 1000000 /* number of times to read the file */
-#define FILE_NAME	"my_test.random"
+#define FILE_NAME	"/files/my_test.random"
 
 int main(){
 

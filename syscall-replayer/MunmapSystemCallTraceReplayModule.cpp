@@ -29,9 +29,10 @@ MunmapSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void MunmapSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("start_address(", \
-    boost::format("0x%02x") % start_address_.val(), "), ", \
-    "length(", length_.val(), ")");
+  // TODO(XXX) Umit fix this
+  // syscall_logger_->log_info("start_address(",              \
+  //   boost::format("0x%02x") % start_address_.val(), "), ", \
+  //   "length(", length_.val(), ")");
 }
 
 void MunmapSystemCallTraceReplayModule::processRow() {

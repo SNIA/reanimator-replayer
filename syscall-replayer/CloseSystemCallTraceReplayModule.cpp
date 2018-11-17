@@ -29,8 +29,8 @@ CloseSystemCallTraceReplayModule(DataSeriesModule &source,
 
 void CloseSystemCallTraceReplayModule::print_specific_fields() {
   pid_t pid = executing_pid();
-  int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
-  syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
+  int replayed_fd = replayer_resources_manager_.get_fd(pid, descVal);
+  syscall_logger_->log_info("traced fd(", descVal, "), ",
     "replayed fd(", replayed_fd, ")");
 }
 

@@ -36,36 +36,38 @@ void ExecveSystemCallTraceReplayModule::print_sys_call_fields() {
 
 void ExecveSystemCallTraceReplayModule::print_specific_fields() {
   // Save the position of the first record.
-  const void *first_record_pos = series.getCurPos();
+  // const void *first_record_pos = series.getCurPos();
+
+  // TODO(XXX) fix Umit this
 
   /*
    * Iteratively fetch the new record to print the continuation
    * number, argument and environment variables.
    */
-  while (continuation_number_.val() >= 0 && series.morerecords()) {
-    int continuation_num = continuation_number_.val();
-    if (continuation_num == 0) {
-      syscall_logger_->log_info("continuation_number(", continuation_num, ")");
-    } else if (continuation_num > 0) {
-      syscall_logger_->log_info("continuation_number(", continuation_num, "),");
-      if (environment_.isNull())
-        syscall_logger_->log_info("argument(", argument_.val(), ")");
-      else if (argument_.isNull())
-        syscall_logger_->log_info("environment(", environment_.val(), ")");
-    }
-    ++series;
-  }
+  // while (continuation_num >= 0 && series.morerecords()) {
+  //   int continuation_num = continuation_number_.val();
+  //   if (continuation_num == 0) {
+  //     syscall_logger_->log_info("continuation_number(", continuation_num, ")");
+  //   } else if (continuation_num > 0) {
+  //     syscall_logger_->log_info("continuation_number(", continuation_num, "),");
+  //     if (environment_.isNull())
+  //       syscall_logger_->log_info("argument(", argument_.val(), ")");
+  //     else if (argument_.isNull())
+  //       syscall_logger_->log_info("environment(", environment_.val(), ")");
+  //   }
+  //   ++series;
+  // }
 
   /*
    * Print the common field values.
    * Continuation_number equal to '-1' denotes the record with common fields.
    */
-  if (continuation_number_.val() == -1) {
-    print_common_fields();
-  }
+  // if (continuation_number_.val() == -1) {
+  //   print_common_fields();
+  // }
 
   // Again, set the pointer to the first record.
-  series.setCurPos(first_record_pos);
+  // series.setCurPos(first_record_pos);
 }
 
 void ExecveSystemCallTraceReplayModule::processRow() {

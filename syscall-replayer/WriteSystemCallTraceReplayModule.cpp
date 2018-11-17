@@ -35,11 +35,11 @@ WriteSystemCallTraceReplayModule(DataSeriesModule &source,
 
 void WriteSystemCallTraceReplayModule::print_specific_fields() {
   pid_t pid = executing_pid();
-  int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
-  syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
+  int replayed_fd = replayer_resources_manager_.get_fd(pid, traced_fd);
+  syscall_logger_->log_info("traced fd(", traced_fd, "), ",
     "replayed fd(", replayed_fd, "), ",
-	   "data(", data_written_.val(), "), ", \
-	   "nbytes(", bytes_requested_.val(), ")");
+	   "data(", data_buffer, "), ", \
+	   "nbytes(", nbytes, ")");
 }
 
 void WriteSystemCallTraceReplayModule::processRow() {

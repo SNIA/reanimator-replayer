@@ -170,11 +170,11 @@ void SystemCallTraceReplayModule::print_common_fields() {
   syscall_logger_->log_info("time called(", boost::format(DEC_PRECISION) % time_called_val, "), ", \
 		   "time returned(", boost::format(DEC_PRECISION) % time_returned_val, "), ", \
 		   "time recorded(", boost::format(DEC_PRECISION) % time_recorded_val, "), ", \
-		   "executing pid(", executing_pid(), "), ", \
-		   "errno(", errno_number(), "), ", \
-		   "return value(", return_value(), "), ", \
+		   "executing pid(", executingPidVal, "), ", \
+		   "errno(", errorNoVal, "), ", \
+		   "return value(", returnVal, "), ", \
 		   "replayed return value(", replayed_ret_val_, "), ", \
-		   "unique id(", unique_id_.val(), ")");
+		   "unique id(", uniqueIdVal, ")");
 }
 
 void SystemCallTraceReplayModule::compare_retval_and_errno() {

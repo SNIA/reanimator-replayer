@@ -104,7 +104,7 @@ boost::program_options::variables_map get_options(int argc, char *argv[]) {
    */
   po::options_description config("Configuration");
   config.add_options()("verbose,v", "system calls replay in verbose mode")(
-      "verify",
+      "verify,f",
       "verifies that the data being written/read is "
       "exactly what was used originally")("warn,w", po::value<int>(),
                                           "system call replays in warn mode")(

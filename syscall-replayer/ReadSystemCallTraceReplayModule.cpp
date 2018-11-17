@@ -33,11 +33,11 @@ ReadSystemCallTraceReplayModule(DataSeriesModule &source,
 
 void ReadSystemCallTraceReplayModule::print_specific_fields() {
   pid_t pid = executing_pid();
-  int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
-  syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
+  int replayed_fd = replayer_resources_manager_.get_fd(pid, traced_fd);
+  syscall_logger_->log_info("traced fd(", traced_fd, "), ",
     "replayed fd(", replayed_fd, "), ",
-    "data read(", data_read_.val(), "), ", \
-    "bytes requested(", bytes_requested_.val(), ")");
+                            //    "data read(", dataReadBuf, "), ",
+    "bytes requested(", nbytes, ")");
 }
 
 void ReadSystemCallTraceReplayModule::processRow() {

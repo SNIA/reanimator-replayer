@@ -31,9 +31,9 @@ AccessSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void AccessSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("pathname(", given_pathname_.val(), "), " \
-    "traced mode(", mode_value_.val(), "), ",
-    "replayed mode(", get_mode(mode_value_.val()), ")");
+  syscall_logger_->log_info("pathname(", pathname, "), " \
+    "traced mode(", mode_value, "), ",
+    "replayed mode(", get_mode(mode_value), ")");
 }
 
 void AccessSystemCallTraceReplayModule::processRow() {

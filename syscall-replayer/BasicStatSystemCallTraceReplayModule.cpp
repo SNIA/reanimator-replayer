@@ -74,18 +74,18 @@ int BasicStatSystemCallTraceReplayModule::print_mode_value(u_int st_mode) {
 }
 
 void BasicStatSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("device id(", stat_result_dev_.val(), "), ", \
-  	"file inode number(", stat_result_ino_.val(), "), ", "file mode(", \
-  	boost::format("0x%02x") % print_mode_value(stat_result_mode_.val()), "), ", \
-  	"file nlinks(", stat_result_nlink_.val(), "), ", \
-  	"file UID(", stat_result_uid_.val(), "), ", \
-  	"file GID(", stat_result_gid_.val(), "), ", \
-  	"file size(", stat_result_size_.val(), "), ", \
-  	"file blksize(", stat_result_blksize_.val(), "), ", \
-  	"file blocks(", stat_result_blocks_.val(), ") ", \
-  	"file atime(", boost::format(DEC_PRECISION) % Tfrac_to_sec(stat_result_atime_.val()), ") ", \
-  	"file mtime(", boost::format(DEC_PRECISION) % Tfrac_to_sec(stat_result_mtime_.val()), ") ", \
-  	"file ctime(", boost::format(DEC_PRECISION) % Tfrac_to_sec(stat_result_ctime_.val()), ")");
+  syscall_logger_->log_info("device id(", statDev, "), ", \
+  	"file inode number(", statINo, "), ", "file mode(", \
+  	boost::format("0x%02x") % print_mode_value(statMode), "), ", \
+  	"file nlinks(", statNLink, "), ", \
+  	"file UID(", statUID, "), ", \
+  	"file GID(", statGID, "), ", \
+  	"file size(", statSize, "), ", \
+  	"file blksize(", statBlkSize, "), ", \
+  	"file blocks(", statBlocks, ") ", \
+  	"file atime(", boost::format(DEC_PRECISION) % Tfrac_to_sec(statATime), ") ", \
+  	"file mtime(", boost::format(DEC_PRECISION) % Tfrac_to_sec(statMTime), ") ", \
+  	"file ctime(", boost::format(DEC_PRECISION) % Tfrac_to_sec(statCTime), ")");
 }
 
 void BasicStatSystemCallTraceReplayModule::prepareRow() {
@@ -179,7 +179,7 @@ StatSystemCallTraceReplayModule::StatSystemCallTraceReplayModule(
 }
 
 void StatSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("pathname(", given_pathname_.val(), "),");
+  syscall_logger_->log_info("pathname(", pathname, "),");
   BasicStatSystemCallTraceReplayModule::print_specific_fields();
 }
 
@@ -238,8 +238,8 @@ FStatSystemCallTraceReplayModule::FStatSystemCallTraceReplayModule(
 
 void FStatSystemCallTraceReplayModule::print_specific_fields() {
   pid_t pid = executing_pid();
-  int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
-  syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
+  int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptorVal);
+  syscall_logger_->log_info("traced fd(", descriptorVal, "), ",
                             "replayed fd(", replayed_fd, "), ");
   BasicStatSystemCallTraceReplayModule::print_specific_fields();
 }

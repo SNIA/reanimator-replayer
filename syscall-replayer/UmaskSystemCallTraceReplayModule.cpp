@@ -28,7 +28,7 @@ UmaskSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void UmaskSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("mode(", mode_value_.val(), ")");
+  syscall_logger_->log_info("mode(", mode, ")");
 }
 
 void UmaskSystemCallTraceReplayModule::processRow() {
