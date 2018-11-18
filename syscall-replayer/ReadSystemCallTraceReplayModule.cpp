@@ -57,12 +57,13 @@ void ReadSystemCallTraceReplayModule::processRow() {
     // Verify read data and data in the trace file are same
     if (memcmp(dataReadBuf, buffer, replayed_ret_val_) != 0) {
       // Data aren't same
-      syscall_logger_->log_err("Verification of data in read failed.");
-      if (!default_mode()) {
-        syscall_logger_->log_warn("time called:", \
+      syscall_logger_->log_info("Verification of data in read failed. retval:",
+                                replayed_ret_val_);
+      if (verbose_mode()) {
+        syscall_logger_->log_info("time called:", \
           boost::format(DEC_PRECISION) % Tfrac_to_sec(time_called()), \
           " Captured read data is different from replayed read data");
-        syscall_logger_->log_warn("Captured read data: ", data_read_.val(), ", ", \
+        syscall_logger_->log_info("Captured read data: ", dataReadBuf, ", ", \
           "Replayed read data: ", std::string(buffer));
         if (abort_mode()) {
           abort();
@@ -73,6 +74,7 @@ void ReadSystemCallTraceReplayModule::processRow() {
         syscall_logger_->log_info("Verification of data in read success.");
       }
     }
+    delete dataReadBuf;
   }
 
   delete buffer;
