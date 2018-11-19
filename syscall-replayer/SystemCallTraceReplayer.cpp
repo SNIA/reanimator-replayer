@@ -799,13 +799,13 @@ auto getMinSyscall = []() -> int64_t {
 void readerThread(void) {
   while (!checkModulesFinished()) {
     PROFILE_START(3)
-    while (getMinSyscall() > 250) {
+    while (getMinSyscall() > 100) {
       SystemCallTraceReplayModule *execute_replayer = NULL;
       while (allocationQueue.try_pop(execute_replayer)) {
         delete execute_replayer;
       }
     }
-    batch_for_all_syscalls(replayers_heap, 650);
+    batch_for_all_syscalls(replayers_heap, 150);
     PROFILE_END(3, 4, fileReading)
   }
 }
