@@ -69,16 +69,16 @@ struct CompareByUniqueID {
 };
 
 tbb::atomic<uint64_t> *numberOfSyscalls;
+tbb::atomic<bool> *finishedModules;
 
 /*
    * Define a min heap that stores each module. The heap is ordered
    * by unique_id field.
    */
 tbb::concurrent_priority_queue<SystemCallTraceReplayModule *, CompareByUniqueID>
-    replayers_heap(1000000);
+    replayers_heap(10000);
 
 std::unordered_map<std::string, SystemCallTraceReplayModule *> syscallMapLast;
-std::unordered_map<std::string, bool> finishedModules;
 tbb::concurrent_queue<SystemCallTraceReplayModule *> allocationQueue;
 
 /**
@@ -636,7 +636,6 @@ void load_syscall_modules(
       module->prepareRow();
       replayers_heap.push(module->move());
       syscallMapLast[module->sys_call_name()] = module;
-      finishedModules[module->sys_call_name()] = false;
       module->setReplayerIndex(replayerIdx++);
     } else {
       // Delete the module since it has no system call to replay.
@@ -645,7 +644,9 @@ void load_syscall_modules(
     }
   }
   numberOfSyscalls = new tbb::atomic<uint64_t>[replayerIdx];
+  finishedModules = new tbb::atomic<bool>[replayerIdx];
   std::fill_n(numberOfSyscalls, replayerIdx, 1);
+  std::fill_n(finishedModules, replayerIdx, false);
 }
 
 int64_t fileReading_Batch_file = 0;
@@ -663,7 +664,7 @@ inline void batch_syscall_modules(
 
   SystemCallTraceReplayModule *current = NULL;
 
-  if (finishedModules[module->sys_call_name()]) {
+  if (finishedModules[module->getReplayerIndex()]) {
     return;
   }
 
@@ -672,6 +673,11 @@ inline void batch_syscall_modules(
   bool endOfRecord = false;
   auto copy = current->move();
   auto readMod = current;
+
+  if (!isFirstTime) {
+    numberOfSyscalls[copy->getReplayerIndex()]++;
+    replayers_heap.push(copy);
+  }
 
   while (--count) {
     if (readMod->cur_extent_has_more_record() ||
@@ -694,7 +700,7 @@ inline void batch_syscall_modules(
 
     } else {
       syscallMapLast[readMod->sys_call_name()] = readMod;
-      finishedModules[readMod->sys_call_name()] = true;
+      finishedModules[readMod->getReplayerIndex()] = true;
       endOfRecord = true;
       numberOfSyscalls[readMod->getReplayerIndex()] = LLONG_MAX;
       break;
@@ -705,11 +711,6 @@ inline void batch_syscall_modules(
     if (!endOfRecord) {
       syscallMapLast[readMod->sys_call_name()] = readMod;
     }
-  }
-
-  if (!isFirstTime) {
-    numberOfSyscalls[copy->getReplayerIndex()]++;
-    replayers_heap.push(copy);
   }
 }
 
@@ -781,10 +782,9 @@ int64_t executionSpinning = 0;
 
 auto checkModulesFinished = []() -> bool {
   bool isAllFinished = true;
-  std::for_each(finishedModules.begin(), finishedModules.end(),
-                [&](std::pair<std::string, bool> module) {
-                  isAllFinished &= module.second;
-                });
+  for (int i = 0; i < replayerIdx; ++i) {
+    isAllFinished &= finishedModules[i];
+  }
   return isAllFinished;
 };
 
@@ -799,13 +799,13 @@ auto getMinSyscall = []() -> int64_t {
 void readerThread(void) {
   while (!checkModulesFinished()) {
     PROFILE_START(3)
-    while (getMinSyscall() > 100) {
+    while (getMinSyscall() > 250) {
       SystemCallTraceReplayModule *execute_replayer = NULL;
       while (allocationQueue.try_pop(execute_replayer)) {
         delete execute_replayer;
       }
     }
-    batch_for_all_syscalls(replayers_heap, 150);
+    batch_for_all_syscalls(replayers_heap, 650);
     PROFILE_END(3, 4, fileReading)
   }
 }
@@ -869,7 +869,6 @@ int main(int argc, char *argv[]) {
   std::string pattern_data = "";
   std::string log_filename = "";
   std::vector<std::string> input_files;
-  std::ofstream syscallFile("syscalls.txt");
   std::unordered_map<std::string, int> syscallMap;
 #ifdef PROFILE_ENABLE
   int64_t warmup = 0;

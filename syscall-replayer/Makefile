@@ -22,7 +22,7 @@
 OPTFLAGS = -g -O4 -Wall
 
 CPPFLAGS = -I/usr/local/dataseries/include -I/usr/include/libxml2/ \
-	   -I$(HOME)/lib/strace2ds/include -std=c++11
+	   -I$(HOME)/lib/strace2ds/include -std=c++11 -fno-builtin-malloc -fno-builtin-calloc -fno-builtin-realloc -fno-builtin-free
 
 LDFLAGS =  -ltbb -ltcmalloc -lpthread -lboost_program_options -laio -lDataSeries \
 	   -lLintel -L/usr/local/dataseries/lib
