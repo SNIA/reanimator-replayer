@@ -869,7 +869,6 @@ int main(int argc, char *argv[]) {
   std::string pattern_data = "";
   std::string log_filename = "";
   std::vector<std::string> input_files;
-  std::unordered_map<std::string, int> syscallMap;
 #ifdef PROFILE_ENABLE
   int64_t warmup = 0;
 #endif
