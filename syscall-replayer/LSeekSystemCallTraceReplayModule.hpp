@@ -23,6 +23,7 @@
 #define LSEEK_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 
 #include <unistd.h>
+#include <sys/types.h>
 
 #include "SystemCallTraceReplayModule.hpp"
 
@@ -32,9 +33,10 @@ private:
   Int32Field descriptor_;
   Int64Field offset_;
   ByteField whence_;
+
   int replayed_fd;
-  long offset;
-  uint8_t whence;
+  off_t offset;
+  int whence;
   int descriptorVal;
 
   /**
@@ -59,10 +61,10 @@ public:
                        executingPidVal, errorNoVal, returnVal, replayerIndex);
     return movePtr;
   }
-  void setMove(int desc, long off, uint8_t whence, int fd) {
+  void setMove(int desc, off_t off, int seekType, int fd) {
     descriptorVal = desc;
     offset = off;
-    whence = whence;
+    whence = seekType;
     replayed_fd = fd;
   }
   void prepareRow();
