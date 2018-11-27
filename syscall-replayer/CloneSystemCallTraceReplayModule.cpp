@@ -18,6 +18,14 @@
  */
 
 #include "CloneSystemCallTraceReplayModule.hpp"
+#include "tbb/atomic.h"
+#include <thread>
+#include "tbb/concurrent_vector.h"
+
+extern tbb::concurrent_vector<std::thread> threads;
+extern void executionThread(int64_t threadID);
+extern tbb::atomic<uint64_t> nThreads;
+extern std::function<void(int64_t, SystemCallTraceReplayModule*)> setRunning;
 
 CloneSystemCallTraceReplayModule::
 CloneSystemCallTraceReplayModule(DataSeriesModule &source,
@@ -34,11 +42,11 @@ CloneSystemCallTraceReplayModule(DataSeriesModule &source,
 
 void CloneSystemCallTraceReplayModule::print_specific_fields() {
   syscall_logger_->log_info("flags(", \
-	   boost::format("0x%02x") % flag_value_.val(), "), ",  \
-	   "child stack address(", child_stack_address_.val(), "), ", \
-	   "parent thread id(", parent_thread_id_.val(), "), ", \
-	   "child thread id(", child_thread_id_.val(), "), ", \
-	   "new tls(", new_tls_.val(), ")");
+	   boost::format("0x%02x") % flagVal, "), ",  \
+	   "child stack address(", childStackAddrVal, "), ", \
+	   "parent thread id(", parentTIDVal, "), ", \
+	   "child thread id(", childTIDVal, "), ", \
+	   "new tls(", newTLSVal, ")");
 }
 
 void CloneSystemCallTraceReplayModule::processRow() {
@@ -52,7 +60,7 @@ void CloneSystemCallTraceReplayModule::processRow() {
    * NOTE: It is inappropriate to replay clone system call.
    * Hence we do not replay clone system call.
    */
-  int flags = flag_value_.val();
+  int flags = flagVal;
   bool shared_umask = false, shared_files = false;
   if (flags & CLONE_FS) {
     shared_umask = true;
@@ -64,6 +72,18 @@ void CloneSystemCallTraceReplayModule::processRow() {
   pid_t ppid = executing_pid();
   pid_t pid = return_value();
   // Clone resources tables
-  SystemCallTraceReplayModule::replayer_resources_manager_.clone_umask(ppid, pid, shared_umask);
-  SystemCallTraceReplayModule::replayer_resources_manager_.clone_fd_table(ppid, pid, shared_files);
+  SystemCallTraceReplayModule::replayer_resources_manager_.clone_umask(ppid, pid, true);
+  SystemCallTraceReplayModule::replayer_resources_manager_.clone_fd_table(ppid, pid, true);
+  nThreads++;
+  setRunning(pid, NULL);
+  threads.push_back(std::thread(executionThread, pid));
+}
+
+void CloneSystemCallTraceReplayModule::prepareRow() {
+  flagVal = flag_value_.val();
+  childStackAddrVal = child_stack_address_.val();
+  parentTIDVal = parent_thread_id_.val();
+  childTIDVal = child_thread_id_.val();
+  newTLSVal = new_tls_.val();
+  SystemCallTraceReplayModule::prepareRow();
 }

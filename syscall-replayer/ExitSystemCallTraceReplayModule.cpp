@@ -17,6 +17,7 @@
  */
 
 #include "ExitSystemCallTraceReplayModule.hpp"
+#include <climits>
 
 ExitSystemCallTraceReplayModule::
 ExitSystemCallTraceReplayModule(DataSeriesModule &source,
@@ -51,4 +52,5 @@ void ExitSystemCallTraceReplayModule::prepareRow() {
   exitStat = exit_status_.val();
   generated = generated_.val();
   SystemCallTraceReplayModule::prepareRow();
+  timeReturnedVal = ULLONG_MAX;
 }

@@ -29,8 +29,10 @@
 #include <utility>
 #include <vector>
 #include "tbb/atomic.h"
+#include "tbb/concurrent_hash_map.h"
 #include "tbb/concurrent_priority_queue.h"
 #include "tbb/concurrent_queue.h"
+#include "tbb/concurrent_vector.h"
 #include "tbb/task_group.h"
 
 // #define PROFILE_ENABLE
@@ -68,6 +70,12 @@ struct CompareByUniqueID {
   }
 };
 
+typedef tbb::concurrent_hash_map<int64_t, SystemCallTraceReplayModule *>
+    RunningSyscallTable;
+typedef tbb::concurrent_priority_queue<SystemCallTraceReplayModule *,
+                                       CompareByUniqueID>
+    ExecutionHeap;
+
 tbb::atomic<uint64_t> *numberOfSyscalls;
 tbb::atomic<bool> *finishedModules;
 
@@ -75,16 +83,13 @@ tbb::atomic<bool> *finishedModules;
    * Define a min heap that stores each module. The heap is ordered
    * by unique_id field.
    */
-typedef tbb::concurrent_priority_queue<SystemCallTraceReplayModule *,
-                                       CompareByUniqueID>
-    ExecutionHeap;
-
 std::unordered_map<int64_t, ExecutionHeap> executionHeaps;
 auto initExecutionHeap = [](int64_t tid) {
   if (executionHeaps.find(tid) == executionHeaps.end()) {
-    executionHeaps.emplace(std::make_pair(tid, ExecutionHeap(10000)));
+    executionHeaps.emplace(std::make_pair(tid, ExecutionHeap()));
   }
 };
+tbb::concurrent_vector<std::thread> threads;
 
 int64_t mainThreadID = 0;
 
@@ -98,6 +103,15 @@ int64_t fileReading_Batch_move = 0;
 bool isFirstBatch = true;
 
 int64_t replayerIdx = 0;
+tbb::atomic<uint64_t> nThreads = 1;
+
+RunningSyscallTable currentExecutions;
+std::function<void(int64_t, SystemCallTraceReplayModule *)> setRunning = [](
+    int64_t tid, SystemCallTraceReplayModule *syscall) {
+  RunningSyscallTable::accessor acc;
+  currentExecutions.insert(acc, tid);
+  acc->second = syscall;
+};
 
 #ifdef PROFILE_ENABLE
 int64_t duration = 0;
@@ -716,6 +730,7 @@ void prepare_replay() {
     SystemCallTraceReplayModule::replayer_resources_manager_.initialize(
         SystemCallTraceReplayModule::syscall_logger_, traced_app_pid,
         std_fd_map);
+    setRunning(traced_app_pid, syscall_module);
     // Replay umask operation.
     syscall_module->execute();
   }
@@ -801,6 +816,29 @@ auto getMinSyscall = []() -> int64_t {
   return min;
 };
 
+auto checkExecutionValidation = [](SystemCallTraceReplayModule *check) -> bool {
+  if (nThreads == 1) {
+    return true;
+  }
+
+  for (auto running : currentExecutions) {
+    if (running.second == NULL) {
+      return false;
+    }
+    if (check != running.second) {
+      if (!((check->time_called() >= running.second->time_called() &&
+             check->time_called() <= running.second->time_returned()) ||
+            (check->time_returned() >= running.second->time_called() &&
+             check->time_returned() <= running.second->time_returned()))) {
+        if (check->time_called() > running.second->time_returned()) {
+          return false;
+        }
+      }
+    }
+  }
+  return true;
+};
+
 void readerThread(void) {
   while (!checkModulesFinished()) {
     PROFILE_START(3)
@@ -817,6 +855,7 @@ void readerThread(void) {
 
 void executionThread(int64_t threadID) {
   SystemCallTraceReplayModule *execute_replayer = NULL;
+  SystemCallTraceReplayModule *prev_replayer = NULL;
   tbb::atomic<uint64_t> num_syscalls_processed = 0;
 
   PROFILE_START(10)
@@ -833,7 +872,12 @@ void executionThread(int64_t threadID) {
     }
     PROFILE_END(20, 21, executionSpinning)
 
+    setRunning(threadID, execute_replayer);
+    allocationQueue.push(prev_replayer);
+
     PROFILE_START(1)
+    while (!checkExecutionValidation(execute_replayer)) {
+    }
     execute_replayer->execute();
     PROFILE_END(1, 2, duration)
 
@@ -860,7 +904,7 @@ void executionThread(int64_t threadID) {
       PROFILE_PRINT("total syscall record try_pop to PQ time: ", gettingRecord)
     }
     PROFILE_END(12, 13, loop)
-    allocationQueue.push(execute_replayer);
+    prev_replayer = execute_replayer;
     PROFILE_SAMPLE(10)
   }
 }
