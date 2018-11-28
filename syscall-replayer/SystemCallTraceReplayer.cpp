@@ -86,7 +86,7 @@ tbb::atomic<bool> *finishedModules;
 std::unordered_map<int64_t, ExecutionHeap> executionHeaps;
 auto initExecutionHeap = [](int64_t tid) {
   if (executionHeaps.find(tid) == executionHeaps.end()) {
-    executionHeaps.emplace(std::make_pair(tid, ExecutionHeap()));
+    executionHeaps.emplace(std::make_pair(tid, ExecutionHeap(10000)));
   }
 };
 tbb::concurrent_vector<std::thread> threads;
