@@ -78,6 +78,7 @@ typedef tbb::concurrent_priority_queue<SystemCallTraceReplayModule *,
 
 tbb::atomic<uint64_t> *numberOfSyscalls;
 tbb::atomic<bool> *finishedModules;
+tbb::atomic<bool> isHeapUpdated = false;
 
 /*
    * Define a min heap that stores each module. The heap is ordered
@@ -754,8 +755,8 @@ inline void batch_syscall_modules(SystemCallTraceReplayModule *module = nullptr,
   auto readMod = current;
 
   if (!isFirstTime) {
-    numberOfSyscalls[copy->getReplayerIndex()]++;
     executionHeaps[copy->executing_pid()].push(copy);
+    numberOfSyscalls[copy->getReplayerIndex()]++;
   }
 
   while (--count) {
@@ -796,6 +797,7 @@ inline void batch_syscall_modules(SystemCallTraceReplayModule *module = nullptr,
 void batch_for_all_syscalls(int batch_size = 50) {
   for (auto module_pair : syscallMapLast) {
     batch_syscall_modules(module_pair.second, isFirstBatch, batch_size);
+    isHeapUpdated = true;
   }
   isFirstBatch = false;
 }
@@ -817,10 +819,6 @@ auto getMinSyscall = []() -> int64_t {
 };
 
 auto checkExecutionValidation = [](SystemCallTraceReplayModule *check) -> bool {
-  if (nThreads == 1) {
-    return true;
-  }
-
   for (auto running : currentExecutions) {
     if (running.second == NULL) {
       return false;
@@ -876,8 +874,19 @@ void executionThread(int64_t threadID) {
     allocationQueue.push(prev_replayer);
 
     PROFILE_START(1)
-    while (!checkExecutionValidation(execute_replayer)) {
+    if (nThreads > 1) {
+      while (!checkExecutionValidation(execute_replayer) && !isHeapUpdated) {
+      }
+      if (isHeapUpdated) {
+        setRunning(threadID, NULL);
+        executionHeaps[threadID].push(execute_replayer);
+        numberOfSyscalls[execute_replayer->getReplayerIndex()]++;
+        prev_replayer = NULL;
+        isHeapUpdated = false;
+        continue;
+      }
     }
+
     execute_replayer->execute();
     PROFILE_END(1, 2, duration)
 
