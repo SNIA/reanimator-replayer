@@ -78,7 +78,6 @@ typedef tbb::concurrent_priority_queue<SystemCallTraceReplayModule *,
 
 tbb::atomic<uint64_t> *numberOfSyscalls;
 tbb::atomic<bool> *finishedModules;
-tbb::atomic<bool> isHeapUpdated = false;
 
 /*
    * Define a min heap that stores each module. The heap is ordered
@@ -105,6 +104,7 @@ bool isFirstBatch = true;
 
 int64_t replayerIdx = 0;
 tbb::atomic<uint64_t> nThreads = 1;
+tbb::atomic<uint64_t> lastExecutedSyscallID = 1;
 
 RunningSyscallTable currentExecutions;
 std::function<void(int64_t, SystemCallTraceReplayModule *)> setRunning = [](
@@ -734,6 +734,7 @@ void prepare_replay() {
     setRunning(traced_app_pid, syscall_module);
     // Replay umask operation.
     syscall_module->execute();
+    lastExecutedSyscallID = syscall_module->unique_id();
   }
 }
 
@@ -797,7 +798,6 @@ inline void batch_syscall_modules(SystemCallTraceReplayModule *module = nullptr,
 void batch_for_all_syscalls(int batch_size = 50) {
   for (auto module_pair : syscallMapLast) {
     batch_syscall_modules(module_pair.second, isFirstBatch, batch_size);
-    isHeapUpdated = true;
   }
   isFirstBatch = false;
 }
@@ -810,7 +810,7 @@ auto checkModulesFinished = []() -> bool {
   return isAllFinished;
 };
 
-auto getMinSyscall = []() -> int64_t {
+auto getMinSyscall = []() -> uint64_t {
   tbb::atomic<uint64_t> min = ULONG_MAX;
   for (int i = 0; i < replayerIdx; ++i) {
     min = std::min(min, numberOfSyscalls[i]);
@@ -818,17 +818,29 @@ auto getMinSyscall = []() -> int64_t {
   return min;
 };
 
+auto checkSequential = [](SystemCallTraceReplayModule *check) -> bool {
+  if ((uint64_t)check->unique_id() > lastExecutedSyscallID + 150) {
+    return false;
+  } else {
+    return true;
+  }
+};
+
 auto checkExecutionValidation = [](SystemCallTraceReplayModule *check) -> bool {
+  if (!checkSequential(check)) {
+    return false;
+  }
   for (auto running : currentExecutions) {
-    if (running.second == NULL) {
+    auto compare = running.second;
+    if (compare == NULL) {
       return false;
     }
-    if (check != running.second) {
-      if (!((check->time_called() >= running.second->time_called() &&
-             check->time_called() <= running.second->time_returned()) ||
-            (check->time_returned() >= running.second->time_called() &&
-             check->time_returned() <= running.second->time_returned()))) {
-        if (check->time_called() > running.second->time_returned()) {
+    if (check != compare) {
+      if (!((check->time_called() >= compare->time_called() &&
+             check->time_called() <= compare->time_returned()) ||
+            (check->time_returned() >= compare->time_called() &&
+             check->time_returned() <= compare->time_returned()))) {
+        if (check->time_called() > compare->time_returned()) {
           return false;
         }
       }
@@ -840,13 +852,13 @@ auto checkExecutionValidation = [](SystemCallTraceReplayModule *check) -> bool {
 void readerThread(void) {
   while (!checkModulesFinished()) {
     PROFILE_START(3)
-    while (getMinSyscall() > 100) {
+    while (getMinSyscall() > (100 * nThreads)) {
       SystemCallTraceReplayModule *execute_replayer = NULL;
       while (allocationQueue.try_pop(execute_replayer)) {
         delete execute_replayer;
       }
     }
-    batch_for_all_syscalls(150);
+    batch_for_all_syscalls(150 * nThreads);
     PROFILE_END(3, 4, fileReading)
   }
 }
@@ -866,7 +878,7 @@ void executionThread(int64_t threadID) {
     PROFILE_START(12)
 
     PROFILE_START(20)
-    while (getMinSyscall() < 10 && !checkModulesFinished()) {
+    while (getMinSyscall() < (10 * nThreads) && !checkModulesFinished()) {
     }
     PROFILE_END(20, 21, executionSpinning)
 
@@ -875,19 +887,17 @@ void executionThread(int64_t threadID) {
 
     PROFILE_START(1)
     if (nThreads > 1) {
-      while (!checkExecutionValidation(execute_replayer) && !isHeapUpdated) {
-      }
-      if (isHeapUpdated) {
+      if (!checkExecutionValidation(execute_replayer)) {
         setRunning(threadID, NULL);
         executionHeaps[threadID].push(execute_replayer);
         numberOfSyscalls[execute_replayer->getReplayerIndex()]++;
         prev_replayer = NULL;
-        isHeapUpdated = false;
         continue;
       }
     }
 
     execute_replayer->execute();
+    lastExecutedSyscallID = execute_replayer->unique_id();
     PROFILE_END(1, 2, duration)
 
     num_syscalls_processed++;
@@ -916,6 +926,7 @@ void executionThread(int64_t threadID) {
     prev_replayer = execute_replayer;
     PROFILE_SAMPLE(10)
   }
+  currentExecutions.erase(threadID);
 }
 
 int main(int argc, char *argv[]) {
@@ -976,6 +987,10 @@ int main(int argc, char *argv[]) {
   std::thread executor(executionThread, mainThreadID);
   reader.join();
   executor.join();
+
+  for (auto it = threads.begin(); it != threads.end(); ++it) {
+    (*it).join();
+  }
 
   // Close /dev/urandom file
   if (pattern_data == "urandom") {
