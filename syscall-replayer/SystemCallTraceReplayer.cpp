@@ -897,7 +897,8 @@ void executionThread(int64_t threadID) {
     }
 
     execute_replayer->execute();
-    lastExecutedSyscallID = execute_replayer->unique_id();
+    lastExecutedSyscallID =
+        std::max((int64_t)lastExecutedSyscallID, execute_replayer->unique_id());
     PROFILE_END(1, 2, duration)
 
     num_syscalls_processed++;

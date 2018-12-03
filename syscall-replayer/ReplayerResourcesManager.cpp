@@ -29,8 +29,10 @@ void ReplayerResourcesManager::initialize(SystemCallTraceReplayLogger *logger,
                                           std::map<int, int> &fd_map) {
   logger_ = logger;
   // Create a new UmaskEntry for trace application
+  fd_table_map_lock.lock();
   umask_table_[pid] = new UmaskEntry(0);
   fd_table_map_[pid] = new FileDescriptorTableEntry();
+  fd_table_map_lock.unlock();
   for (std::map<int, int>::iterator iter = fd_map.begin(); iter != fd_map.end();
        ++iter) {
     int traced_fd = iter->first;
@@ -38,7 +40,6 @@ void ReplayerResourcesManager::initialize(SystemCallTraceReplayLogger *logger,
     // Flags is 0
     add_fd(pid, traced_fd, replayed_fd, 0);
   }
-
   /*
    * We have to scan for the open fds once, at startup time.
    * This is necessary because we need it to genereate correct
@@ -61,8 +62,11 @@ void ReplayerResourcesManager::initialize(SystemCallTraceReplayLogger *logger,
     // getrlimit succeeds, sow we will scan all fds.
     max_fds = rlim.rlim_cur;
   }
+  fd_table_map_lock.lock();
+  auto fd_table_pid = fd_table_map_[pid];
+  fd_table_map_lock.unlock();
   std::unordered_set<int> known_fds =
-      fd_table_map_[pid]->get_all_replayed_fds();
+      fd_table_pid->get_all_replayed_fds();
   logger_->log_info("Start initial fd scan. Cache all fds that are not known "
                     "to the resource manager.");
   for (int fd = 0; fd <= max_fds; fd++) {
@@ -154,8 +158,10 @@ void ReplayerResourcesManager::clone_fd_table(pid_t ppid, pid_t pid,
   assert(fd_table_map_.find(ppid) != fd_table_map_.end());
   FileDescriptorTableEntry *p_fd_table_ptr = fd_table_map_[ppid];
   if (shared) {
+    fd_table_map_lock.lock();
     fd_table_map_[pid] = p_fd_table_ptr;
     p_fd_table_ptr->increment_rc();
+    fd_table_map_lock.unlock();
   } else {
     //  We need to create new FD mapping for every FD in the old table.
     std::map<int, FileDescriptorEntry *> &p_fd_table =
@@ -189,12 +195,15 @@ void ReplayerResourcesManager::clone_fd_table(pid_t ppid, pid_t pid,
 
       clone_fd_table_ptr->add_fd_entry(traced_fd, new_fd, flags);
     }
+    fd_table_map_lock.lock();
     fd_table_map_[pid] = clone_fd_table_ptr;
+    fd_table_map_lock.unlock();
   }
 }
 
 std::unordered_set<int> ReplayerResourcesManager::remove_fd_table(pid_t pid) {
   assert(fd_table_map_.find(pid) != fd_table_map_.end());
+  fd_table_map_lock.lock();
   FileDescriptorTableEntry *fd_table_ptr = fd_table_map_[pid];
   // Decrement the reference count for this process's fd table.
   unsigned int rc = fd_table_ptr->decrement_rc();
@@ -208,6 +217,7 @@ std::unordered_set<int> ReplayerResourcesManager::remove_fd_table(pid_t pid) {
   }
   // Remove the entry for pid.
   fd_table_map_.erase(pid);
+  fd_table_map_lock.unlock();
   return fds;
 }
 
@@ -238,6 +248,7 @@ void ReplayerResourcesManager::set_umask(pid_t pid, mode_t mode) {
 
 void ReplayerResourcesManager::clone_umask(pid_t ppid, pid_t pid, bool shared) {
   assert(umask_table_.find(ppid) != umask_table_.end());
+  fd_table_map_lock.lock();
   // Check if two processes share same umask
   if (shared) {
     // Make pid points to same umask
@@ -249,10 +260,12 @@ void ReplayerResourcesManager::clone_umask(pid_t ppid, pid_t pid, bool shared) {
     UmaskEntry *p_umask = umask_table_[ppid];
     umask_table_[pid] = new UmaskEntry(p_umask->get_umask());
   }
+  fd_table_map_lock.unlock();
 }
 
 void ReplayerResourcesManager::remove_umask(pid_t pid) {
   assert(umask_table_.find(pid) != umask_table_.end());
+  fd_table_map_lock.lock();
   // Decrement the reference count for this process's umask.
   unsigned int rc = umask_table_[pid]->decrement_rc();
   // If reference count reaches 0, we will remove the entry from the table.
@@ -262,6 +275,7 @@ void ReplayerResourcesManager::remove_umask(pid_t pid) {
   }
   // Remove the entry from umask table.
   umask_table_.erase(pid);
+  fd_table_map_lock.unlock();
 }
 
 void ReplayerResourcesManager::validate_consistency() {

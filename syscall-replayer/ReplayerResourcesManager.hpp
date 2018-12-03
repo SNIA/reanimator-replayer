@@ -32,6 +32,7 @@
 #include <iterator>
 #include <assert.h>
 #include <iostream>
+#include <mutex>
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <sys/types.h>
@@ -224,6 +225,7 @@ class ReplayerResourcesManager {
    */
 
 private:
+  std::mutex fd_table_map_lock;
   PerPidFileDescriptorTableMap fd_table_map_;
   UmaskTable umask_table_;
   SystemCallTraceReplayLogger *logger_;
