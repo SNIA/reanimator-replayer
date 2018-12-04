@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <getopt.h>
 
 #define TEST_BUF_SIZE 4096
 // #define MAX_READS 2 * 1024 * 1024
