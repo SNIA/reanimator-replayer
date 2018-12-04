@@ -9,7 +9,7 @@
 
 #define TEST_BUF_SIZE 4096
 // #define MAX_READS 2 * 1024 * 1024
-#define MAX_READS 1024 * 1024
+#define MAX_READS 64 * 1024
 #define FILE_NAME "myfile"
 
 uint64_t getRandom(uint64_t lower, uint64_t upper) {
