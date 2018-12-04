@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
   } else {
     pthread_t *array = malloc(sizeof(pthread_t) * nthreads);
     for (uint64_t i = 0; i < nthreads; i++) {
-      pthread_create(&array[i], NULL, threadFunc, (void *)(i+1));
+      pthread_create(&array[i], NULL, threadFunc, (void *)(i + 1));
     }
     for (uint64_t i = 0; i < nthreads; i++) {
       pthread_join(array[i], NULL);
