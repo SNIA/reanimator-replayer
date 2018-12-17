@@ -34,6 +34,8 @@ protected:
   // Mkdir System Call Trace Fields in Dataseries file
   Variable32Field given_pathname_;
   Int32Field mode_value_;
+  mode_t modeVal;
+  char *pathname;
 
   /**
    * Print mkdir sys call field values in a nice format
@@ -51,6 +53,18 @@ public:
 				   bool verbose_flag,
 				   int warn_level_flag);
 
+  SystemCallTraceReplayModule *move() {
+    auto movePtr = new MkdirSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    movePtr->setMove(pathname, modeVal);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
+                       executingPidVal, errorNoVal, returnVal, replayerIndex);
+    return movePtr;
+  }
+  void setMove(char* path, int mode) {
+    pathname = path;
+    modeVal = mode;
+  }
+  void prepareRow();
 };
 
 class MkdiratSystemCallTraceReplayModule :

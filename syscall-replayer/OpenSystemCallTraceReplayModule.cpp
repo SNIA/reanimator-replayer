@@ -56,7 +56,7 @@ void OpenSystemCallTraceReplayModule::processRow() {
      */
     replayer_resources_manager_.add_fd(executingPidVal, traced_fd, replayed_ret_val_, flags);
   }
-  delete pathname;
+  delete[] pathname;
 }
 
 void OpenSystemCallTraceReplayModule::prepareRow() {

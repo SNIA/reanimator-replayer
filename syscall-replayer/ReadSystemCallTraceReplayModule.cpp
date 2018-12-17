@@ -74,10 +74,10 @@ void ReadSystemCallTraceReplayModule::processRow() {
         syscall_logger_->log_info("Verification of data in read success.");
       }
     }
-    delete dataReadBuf;
+    delete[] dataReadBuf;
   }
 
-  delete buffer;
+  delete[] buffer;
 }
 
 void ReadSystemCallTraceReplayModule::prepareRow() {

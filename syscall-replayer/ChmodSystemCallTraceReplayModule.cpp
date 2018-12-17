@@ -30,15 +30,21 @@ ChmodSystemCallTraceReplayModule::ChmodSystemCallTraceReplayModule(
 }
 
 void ChmodSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("pathname(", given_pathname_.val(), "), ", \
-    "traced mode(", mode_value_.val(), "), ",
-    "replayed mode(", get_mode(mode_value_.val()), ")");
+  syscall_logger_->log_info("pathname(", pathname, "), ", \
+    "traced mode(", modeVal, "), ",
+    "replayed mode(", get_mode(modeVal), ")");
 }
 
 void ChmodSystemCallTraceReplayModule::processRow() {
-  const char *pathname = (char *)given_pathname_.val();
-  mode_t mode = get_mode(mode_value_.val());
-
   // Replay the chmod system call
-  replayed_ret_val_ = chmod(pathname, mode);
+  replayed_ret_val_ = chmod(pathname, get_mode(modeVal));
+  delete[] pathname;
+}
+
+void ChmodSystemCallTraceReplayModule::prepareRow() {
+  auto pathBuf = reinterpret_cast<const char *>(given_pathname_.val());
+  pathname = new char[std::strlen(pathBuf)+1];
+  std::strcpy(pathname, pathBuf);
+  modeVal = mode_value_.val();
+  SystemCallTraceReplayModule::prepareRow();
 }

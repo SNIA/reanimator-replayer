@@ -38,6 +38,11 @@ protected:
   Variable32Field dirent_buffer_;
   Int32Field count_;
 
+  int traced_fd;
+  struct dirent *dirent_buffer_val;
+  int count_val;
+  int return_val;
+
   /**
    * Print getdents sys call field values in a nice format
    */
@@ -54,5 +59,19 @@ public:
 				      bool verbose_flag,
 				      bool verify_flag,
 				      int warn_level_flag);
+  SystemCallTraceReplayModule *move() {
+    auto movePtr = new GetdentsSystemCallTraceReplayModule(source, verbose_, verify_,
+                                                           warn_level_);
+    movePtr->setMove(traced_fd, dirent_buffer_val, count_val);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
+                       executingPidVal, errorNoVal, returnVal, replayerIndex);
+    return movePtr;
+  }
+  void setMove(int fd, struct dirent* direntBuffer, int count) {
+    traced_fd = fd;
+    dirent_buffer_val = direntBuffer;
+    count_val = count;
+  }
+  void prepareRow();
 };
 #endif /* READ_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

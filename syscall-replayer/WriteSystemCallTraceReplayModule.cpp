@@ -56,7 +56,6 @@ void WriteSystemCallTraceReplayModule::processRow() {
 
   // Check to see if user wants to use pattern
   if (!pattern_data_.empty()) {
-    data_buffer = new char[nbytes];
     if (pattern_data_ == "random") {
       // Fill write buffer using rand()
       data_buffer = random_fill_buffer(data_buffer, nbytes);

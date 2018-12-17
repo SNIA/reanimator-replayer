@@ -41,6 +41,16 @@ private:
   Int32Field lock_length_;
   Int32Field lock_pid_;
 
+  int traced_fd;
+  int command_val;
+  int arg_val;
+  int lock_type_val;
+  int lock_whence_val;
+  int lock_start_val;
+  int lock_length_val;
+  int lock_pid_val;
+  int simulated_ret_val;
+
   /**
    * Print fcntl sys call field values in a nice format
    */
@@ -56,7 +66,27 @@ public:
   FcntlSystemCallTraceReplayModule(DataSeriesModule &source,
 				   bool verbose_flag,
 				   int warn_level_flag);
-
+  SystemCallTraceReplayModule *move() {
+    auto movePtr = new FcntlSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    movePtr->setMove(traced_fd, command_val, arg_val, lock_type_val, lock_whence_val, lock_start_val,
+                     lock_length_val, lock_pid_val, simulated_ret_val);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
+                       executingPidVal, errorNoVal, returnVal, replayerIndex);
+    return movePtr;
+  }
+  void setMove(int fd, int commandVal, int argVal, int lockTypeVal, int lockWhenceVal,
+               int lockStartVal, int lockLengthVal, int lockPidVal, int simulatedRetVal) {
+    traced_fd = fd;
+    command_val = commandVal;
+    arg_val = argVal;
+    lock_type_val = lockTypeVal;
+    lock_whence_val = lockWhenceVal;
+    lock_start_val = lockStartVal;
+    lock_length_val = lockLengthVal;
+    lock_pid_val = lockPidVal;
+    simulated_ret_val = simulatedRetVal;
+  }
+  void prepareRow();
 };
 
 #endif /* FCNTL_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

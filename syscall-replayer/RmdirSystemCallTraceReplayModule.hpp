@@ -30,6 +30,7 @@ class RmdirSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 private:
   // DataSeries Rmdir System Call Trace Fields
   Variable32Field given_pathname_;
+  char *pathname;
 
   /**
    * Print rmdir sys call field values in a nice format
@@ -46,6 +47,18 @@ public:
   RmdirSystemCallTraceReplayModule(DataSeriesModule &source,
 				   bool verbose_flag,
 				   int warn_level_flag);
+  SystemCallTraceReplayModule *move() {
+    auto movePtr = new RmdirSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    movePtr->setMove(pathname);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
+                       executingPidVal, errorNoVal, returnVal, replayerIndex);
+    return movePtr;
+  }
+  void setMove(char* path) {
+    pathname = path;
+  }
+
+  void prepareRow();
 };
 
 #endif /* RMDIR_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

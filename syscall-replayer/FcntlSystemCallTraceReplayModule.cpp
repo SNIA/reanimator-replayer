@@ -37,31 +37,31 @@ FcntlSystemCallTraceReplayModule(DataSeriesModule &source,
 
 void FcntlSystemCallTraceReplayModule::print_specific_fields() {
   pid_t pid = executing_pid();
-  int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
-  if ((command_value_.val() == F_SETLK) ||
-      (command_value_.val() == F_SETLKW) ||
-      (command_value_.val() == F_GETLK)) {
-    syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
+  int replayed_fd = replayer_resources_manager_.get_fd(pid, traced_fd);
+  if ((command_val == F_SETLK) ||
+      (command_val == F_SETLKW) ||
+      (command_val == F_GETLK)) {
+    syscall_logger_->log_info("traced fd(", traced_fd, "), ",
       "replayed fd(", replayed_fd, "), ",
-      "command value(", command_value_.val(), "), ", \
-      "lock type(", lock_type_.val(), "), ", \
-      "lock whence(", lock_whence_.val(), "), ", \
-      "lock start(", lock_start_.val(), "), ", \
-      "lock length(", lock_length_.val(), "), ", \
-      "lock pid(", lock_pid_.val(), ")");
+      "command value(", command_val, "), ", \
+      "lock type(", lock_type_val, "), ", \
+      "lock whence(", lock_whence_val, "), ", \
+      "lock start(", lock_start_val, "), ", \
+      "lock length(", lock_length_val, "), ", \
+      "lock pid(", lock_pid_val, ")");
   } else {
-    syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
+    syscall_logger_->log_info("traced fd(", traced_fd, "), ",
       "replayed fd(", replayed_fd, "), ",
-      "command value(", command_value_.val(), "), " \
-      "argument value(", argument_value_.val(), ")");
+      "command value(", command_val, "), " \
+      "argument value(", arg_val, ")");
   }
 }
 
 void FcntlSystemCallTraceReplayModule::processRow() {
   pid_t pid = executing_pid();
-  int fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
-  int command = command_value_.val();
-  int argument = argument_value_.val();
+  int fd = replayer_resources_manager_.get_fd(pid, traced_fd);
+  int command = command_val;
+  int argument = arg_val;
   struct flock lock;
 
   if (fd == SYSCALL_SIMULATED) {
@@ -70,7 +70,7 @@ void FcntlSystemCallTraceReplayModule::processRow() {
     * The system call will not be replayed.
     * Original return value will be returned.
     */
-    replayed_ret_val_ = return_value_.val();
+    replayed_ret_val_ = simulated_ret_val;
   }
   /*
    * Replay the fcntl system call If fcntl was passed a command that requires a struct flock,
@@ -79,11 +79,11 @@ void FcntlSystemCallTraceReplayModule::processRow() {
   if ((command == F_SETLK) ||
       (command == F_SETLKW) ||
       (command == F_GETLK)) {
-    lock.l_type = lock_type_.val();
-    lock.l_whence = lock_whence_.val();
-    lock.l_start = lock_start_.val();
-    lock.l_len = lock_length_.val();
-    lock.l_pid = lock_pid_.val();
+    lock.l_type = lock_type_val;
+    lock.l_whence = lock_whence_val;
+    lock.l_start = lock_start_val;
+    lock.l_len = lock_length_val;
+    lock.l_pid = lock_pid_val;
 
     /*
      * If every value in the flock structure is set as 0, replay the system
@@ -114,7 +114,7 @@ void FcntlSystemCallTraceReplayModule::processRow() {
   if (command == F_DUPFD || command == F_DUPFD_CLOEXEC) {
     // Get actual file descriptor
     pid_t pid = executing_pid();
-    int fd_flags = replayer_resources_manager_.get_flags(pid, descriptor_.val());
+    int fd_flags = replayer_resources_manager_.get_flags(pid, traced_fd);
     /*
      * The two file descriptors do not share file descriptor flags (the close-on-exec flag),
      * unless F_DUPFD_CLOEXEC is set
@@ -128,7 +128,20 @@ void FcntlSystemCallTraceReplayModule::processRow() {
     if (argument == FD_CLOEXEC) {
       // Get actual file descriptor
       pid_t pid = executing_pid();
-      replayer_resources_manager_.add_flags(pid, descriptor_.val(), O_CLOEXEC);
+      replayer_resources_manager_.add_flags(pid, traced_fd, O_CLOEXEC);
     }
   }
+}
+
+void FcntlSystemCallTraceReplayModule::prepareRow() {
+  traced_fd = descriptor_.val();
+  command_val = command_value_.val();
+  arg_val = argument_value_.val();
+  simulated_ret_val = return_value_.val();
+  lock_type_val = lock_type_.val();
+  lock_whence_val = lock_whence_.val();
+  lock_start_val = lock_start_.val();
+  lock_length_val = lock_length_.val();
+  lock_pid_val = lock_pid_.val();
+  SystemCallTraceReplayModule::prepareRow();
 }

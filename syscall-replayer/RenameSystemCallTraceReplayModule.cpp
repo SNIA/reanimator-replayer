@@ -30,14 +30,23 @@ RenameSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void RenameSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("old name(", given_oldname_.val(), "), ", \
-    "new name(", given_newname_.val(), ")");
+  syscall_logger_->log_info("old name(", old_pathname, "), ", \
+    "new name(", new_pathname, ")");
 }
 
 void RenameSystemCallTraceReplayModule::processRow() {
-  const char *old_name = (const char *)given_oldname_.val();
-  const char *new_name = (const char *)given_newname_.val();
-
   // Replay the rename system call
-  replayed_ret_val_ = rename(old_name, new_name);
+  replayed_ret_val_ = rename(old_pathname, new_pathname);
+  delete[] old_pathname;
+  delete[] new_pathname;
+}
+
+void RenameSystemCallTraceReplayModule::prepareRow() {
+  auto old_pathbuf = reinterpret_cast<const char *>(given_oldname_.val());
+  old_pathname = new char[std::strlen(old_pathbuf)+1];
+  std::strcpy(old_pathname, old_pathbuf);
+  auto new_pathbuf = reinterpret_cast<const char *>(given_newname_.val());
+  new_pathname = new char[std::strlen(new_pathbuf)+1];
+  std::strcpy(new_pathname, new_pathbuf);
+  SystemCallTraceReplayModule::prepareRow();
 }

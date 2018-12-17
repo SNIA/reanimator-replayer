@@ -36,7 +36,7 @@ protected:
   Int32Field open_value_;
   Int32Field mode_value_;
   int flags;
-  int modeVal;
+  mode_t modeVal;
   int traced_fd;
   char *pathname;
 
@@ -62,7 +62,7 @@ public:
                        executingPidVal, errorNoVal, returnVal, replayerIndex);
     return movePtr;
   }
-  void setMove(char* path, int mode, int flag, int fd) {
+  void setMove(char* path, mode_t mode, int flag, int fd) {
     pathname = path;
     modeVal = mode;
     traced_fd = fd;

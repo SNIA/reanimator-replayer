@@ -34,17 +34,17 @@ GetdentsSystemCallTraceReplayModule(DataSeriesModule &source,
 
 void GetdentsSystemCallTraceReplayModule::print_specific_fields() {
   pid_t pid = executing_pid();
-  int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
-  syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
+  int replayed_fd = replayer_resources_manager_.get_fd(pid, traced_fd);
+  syscall_logger_->log_info("traced fd(", traced_fd, "), ",
     "replayed fd(", replayed_fd, "), "
-    "count(", count_.val(), ")");
+    "count(", count_val, ")");
 }
 
 void GetdentsSystemCallTraceReplayModule::processRow() {
   // Get replaying file descriptor.
   pid_t pid = executing_pid();
-  int fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
-  int count = count_.val();
+  int fd = replayer_resources_manager_.get_fd(pid, traced_fd);
+  int count = count_val;
 
   if (fd == SYSCALL_SIMULATED) {
     /*
@@ -52,21 +52,22 @@ void GetdentsSystemCallTraceReplayModule::processRow() {
      * The system call will not be replayed.
      * Traced return value will be returned.
      */
-    replayed_ret_val_ = return_value_.val();
+    replayed_ret_val_ = return_val;
     return;
   }
-  struct dirent *buffer = (struct dirent *) malloc(count);
+  struct dirent *buffer = (struct dirent *) new char[count];
   if (buffer == NULL) {
     replayed_ret_val_ = ENOMEM;
   } else {
+    // TODO (Umit) change this to getdents
     replayed_ret_val_ = syscall(SYS_getdents, fd, buffer, count);
   }
 
   if (verify_ == true) {
     // Verify dirent buffer data and data in the trace file are same
-    if (replayed_ret_val_ != return_value_.val() ||
+    if (replayed_ret_val_ != return_val ||
         (replayed_ret_val_ > 0 &&
-	 memcmp(dirent_buffer_.val(), buffer, replayed_ret_val_) != 0)) {
+	 memcmp(dirent_buffer_val, buffer, replayed_ret_val_) != 0)) {
       // Data aren't same
       syscall_logger_->log_err("Verification of data in getdents failed.");
       if (!default_mode()) {
@@ -83,7 +84,21 @@ void GetdentsSystemCallTraceReplayModule::processRow() {
         syscall_logger_->log_info("Verification of data in getdents success.");
       }
     }
+    delete[] dirent_buffer_val;
   }
   if (buffer != NULL)
-    free(buffer);
+    delete[] buffer;
+}
+
+void GetdentsSystemCallTraceReplayModule::prepareRow() {
+  traced_fd = descriptor_.val();
+  count_val = count_.val();
+  return_val = return_value_.val();
+
+  if (verify_ == true) {
+    auto dataBuf = reinterpret_cast<const char *>(dirent_buffer_.val());
+    dirent_buffer_val = (struct dirent*) new char[count_val];
+    std::memcpy(dirent_buffer_val, dataBuf, count_val);
+  }
+  SystemCallTraceReplayModule::prepareRow();
 }

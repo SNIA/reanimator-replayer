@@ -28,13 +28,18 @@ RmdirSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void RmdirSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("given_pathname(", given_pathname_.val(), ")");
+  syscall_logger_->log_info("given_pathname(", pathname, ")");
 }
 
 void RmdirSystemCallTraceReplayModule::processRow() {
-  // Get actual file descriptor
-  const char *pathname = (char *)given_pathname_.val();
-
   // Replay rmdir sys call.
   replayed_ret_val_ = rmdir(pathname);
+  delete[] pathname;
+}
+
+void RmdirSystemCallTraceReplayModule::prepareRow() {
+  auto pathBuf = reinterpret_cast<const char *>(given_pathname_.val());
+  pathname = new char[std::strlen(pathBuf)+1];
+  std::strcpy(pathname, pathBuf);
+  SystemCallTraceReplayModule::prepareRow();
 }

@@ -29,7 +29,8 @@ class FsyncSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 private:
   // DataSeries Fsync System Call Trace Fields
   Int32Field descriptor_;
-
+  int traced_fd;
+  int simulated_ret_val;
   /**
    * Print fsync sys call field values in a nice format
    */
@@ -45,6 +46,18 @@ public:
   FsyncSystemCallTraceReplayModule(DataSeriesModule &source,
 				   bool verbose_flag,
 				   int warn_level_flag);
+  SystemCallTraceReplayModule *move() {
+    auto movePtr = new FsyncSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    movePtr->setMove(traced_fd, simulated_ret_val);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
+                       executingPidVal, errorNoVal, returnVal, replayerIndex);
+    return movePtr;
+  }
+  void setMove(int fd, int simulatedRetVal) {
+    traced_fd = fd;
+    simulated_ret_val = simulatedRetVal;
+  }
+  void prepareRow();
 };
 
 #endif /* FSYNC_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

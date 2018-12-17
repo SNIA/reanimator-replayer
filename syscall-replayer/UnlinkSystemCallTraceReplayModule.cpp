@@ -29,13 +29,20 @@ UnlinkSystemCallTraceReplayModule(DataSeriesModule &source,
 }
 
 void UnlinkSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("pathname(", given_pathname_.val(), ")");
+  syscall_logger_->log_info("pathname(", pathname, ")");
 }
 
 void UnlinkSystemCallTraceReplayModule::processRow() {
-  char *path = (char *) given_pathname_.val();
   // Replay the unlink system call
-  replayed_ret_val_ = unlink(path);
+  replayed_ret_val_ = unlink(pathname);
+  delete[] pathname;
+}
+
+void UnlinkSystemCallTraceReplayModule::prepareRow() {
+  auto pathBuf = reinterpret_cast<const char *>(given_pathname_.val());
+  pathname = new char[std::strlen(pathBuf)+1];
+  std::strcpy(pathname, pathBuf);
+  SystemCallTraceReplayModule::prepareRow();
 }
 
 UnlinkatSystemCallTraceReplayModule::
