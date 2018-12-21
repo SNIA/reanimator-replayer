@@ -86,30 +86,15 @@ protected:
    * the trace.
    */
   void verifyResult(struct stat replayed_stat_buf);
-
+  void copyStatStruct(uint32_t dev, uint32_t ino, uint32_t mode, uint32_t nlink, uint32_t uid,
+                      uint32_t gid, uint32_t rdev, uint32_t blksize, uint32_t blocks, int64_t size,
+                      uint64_t atime, uint64_t mtime, uint64_t ctime);
 public:
   BasicStatSystemCallTraceReplayModule(DataSeriesModule &source,
 				       bool verbose_flag,
 				       bool verify_flag,
 				       int warn_level_flag);
   void prepareRow();
-  void setMove(uint32_t dev, uint32_t ino, uint32_t mode, uint32_t nlink, uint32_t uid,
-               uint32_t gid, uint32_t rdev, uint32_t blksize, uint32_t blocks, int64_t size,
-               uint64_t atime, uint64_t mtime, uint64_t ctime) {
-    statDev = dev;
-    statINo = ino;
-    statMode = mode;
-    statNLink = nlink;
-    statUID = uid;
-    statGID = gid;
-    statRDev = rdev;
-    statBlkSize = blksize;
-    statBlocks = blocks;
-    statSize = size;
-    statATime = atime;
-    statMTime = mtime;
-    statCTime = ctime;
-  }
 };
 
 class StatSystemCallTraceReplayModule :
@@ -141,10 +126,10 @@ public:
     movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
                        executingPidVal, errorNoVal, returnVal, replayerIndex);
     if (verify_) {
-      BasicStatSystemCallTraceReplayModule::setMove(statDev, statINo, statMode, statNLink,
-                                                  statUID, statGID, statRDev, statBlkSize,
-                                                  statBlocks, statSize, statATime, statMTime,
-                                                  statCTime);
+      movePtr->copyStatStruct(statDev, statINo, statMode, statNLink,
+                              statUID, statGID, statRDev, statBlkSize,
+                              statBlocks, statSize, statATime, statMTime,
+                              statCTime);
     }
     return movePtr;
   }
@@ -207,6 +192,12 @@ public:
     movePtr->setMove(descriptorVal);
     movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
                        executingPidVal, errorNoVal, returnVal, replayerIndex);
+    if (verify_) {
+      movePtr->copyStatStruct(statDev, statINo, statMode, statNLink,
+                              statUID, statGID, statRDev, statBlkSize,
+                              statBlocks, statSize, statATime, statMTime,
+                              statCTime);
+    }
     return movePtr;
   }
   void setMove(int desc) {

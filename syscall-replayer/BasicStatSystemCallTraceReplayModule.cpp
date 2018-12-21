@@ -88,6 +88,28 @@ void BasicStatSystemCallTraceReplayModule::print_specific_fields() {
   	"file ctime(", boost::format(DEC_PRECISION) % Tfrac_to_sec(statCTime), ")");
 }
 
+void BasicStatSystemCallTraceReplayModule::copyStatStruct(uint32_t dev, uint32_t ino,
+                                                          uint32_t mode, uint32_t nlink, uint32_t uid,
+                                                          uint32_t gid, uint32_t rdev,
+                                                          uint32_t blksize,uint32_t blocks,
+                                                          int64_t size,uint64_t atime,
+                                                          uint64_t mtime, uint64_t ctime)
+{
+    statDev = dev;
+    statINo = ino;
+    statMode = mode;
+    statNLink = nlink;
+    statUID = uid;
+    statGID = gid;
+    statRDev = rdev;
+    statBlkSize = blksize;
+    statBlocks = blocks;
+    statSize = size;
+    statATime = atime;
+    statMTime = mtime;
+    statCTime = ctime;
+}
+
 void BasicStatSystemCallTraceReplayModule::prepareRow() {
   statDev = stat_result_dev_.val();
   statINo = stat_result_ino_.val();
@@ -102,6 +124,7 @@ void BasicStatSystemCallTraceReplayModule::prepareRow() {
   statATime = stat_result_atime_.val();
   statMTime = stat_result_mtime_.val();
   statCTime = stat_result_ctime_.val();
+  SystemCallTraceReplayModule::prepareRow();
 }
 
 void BasicStatSystemCallTraceReplayModule::verifyResult(
@@ -198,7 +221,7 @@ void StatSystemCallTraceReplayModule::prepareRow() {
   auto pathBuf = reinterpret_cast<const char *>(given_pathname_.val());
   pathname = new char[std::strlen(pathBuf) + 1];
   std::strcpy(pathname, pathBuf);
-  SystemCallTraceReplayModule::prepareRow();
+  BasicStatSystemCallTraceReplayModule::prepareRow();
 }
 
 LStatSystemCallTraceReplayModule::LStatSystemCallTraceReplayModule(
@@ -267,7 +290,7 @@ void FStatSystemCallTraceReplayModule::processRow() {
 void FStatSystemCallTraceReplayModule::prepareRow() {
   descriptorVal = descriptor_.val();
   replayed_ret_val_ = return_value_.val();
-  SystemCallTraceReplayModule::prepareRow();
+  BasicStatSystemCallTraceReplayModule::prepareRow();
 }
 
 FStatatSystemCallTraceReplayModule::FStatatSystemCallTraceReplayModule(
