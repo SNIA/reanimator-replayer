@@ -44,8 +44,8 @@
 #define DEFAULT_MODE 0
 #define WARN_MODE 1
 #define ABORT_MODE 2
-#define SYSCALL_FAILURE -1
-#define SYSCALL_SIMULATED -2
+#define SYSCALL_FAILURE ((-1))
+#define SYSCALL_SIMULATED ((-2))
 /*
  * DEC_PRECISION specifies the format for printing precision of decimal
  * values upto 25 decimal places in logger file.
@@ -110,7 +110,7 @@ class SystemCallTraceReplayModule : public RowAnalysisModule {
    * Note: Child class should implement this function to replay
    * a specific system call
    */
-  virtual void processRow() = 0;
+  void processRow() override = 0;
 
   /**
    * This function will be called after processRow() of correponding
@@ -120,7 +120,7 @@ class SystemCallTraceReplayModule : public RowAnalysisModule {
    * per system call.
    */
 
-  virtual void completeProcessing();
+  void completeProcessing() override;
 
   /**
    * after_sys_call is called by completeProcessing() function.
@@ -266,7 +266,7 @@ class SystemCallTraceReplayModule : public RowAnalysisModule {
    *
    * @return: a pointer to an extent
    */
-  Extent::Ptr getSharedExtent();
+  Extent::Ptr getSharedExtent() override;
 
   /**
    * This function will test to see if current extent
@@ -351,7 +351,7 @@ class SystemCallTraceReplayModule : public RowAnalysisModule {
     returnVal = ret;
     replayerIndex = index;
   }
-  virtual SystemCallTraceReplayModule *move() { return NULL; }
+  virtual SystemCallTraceReplayModule *move() { return nullptr; }
 
   int64_t getReplayerIndex() { return replayerIndex; }
 

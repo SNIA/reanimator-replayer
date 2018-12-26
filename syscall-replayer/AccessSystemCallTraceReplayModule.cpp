@@ -75,7 +75,7 @@ void FAccessatSystemCallTraceReplayModule::processRow() {
   int mode = get_mode(mode_value_.val());
   int flags = flags_value_.val();
 
-  if (replayed_fd == SYSCALL_SIMULATED && pathname != NULL &&
+  if (replayed_fd == SYSCALL_SIMULATED && pathname != nullptr &&
       pathname[0] != '/') {
     /*
      * replayed_fd originated from a socket, hence faccessat cannot be replayed.

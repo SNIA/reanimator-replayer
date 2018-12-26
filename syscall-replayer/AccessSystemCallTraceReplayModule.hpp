@@ -38,18 +38,18 @@ class AccessSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
   /**
    * Print this sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay a access system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
  public:
   AccessSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
                                     int warn_level_flag);
-  SystemCallTraceReplayModule *move() {
+  SystemCallTraceReplayModule *move() override {
     auto movePtr =
         new AccessSystemCallTraceReplayModule(source, verbose_, warn_level_);
     movePtr->setMove(pathname, mode_value);
@@ -62,7 +62,7 @@ class AccessSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
     pathname = path;
     mode_value = mode;
   }
-  void prepareRow();
+  void prepareRow() override;
 };
 
 class FAccessatSystemCallTraceReplayModule
@@ -75,13 +75,13 @@ class FAccessatSystemCallTraceReplayModule
   /**
    * Print this sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay a faccessat system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
  public:
   FAccessatSystemCallTraceReplayModule(DataSeriesModule &source,
