@@ -25,12 +25,12 @@
 
 #include "SystemCallTraceReplayModule.hpp"
 
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 class MknodSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-private:
+ private:
   // Mknod System Call Trace Fields in Dataseries file
   Variable32Field given_pathname_;
   Int32Field mode_value_;
@@ -48,11 +48,9 @@ private:
    */
   void processRow();
 
-public:
-  MknodSystemCallTraceReplayModule(DataSeriesModule &source,
-				   bool verbose_flag,
-				   int warn_level_flag);
-
+ public:
+  MknodSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                   int warn_level_flag);
 };
 
 #endif /* MKNOD_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

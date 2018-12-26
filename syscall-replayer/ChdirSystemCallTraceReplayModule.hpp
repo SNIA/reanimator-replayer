@@ -28,7 +28,7 @@
 #include <unistd.h>
 
 class ChdirSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-protected:
+ protected:
   // Chdir System Call Trace Fields in Dataseries file
   Variable32Field given_pathname_;
 
@@ -43,9 +43,8 @@ protected:
    */
   void processRow();
 
-public:
-  ChdirSystemCallTraceReplayModule(DataSeriesModule &source,
-				   bool verbose_flag,
-				   int warn_level_flag);
+ public:
+  ChdirSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                   int warn_level_flag);
 };
 #endif /* CHDIR_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

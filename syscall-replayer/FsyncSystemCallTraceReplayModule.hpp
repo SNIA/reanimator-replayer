@@ -26,7 +26,7 @@
 #include "SystemCallTraceReplayModule.hpp"
 
 class FsyncSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-private:
+ private:
   // DataSeries Fsync System Call Trace Fields
   Int32Field descriptor_;
   int traced_fd;
@@ -42,15 +42,16 @@ private:
    */
   void processRow();
 
-public:
-  FsyncSystemCallTraceReplayModule(DataSeriesModule &source,
-				   bool verbose_flag,
-				   int warn_level_flag);
+ public:
+  FsyncSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                   int warn_level_flag);
   SystemCallTraceReplayModule *move() {
-    auto movePtr = new FsyncSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    auto movePtr =
+        new FsyncSystemCallTraceReplayModule(source, verbose_, warn_level_);
     movePtr->setMove(traced_fd, simulated_ret_val);
-    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
-                       executingPidVal, errorNoVal, returnVal, replayerIndex);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
     return movePtr;
   }
   void setMove(int fd, int simulatedRetVal) {

@@ -18,20 +18,18 @@
 
 #include "CreatSystemCallTraceReplayModule.hpp"
 
-CreatSystemCallTraceReplayModule::
-CreatSystemCallTraceReplayModule(DataSeriesModule &source,
-				 bool verbose_flag,
-				 int warn_level_flag):
-  SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-  given_pathname_(series, "given_pathname"),
-  mode_value_(series, "mode_value", Field::flag_nullable) {
+CreatSystemCallTraceReplayModule::CreatSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
+    : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+      given_pathname_(series, "given_pathname"),
+      mode_value_(series, "mode_value", Field::flag_nullable) {
   sys_call_name_ = "creat";
 }
 
 void CreatSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("pathname(", given_pathname_.val(), "), ", \
-    "traced mode(", mode_value_.val(), "), ",
-    "replayed mode(", get_mode(mode_value_.val()), ")");
+  syscall_logger_->log_info("pathname(", given_pathname_.val(), "), ",
+                            "traced mode(", mode_value_.val(), "), ",
+                            "replayed mode(", get_mode(mode_value_.val()), ")");
 }
 
 void CreatSystemCallTraceReplayModule::processRow() {
@@ -43,6 +41,8 @@ void CreatSystemCallTraceReplayModule::processRow() {
   replayed_ret_val_ = creat(pathname, mode);
   // Add a mapping from fd in trace file to actual replayed fd
   pid_t pid = executing_pid();
-  // A call to creat() is equivalent to calling open() with flags equal to O_CREAT|O_WRONLY|O_TRUNC.
-  replayer_resources_manager_.add_fd(pid, return_value, replayed_ret_val_, O_CREAT|O_WRONLY|O_TRUNC);
+  // A call to creat() is equivalent to calling open() with flags equal to
+  // O_CREAT|O_WRONLY|O_TRUNC.
+  replayer_resources_manager_.add_fd(pid, return_value, replayed_ret_val_,
+                                     O_CREAT | O_WRONLY | O_TRUNC);
 }

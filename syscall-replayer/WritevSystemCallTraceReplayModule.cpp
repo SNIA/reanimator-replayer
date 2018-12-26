@@ -18,18 +18,16 @@
 
 #include "WritevSystemCallTraceReplayModule.hpp"
 
-WritevSystemCallTraceReplayModule::
-WritevSystemCallTraceReplayModule(DataSeriesModule &source,
-				 bool verbose_flag,
-				 int warn_level_flag,
-				 std::string pattern_data):
-  SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-  pattern_data_(pattern_data),
-  descriptor_(series, "descriptor", Field::flag_nullable),
-  count_(series, "count", Field::flag_nullable),
-  iov_number_(series, "iov_number"),
-  data_written_(series, "iov_data_written", Field::flag_nullable),
-  bytes_requested_(series, "bytes_requested") {
+WritevSystemCallTraceReplayModule::WritevSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, int warn_level_flag,
+    std::string pattern_data)
+    : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+      pattern_data_(pattern_data),
+      descriptor_(series, "descriptor", Field::flag_nullable),
+      count_(series, "count", Field::flag_nullable),
+      iov_number_(series, "iov_number"),
+      data_written_(series, "iov_data_written", Field::flag_nullable),
+      bytes_requested_(series, "bytes_requested") {
   sys_call_name_ = "writev";
 }
 
@@ -44,9 +42,9 @@ void WritevSystemCallTraceReplayModule::print_specific_fields() {
   pid_t pid = executing_pid();
   int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
   syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
-    "replayed fd(", replayed_fd, "), ",
-	   "count:(", count_.val(), "), ", \
-	   "bytes requested:(", bytes_requested_.val(), ")");
+                            "replayed fd(", replayed_fd, "), ", "count:(",
+                            count_.val(), "), ", "bytes requested:(",
+                            bytes_requested_.val(), ")");
 
   int count = count_.val();
 
@@ -56,8 +54,8 @@ void WritevSystemCallTraceReplayModule::print_specific_fields() {
    */
   while (count > 0 && series.morerecords()) {
     ++series;
-    syscall_logger_->log_info("iov_number:(", iov_number_.val(), "), ", \
-	     "data_written:(", data_written_.val(), ")");
+    syscall_logger_->log_info("iov_number:(", iov_number_.val(), "), ",
+                              "data_written:(", data_written_.val(), ")");
     count--;
   }
 
@@ -116,32 +114,32 @@ void WritevSystemCallTraceReplayModule::processRow() {
 
       // Check to see if user wants to use pattern
       if (!pattern_data_.empty()) {
-      	/*
-      	 * Allocate memory and copy the actual buffer.
-      	 * XXX NOTE: ***** FUTURE WORK *****
-      	 * Instead of allocating individual buffer, we can allocate
-      	 * one single buffer.
-      	 */
-      	data_buffer[iov_num] = new char[bytes_requested];
-      	if (pattern_data_ == "random") {
-      	  // Fill write buffer using rand()
-      	  data_buffer[iov_num] = random_fill_buffer(data_buffer[iov_num],
-      						    bytes_requested);
-      	} else if (pattern_data_ == "urandom") {
-      	  // Fill write buffer using data generated from /dev/urandom
-      	  SystemCallTraceReplayModule::random_file_.read(data_buffer[iov_num],
-      							 bytes_requested);
-      	} else {
-      	  // Write zeros or pattern specified in pattern_data
-      	  unsigned char pattern = pattern_data_[0];
+        /*
+         * Allocate memory and copy the actual buffer.
+         * XXX NOTE: ***** FUTURE WORK *****
+         * Instead of allocating individual buffer, we can allocate
+         * one single buffer.
+         */
+        data_buffer[iov_num] = new char[bytes_requested];
+        if (pattern_data_ == "random") {
+          // Fill write buffer using rand()
+          data_buffer[iov_num] =
+              random_fill_buffer(data_buffer[iov_num], bytes_requested);
+        } else if (pattern_data_ == "urandom") {
+          // Fill write buffer using data generated from /dev/urandom
+          SystemCallTraceReplayModule::random_file_.read(data_buffer[iov_num],
+                                                         bytes_requested);
+        } else {
+          // Write zeros or pattern specified in pattern_data
+          unsigned char pattern = pattern_data_[0];
 
-      	  /*
-      	   * XXX FUTURE WORK: Currently we support pattern of one byte.
-      	   * For multi byte pattern data, we have to modify the
-      	   * implementation of filling data_buffer.
-      	   */
-      	  memset(data_buffer[iov_num], pattern, bytes_requested);
-      	}
+          /*
+           * XXX FUTURE WORK: Currently we support pattern of one byte.
+           * For multi byte pattern data, we have to modify the
+           * implementation of filling data_buffer.
+           */
+          memset(data_buffer[iov_num], pattern, bytes_requested);
+        }
       } else {
         // Write the traced data
         data_buffer[iov_num] = (char *)data_written_.val();
@@ -160,8 +158,7 @@ void WritevSystemCallTraceReplayModule::processRow() {
 
   // Free data buffer.
   for (int iovcnt_ = 0; iovcnt_ < count; iovcnt_++) {
-    if (!pattern_data_.empty())
-      delete[] data_buffer[iovcnt_];
+    if (!pattern_data_.empty()) delete[] data_buffer[iovcnt_];
   }
 
   /*

@@ -24,16 +24,16 @@
 #ifndef SYSTEM_CALL_TRACE_REPLAY_LOGGER_HPP
 #define SYSTEM_CALL_TRACE_REPLAY_LOGGER_HPP
 
-#include <string>
-#include <iostream>
-#include <fstream>
-#include <sstream>
 #include <errno.h>
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <string>
 
 #define TIMESTAMP_BUFFER_SIZE 20
 
 class SystemCallTraceReplayLogger {
-private:
+ private:
   std::ofstream logger_file_;
 
   /**
@@ -46,8 +46,9 @@ private:
    * This function calls itself recursively to combine the arguments
    * in a stringstream.
    */
-  template<typename First, typename...Rest>
-  void print_logs(std::stringstream&& log_stream, First&& parm1, Rest&&...parm);
+  template <typename First, typename... Rest>
+  void print_logs(std::stringstream&& log_stream, First&& parm1,
+                  Rest&&... parm);
 
   /**
    * This function is used to print the current time to the log file
@@ -58,7 +59,7 @@ private:
    */
   std::string format_time();
 
-public:
+ public:
   /**
    * This is the constructor of SystemCallTraceReplayLogger
    * class which opens the logger file to write logs.
@@ -69,30 +70,29 @@ public:
    * This function takes the variable number of arguments and prints
    * the info messages to the logger file.
    */
-  template<typename...Args>
-  void log_info(Args&&...args);
+  template <typename... Args>
+  void log_info(Args&&... args);
 
   /**
    * This function takes the variable number of arguments and prints
    * the error messages to the logger file.
    */
-  template<typename...Args>
-  void log_err(Args&&...args);
+  template <typename... Args>
+  void log_err(Args&&... args);
 
   /**
    * This function takes the variable number of arguments and prints
    * the warning messages to the logger file.
    */
-  template<typename...Args>
-  void log_warn(Args&&...args);
+  template <typename... Args>
+  void log_warn(Args&&... args);
 
   /**
    * This function takes the variable number of arguments and prints
    * the debug messages to the logger file.
    */
-  template<typename...Args>
-  void log_debug(Args&&...args);
-
+  template <typename... Args>
+  void log_debug(Args&&... args);
 
   /**
    * Deconstructor
@@ -100,48 +100,47 @@ public:
   ~SystemCallTraceReplayLogger();
 };
 
-template<typename First, typename...Rest>
+template <typename First, typename... Rest>
 void SystemCallTraceReplayLogger::print_logs(std::stringstream&& log_stream,
-					     First&& parm1,
-					     Rest&&...parm) {
+                                             First&& parm1, Rest&&... parm) {
   log_stream << parm1;
   this->print_logs(std::forward<std::stringstream>(log_stream),
-		   std::move(parm)...);
+                   std::move(parm)...);
 }
 
-template<typename...Args>
-void SystemCallTraceReplayLogger::log_info(Args&&...args) {
+template <typename... Args>
+void SystemCallTraceReplayLogger::log_info(Args&&... args) {
   this->logger_file_ << this->format_time() << "[INFO] ";
   std::stringstream log_stream;
   this->print_logs(std::forward<std::stringstream>(log_stream),
-		   std::move(args)...);
+                   std::move(args)...);
   this->logger_file_ << std::endl;
 }
 
-template<typename...Args>
-void SystemCallTraceReplayLogger::log_err(Args&&...args) {
+template <typename... Args>
+void SystemCallTraceReplayLogger::log_err(Args&&... args) {
   this->logger_file_ << this->format_time() << "[ERROR] ";
   std::stringstream log_stream;
   this->print_logs(std::forward<std::stringstream>(log_stream),
-		   std::move(args)...);
+                   std::move(args)...);
   this->logger_file_ << std::endl;
 }
 
-template<typename...Args>
-void SystemCallTraceReplayLogger::log_warn(Args&&...args) {
+template <typename... Args>
+void SystemCallTraceReplayLogger::log_warn(Args&&... args) {
   this->logger_file_ << this->format_time() << "[WARN] ";
   std::stringstream log_stream;
   this->print_logs(std::forward<std::stringstream>(log_stream),
-		   std::move(args)...);
+                   std::move(args)...);
   this->logger_file_ << std::endl;
 }
 
-template<typename...Args>
-void SystemCallTraceReplayLogger::log_debug(Args&&...args) {
+template <typename... Args>
+void SystemCallTraceReplayLogger::log_debug(Args&&... args) {
   this->logger_file_ << this->format_time() << "[DEBUG] ";
   std::stringstream log_stream;
   this->print_logs(std::forward<std::stringstream>(log_stream),
-		   std::move(args)...);
+                   std::move(args)...);
   this->logger_file_ << std::endl;
 }
 

@@ -18,12 +18,10 @@
 
 #include "RmdirSystemCallTraceReplayModule.hpp"
 
-RmdirSystemCallTraceReplayModule::
-RmdirSystemCallTraceReplayModule(DataSeriesModule &source,
-				 bool verbose_flag,
-				 int warn_level_flag):
-  SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-  given_pathname_(series, "given_pathname") {
+RmdirSystemCallTraceReplayModule::RmdirSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
+    : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+      given_pathname_(series, "given_pathname") {
   sys_call_name_ = "rmdir";
 }
 
@@ -39,7 +37,7 @@ void RmdirSystemCallTraceReplayModule::processRow() {
 
 void RmdirSystemCallTraceReplayModule::prepareRow() {
   auto pathBuf = reinterpret_cast<const char *>(given_pathname_.val());
-  pathname = new char[std::strlen(pathBuf)+1];
+  pathname = new char[std::strlen(pathBuf) + 1];
   std::strcpy(pathname, pathBuf);
   SystemCallTraceReplayModule::prepareRow();
 }

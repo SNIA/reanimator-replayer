@@ -26,12 +26,12 @@
 
 #include "SystemCallTraceReplayModule.hpp"
 
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 class FChmodSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-protected:
+ protected:
   // FChmod System Call Trace Fields in Dataseries file
   Int32Field descriptor_;
   Int32Field mode_value_;
@@ -47,17 +47,14 @@ protected:
    */
   void processRow();
 
-public:
-  FChmodSystemCallTraceReplayModule(DataSeriesModule &source,
-                                   bool verbose_flag,
-                                   int warn_level_flag);
-
+ public:
+  FChmodSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                    int warn_level_flag);
 };
 
-class FChmodatSystemCallTraceReplayModule :
-public FChmodSystemCallTraceReplayModule {
-
-private:
+class FChmodatSystemCallTraceReplayModule
+    : public FChmodSystemCallTraceReplayModule {
+ private:
   // FChmodat System Call Trace Fields in Dataseries file
   Variable32Field given_pathname_;
   Int32Field flag_value_;
@@ -73,10 +70,8 @@ private:
    */
   void processRow();
 
-public:
+ public:
   FChmodatSystemCallTraceReplayModule(DataSeriesModule &source,
-				      bool verbose_flag,
-				      int warn_level_flag);
-
+                                      bool verbose_flag, int warn_level_flag);
 };
 #endif /* FCHMOD_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

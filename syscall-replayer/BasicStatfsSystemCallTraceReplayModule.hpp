@@ -26,9 +26,11 @@
 
 #include <sys/statfs.h>
 
-class BasicStatfsSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-protected:
-  // System Call Trace Fields in Dataseries file common to statfs and fstatfs system call.
+class BasicStatfsSystemCallTraceReplayModule
+    : public SystemCallTraceReplayModule {
+ protected:
+  // System Call Trace Fields in Dataseries file common to statfs and fstatfs
+  // system call.
   bool verify_;
   Int32Field statfs_result_type_;
   Int32Field statfs_result_bsize_;
@@ -60,17 +62,15 @@ protected:
    */
   void verifyResult(struct statfs replayed_statfs_buf);
 
-public:
+ public:
   BasicStatfsSystemCallTraceReplayModule(DataSeriesModule &source,
-					 bool verbose_flag,
-					 bool verify_flag,
-					 int warn_level_flag);
-
+                                         bool verbose_flag, bool verify_flag,
+                                         int warn_level_flag);
 };
 
-class StatfsSystemCallTraceReplayModule :
-  public BasicStatfsSystemCallTraceReplayModule {
-private:
+class StatfsSystemCallTraceReplayModule
+    : public BasicStatfsSystemCallTraceReplayModule {
+ private:
   // System Call Field pathname stored in DataSeries file
   Variable32Field given_pathname_;
 
@@ -85,16 +85,14 @@ private:
    */
   void processRow();
 
-public:
-  StatfsSystemCallTraceReplayModule(DataSeriesModule &source,
-				    bool verbose_flag,
-				    bool verify_flag,
-				    int warn_level_flag);
+ public:
+  StatfsSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                    bool verify_flag, int warn_level_flag);
 };
 
-class FStatfsSystemCallTraceReplayModule :
-  public BasicStatfsSystemCallTraceReplayModule {
-private:
+class FStatfsSystemCallTraceReplayModule
+    : public BasicStatfsSystemCallTraceReplayModule {
+ private:
   // System Call Field descriptor stored in DataSeries file
   Int32Field descriptor_;
 
@@ -109,10 +107,9 @@ private:
    */
   void processRow();
 
-public:
+ public:
   FStatfsSystemCallTraceReplayModule(DataSeriesModule &source,
-				     bool verbose_flag,
-				     bool verify_flag,
-				     int warn_level_flag);
+                                     bool verbose_flag, bool verify_flag,
+                                     int warn_level_flag);
 };
 #endif /* BASIC_STATFS_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

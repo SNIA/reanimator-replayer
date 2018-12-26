@@ -25,7 +25,7 @@
 #include "SystemCallTraceReplayModule.hpp"
 
 class UmaskSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-protected:
+ protected:
   // Umask System Call Trace Fields in Dataseries file
   Int32Field mode_value_;
   mode_t mode;
@@ -40,21 +40,19 @@ protected:
    */
   void processRow();
 
-public:
-  UmaskSystemCallTraceReplayModule(DataSeriesModule &source,
-				   bool verbose_flag,
-				   int warn_level_flag);
+ public:
+  UmaskSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                   int warn_level_flag);
   SystemCallTraceReplayModule *move() {
-    auto movePtr = new UmaskSystemCallTraceReplayModule(source, verbose_,
-                                                       warn_level_);
+    auto movePtr =
+        new UmaskSystemCallTraceReplayModule(source, verbose_, warn_level_);
     movePtr->setMove(mode);
-    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
-                       executingPidVal, errorNoVal, returnVal, replayerIndex);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
     return movePtr;
   }
-  void setMove(mode_t mod) {
-    mode = mod;
-  }
+  void setMove(mode_t mod) { mode = mod; }
   void prepareRow();
 };
 #endif /* UMASK_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

@@ -22,13 +22,13 @@
 #ifndef LSEEK_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define LSEEK_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 
-#include <unistd.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 #include "SystemCallTraceReplayModule.hpp"
 
 class LSeekSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-private:
+ private:
   // LSeek System Call Trace Fields in Dataseries file
   Int32Field descriptor_;
   Int64Field offset_;
@@ -50,15 +50,16 @@ private:
    */
   void processRow();
 
-public:
-  LSeekSystemCallTraceReplayModule(DataSeriesModule &source,
-				   bool verbose_flag,
-				   int warn_level_flag);
+ public:
+  LSeekSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                   int warn_level_flag);
   SystemCallTraceReplayModule *move() {
-    auto movePtr = new LSeekSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    auto movePtr =
+        new LSeekSystemCallTraceReplayModule(source, verbose_, warn_level_);
     movePtr->setMove(descriptorVal, offset, whence, replayed_fd);
-    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
-                       executingPidVal, errorNoVal, returnVal, replayerIndex);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
     return movePtr;
   }
   void setMove(int desc, off_t off, int seekType, int fd) {

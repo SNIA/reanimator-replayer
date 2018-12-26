@@ -21,22 +21,19 @@
 #include <cstring>
 #include <memory>
 
-OpenSystemCallTraceReplayModule::
-OpenSystemCallTraceReplayModule(DataSeriesModule &source,
-  bool verbose_flag,
-  int warn_level_flag):
-  SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-  given_pathname_(series, "given_pathname"),
-  open_value_(series, "open_value", Field::flag_nullable),
-  mode_value_(series, "mode_value", Field::flag_nullable) {
+OpenSystemCallTraceReplayModule::OpenSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
+    : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+      given_pathname_(series, "given_pathname"),
+      open_value_(series, "open_value", Field::flag_nullable),
+      mode_value_(series, "mode_value", Field::flag_nullable) {
   sys_call_name_ = "open";
 }
 
 void OpenSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("pathname(", pathname, "), flags(", \
-    flags, "),",
-    "traced mode(", modeVal, "), ",
-    "replayed mode(", get_mode(modeVal), ")");
+  syscall_logger_->log_info("pathname(", pathname, "), flags(", flags, "),",
+                            "traced mode(", modeVal, "), ", "replayed mode(",
+                            get_mode(modeVal), ")");
 }
 
 void OpenSystemCallTraceReplayModule::processRow() {
@@ -54,14 +51,15 @@ void OpenSystemCallTraceReplayModule::processRow() {
      * we will still add the entry and replay it.
      * Add a mapping from fd in trace file to actual replayed fd
      */
-    replayer_resources_manager_.add_fd(executingPidVal, traced_fd, replayed_ret_val_, flags);
+    replayer_resources_manager_.add_fd(executingPidVal, traced_fd,
+                                       replayed_ret_val_, flags);
   }
   delete[] pathname;
 }
 
 void OpenSystemCallTraceReplayModule::prepareRow() {
   auto pathBuf = reinterpret_cast<const char *>(given_pathname_.val());
-  pathname = new char[std::strlen(pathBuf)+1];
+  pathname = new char[std::strlen(pathBuf) + 1];
   std::strcpy(pathname, pathBuf);
   flags = open_value_.val();
   modeVal = mode_value_.val();
@@ -69,24 +67,21 @@ void OpenSystemCallTraceReplayModule::prepareRow() {
   SystemCallTraceReplayModule::prepareRow();
 }
 
-OpenatSystemCallTraceReplayModule::
-OpenatSystemCallTraceReplayModule(DataSeriesModule &source,
-  bool verbose_flag,
-  int warn_level_flag):
-  OpenSystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-  descriptor_(series, "descriptor") {
+OpenatSystemCallTraceReplayModule::OpenatSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
+    : OpenSystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+      descriptor_(series, "descriptor") {
   sys_call_name_ = "openat";
 }
 
 void OpenatSystemCallTraceReplayModule::print_specific_fields() {
   pid_t pid = executing_pid();
   int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
-  syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
-    "replayed fd(", replayed_fd, "), ",
-    "pathname(", given_pathname_.val(), "), flags(", \
-    open_value_.val(), "), ",
-    "traced mode(", mode_value_.val(), "), ",
-    "replayed mode(", get_mode(mode_value_.val()), ")");
+  syscall_logger_->log_info(
+      "traced fd(", descriptor_.val(), "), ", "replayed fd(", replayed_fd,
+      "), ", "pathname(", given_pathname_.val(), "), flags(", open_value_.val(),
+      "), ", "traced mode(", mode_value_.val(), "), ", "replayed mode(",
+      get_mode(mode_value_.val()), ")");
 }
 
 void OpenatSystemCallTraceReplayModule::processRow() {
@@ -122,6 +117,7 @@ void OpenatSystemCallTraceReplayModule::processRow() {
      * we will still add the entry and replay it.
      * Add a mapping from fd in trace file to actual replayed fd
      */
-    replayer_resources_manager_.add_fd(pid, traced_fd, replayed_ret_val_, flags);
+    replayer_resources_manager_.add_fd(pid, traced_fd, replayed_ret_val_,
+                                       flags);
   }
 }

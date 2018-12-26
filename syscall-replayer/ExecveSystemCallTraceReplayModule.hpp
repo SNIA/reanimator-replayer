@@ -22,11 +22,11 @@
 #ifndef EXECVE_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define EXECVE_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 
-#include "SystemCallTraceReplayModule.hpp"
 #include <unordered_set>
+#include "SystemCallTraceReplayModule.hpp"
 
 class ExecveSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-private:
+ private:
   // DataSeries Execve System Call Trace Fields
   Variable32Field given_pathname_;
   Int32Field continuation_number_;
@@ -53,16 +53,16 @@ private:
    */
   void processRow();
 
-public:
-  ExecveSystemCallTraceReplayModule(DataSeriesModule &source,
-				    bool verbose_flag,
-				    int warn_level_flag);
+ public:
+  ExecveSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                    int warn_level_flag);
   SystemCallTraceReplayModule *move() {
-    auto movePtr = new ExecveSystemCallTraceReplayModule(source, verbose_,
-                                                       warn_level_);
+    auto movePtr =
+        new ExecveSystemCallTraceReplayModule(source, verbose_, warn_level_);
     movePtr->setMove(continuation_num, retVal);
-    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
-                       executingPidVal, errorNoVal, returnVal, replayerIndex);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
     return movePtr;
   }
   void setMove(int32_t contNum, int64_t ret) {

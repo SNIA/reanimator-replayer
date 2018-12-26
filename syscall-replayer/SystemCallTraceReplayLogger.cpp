@@ -18,17 +18,18 @@
 
 #include "SystemCallTraceReplayLogger.hpp"
 
-SystemCallTraceReplayLogger::SystemCallTraceReplayLogger(std::string log_filename) {
+SystemCallTraceReplayLogger::SystemCallTraceReplayLogger(
+    std::string log_filename) {
   // Open log file in append mode
   this->logger_file_.open(log_filename.c_str(),
-			  std::ios_base::app | std::ios_base::out);
+                          std::ios_base::app | std::ios_base::out);
   if (!(this->logger_file_.is_open()) && !log_filename.empty()) {
     std::cerr << "Unable to open log file" << std::endl;
     exit(EXIT_FAILURE);
   }
 }
 
-void SystemCallTraceReplayLogger::print_logs(std::stringstream&& log_stream) {
+void SystemCallTraceReplayLogger::print_logs(std::stringstream &&log_stream) {
   this->logger_file_ << log_stream.str();
 }
 

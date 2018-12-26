@@ -29,7 +29,7 @@
 #include <unistd.h>
 
 class RenameSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-protected:
+ protected:
   // Rename System Call Trace Fields in Dataseries file
   Variable32Field given_oldname_;
   Variable32Field given_newname_;
@@ -47,15 +47,16 @@ protected:
    */
   void processRow();
 
-public:
-  RenameSystemCallTraceReplayModule(DataSeriesModule &source,
-                                  bool verbose_flag,
-                                  int warn_level_flag);
+ public:
+  RenameSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                    int warn_level_flag);
   SystemCallTraceReplayModule *move() {
-    auto movePtr = new RenameSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    auto movePtr =
+        new RenameSystemCallTraceReplayModule(source, verbose_, warn_level_);
     movePtr->setMove(old_pathname, new_pathname);
-    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
-                       executingPidVal, errorNoVal, returnVal, replayerIndex);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
     return movePtr;
   }
   void setMove(char *o_path, char *n_path) {
@@ -64,7 +65,6 @@ public:
   }
 
   void prepareRow();
-
 };
 
 #endif /* RENAME_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

@@ -18,30 +18,29 @@
 
 #include "ReadSystemCallTraceReplayModule.hpp"
 
-ReadSystemCallTraceReplayModule::
-ReadSystemCallTraceReplayModule(DataSeriesModule &source,
-				bool verbose_flag,
-				bool verify_flag,
-				int warn_level_flag):
-  SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-  verify_(verify_flag),
-  descriptor_(series, "descriptor"),
-  data_read_(series, "data_read", Field::flag_nullable),
-  bytes_requested_(series, "bytes_requested") {
+ReadSystemCallTraceReplayModule::ReadSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, bool verify_flag,
+    int warn_level_flag)
+    : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+      verify_(verify_flag),
+      descriptor_(series, "descriptor"),
+      data_read_(series, "data_read", Field::flag_nullable),
+      bytes_requested_(series, "bytes_requested") {
   sys_call_name_ = "read";
 }
 
 void ReadSystemCallTraceReplayModule::print_specific_fields() {
   pid_t pid = executing_pid();
   int replayed_fd = replayer_resources_manager_.get_fd(pid, traced_fd);
-  syscall_logger_->log_info("traced fd(", traced_fd, "), ",
-    "replayed fd(", replayed_fd, "), ",
+  syscall_logger_->log_info("traced fd(", traced_fd, "), ", "replayed fd(",
+                            replayed_fd, "), ",
                             //    "data read(", dataReadBuf, "), ",
-    "bytes requested(", nbytes, ")");
+                            "bytes requested(", nbytes, ")");
 }
 
 void ReadSystemCallTraceReplayModule::processRow() {
-  auto replayed_fd = replayer_resources_manager_.get_fd(executingPidVal, traced_fd);
+  auto replayed_fd =
+      replayer_resources_manager_.get_fd(executingPidVal, traced_fd);
   if (replayed_fd == SYSCALL_SIMULATED) {
     /*
      * FD for the read call originated from an AF_UNIX socket().
@@ -60,11 +59,12 @@ void ReadSystemCallTraceReplayModule::processRow() {
       syscall_logger_->log_info("Verification of data in read failed. retval:",
                                 replayed_ret_val_);
       if (verbose_mode()) {
-        syscall_logger_->log_info("time called:", \
-          boost::format(DEC_PRECISION) % Tfrac_to_sec(time_called()), \
-          " Captured read data is different from replayed read data");
-        syscall_logger_->log_info("Captured read data: ", dataReadBuf, ", ", \
-          "Replayed read data: ", std::string(buffer));
+        syscall_logger_->log_info(
+            "time called:",
+            boost::format(DEC_PRECISION) % Tfrac_to_sec(time_called()),
+            " Captured read data is different from replayed read data");
+        syscall_logger_->log_info("Captured read data: ", dataReadBuf, ", ",
+                                  "Replayed read data: ", std::string(buffer));
         if (abort_mode()) {
           abort();
         }
@@ -94,14 +94,12 @@ void ReadSystemCallTraceReplayModule::prepareRow() {
   SystemCallTraceReplayModule::prepareRow();
 }
 
-PReadSystemCallTraceReplayModule::
-PReadSystemCallTraceReplayModule(DataSeriesModule &source,
-				 bool verbose_flag,
-				 bool verify_flag,
-				 int warn_level_flag):
-  ReadSystemCallTraceReplayModule(source, verbose_flag,
-				  verify_flag, warn_level_flag),
-  offset_(series, "offset") {
+PReadSystemCallTraceReplayModule::PReadSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, bool verify_flag,
+    int warn_level_flag)
+    : ReadSystemCallTraceReplayModule(source, verbose_flag, verify_flag,
+                                      warn_level_flag),
+      offset_(series, "offset") {
   sys_call_name_ = "pread";
 }
 
@@ -109,10 +107,12 @@ void PReadSystemCallTraceReplayModule::print_specific_fields() {
   pid_t pid = executing_pid();
   int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
   syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
-    "replayed fd(", replayed_fd, "), ",
-    "data read(", data_read_.val(), "), ", \
-    "bytes requested(", bytes_requested_.val(), "), " \
-    "offset(", offset_.val(), ")");
+                            "replayed fd(", replayed_fd, "), ", "data read(",
+                            data_read_.val(), "), ", "bytes requested(",
+                            bytes_requested_.val(),
+                            "), "
+                            "offset(",
+                            offset_.val(), ")");
 }
 
 void PReadSystemCallTraceReplayModule::processRow() {
@@ -141,12 +141,14 @@ void PReadSystemCallTraceReplayModule::processRow() {
       // Data aren't same
       syscall_logger_->log_err("Verification of data in pread failed.");
       if (!default_mode()) {
-        syscall_logger_->log_warn("time called:", \
-          boost::format(DEC_PRECISION) % Tfrac_to_sec(time_called()), \
-          " Captured pread data is different from replayed pread data");
-        syscall_logger_->log_warn("Captured pread data: ", data_read_.val(), ", ", \
-          "Replayed pread data: ", std::string(buffer));
-        if (warn_level_ == ABORT_MODE ) {
+        syscall_logger_->log_warn(
+            "time called:",
+            boost::format(DEC_PRECISION) % Tfrac_to_sec(time_called()),
+            " Captured pread data is different from replayed pread data");
+        syscall_logger_->log_warn("Captured pread data: ", data_read_.val(),
+                                  ", ",
+                                  "Replayed pread data: ", std::string(buffer));
+        if (warn_level_ == ABORT_MODE) {
           abort();
         }
       }

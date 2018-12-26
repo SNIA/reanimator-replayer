@@ -16,11 +16,10 @@
 
 #include "SetRLimitSystemCallTraceReplayModule.hpp"
 
-SetRLimitSystemCallTraceReplayModule::
-SetRLimitSystemCallTraceReplayModule(DataSeriesModule &source,
-				 bool verbose_flag,
-				 int warn_level_flag):
-  BasicRLimitSystemCallTraceReplayModule(source, verbose_flag, warn_level_flag) {
+SetRLimitSystemCallTraceReplayModule::SetRLimitSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
+    : BasicRLimitSystemCallTraceReplayModule(source, verbose_flag,
+                                             warn_level_flag) {
   sys_call_name_ = "setrlimit";
 }
 
@@ -35,7 +34,9 @@ void SetRLimitSystemCallTraceReplayModule::processRow() {
     replayed_ret_val_ = setrlimit(resource, &rlim);
   } else {
     if (verbose_mode() || !default_mode()) {
-      syscall_logger_->log_warn(sys_call_name_, ": Set resource limit to value other than RLIM_INFINITY is \
+      syscall_logger_->log_warn(
+          sys_call_name_,
+          ": Set resource limit to value other than RLIM_INFINITY is \
         unsupported");
     }
   }

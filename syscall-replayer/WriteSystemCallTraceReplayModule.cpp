@@ -18,33 +18,30 @@
 
 #include "WriteSystemCallTraceReplayModule.hpp"
 
-WriteSystemCallTraceReplayModule::
-WriteSystemCallTraceReplayModule(DataSeriesModule &source,
-				 bool verbose_flag,
-				 bool verify_flag,
-				 int warn_level_flag,
-				 std::string pattern_data):
-  SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-  verify_(verify_flag),
-  pattern_data_(pattern_data),
-  descriptor_(series, "descriptor"),
-  data_written_(series, "data_written", Field::flag_nullable),
-  bytes_requested_(series, "bytes_requested") {
+WriteSystemCallTraceReplayModule::WriteSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, bool verify_flag,
+    int warn_level_flag, std::string pattern_data)
+    : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+      verify_(verify_flag),
+      pattern_data_(pattern_data),
+      descriptor_(series, "descriptor"),
+      data_written_(series, "data_written", Field::flag_nullable),
+      bytes_requested_(series, "bytes_requested") {
   sys_call_name_ = "write";
 }
 
 void WriteSystemCallTraceReplayModule::print_specific_fields() {
   pid_t pid = executing_pid();
   int replayed_fd = replayer_resources_manager_.get_fd(pid, traced_fd);
-  syscall_logger_->log_info("traced fd(", traced_fd, "), ",
-    "replayed fd(", replayed_fd, "), ",
-	   "data(", data_buffer, "), ", \
-	   "nbytes(", nbytes, ")");
+  syscall_logger_->log_info("traced fd(", traced_fd, "), ", "replayed fd(",
+                            replayed_fd, "), ", "data(", data_buffer, "), ",
+                            "nbytes(", nbytes, ")");
 }
 
 void WriteSystemCallTraceReplayModule::processRow() {
-  int replayed_fd = replayer_resources_manager_.get_fd(executingPidVal, traced_fd);
-  
+  int replayed_fd =
+      replayer_resources_manager_.get_fd(executingPidVal, traced_fd);
+
   if (replayed_fd == SYSCALL_SIMULATED) {
     /*
      * FD for the write call originated from a socket().
@@ -92,26 +89,22 @@ void WriteSystemCallTraceReplayModule::prepareRow() {
   SystemCallTraceReplayModule::prepareRow();
 }
 
-PWriteSystemCallTraceReplayModule::
-PWriteSystemCallTraceReplayModule(DataSeriesModule &source,
-				  bool verbose_flag,
-				  bool verify_flag,
-				  int warn_level_flag,
-				  std::string pattern_data):
-  WriteSystemCallTraceReplayModule(source, verbose_flag,
-				   verify_flag, warn_level_flag, pattern_data),
-  offset_(series, "offset") {
+PWriteSystemCallTraceReplayModule::PWriteSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, bool verify_flag,
+    int warn_level_flag, std::string pattern_data)
+    : WriteSystemCallTraceReplayModule(source, verbose_flag, verify_flag,
+                                       warn_level_flag, pattern_data),
+      offset_(series, "offset") {
   sys_call_name_ = "pwrite";
 }
 
 void PWriteSystemCallTraceReplayModule::print_specific_fields() {
   pid_t pid = executing_pid();
   int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
-  syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
-    "replayed fd(", replayed_fd, "), ",
-	   "data(", data_written_.val(), "), ", \
-	   "nbytes(", bytes_requested_.val(), "), ", \
-	   "offset(", offset_.val(), ")");
+  syscall_logger_->log_info(
+      "traced fd(", descriptor_.val(), "), ", "replayed fd(", replayed_fd,
+      "), ", "data(", data_written_.val(), "), ", "nbytes(",
+      bytes_requested_.val(), "), ", "offset(", offset_.val(), ")");
 }
 
 void PWriteSystemCallTraceReplayModule::processRow() {
@@ -132,7 +125,7 @@ void PWriteSystemCallTraceReplayModule::processRow() {
   }
 
   // Check to see if write data is NULL in DS or user didn't specify pattern
-  if (data_written_.isNull() && pattern_data_.empty() ) {
+  if (data_written_.isNull() && pattern_data_.empty()) {
     // Let's write zeros.
     pattern_data_ = "0x0";
   }
@@ -166,6 +159,5 @@ void PWriteSystemCallTraceReplayModule::processRow() {
   replayed_ret_val_ = pwrite(fd, data_buffer, nbytes, offset);
 
   // Free the buffer
-  if (!pattern_data_.empty())
-    delete[] data_buffer;
+  if (!pattern_data_.empty()) delete[] data_buffer;
 }

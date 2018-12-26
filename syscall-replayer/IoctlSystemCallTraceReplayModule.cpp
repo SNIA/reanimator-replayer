@@ -19,16 +19,14 @@
 
 #include "IoctlSystemCallTraceReplayModule.hpp"
 
-IoctlSystemCallTraceReplayModule::
-IoctlSystemCallTraceReplayModule(DataSeriesModule &source,
-                                 bool verbose_flag,
-                                 int warn_level_flag):
-  SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-  descriptor_(series, "descriptor"),
-  request_(series, "request"),
-  parameter_(series, "parameter", Field::flag_nullable),
-  ioctl_buffer_(series, "ioctl_buffer", Field::flag_nullable),
-  buffer_size_(series, "buffer_size") {
+IoctlSystemCallTraceReplayModule::IoctlSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
+    : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+      descriptor_(series, "descriptor"),
+      request_(series, "request"),
+      parameter_(series, "parameter", Field::flag_nullable),
+      ioctl_buffer_(series, "ioctl_buffer", Field::flag_nullable),
+      buffer_size_(series, "buffer_size") {
   sys_call_name_ = "ioctl";
 }
 
@@ -36,8 +34,8 @@ void IoctlSystemCallTraceReplayModule::print_specific_fields() {
   pid_t pid = executing_pid();
   int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
   syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
-    "replayed fd(", replayed_fd, "), ",
-    "request(", boost::format("0x%02x") % request_.val(), ")");
+                            "replayed fd(", replayed_fd, "), ", "request(",
+                            boost::format("0x%02x") % request_.val(), ")");
 }
 
 void IoctlSystemCallTraceReplayModule::processRow() {

@@ -26,12 +26,12 @@
 
 #include "SystemCallTraceReplayModule.hpp"
 
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 class ChmodSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-private:
+ private:
   // Chmod System Call Trace Fields in Dataseries file
   Variable32Field given_pathname_;
   Int32Field mode_value_;
@@ -49,19 +49,20 @@ private:
    */
   void processRow();
 
-public:
-  ChmodSystemCallTraceReplayModule(DataSeriesModule &source,
-				   bool verbose_flag,
-				   int warn_level_flag);
+ public:
+  ChmodSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                   int warn_level_flag);
 
-    SystemCallTraceReplayModule *move() {
-    auto movePtr = new ChmodSystemCallTraceReplayModule(source, verbose_, warn_level_);
+  SystemCallTraceReplayModule *move() {
+    auto movePtr =
+        new ChmodSystemCallTraceReplayModule(source, verbose_, warn_level_);
     movePtr->setMove(pathname, modeVal);
-    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
-                       executingPidVal, errorNoVal, returnVal, replayerIndex);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
     return movePtr;
   }
-  void setMove(char* path, int mode) {
+  void setMove(char *path, int mode) {
     pathname = path;
     modeVal = mode;
   }

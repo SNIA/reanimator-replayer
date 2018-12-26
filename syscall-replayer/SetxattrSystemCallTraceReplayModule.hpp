@@ -22,14 +22,14 @@
 #ifndef SETXATTR_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define SETXATTR_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 
-#include "SystemCallTraceReplayModule.hpp"
+#include <fcntl.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/xattr.h>
-#include <sys/stat.h>
-#include <fcntl.h>
+#include "SystemCallTraceReplayModule.hpp"
 
 class SetxattrSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-protected:
+ protected:
   bool verify_;
   std::string pattern_data_;
   // Setxattr System Call Trace Fields in Dataseries file
@@ -50,16 +50,16 @@ protected:
    */
   void processRow();
 
-public:
+ public:
   SetxattrSystemCallTraceReplayModule(DataSeriesModule &source,
-				      bool verbose_flag,
-				      bool verify_flag,
-				      int warn_level_flag,
-				      std::string pattern_data);
+                                      bool verbose_flag, bool verify_flag,
+                                      int warn_level_flag,
+                                      std::string pattern_data);
 };
 
-class LSetxattrSystemCallTraceReplayModule : public SetxattrSystemCallTraceReplayModule {
-protected:
+class LSetxattrSystemCallTraceReplayModule
+    : public SetxattrSystemCallTraceReplayModule {
+ protected:
   /**
    * Print lsetxattr sys call field values in a nice format
    */
@@ -71,16 +71,16 @@ protected:
    */
   void processRow();
 
-public:
+ public:
   LSetxattrSystemCallTraceReplayModule(DataSeriesModule &source,
-				       bool verbose_flag,
-				       bool verify_flag,
-				       int warn_level_flag,
-				       std::string pattern_data);
+                                       bool verbose_flag, bool verify_flag,
+                                       int warn_level_flag,
+                                       std::string pattern_data);
 };
 
-class FSetxattrSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-protected:
+class FSetxattrSystemCallTraceReplayModule
+    : public SystemCallTraceReplayModule {
+ protected:
   bool verify_;
   std::string pattern_data_;
   // FSetxattr System Call Trace Fields in Dataseries file
@@ -101,11 +101,10 @@ protected:
    */
   void processRow();
 
-public:
+ public:
   FSetxattrSystemCallTraceReplayModule(DataSeriesModule &source,
-				       bool verbose_flag,
-				       bool verify_flag,
-				       int warn_level_flag,
-				       std::string pattern_data);
+                                       bool verbose_flag, bool verify_flag,
+                                       int warn_level_flag,
+                                       std::string pattern_data);
 };
 #endif /* SETXATTR_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

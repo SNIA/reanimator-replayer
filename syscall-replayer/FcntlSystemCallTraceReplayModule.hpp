@@ -25,12 +25,12 @@
 
 #include "SystemCallTraceReplayModule.hpp"
 
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 class FcntlSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-private:
+ private:
   // Fcntl System Call Trace Fields in Dataseries file
   Int32Field descriptor_;
   Int32Field command_value_;
@@ -62,20 +62,23 @@ private:
    */
   void processRow();
 
-public:
-  FcntlSystemCallTraceReplayModule(DataSeriesModule &source,
-				   bool verbose_flag,
-				   int warn_level_flag);
+ public:
+  FcntlSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                   int warn_level_flag);
   SystemCallTraceReplayModule *move() {
-    auto movePtr = new FcntlSystemCallTraceReplayModule(source, verbose_, warn_level_);
-    movePtr->setMove(traced_fd, command_val, arg_val, lock_type_val, lock_whence_val, lock_start_val,
-                     lock_length_val, lock_pid_val, simulated_ret_val);
-    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
-                       executingPidVal, errorNoVal, returnVal, replayerIndex);
+    auto movePtr =
+        new FcntlSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    movePtr->setMove(traced_fd, command_val, arg_val, lock_type_val,
+                     lock_whence_val, lock_start_val, lock_length_val,
+                     lock_pid_val, simulated_ret_val);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
     return movePtr;
   }
-  void setMove(int fd, int commandVal, int argVal, int lockTypeVal, int lockWhenceVal,
-               int lockStartVal, int lockLengthVal, int lockPidVal, int simulatedRetVal) {
+  void setMove(int fd, int commandVal, int argVal, int lockTypeVal,
+               int lockWhenceVal, int lockStartVal, int lockLengthVal,
+               int lockPidVal, int simulatedRetVal) {
     traced_fd = fd;
     command_val = commandVal;
     arg_val = argVal;

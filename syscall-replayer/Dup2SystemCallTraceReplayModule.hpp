@@ -27,7 +27,7 @@
 #include "SystemCallTraceReplayModule.hpp"
 
 class Dup2SystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-private:
+ private:
   // DataSeries Dup2 System Call Trace Fields
   Int32Field old_descriptor_;
   Int32Field new_descriptor_;
@@ -43,10 +43,9 @@ private:
    */
   void processRow();
 
-public:
-  Dup2SystemCallTraceReplayModule(DataSeriesModule &source,
-				  bool verbose_flag,
-				  int warn_level_flag);
+ public:
+  Dup2SystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                  int warn_level_flag);
 };
 
 #endif /* DUP2_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

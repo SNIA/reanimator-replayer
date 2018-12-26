@@ -26,7 +26,7 @@
 #include "SystemCallTraceReplayModule.hpp"
 
 class ReadSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-protected:
+ protected:
   bool verify_;
   // Read System Call Trace Fields in Dataseries file
   Int32Field descriptor_;
@@ -48,20 +48,19 @@ protected:
    */
   void processRow();
 
-public:
-  ReadSystemCallTraceReplayModule(DataSeriesModule &source,
-				  bool verbose_flag,
-				  bool verify_flag,
-				  int warn_level_flag);
+ public:
+  ReadSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                  bool verify_flag, int warn_level_flag);
   SystemCallTraceReplayModule *move() {
     auto movePtr = new ReadSystemCallTraceReplayModule(source, verbose_,
                                                        verify_, warn_level_);
     movePtr->setMove(buffer, nbytes, traced_fd, dataReadBuf);
-    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
-                       executingPidVal, errorNoVal, returnVal, replayerIndex);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
     return movePtr;
   }
-  inline void setMove(char* buf, int byte, int fd, char* verifyBuf) {
+  inline void setMove(char *buf, int byte, int fd, char *verifyBuf) {
     buffer = buf;
     nbytes = byte;
     traced_fd = fd;
@@ -70,8 +69,9 @@ public:
   void prepareRow();
 };
 
-class PReadSystemCallTraceReplayModule : public ReadSystemCallTraceReplayModule {
-private:
+class PReadSystemCallTraceReplayModule
+    : public ReadSystemCallTraceReplayModule {
+ private:
   // PRead System Call Trace Fields in Dataseries file
   Int64Field offset_;
 
@@ -86,10 +86,8 @@ private:
    */
   void processRow();
 
-public:
-  PReadSystemCallTraceReplayModule(DataSeriesModule &source,
-				  bool verbose_flag,
-				  bool verify_flag,
-				  int warn_level_flag);
+ public:
+  PReadSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                   bool verify_flag, int warn_level_flag);
 };
 #endif /* READ_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

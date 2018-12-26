@@ -20,19 +20,17 @@
 #include "ChmodSystemCallTraceReplayModule.hpp"
 
 ChmodSystemCallTraceReplayModule::ChmodSystemCallTraceReplayModule(
-					   DataSeriesModule &source,
-					   bool verbose_flag,
-					   int warn_level_flag):
-  SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-  given_pathname_(series, "given_pathname"),
-  mode_value_(series, "mode_value", Field::flag_nullable) {
+    DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
+    : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+      given_pathname_(series, "given_pathname"),
+      mode_value_(series, "mode_value", Field::flag_nullable) {
   sys_call_name_ = "chmod";
 }
 
 void ChmodSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("pathname(", pathname, "), ", \
-    "traced mode(", modeVal, "), ",
-    "replayed mode(", get_mode(modeVal), ")");
+  syscall_logger_->log_info("pathname(", pathname, "), ", "traced mode(",
+                            modeVal, "), ", "replayed mode(", get_mode(modeVal),
+                            ")");
 }
 
 void ChmodSystemCallTraceReplayModule::processRow() {
@@ -43,7 +41,7 @@ void ChmodSystemCallTraceReplayModule::processRow() {
 
 void ChmodSystemCallTraceReplayModule::prepareRow() {
   auto pathBuf = reinterpret_cast<const char *>(given_pathname_.val());
-  pathname = new char[std::strlen(pathBuf)+1];
+  pathname = new char[std::strlen(pathBuf) + 1];
   std::strcpy(pathname, pathBuf);
   modeVal = mode_value_.val();
   SystemCallTraceReplayModule::prepareRow();

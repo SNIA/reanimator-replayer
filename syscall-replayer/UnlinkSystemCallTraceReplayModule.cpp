@@ -19,12 +19,10 @@
 
 #include "UnlinkSystemCallTraceReplayModule.hpp"
 
-UnlinkSystemCallTraceReplayModule::
-UnlinkSystemCallTraceReplayModule(DataSeriesModule &source,
-				  bool verbose_flag,
-				  int warn_level_flag):
-  SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-  given_pathname_(series, "given_pathname") {
+UnlinkSystemCallTraceReplayModule::UnlinkSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
+    : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+      given_pathname_(series, "given_pathname") {
   sys_call_name_ = "unlink";
 }
 
@@ -40,18 +38,16 @@ void UnlinkSystemCallTraceReplayModule::processRow() {
 
 void UnlinkSystemCallTraceReplayModule::prepareRow() {
   auto pathBuf = reinterpret_cast<const char *>(given_pathname_.val());
-  pathname = new char[std::strlen(pathBuf)+1];
+  pathname = new char[std::strlen(pathBuf) + 1];
   std::strcpy(pathname, pathBuf);
   SystemCallTraceReplayModule::prepareRow();
 }
 
-UnlinkatSystemCallTraceReplayModule::
-UnlinkatSystemCallTraceReplayModule(DataSeriesModule &source,
-				    bool verbose_flag,
-				    int warn_level_flag):
-  UnlinkSystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-  descriptor_(series, "descriptor"),
-  flag_value_(series, "flag_value", Field::flag_nullable) {
+UnlinkatSystemCallTraceReplayModule::UnlinkatSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
+    : UnlinkSystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+      descriptor_(series, "descriptor"),
+      flag_value_(series, "flag_value", Field::flag_nullable) {
   sys_call_name_ = "unlinkat";
 }
 
@@ -59,16 +55,16 @@ void UnlinkatSystemCallTraceReplayModule::print_specific_fields() {
   pid_t pid = executing_pid();
   int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
   syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
-    "replayed fd(", replayed_fd, "), ",
-    "pathname(", given_pathname_.val(), "), ", \
-    "flags(", flag_value_.val(), ")");
+                            "replayed fd(", replayed_fd, "), ", "pathname(",
+                            given_pathname_.val(), "), ", "flags(",
+                            flag_value_.val(), ")");
 }
 
 void UnlinkatSystemCallTraceReplayModule::processRow() {
   // Get replaying file descriptor.
   pid_t pid = executing_pid();
   int dirfd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
-  char *path = (char *) given_pathname_.val();
+  char *path = (char *)given_pathname_.val();
   int flags = flag_value_.val();
 
   if (dirfd == SYSCALL_SIMULATED && path != NULL && path[0] != '/') {

@@ -26,11 +26,11 @@
 
 #include "SystemCallTraceReplayModule.hpp"
 
-#include <unistd.h>
 #include <fcntl.h>
+#include <unistd.h>
 
 class UnlinkSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-protected:
+ protected:
   // Unlink System Call Trace Fields in Dataseries file
   Variable32Field given_pathname_;
   char *pathname;
@@ -45,27 +45,26 @@ protected:
    */
   void processRow();
 
-public:
-  UnlinkSystemCallTraceReplayModule(DataSeriesModule &source,
-				    bool verbose_flag,
-				    int warn_level_flag);
+ public:
+  UnlinkSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                    int warn_level_flag);
   SystemCallTraceReplayModule *move() {
-    auto movePtr = new UnlinkSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    auto movePtr =
+        new UnlinkSystemCallTraceReplayModule(source, verbose_, warn_level_);
     movePtr->setMove(pathname);
-    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
-                       executingPidVal, errorNoVal, returnVal, replayerIndex);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
     return movePtr;
   }
-  void setMove(char* path) {
-    pathname = path;
-  }
+  void setMove(char *path) { pathname = path; }
 
   void prepareRow();
 };
 
-class UnlinkatSystemCallTraceReplayModule :
-  public UnlinkSystemCallTraceReplayModule {
-private:
+class UnlinkatSystemCallTraceReplayModule
+    : public UnlinkSystemCallTraceReplayModule {
+ private:
   // Unlinkat System Call Trace Fields in Dataseries file
   Int32Field descriptor_;
   Int32Field flag_value_;
@@ -81,10 +80,9 @@ private:
    */
   void processRow();
 
-public:
+ public:
   UnlinkatSystemCallTraceReplayModule(DataSeriesModule &source,
-				      bool verbose_flag,
-				      int warn_level_flag);
+                                      bool verbose_flag, int warn_level_flag);
 };
 
 #endif /* UNLINK_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

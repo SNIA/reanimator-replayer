@@ -17,29 +17,25 @@
 
 #include "SetxattrSystemCallTraceReplayModule.hpp"
 
-SetxattrSystemCallTraceReplayModule::
-SetxattrSystemCallTraceReplayModule(DataSeriesModule &source,
-				    bool verbose_flag,
-				    bool verify_flag,
-				    int warn_level_flag,
-				    std::string pattern_data):
-  SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-  verify_(verify_flag),
-  pattern_data_(pattern_data),
-  given_pathname_(series, "given_pathname"),
-  xattr_name_(series, "xattr_name"),
-  value_written_(series, "value_written", Field::flag_nullable),
-  value_size_(series, "value_size"),
-  flag_value_(series, "flag_value", Field::flag_nullable) {
+SetxattrSystemCallTraceReplayModule::SetxattrSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, bool verify_flag,
+    int warn_level_flag, std::string pattern_data)
+    : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+      verify_(verify_flag),
+      pattern_data_(pattern_data),
+      given_pathname_(series, "given_pathname"),
+      xattr_name_(series, "xattr_name"),
+      value_written_(series, "value_written", Field::flag_nullable),
+      value_size_(series, "value_size"),
+      flag_value_(series, "flag_value", Field::flag_nullable) {
   sys_call_name_ = "setxattr";
 }
 
 void SetxattrSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("pathname(", given_pathname_.val(),
-    "), xattr name(", xattr_name_.val(),
-    "), value written(", value_written_.val(),
-    "), value size(", value_size_.val(),
-    "), flags(", flag_value_.val(), ")");
+  syscall_logger_->log_info(
+      "pathname(", given_pathname_.val(), "), xattr name(", xattr_name_.val(),
+      "), value written(", value_written_.val(), "), value size(",
+      value_size_.val(), "), flags(", flag_value_.val(), ")");
 }
 
 void SetxattrSystemCallTraceReplayModule::processRow() {
@@ -87,24 +83,19 @@ void SetxattrSystemCallTraceReplayModule::processRow() {
   }
 }
 
-LSetxattrSystemCallTraceReplayModule::
-LSetxattrSystemCallTraceReplayModule(DataSeriesModule &source,
-				     bool verbose_flag,
-				     bool verify_flag,
-				     int warn_level_flag,
-				     std::string pattern_data):
-  SetxattrSystemCallTraceReplayModule(source, verbose_flag,
-				      verify_flag, warn_level_flag,
-				      pattern_data) {
+LSetxattrSystemCallTraceReplayModule::LSetxattrSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, bool verify_flag,
+    int warn_level_flag, std::string pattern_data)
+    : SetxattrSystemCallTraceReplayModule(source, verbose_flag, verify_flag,
+                                          warn_level_flag, pattern_data) {
   sys_call_name_ = "lsetxattr";
 }
 
 void LSetxattrSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("pathname(", given_pathname_.val(),
-    "), xattr name(", xattr_name_.val(),
-    "), value written(", value_written_.val(),
-    "), value size(", value_size_.val(),
-    "), flags(", flag_value_.val(), ")");
+  syscall_logger_->log_info(
+      "pathname(", given_pathname_.val(), "), xattr name(", xattr_name_.val(),
+      "), value written(", value_written_.val(), "), value size(",
+      value_size_.val(), "), flags(", flag_value_.val(), ")");
 }
 
 void LSetxattrSystemCallTraceReplayModule::processRow() {
@@ -152,32 +143,28 @@ void LSetxattrSystemCallTraceReplayModule::processRow() {
   }
 }
 
-FSetxattrSystemCallTraceReplayModule::
-FSetxattrSystemCallTraceReplayModule(DataSeriesModule &source,
-				     bool verbose_flag,
-				     bool verify_flag,
-				     int warn_level_flag,
-				     std::string pattern_data):
-  SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-  verify_(verify_flag),
-  pattern_data_(pattern_data),
-  descriptor_(series, "descriptor"),
-  xattr_name_(series, "xattr_name"),
-  value_written_(series, "value_written", Field::flag_nullable),
-  value_size_(series, "value_size"),
-  flag_value_(series, "flag_value", Field::flag_nullable) {
+FSetxattrSystemCallTraceReplayModule::FSetxattrSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, bool verify_flag,
+    int warn_level_flag, std::string pattern_data)
+    : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+      verify_(verify_flag),
+      pattern_data_(pattern_data),
+      descriptor_(series, "descriptor"),
+      xattr_name_(series, "xattr_name"),
+      value_written_(series, "value_written", Field::flag_nullable),
+      value_size_(series, "value_size"),
+      flag_value_(series, "flag_value", Field::flag_nullable) {
   sys_call_name_ = "fsetxattr";
 }
 
 void FSetxattrSystemCallTraceReplayModule::print_specific_fields() {
   pid_t pid = executing_pid();
   int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
-  syscall_logger_->log_info("traced fd(", descriptor_.val(),
-    "), replayed fd(", replayed_fd,
-    "), xattr name(", xattr_name_.val(),
-    "), value written(", value_written_.val(),
-    "), value size(", value_size_.val(),
-    "), flags(", flag_value_.val(), ")");
+  syscall_logger_->log_info("traced fd(", descriptor_.val(), "), replayed fd(",
+                            replayed_fd, "), xattr name(", xattr_name_.val(),
+                            "), value written(", value_written_.val(),
+                            "), value size(", value_size_.val(), "), flags(",
+                            flag_value_.val(), ")");
 }
 
 void FSetxattrSystemCallTraceReplayModule::processRow() {
@@ -189,13 +176,13 @@ void FSetxattrSystemCallTraceReplayModule::processRow() {
   int flags = flag_value_.val();
 
   if (fd == SYSCALL_SIMULATED) {
-     /*
-      * FD for the fsetxattr system call originated from a socket().
-      * The system call will not be replayed.
-      * Original return value will be returned.
-      */
-      replayed_ret_val_ = return_value_.val();
-      return;
+    /*
+     * FD for the fsetxattr system call originated from a socket().
+     * The system call will not be replayed.
+     * Original return value will be returned.
+     */
+    replayed_ret_val_ = return_value_.val();
+    return;
   }
   // Check to see if user wants to use pattern
   if (!pattern_data_.empty()) {

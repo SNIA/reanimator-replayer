@@ -18,9 +18,9 @@
 
 #include "ReplayerResourcesManager.hpp"
 #include <fcntl.h>
-#include <iostream>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <iostream>
 
 ReplayerResourcesManager::ReplayerResourcesManager() {}
 
@@ -65,18 +65,19 @@ void ReplayerResourcesManager::initialize(SystemCallTraceReplayLogger *logger,
   fd_table_map_lock.lock();
   auto fd_table_pid = fd_table_map_[pid];
   fd_table_map_lock.unlock();
-  std::unordered_set<int> known_fds =
-      fd_table_pid->get_all_replayed_fds();
-  logger_->log_info("Start initial fd scan. Cache all fds that are not known "
-                    "to the resource manager.");
+  std::unordered_set<int> known_fds = fd_table_pid->get_all_replayed_fds();
+  logger_->log_info(
+      "Start initial fd scan. Cache all fds that are not known "
+      "to the resource manager.");
   for (int fd = 0; fd <= max_fds; fd++) {
     if (is_fd_in_use(fd) && known_fds.find(fd) == known_fds.end()) {
       replayer_used_fds_.insert(fd);
     }
   }
   if (replayer_used_fds_.size() > 1) {
-    logger_->log_warn("Find multiple fds that are used by the replayer. "
-                      "Printing all of them");
+    logger_->log_warn(
+        "Find multiple fds that are used by the replayer. "
+        "Printing all of them");
     for (std::unordered_set<int>::iterator it = replayer_used_fds_.begin();
          it != replayer_used_fds_.end(); it++) {
       logger_->log_warn(*it);
@@ -95,8 +96,8 @@ int ReplayerResourcesManager::get_fd(pid_t pid, int traced_fd) {
   return fd_table_map_[pid]->get_fd(traced_fd);
 }
 
-std::unordered_set<int>
-ReplayerResourcesManager::get_all_traced_fds(pid_t pid) {
+std::unordered_set<int> ReplayerResourcesManager::get_all_traced_fds(
+    pid_t pid) {
   assert(fd_table_map_.find(pid) != fd_table_map_.end());
   return fd_table_map_[pid]->get_all_traced_fds();
 }
@@ -182,9 +183,10 @@ void ReplayerResourcesManager::clone_fd_table(pid_t ppid, pid_t pid,
         new_fd = dup(old_fd);
         if (new_fd == -1) {
           // dup failed
-          logger_->log_err("Cloning fd_table failed"
-                           " for pid: %d, fd %d\n",
-                           pid, new_fd);
+          logger_->log_err(
+              "Cloning fd_table failed"
+              " for pid: %d, fd %d\n",
+              pid, new_fd);
         }
       } else {
         new_fd = old_fd;
@@ -339,9 +341,10 @@ void ReplayerResourcesManager::validate_consistency() {
        * resource manager knowing it. This could
        * cause serious problems in replaying.
        */
-      logger_->log_err("Unused file descriptor, but the resource manager "
-                       "thinks it is in used: fd #",
-                       fd);
+      logger_->log_err(
+          "Unused file descriptor, but the resource manager "
+          "thinks it is in used: fd #",
+          fd);
     }
 
     /*

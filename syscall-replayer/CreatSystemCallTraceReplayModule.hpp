@@ -24,12 +24,12 @@
 
 #include "SystemCallTraceReplayModule.hpp"
 
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 class CreatSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-private:
+ private:
   // Creat System Call Trace Fields in Dataseries file
   Variable32Field given_pathname_;
   Int32Field mode_value_;
@@ -45,10 +45,9 @@ private:
    */
   void processRow();
 
-public:
-  CreatSystemCallTraceReplayModule(DataSeriesModule &source,
-				   bool verbose_flag,
-				   int warn_level_flag);
+ public:
+  CreatSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                   int warn_level_flag);
 };
 
 #endif /* CREAT_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

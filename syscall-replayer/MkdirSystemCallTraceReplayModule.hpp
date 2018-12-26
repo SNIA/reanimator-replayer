@@ -25,12 +25,12 @@
 
 #include "SystemCallTraceReplayModule.hpp"
 
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 class MkdirSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-protected:
+ protected:
   // Mkdir System Call Trace Fields in Dataseries file
   Variable32Field given_pathname_;
   Int32Field mode_value_;
@@ -48,28 +48,29 @@ protected:
    */
   void processRow();
 
-public:
-  MkdirSystemCallTraceReplayModule(DataSeriesModule &source,
-				   bool verbose_flag,
-				   int warn_level_flag);
+ public:
+  MkdirSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                   int warn_level_flag);
 
   SystemCallTraceReplayModule *move() {
-    auto movePtr = new MkdirSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    auto movePtr =
+        new MkdirSystemCallTraceReplayModule(source, verbose_, warn_level_);
     movePtr->setMove(pathname, modeVal);
-    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
-                       executingPidVal, errorNoVal, returnVal, replayerIndex);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
     return movePtr;
   }
-  void setMove(char* path, int mode) {
+  void setMove(char *path, int mode) {
     pathname = path;
     modeVal = mode;
   }
   void prepareRow();
 };
 
-class MkdiratSystemCallTraceReplayModule :
-  public MkdirSystemCallTraceReplayModule {
-private:
+class MkdiratSystemCallTraceReplayModule
+    : public MkdirSystemCallTraceReplayModule {
+ private:
   // Mkdirat System Call Trace Fields in Dataseries file
   Int32Field descriptor_;
 
@@ -84,11 +85,9 @@ private:
    */
   void processRow();
 
-public:
+ public:
   MkdiratSystemCallTraceReplayModule(DataSeriesModule &source,
-				     bool verbose_flag,
-				     int warn_level_flag);
-
+                                     bool verbose_flag, int warn_level_flag);
 };
 
 #endif /* MKDIR_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

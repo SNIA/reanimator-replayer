@@ -21,102 +21,84 @@
 #include <cstring>
 #include <memory>
 
-BasicStatSystemCallTraceReplayModule::
-BasicStatSystemCallTraceReplayModule(DataSeriesModule &source,
-				     bool verbose_flag,
-				     bool verify_flag,
-				     int warn_level_flag):
-  SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-  verify_(verify_flag),
-  stat_result_dev_(series, "stat_result_dev", Field::flag_nullable),
-  stat_result_ino_(series, "stat_result_ino", Field::flag_nullable),
-  stat_result_mode_(series, "stat_result_mode", Field::flag_nullable),
-  stat_result_nlink_(series, "stat_result_nlink", Field::flag_nullable),
-  stat_result_uid_(series, "stat_result_uid", Field::flag_nullable),
-  stat_result_gid_(series, "stat_result_gid", Field::flag_nullable),
-  stat_result_rdev_(series, "stat_result_rdev", Field::flag_nullable),
-  stat_result_blksize_(series, "stat_result_blksize", Field::flag_nullable),
-  stat_result_blocks_(series, "stat_result_blocks", Field::flag_nullable),
-  stat_result_size_(series, "stat_result_size", Field::flag_nullable),
-  stat_result_atime_(series, "stat_result_atime", Field::flag_nullable),
-  stat_result_mtime_(series, "stat_result_mtime", Field::flag_nullable),
-  stat_result_ctime_(series, "stat_result_ctime", Field::flag_nullable) { }
+BasicStatSystemCallTraceReplayModule::BasicStatSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, bool verify_flag,
+    int warn_level_flag)
+    : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+      verify_(verify_flag),
+      stat_result_dev_(series, "stat_result_dev", Field::flag_nullable),
+      stat_result_ino_(series, "stat_result_ino", Field::flag_nullable),
+      stat_result_mode_(series, "stat_result_mode", Field::flag_nullable),
+      stat_result_nlink_(series, "stat_result_nlink", Field::flag_nullable),
+      stat_result_uid_(series, "stat_result_uid", Field::flag_nullable),
+      stat_result_gid_(series, "stat_result_gid", Field::flag_nullable),
+      stat_result_rdev_(series, "stat_result_rdev", Field::flag_nullable),
+      stat_result_blksize_(series, "stat_result_blksize", Field::flag_nullable),
+      stat_result_blocks_(series, "stat_result_blocks", Field::flag_nullable),
+      stat_result_size_(series, "stat_result_size", Field::flag_nullable),
+      stat_result_atime_(series, "stat_result_atime", Field::flag_nullable),
+      stat_result_mtime_(series, "stat_result_mtime", Field::flag_nullable),
+      stat_result_ctime_(series, "stat_result_ctime", Field::flag_nullable) {}
 
 int BasicStatSystemCallTraceReplayModule::print_mode_value(u_int st_mode) {
   int printable_mode = 0;
-  mode_t mode = (mode_t) st_mode;
-  if (mode & S_ISUID)
-    printable_mode |= 0x4000;
-  if (mode & S_ISGID)
-    printable_mode |= 0x2000;
-  if (mode & S_ISVTX)
-    printable_mode |= 0x1000;
-  if (mode & S_IRUSR)
-    printable_mode |= 0x400;
-  if (mode & S_IWUSR)
-    printable_mode |= 0x200;
-  if (mode & S_IXUSR)
-    printable_mode |= 0x100;
-  if (mode & S_IRGRP)
-    printable_mode |= 0x040;
-  if (mode & S_IWGRP)
-    printable_mode |= 0x020;
-  if (mode & S_IXGRP)
-    printable_mode |= 0x010;
-  if (mode & S_IROTH)
-    printable_mode |= 0x0004;
-  if (mode & S_IWOTH)
-    printable_mode |= 0x002;
-  if (mode & S_IXOTH)
-    printable_mode |= 0x001;
+  mode_t mode = (mode_t)st_mode;
+  if (mode & S_ISUID) printable_mode |= 0x4000;
+  if (mode & S_ISGID) printable_mode |= 0x2000;
+  if (mode & S_ISVTX) printable_mode |= 0x1000;
+  if (mode & S_IRUSR) printable_mode |= 0x400;
+  if (mode & S_IWUSR) printable_mode |= 0x200;
+  if (mode & S_IXUSR) printable_mode |= 0x100;
+  if (mode & S_IRGRP) printable_mode |= 0x040;
+  if (mode & S_IWGRP) printable_mode |= 0x020;
+  if (mode & S_IXGRP) printable_mode |= 0x010;
+  if (mode & S_IROTH) printable_mode |= 0x0004;
+  if (mode & S_IWOTH) printable_mode |= 0x002;
+  if (mode & S_IXOTH) printable_mode |= 0x001;
 
   return printable_mode;
 }
 
 void BasicStatSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("device id(", statDev, "), ", \
-  	"file inode number(", statINo, "), ", "file mode(", \
-  	boost::format("0x%02x") % print_mode_value(statMode), "), ", \
-  	"file nlinks(", statNLink, "), ", \
-  	"file UID(", statUID, "), ", \
-  	"file GID(", statGID, "), ", \
-  	"file size(", statSize, "), ", \
-  	"file blksize(", statBlkSize, "), ", \
-  	"file blocks(", statBlocks, ") ", \
-  	"file atime(", boost::format(DEC_PRECISION) % Tfrac_to_sec(statATime), ") ", \
-  	"file mtime(", boost::format(DEC_PRECISION) % Tfrac_to_sec(statMTime), ") ", \
-  	"file ctime(", boost::format(DEC_PRECISION) % Tfrac_to_sec(statCTime), ")");
+  syscall_logger_->log_info(
+      "device id(", statDev, "), ", "file inode number(", statINo, "), ",
+      "file mode(", boost::format("0x%02x") % print_mode_value(statMode), "), ",
+      "file nlinks(", statNLink, "), ", "file UID(", statUID, "), ",
+      "file GID(", statGID, "), ", "file size(", statSize, "), ",
+      "file blksize(", statBlkSize, "), ", "file blocks(", statBlocks, ") ",
+      "file atime(", boost::format(DEC_PRECISION) % Tfrac_to_sec(statATime),
+      ") ", "file mtime(",
+      boost::format(DEC_PRECISION) % Tfrac_to_sec(statMTime), ") ",
+      "file ctime(", boost::format(DEC_PRECISION) % Tfrac_to_sec(statCTime),
+      ")");
 }
 
-void BasicStatSystemCallTraceReplayModule::copyStatStruct(uint32_t dev, uint32_t ino,
-                                                          uint32_t mode, uint32_t nlink, uint32_t uid,
-                                                          uint32_t gid, uint32_t rdev,
-                                                          uint32_t blksize,uint32_t blocks,
-                                                          int64_t size,uint64_t atime,
-                                                          uint64_t mtime, uint64_t ctime)
-{
-    statDev = dev;
-    statINo = ino;
-    statMode = mode;
-    statNLink = nlink;
-    statUID = uid;
-    statGID = gid;
-    statRDev = rdev;
-    statBlkSize = blksize;
-    statBlocks = blocks;
-    statSize = size;
-    statATime = atime;
-    statMTime = mtime;
-    statCTime = ctime;
+void BasicStatSystemCallTraceReplayModule::copyStatStruct(
+    uint32_t dev, uint32_t ino, uint32_t mode, uint32_t nlink, uint32_t uid,
+    uint32_t gid, uint32_t rdev, uint32_t blksize, uint32_t blocks,
+    int64_t size, uint64_t atime, uint64_t mtime, uint64_t ctime) {
+  statDev = dev;
+  statINo = ino;
+  statMode = mode;
+  statNLink = nlink;
+  statUID = uid;
+  statGID = gid;
+  statRDev = rdev;
+  statBlkSize = blksize;
+  statBlocks = blocks;
+  statSize = size;
+  statATime = atime;
+  statMTime = mtime;
+  statCTime = ctime;
 }
 
 void BasicStatSystemCallTraceReplayModule::prepareRow() {
   statDev = stat_result_dev_.val();
   statINo = stat_result_ino_.val();
   statMode = stat_result_mode_.val();
-  statNLink =  stat_result_nlink_.val();
-  statUID =  stat_result_uid_.val();
-  statGID =  stat_result_gid_.val();
+  statNLink = stat_result_nlink_.val();
+  statUID = stat_result_uid_.val();
+  statGID = stat_result_gid_.val();
   statRDev = stat_result_rdev_.val();
   statBlkSize = stat_result_blksize_.val();
   statBlocks = stat_result_blocks_.val();
@@ -128,7 +110,7 @@ void BasicStatSystemCallTraceReplayModule::prepareRow() {
 }
 
 void BasicStatSystemCallTraceReplayModule::verifyResult(
-					      struct stat replayed_stat_buf) {
+    struct stat replayed_stat_buf) {
   /*
    * Verify stat buffer contents in the trace file are same
    * We are comparing only key fields captured in strace : st_ino,
@@ -262,8 +244,8 @@ FStatSystemCallTraceReplayModule::FStatSystemCallTraceReplayModule(
 void FStatSystemCallTraceReplayModule::print_specific_fields() {
   pid_t pid = executing_pid();
   int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptorVal);
-  syscall_logger_->log_info("traced fd(", descriptorVal, "), ",
-                            "replayed fd(", replayed_fd, "), ");
+  syscall_logger_->log_info("traced fd(", descriptorVal, "), ", "replayed fd(",
+                            replayed_fd, "), ");
   BasicStatSystemCallTraceReplayModule::print_specific_fields();
 }
 

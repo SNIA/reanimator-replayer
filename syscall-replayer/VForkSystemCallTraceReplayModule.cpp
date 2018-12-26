@@ -19,16 +19,13 @@
 
 #include "VForkSystemCallTraceReplayModule.hpp"
 
-VForkSystemCallTraceReplayModule::
-VForkSystemCallTraceReplayModule(DataSeriesModule &source,
-                                 bool verbose_flag,
-                                 int warn_level_flag):
-  SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag) {
+VForkSystemCallTraceReplayModule::VForkSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
+    : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag) {
   sys_call_name_ = "vfork";
 }
 
-void VForkSystemCallTraceReplayModule::print_specific_fields() {
-}
+void VForkSystemCallTraceReplayModule::print_specific_fields() {}
 
 void VForkSystemCallTraceReplayModule::processRow() {
   /*
@@ -43,6 +40,8 @@ void VForkSystemCallTraceReplayModule::processRow() {
   pid_t ppid = executing_pid();
   pid_t pid = return_value();
   // Clone resources tables
-  SystemCallTraceReplayModule::replayer_resources_manager_.clone_umask(ppid, pid, shared_umask);
-  SystemCallTraceReplayModule::replayer_resources_manager_.clone_fd_table(ppid, pid, shared_files);
+  SystemCallTraceReplayModule::replayer_resources_manager_.clone_umask(
+      ppid, pid, shared_umask);
+  SystemCallTraceReplayModule::replayer_resources_manager_.clone_fd_table(
+      ppid, pid, shared_files);
 }

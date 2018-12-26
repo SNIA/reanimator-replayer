@@ -25,7 +25,7 @@
 #include "SystemCallTraceReplayModule.hpp"
 
 class MmapSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-private:
+ private:
   // DataSeries Mmap System Call Trace Fields
   Int64Field start_address_;
   Int64Field length_;
@@ -45,14 +45,15 @@ private:
    */
   void processRow();
 
-public:
-  MmapSystemCallTraceReplayModule(DataSeriesModule &source,
-				  bool verbose_flag,
-				  int warn_level_flag);
+ public:
+  MmapSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                  int warn_level_flag);
   SystemCallTraceReplayModule *move() {
-    auto movePtr = new MmapSystemCallTraceReplayModule(source, verbose_, warn_level_);
-    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
-                       executingPidVal, errorNoVal, returnVal, replayerIndex);
+    auto movePtr =
+        new MmapSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
     return movePtr;
   }
 };

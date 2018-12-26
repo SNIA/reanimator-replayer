@@ -18,20 +18,18 @@
 
 #include "CloseSystemCallTraceReplayModule.hpp"
 
-CloseSystemCallTraceReplayModule::
-CloseSystemCallTraceReplayModule(DataSeriesModule &source,
-				 bool verbose_flag,
-				 int warn_level_flag):
-  SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-  descriptor_(series, "descriptor") {
+CloseSystemCallTraceReplayModule::CloseSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
+    : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+      descriptor_(series, "descriptor") {
   sys_call_name_ = "close";
 }
 
 void CloseSystemCallTraceReplayModule::print_specific_fields() {
   pid_t pid = executing_pid();
   int replayed_fd = replayer_resources_manager_.get_fd(pid, descVal);
-  syscall_logger_->log_info("traced fd(", descVal, "), ",
-    "replayed fd(", replayed_fd, ")");
+  syscall_logger_->log_info("traced fd(", descVal, "), ", "replayed fd(",
+                            replayed_fd, ")");
 }
 
 void CloseSystemCallTraceReplayModule::processRow() {

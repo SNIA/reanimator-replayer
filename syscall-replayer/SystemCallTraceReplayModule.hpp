@@ -26,26 +26,26 @@
 #define SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 
 #include <DataSeries/RowAnalysisModule.hpp>
-#include "strace2ds.h"
 #include "ReplayerResourcesManager.hpp"
 #include "SystemCallTraceReplayLogger.hpp"
+#include "strace2ds.h"
 
-#include <string>
-#include <map>
-#include <iostream>
-#include <fstream>
-#include <sstream>
 #include <errno.h>
-#include <boost/format.hpp>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <boost/format.hpp>
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <sstream>
+#include <string>
 
 #define DEFAULT_MODE 0
-#define WARN_MODE    1
-#define ABORT_MODE   2
-#define SYSCALL_FAILURE	-1
-#define SYSCALL_SIMULATED	-2
+#define WARN_MODE 1
+#define ABORT_MODE 2
+#define SYSCALL_FAILURE -1
+#define SYSCALL_SIMULATED -2
 /*
  * DEC_PRECISION specifies the format for printing precision of decimal
  * values upto 25 decimal places in logger file.
@@ -53,10 +53,10 @@
 #define DEC_PRECISION "%.25f"
 
 class SystemCallTraceReplayModule : public RowAnalysisModule {
-protected:
+ protected:
   std::string sys_call_name_;
   bool verbose_;
-  int  warn_level_;
+  int warn_level_;
   Int64Field time_called_;
   Int64Field time_returned_;
   Int64Field time_recorded_;
@@ -64,7 +64,8 @@ protected:
   Int32Field errno_number_;
   Int64Field return_value_;
   Int64Field unique_id_;
-  int rows_per_call_; // It stores the number of rows processed per system call.
+  int rows_per_call_;  // It stores the number of rows processed per system
+                       // call.
   int replayed_ret_val_;
 
   int64_t uniqueIdVal;
@@ -144,7 +145,7 @@ protected:
    */
   mode_t get_mode(mode_t mode);
 
-public:
+ public:
   // A resource manager for umask and file descriptors
   static ReplayerResourcesManager replayer_resources_manager_;
   // An input file stream for reading random data from /dev/urandom
@@ -162,7 +163,7 @@ public:
    *
    */
   SystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
-			      int warn_level_flag);
+                              int warn_level_flag);
 
   /**
    * Determine whether or not to replay in verbose mode
@@ -283,7 +284,8 @@ public:
    * compatible with major_v.minor_v. Return true if current extent
    * has version x.y and y <= minor_v and x == major_v.
    *
-   * @return: true indicates current extent is compatible with version major_v.minor_v.
+   * @return: true indicates current extent is compatible with version
+   * major_v.minor_v.
    */
   bool is_version_compatible(unsigned int major_v, unsigned int minor_v);
 
@@ -338,8 +340,7 @@ public:
   bool isReplayable();
 
   virtual void prepareRow();
-  void setCommon(int64_t id, int64_t called,
-                 int64_t returned, int64_t recorded,
+  void setCommon(int64_t id, int64_t called, int64_t returned, int64_t recorded,
                  int64_t pid, int error, int ret, int64_t index) {
     uniqueIdVal = id;
     timeCalledVal = called;
@@ -350,17 +351,11 @@ public:
     returnVal = ret;
     replayerIndex = index;
   }
-  virtual SystemCallTraceReplayModule *move() {
-    return NULL;
-  }
+  virtual SystemCallTraceReplayModule *move() { return NULL; }
 
-  int64_t getReplayerIndex() {
-    return replayerIndex;
-  }
+  int64_t getReplayerIndex() { return replayerIndex; }
 
-  void setReplayerIndex(int64_t idx) {
-    replayerIndex = idx;
-  }
+  void setReplayerIndex(int64_t idx) { replayerIndex = idx; }
 };
 
 #endif /* SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

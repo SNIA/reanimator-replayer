@@ -23,14 +23,13 @@
 #ifndef OPEN_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define OPEN_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include "SystemCallTraceReplayModule.hpp"
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-
 class OpenSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-protected:
+ protected:
   // Open System Call Trace Fields in Dataseries file
   Variable32Field given_pathname_;
   Int32Field open_value_;
@@ -51,18 +50,19 @@ protected:
    */
   void processRow();
 
-public:
-  OpenSystemCallTraceReplayModule(DataSeriesModule &source,
-				  bool verbose_flag,
-				  int warn_level_flag);
+ public:
+  OpenSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                  int warn_level_flag);
   SystemCallTraceReplayModule *move() {
-    auto movePtr = new OpenSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    auto movePtr =
+        new OpenSystemCallTraceReplayModule(source, verbose_, warn_level_);
     movePtr->setMove(pathname, modeVal, flags, traced_fd);
-    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
-                       executingPidVal, errorNoVal, returnVal, replayerIndex);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
     return movePtr;
   }
-  void setMove(char* path, mode_t mode, int flag, int fd) {
+  void setMove(char *path, mode_t mode, int flag, int fd) {
     pathname = path;
     modeVal = mode;
     traced_fd = fd;
@@ -71,9 +71,9 @@ public:
   void prepareRow();
 };
 
-class OpenatSystemCallTraceReplayModule :
-  public OpenSystemCallTraceReplayModule {
-private:
+class OpenatSystemCallTraceReplayModule
+    : public OpenSystemCallTraceReplayModule {
+ private:
   // Openat System Call Trace Fields in Dataseries file
   Int32Field descriptor_;
 
@@ -88,11 +88,9 @@ private:
    */
   void processRow();
 
-public:
-  OpenatSystemCallTraceReplayModule(DataSeriesModule &source,
-				  bool verbose_flag,
-				  int warn_level_flag);
-
+ public:
+  OpenatSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                    int warn_level_flag);
 };
 
 #endif /* OPEN_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

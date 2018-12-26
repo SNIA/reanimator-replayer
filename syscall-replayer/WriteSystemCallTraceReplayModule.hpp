@@ -25,7 +25,7 @@
 #include "SystemCallTraceReplayModule.hpp"
 
 class WriteSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-protected:
+ protected:
   bool verify_;
   std::string pattern_data_;
   // Write System Call Trace Fields in Dataseries file
@@ -48,22 +48,20 @@ protected:
    */
   void processRow();
 
-public:
-  WriteSystemCallTraceReplayModule(DataSeriesModule &source,
-				   bool verbose_flag,
-				   bool verify_flag,
-				   int warn_level_flag,
-				   std::string pattern_data);
+ public:
+  WriteSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                   bool verify_flag, int warn_level_flag,
+                                   std::string pattern_data);
   SystemCallTraceReplayModule *move() {
-    auto movePtr = new WriteSystemCallTraceReplayModule(source, verbose_,
-                                                        verify_, warn_level_,
-                                                        pattern_data_);
+    auto movePtr = new WriteSystemCallTraceReplayModule(
+        source, verbose_, verify_, warn_level_, pattern_data_);
     movePtr->setMove(data_buffer, nbytes, traced_fd);
-    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
-                       executingPidVal, errorNoVal, returnVal, replayerIndex);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
     return movePtr;
   }
-  void setMove(char* buf, int byte, int fd) {
+  void setMove(char *buf, int byte, int fd) {
     data_buffer = buf;
     nbytes = byte;
     traced_fd = fd;
@@ -71,8 +69,9 @@ public:
   void prepareRow();
 };
 
-class PWriteSystemCallTraceReplayModule : public WriteSystemCallTraceReplayModule {
-private:
+class PWriteSystemCallTraceReplayModule
+    : public WriteSystemCallTraceReplayModule {
+ private:
   // PWrite System Call Trace Fields in Dataseries file
   Int64Field offset_;
 
@@ -87,11 +86,9 @@ private:
    */
   void processRow();
 
-public:
-  PWriteSystemCallTraceReplayModule(DataSeriesModule &source,
-				    bool verbose_flag,
-				    bool verify_flag,
-				    int warn_level_flag,
-				    std::string pattern_data);
+ public:
+  PWriteSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                    bool verify_flag, int warn_level_flag,
+                                    std::string pattern_data);
 };
 #endif /* WRITE_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

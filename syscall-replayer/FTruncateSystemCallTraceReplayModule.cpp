@@ -18,20 +18,18 @@
 
 #include "FTruncateSystemCallTraceReplayModule.hpp"
 
-FTruncateSystemCallTraceReplayModule::
-FTruncateSystemCallTraceReplayModule(DataSeriesModule &source,
-            bool verbose_flag,
-            int warn_level_flag):
-  SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-  descriptor_(series, "descriptor"),
-  truncate_length_(series, "truncate_length") {
+FTruncateSystemCallTraceReplayModule::FTruncateSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
+    : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+      descriptor_(series, "descriptor"),
+      truncate_length_(series, "truncate_length") {
   sys_call_name_ = "ftruncate";
 }
 
 void FTruncateSystemCallTraceReplayModule::print_specific_fields() {
   syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
-    "replayed fd(", getReplayedFD(), "), ",
-    "length(", truncate_length_.val(), ")");
+                            "replayed fd(", getReplayedFD(), "), ", "length(",
+                            truncate_length_.val(), ")");
 }
 
 int FTruncateSystemCallTraceReplayModule::getReplayedFD() {

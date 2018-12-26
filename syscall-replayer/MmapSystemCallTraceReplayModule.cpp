@@ -18,24 +18,23 @@
 
 #include "MmapSystemCallTraceReplayModule.hpp"
 
-MmapSystemCallTraceReplayModule::
-MmapSystemCallTraceReplayModule(DataSeriesModule &source,
-				bool verbose_flag,
-				int warn_level_flag):
-  SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-  start_address_(series, "start_address"),
-  length_(series, "length"),
-  protection_value_(series, "protection_value", Field::flag_nullable),
-  flags_value_(series, "flags_value", Field::flag_nullable),
-  descriptor_(series, "descriptor"),
-  offset_(series, "offset") {
+MmapSystemCallTraceReplayModule::MmapSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
+    : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+      start_address_(series, "start_address"),
+      length_(series, "length"),
+      protection_value_(series, "protection_value", Field::flag_nullable),
+      flags_value_(series, "flags_value", Field::flag_nullable),
+      descriptor_(series, "descriptor"),
+      offset_(series, "offset") {
   sys_call_name_ = "mmap";
 }
 
 void MmapSystemCallTraceReplayModule::print_specific_fields() {
   // TODO(XXX) Umit fix this
   // pid_t pid = executing_pid();
-  // int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
+  // int replayed_fd = replayer_resources_manager_.get_fd(pid,
+  // descriptor_.val());
 
   // syscall_logger_->log_info("start_address(", \
   //   boost::format("0x%02x") % start_address_.val(), "), ", \

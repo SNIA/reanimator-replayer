@@ -24,9 +24,8 @@
 
 #include <sys/socket.h>
 
-
 class SocketSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-protected:
+ protected:
   // Socket System Call Trace Fields in Dataseries file
   Int32Field domain_value_;
   Int32Field type_value_;
@@ -47,10 +46,8 @@ protected:
    */
   void processRow();
 
-public:
-  SocketSystemCallTraceReplayModule(DataSeriesModule &source,
-				    bool verbose_flag,
-				    int warn_level_flag);
-
+ public:
+  SocketSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                    int warn_level_flag);
 };
 #endif /* SOCKET_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

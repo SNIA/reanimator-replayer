@@ -25,7 +25,7 @@
 #include "SystemCallTraceReplayModule.hpp"
 
 class MunmapSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-private:
+ private:
   // DataSeries Munmap System Call Trace Fields
   Int64Field start_address_;
   Int64Field length_;
@@ -41,14 +41,15 @@ private:
    */
   void processRow();
 
-public:
-  MunmapSystemCallTraceReplayModule(DataSeriesModule &source,
-				    bool verbose_flag,
-				    int warn_level_flag);
+ public:
+  MunmapSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                    int warn_level_flag);
   SystemCallTraceReplayModule *move() {
-    auto movePtr = new MunmapSystemCallTraceReplayModule(source, verbose_, warn_level_);
-    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
-                       executingPidVal, errorNoVal, returnVal, replayerIndex);
+    auto movePtr =
+        new MunmapSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
     return movePtr;
   }
 };

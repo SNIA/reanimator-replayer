@@ -22,13 +22,13 @@
 #ifndef WRITEV_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define WRITEV_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 
-#include <unistd.h>
 #include <sys/uio.h>
+#include <unistd.h>
 
 #include "SystemCallTraceReplayModule.hpp"
 
 class WritevSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-private:
+ private:
   std::string pattern_data_;
   // Writev System Call Trace Fields in Dataseries file
   Int32Field descriptor_;
@@ -48,10 +48,9 @@ private:
    */
   void processRow();
 
-public:
-  WritevSystemCallTraceReplayModule(DataSeriesModule &source,
-				    bool verbose_flag,
-				    int warn_level_flag,
-				    std::string pattern_data);
+ public:
+  WritevSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                    int warn_level_flag,
+                                    std::string pattern_data);
 };
 #endif /* WRITEV_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

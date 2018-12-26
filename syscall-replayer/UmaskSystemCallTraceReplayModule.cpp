@@ -18,12 +18,10 @@
 
 #include "UmaskSystemCallTraceReplayModule.hpp"
 
-UmaskSystemCallTraceReplayModule::
-UmaskSystemCallTraceReplayModule(DataSeriesModule &source,
-				 bool verbose_flag,
-				 int warn_level_flag):
-  SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-  mode_value_(series, "mode_value", Field::flag_nullable) {
+UmaskSystemCallTraceReplayModule::UmaskSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
+    : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+      mode_value_(series, "mode_value", Field::flag_nullable) {
   sys_call_name_ = "umask";
 }
 
@@ -33,7 +31,8 @@ void UmaskSystemCallTraceReplayModule::print_specific_fields() {
 
 void UmaskSystemCallTraceReplayModule::processRow() {
   // Replay umask by updating umask table.
-  SystemCallTraceReplayModule::replayer_resources_manager_.set_umask(executingPidVal, mode);
+  SystemCallTraceReplayModule::replayer_resources_manager_.set_umask(
+      executingPidVal, mode);
   // Always succeed since umask always succeeds.
   replayed_ret_val_ = 0;
 }

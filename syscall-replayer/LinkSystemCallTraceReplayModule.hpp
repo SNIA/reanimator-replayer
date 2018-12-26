@@ -28,7 +28,7 @@
 #include <unistd.h>
 
 class LinkSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-protected:
+ protected:
   // Link System Call Trace Fields in Dataseries file
   Variable32Field given_oldpathname_;
   Variable32Field given_newpathname_;
@@ -44,15 +44,14 @@ protected:
    */
   void processRow();
 
-public:
-  LinkSystemCallTraceReplayModule(DataSeriesModule &source,
-				  bool verbose_flag,
-				  int warn_level_flag);
+ public:
+  LinkSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                  int warn_level_flag);
 };
 
-class LinkatSystemCallTraceReplayModule :
-  public LinkSystemCallTraceReplayModule {
-protected:
+class LinkatSystemCallTraceReplayModule
+    : public LinkSystemCallTraceReplayModule {
+ protected:
   // Linkat System Call Trace Fields in Dataseries file
   Int32Field old_descriptor_;
   Int32Field new_descriptor_;
@@ -69,9 +68,8 @@ protected:
    */
   void processRow();
 
-public:
-  LinkatSystemCallTraceReplayModule(DataSeriesModule &source,
-				    bool verbose_flag,
-				    int warn_level_flag);
+ public:
+  LinkatSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                    int warn_level_flag);
 };
 #endif /* LINK_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

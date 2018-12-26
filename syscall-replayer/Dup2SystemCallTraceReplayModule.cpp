@@ -19,32 +19,33 @@
 
 #include "Dup2SystemCallTraceReplayModule.hpp"
 
-Dup2SystemCallTraceReplayModule::
-Dup2SystemCallTraceReplayModule(DataSeriesModule &source,
-				bool verbose_flag,
-				int warn_level_flag):
-  SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-  old_descriptor_(series, "old_descriptor"),
-  new_descriptor_(series, "new_descriptor") {
+Dup2SystemCallTraceReplayModule::Dup2SystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
+    : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+      old_descriptor_(series, "old_descriptor"),
+      new_descriptor_(series, "new_descriptor") {
   sys_call_name_ = "dup2";
 }
 
 void Dup2SystemCallTraceReplayModule::print_specific_fields() {
   pid_t pid = executing_pid();
-  int replayed_old_fd = replayer_resources_manager_.get_fd(pid, old_descriptor_.val());
-  int replayed_new_fd = replayer_resources_manager_.get_fd(pid, new_descriptor_.val());
+  int replayed_old_fd =
+      replayer_resources_manager_.get_fd(pid, old_descriptor_.val());
+  int replayed_new_fd =
+      replayer_resources_manager_.get_fd(pid, new_descriptor_.val());
 
   syscall_logger_->log_info("traced old fd(", old_descriptor_.val(), "), ",
-    "replayed old fd(", replayed_old_fd, "), ",
-    "traced new fd(", new_descriptor_.val(), "), ",
-    "replayed new fd(", replayed_new_fd, ")");
+                            "replayed old fd(", replayed_old_fd, "), ",
+                            "traced new fd(", new_descriptor_.val(), "), ",
+                            "replayed new fd(", replayed_new_fd, ")");
 }
 
 void Dup2SystemCallTraceReplayModule::processRow() {
   // Get actual file descriptor
   pid_t pid = executing_pid();
   int old_fd = replayer_resources_manager_.get_fd(pid, old_descriptor_.val());
-  int old_fd_flags = replayer_resources_manager_.get_flags(pid, old_descriptor_.val());
+  int old_fd_flags =
+      replayer_resources_manager_.get_flags(pid, old_descriptor_.val());
   int new_fd = new_descriptor_.val();
   int replayed_new_fd = SYSCALL_SIMULATED;
 
@@ -88,13 +89,14 @@ void Dup2SystemCallTraceReplayModule::processRow() {
    * new_fd <-> generated fd into fd_map.
    */
 
-   // In all 4 actions above, if new_fd exists in fd_map, we remove it.
+  // In all 4 actions above, if new_fd exists in fd_map, we remove it.
   if (replayer_resources_manager_.has_fd(pid, new_fd)) {
     replayed_new_fd = replayer_resources_manager_.get_fd(pid, new_fd);
     replayer_resources_manager_.remove_fd(pid, new_fd);
   }
 
-  // The two file descriptors do not share file descriptor flags (the close-on-exec flag).
+  // The two file descriptors do not share file descriptor flags (the
+  // close-on-exec flag).
   int new_fd_flags = old_fd_flags & ~O_CLOEXEC;
 
   if (old_fd == SYSCALL_SIMULATED) {
@@ -107,7 +109,7 @@ void Dup2SystemCallTraceReplayModule::processRow() {
 
     replayed_ret_val_ = return_value_.val();
     replayer_resources_manager_.add_fd(pid, replayed_ret_val_,
-				       SYSCALL_SIMULATED, new_fd_flags);
+                                       SYSCALL_SIMULATED, new_fd_flags);
     return;
   }
 
@@ -118,6 +120,8 @@ void Dup2SystemCallTraceReplayModule::processRow() {
 
   replayed_ret_val_ = dup2(old_fd, replayed_new_fd);
 
-  // Map replayed duplicated file descriptor to traced duplicated file descriptor
-  replayer_resources_manager_.add_fd(pid, return_value(), replayed_ret_val_, new_fd_flags);
+  // Map replayed duplicated file descriptor to traced duplicated file
+  // descriptor
+  replayer_resources_manager_.add_fd(pid, return_value(), replayed_ret_val_,
+                                     new_fd_flags);
 }

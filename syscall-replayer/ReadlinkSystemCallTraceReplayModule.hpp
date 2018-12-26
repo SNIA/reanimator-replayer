@@ -27,7 +27,7 @@
 #include "SystemCallTraceReplayModule.hpp"
 
 class ReadlinkSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-private:
+ private:
   // Readlink System Call Trace Fields in Dataseries file
   bool verify_;
   Variable32Field given_pathname_;
@@ -45,10 +45,9 @@ private:
    */
   void processRow();
 
-public:
+ public:
   ReadlinkSystemCallTraceReplayModule(DataSeriesModule &source,
-				   bool verbose_flag,
-				   bool verify_flag,
-				   int warn_level_flag);
+                                      bool verbose_flag, bool verify_flag,
+                                      int warn_level_flag);
 };
 #endif /* READLINK_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

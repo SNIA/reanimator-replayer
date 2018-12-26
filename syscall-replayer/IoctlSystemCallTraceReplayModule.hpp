@@ -25,11 +25,11 @@
 
 #include "SystemCallTraceReplayModule.hpp"
 
-#include <cerrno>
 #include <sys/ioctl.h>
+#include <cerrno>
 
 class IoctlSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-private:
+ private:
   // Ioctl System Call Trace Fields in Dataseries file
   Int32Field descriptor_;
   Int32Field request_;
@@ -48,11 +48,9 @@ private:
    */
   void processRow();
 
-public:
-  IoctlSystemCallTraceReplayModule(DataSeriesModule &source,
-                                   bool verbose_flag,
+ public:
+  IoctlSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
                                    int warn_level_flag);
-
 };
 
 #endif /* IOCTL_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

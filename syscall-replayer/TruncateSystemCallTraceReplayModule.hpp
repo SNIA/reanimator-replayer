@@ -25,11 +25,11 @@
 
 #include "SystemCallTraceReplayModule.hpp"
 
-#include <unistd.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 class TruncateSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-protected:
+ protected:
   // Truncate System Call Trace Fields in Dataseries file
   Variable32Field given_pathname_;
   Int64Field truncate_length_;
@@ -45,10 +45,9 @@ protected:
    */
   void processRow();
 
-public:
+ public:
   TruncateSystemCallTraceReplayModule(DataSeriesModule &source,
-				      bool verbose_flag,
-				      int warn_level_flag);
+                                      bool verbose_flag, int warn_level_flag);
 };
 
 #endif /* TRUNCATE_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

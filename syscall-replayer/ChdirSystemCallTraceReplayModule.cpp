@@ -18,12 +18,10 @@
 
 #include "ChdirSystemCallTraceReplayModule.hpp"
 
-ChdirSystemCallTraceReplayModule::
-ChdirSystemCallTraceReplayModule(DataSeriesModule &source,
-				 bool verbose_flag,
-				 int warn_level_flag):
-  SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-  given_pathname_(series, "given_pathname") {
+ChdirSystemCallTraceReplayModule::ChdirSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
+    : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+      given_pathname_(series, "given_pathname") {
   sys_call_name_ = "chdir";
 }
 

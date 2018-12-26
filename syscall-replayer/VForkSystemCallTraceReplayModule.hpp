@@ -23,11 +23,11 @@
 #ifndef VFORK_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define VFORK_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 
-#include "SystemCallTraceReplayModule.hpp"
 #include <sched.h>
+#include "SystemCallTraceReplayModule.hpp"
 
 class VForkSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-private:
+ private:
   // DataSeries VFork System Call Trace Fields (VFork takes no arguments)
 
   /**
@@ -41,9 +41,8 @@ private:
    */
   void processRow();
 
-public:
-  VForkSystemCallTraceReplayModule(DataSeriesModule &source,
-                                   bool verbose_flag,
+ public:
+  VForkSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
                                    int warn_level_flag);
 };
 

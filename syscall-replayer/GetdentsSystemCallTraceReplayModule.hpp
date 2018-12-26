@@ -23,15 +23,15 @@
 #ifndef GETDENTS_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define GETDENTS_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 
-#include <cerrno>
-#include <unistd.h>
-#include <sys/syscall.h>
 #include <dirent.h>
+#include <sys/syscall.h>
+#include <unistd.h>
+#include <cerrno>
 
 #include "SystemCallTraceReplayModule.hpp"
 
 class GetdentsSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-protected:
+ protected:
   bool verify_;
   // Getdents System Call Trace Fields in Dataseries file
   Int32Field descriptor_;
@@ -54,20 +54,20 @@ protected:
    */
   void processRow();
 
-public:
+ public:
   GetdentsSystemCallTraceReplayModule(DataSeriesModule &source,
-				      bool verbose_flag,
-				      bool verify_flag,
-				      int warn_level_flag);
+                                      bool verbose_flag, bool verify_flag,
+                                      int warn_level_flag);
   SystemCallTraceReplayModule *move() {
-    auto movePtr = new GetdentsSystemCallTraceReplayModule(source, verbose_, verify_,
-                                                           warn_level_);
+    auto movePtr = new GetdentsSystemCallTraceReplayModule(
+        source, verbose_, verify_, warn_level_);
     movePtr->setMove(traced_fd, dirent_buffer_val, count_val);
-    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
-                       executingPidVal, errorNoVal, returnVal, replayerIndex);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
     return movePtr;
   }
-  void setMove(int fd, struct dirent* direntBuffer, int count) {
+  void setMove(int fd, struct dirent *direntBuffer, int count) {
     traced_fd = fd;
     dirent_buffer_val = direntBuffer;
     count_val = count;

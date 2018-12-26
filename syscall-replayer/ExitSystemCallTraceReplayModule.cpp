@@ -19,19 +19,17 @@
 #include "ExitSystemCallTraceReplayModule.hpp"
 #include <climits>
 
-ExitSystemCallTraceReplayModule::
-ExitSystemCallTraceReplayModule(DataSeriesModule &source,
-				bool verbose_flag,
-				int warn_level_flag):
-  SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-  exit_status_(series, "exit_status"),
-  generated_(series, "generated") {
+ExitSystemCallTraceReplayModule::ExitSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
+    : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+      exit_status_(series, "exit_status"),
+      generated_(series, "generated") {
   sys_call_name_ = "exit";
 }
 
 void ExitSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("exit_status(", exitStat, "), ", \
-    "generated(", generated, ")");
+  syscall_logger_->log_info("exit_status(", exitStat, "), ", "generated(",
+                            generated, ")");
 }
 
 /*
@@ -40,9 +38,11 @@ void ExitSystemCallTraceReplayModule::print_specific_fields() {
  */
 void ExitSystemCallTraceReplayModule::processRow() {
   // Remove umask table
-  SystemCallTraceReplayModule::replayer_resources_manager_.remove_umask(executingPidVal);
+  SystemCallTraceReplayModule::replayer_resources_manager_.remove_umask(
+      executingPidVal);
   // Remove fd table
-  auto fds_to_close = replayer_resources_manager_.remove_fd_table(executingPidVal);
+  auto fds_to_close =
+      replayer_resources_manager_.remove_fd_table(executingPidVal);
   for (auto fd : fds_to_close) {
     close(fd);
   }

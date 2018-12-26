@@ -26,12 +26,13 @@
 
 #include "SystemCallTraceReplayModule.hpp"
 
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
-class BasicStatSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-protected:
+class BasicStatSystemCallTraceReplayModule
+    : public SystemCallTraceReplayModule {
+ protected:
   // System Call Trace Fields in Dataseries file common to Stat, LStat, and
   bool verify_;
   Int32Field stat_result_dev_;
@@ -69,7 +70,8 @@ protected:
   void print_specific_fields();
 
   /**
-   * Print stat, lstat, and fstat sys call mode values in format as Format: drwxrwxrwx
+   * Print stat, lstat, and fstat sys call mode values in format as Format:
+   * drwxrwxrwx
    */
   int print_mode_value(u_int st_mode);
 
@@ -86,20 +88,21 @@ protected:
    * the trace.
    */
   void verifyResult(struct stat replayed_stat_buf);
-  void copyStatStruct(uint32_t dev, uint32_t ino, uint32_t mode, uint32_t nlink, uint32_t uid,
-                      uint32_t gid, uint32_t rdev, uint32_t blksize, uint32_t blocks, int64_t size,
+  void copyStatStruct(uint32_t dev, uint32_t ino, uint32_t mode, uint32_t nlink,
+                      uint32_t uid, uint32_t gid, uint32_t rdev,
+                      uint32_t blksize, uint32_t blocks, int64_t size,
                       uint64_t atime, uint64_t mtime, uint64_t ctime);
-public:
+
+ public:
   BasicStatSystemCallTraceReplayModule(DataSeriesModule &source,
-				       bool verbose_flag,
-				       bool verify_flag,
-				       int warn_level_flag);
+                                       bool verbose_flag, bool verify_flag,
+                                       int warn_level_flag);
   void prepareRow();
 };
 
-class StatSystemCallTraceReplayModule :
-  public BasicStatSystemCallTraceReplayModule {
-private:
+class StatSystemCallTraceReplayModule
+    : public BasicStatSystemCallTraceReplayModule {
+ private:
   // System Call Field pathname stored in DataSeries file
   Variable32Field given_pathname_;
   char *pathname;
@@ -114,34 +117,30 @@ private:
    */
   void processRow();
 
-public:
-  StatSystemCallTraceReplayModule(DataSeriesModule &source,
-				  bool verbose_flag,
-				  bool verify_flag,
-				  int warn_level_flag);
+ public:
+  StatSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                  bool verify_flag, int warn_level_flag);
   SystemCallTraceReplayModule *move() {
     auto movePtr = new StatSystemCallTraceReplayModule(source, verbose_,
-                                                       verify_,  warn_level_);
+                                                       verify_, warn_level_);
     movePtr->setMove(pathname);
-    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
-                       executingPidVal, errorNoVal, returnVal, replayerIndex);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
     if (verify_) {
-      movePtr->copyStatStruct(statDev, statINo, statMode, statNLink,
-                              statUID, statGID, statRDev, statBlkSize,
-                              statBlocks, statSize, statATime, statMTime,
-                              statCTime);
+      movePtr->copyStatStruct(statDev, statINo, statMode, statNLink, statUID,
+                              statGID, statRDev, statBlkSize, statBlocks,
+                              statSize, statATime, statMTime, statCTime);
     }
     return movePtr;
   }
-  void setMove(char* path) {
-    pathname = path;
-  }
+  void setMove(char *path) { pathname = path; }
   void prepareRow();
 };
 
-class LStatSystemCallTraceReplayModule :
-  public BasicStatSystemCallTraceReplayModule {
-private:
+class LStatSystemCallTraceReplayModule
+    : public BasicStatSystemCallTraceReplayModule {
+ private:
   // System Call Field pathname stored in DataSeries file
   Variable32Field given_pathname_;
 
@@ -156,16 +155,14 @@ private:
    */
   void processRow();
 
-public:
-  LStatSystemCallTraceReplayModule(DataSeriesModule &source,
-				   bool verbose_flag,
-				   bool verify_flag,
-				   int warn_level_flag);
+ public:
+  LStatSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                   bool verify_flag, int warn_level_flag);
 };
 
-class FStatSystemCallTraceReplayModule :
-  public BasicStatSystemCallTraceReplayModule {
-private:
+class FStatSystemCallTraceReplayModule
+    : public BasicStatSystemCallTraceReplayModule {
+ private:
   // System Call Field descriptor stored in Dataseries ilfe
   Int32Field descriptor_;
   int descriptorVal;
@@ -181,34 +178,30 @@ private:
    */
   void processRow();
 
-public:
-  FStatSystemCallTraceReplayModule(DataSeriesModule &source,
-				   bool verbose_flag,
-				   bool verify_flag,
-				   int warn_level_flag);
+ public:
+  FStatSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                   bool verify_flag, int warn_level_flag);
   SystemCallTraceReplayModule *move() {
     auto movePtr = new FStatSystemCallTraceReplayModule(source, verbose_,
                                                         verify_, warn_level_);
     movePtr->setMove(descriptorVal);
-    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
-                       executingPidVal, errorNoVal, returnVal, replayerIndex);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
     if (verify_) {
-      movePtr->copyStatStruct(statDev, statINo, statMode, statNLink,
-                              statUID, statGID, statRDev, statBlkSize,
-                              statBlocks, statSize, statATime, statMTime,
-                              statCTime);
+      movePtr->copyStatStruct(statDev, statINo, statMode, statNLink, statUID,
+                              statGID, statRDev, statBlkSize, statBlocks,
+                              statSize, statATime, statMTime, statCTime);
     }
     return movePtr;
   }
-  void setMove(int desc) {
-    descriptorVal = desc;
-  }
+  void setMove(int desc) { descriptorVal = desc; }
   void prepareRow();
 };
 
-class FStatatSystemCallTraceReplayModule :
-  public BasicStatSystemCallTraceReplayModule {
-private:
+class FStatatSystemCallTraceReplayModule
+    : public BasicStatSystemCallTraceReplayModule {
+ private:
   // System Call Field descriptor stored in Dataseries file
   Int32Field descriptor_;
   Variable32Field given_pathname_;
@@ -225,10 +218,9 @@ private:
    */
   void processRow();
 
-public:
+ public:
   FStatatSystemCallTraceReplayModule(DataSeriesModule &source,
-                                   bool verbose_flag,
-                                   bool verify_flag,
-                                   int warn_level_flag);
+                                     bool verbose_flag, bool verify_flag,
+                                     int warn_level_flag);
 };
 #endif /* BASIC_STAT_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

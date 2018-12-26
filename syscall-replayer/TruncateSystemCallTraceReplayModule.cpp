@@ -18,22 +18,22 @@
 
 #include "TruncateSystemCallTraceReplayModule.hpp"
 
-#include <unistd.h>
 #include <sys/types.h>
+#include <unistd.h>
 
-TruncateSystemCallTraceReplayModule::
-TruncateSystemCallTraceReplayModule(DataSeriesModule &source,
-				    bool verbose_flag,
-				    int warn_level_flag):
-  SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-  given_pathname_(series, "given_pathname"),
-  truncate_length_(series, "truncate_length") {
+TruncateSystemCallTraceReplayModule::TruncateSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
+    : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+      given_pathname_(series, "given_pathname"),
+      truncate_length_(series, "truncate_length") {
   sys_call_name_ = "truncate";
 }
 
 void TruncateSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("pathname(", given_pathname_.val(), "), " \
-    "length(", truncate_length_.val(), ")");
+  syscall_logger_->log_info("pathname(", given_pathname_.val(),
+                            "), "
+                            "length(",
+                            truncate_length_.val(), ")");
 }
 
 void TruncateSystemCallTraceReplayModule::processRow() {

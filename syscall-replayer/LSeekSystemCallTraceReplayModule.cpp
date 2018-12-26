@@ -18,14 +18,12 @@
 
 #include "LSeekSystemCallTraceReplayModule.hpp"
 
-LSeekSystemCallTraceReplayModule::
-LSeekSystemCallTraceReplayModule(DataSeriesModule &source,
-				 bool verbose_flag,
-				 int warn_level_flag):
-  SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-  descriptor_(series, "descriptor"),
-  offset_(series, "offset"),
-  whence_(series, "whence") {
+LSeekSystemCallTraceReplayModule::LSeekSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
+    : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+      descriptor_(series, "descriptor"),
+      offset_(series, "offset"),
+      whence_(series, "whence") {
   sys_call_name_ = "lseek";
 }
 
@@ -33,14 +31,14 @@ void LSeekSystemCallTraceReplayModule::print_specific_fields() {
   pid_t pid = executing_pid();
   int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptorVal);
 
-  syscall_logger_->log_info("traced fd(", descriptorVal, "), ",
-    "replayed fd(", replayed_fd, "), ",
-    "offset(", offset, "), ", \
-    "whence(", (unsigned) whence, ")");
+  syscall_logger_->log_info("traced fd(", descriptorVal, "), ", "replayed fd(",
+                            replayed_fd, "), ", "offset(", offset, "), ",
+                            "whence(", (unsigned)whence, ")");
 }
 
 void LSeekSystemCallTraceReplayModule::processRow() {
-  replayed_fd = replayer_resources_manager_.get_fd(executingPidVal, descriptorVal);
+  replayed_fd =
+      replayer_resources_manager_.get_fd(executingPidVal, descriptorVal);
   if (replayed_fd == SYSCALL_SIMULATED) {
     /*
      * FD for the lseek system call originated from a socket().

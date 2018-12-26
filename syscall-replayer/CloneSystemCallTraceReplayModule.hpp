@@ -24,11 +24,11 @@
 #ifndef CLONE_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define CLONE_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 
-#include "SystemCallTraceReplayModule.hpp"
 #include <sched.h>
+#include "SystemCallTraceReplayModule.hpp"
 
 class CloneSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-private:
+ private:
   // DataSeries Execve System Call Trace Fields
   Int64Field flag_value_;
   Int64Field child_stack_address_;
@@ -53,18 +53,17 @@ private:
    */
   void processRow();
 
-public:
-  CloneSystemCallTraceReplayModule(DataSeriesModule &source,
-				   bool verbose_flag,
-				   int warn_level_flag);
+ public:
+  CloneSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                   int warn_level_flag);
   SystemCallTraceReplayModule *move() {
-    auto movePtr = new CloneSystemCallTraceReplayModule(source, verbose_,
-                                                        warn_level_);
-    movePtr->setMove(flagVal, childStackAddrVal, parentTIDVal,
-                     childTIDVal, newTLSVal);
+    auto movePtr =
+        new CloneSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    movePtr->setMove(flagVal, childStackAddrVal, parentTIDVal, childTIDVal,
+                     newTLSVal);
     movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
-                       timeRecordedVal, executingPidVal, errorNoVal,
-                       returnVal, replayerIndex);
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
     return movePtr;
   }
 

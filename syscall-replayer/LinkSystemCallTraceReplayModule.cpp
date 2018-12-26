@@ -18,19 +18,17 @@
 
 #include "LinkSystemCallTraceReplayModule.hpp"
 
-LinkSystemCallTraceReplayModule::
-LinkSystemCallTraceReplayModule(DataSeriesModule &source,
-				bool verbose_flag,
-				int warn_level_flag):
-  SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-  given_oldpathname_(series, "given_oldpathname"),
-  given_newpathname_(series, "given_newpathname") {
+LinkSystemCallTraceReplayModule::LinkSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
+    : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+      given_oldpathname_(series, "given_oldpathname"),
+      given_newpathname_(series, "given_newpathname") {
   sys_call_name_ = "link";
 }
 
 void LinkSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("old path(", given_oldpathname_.val(), "), ", \
-    "new path(", given_newpathname_.val(), ")");
+  syscall_logger_->log_info("old path(", given_oldpathname_.val(), "), ",
+                            "new path(", given_newpathname_.val(), ")");
 }
 
 void LinkSystemCallTraceReplayModule::processRow() {
@@ -41,29 +39,28 @@ void LinkSystemCallTraceReplayModule::processRow() {
   replayed_ret_val_ = link(old_path_name, new_path_name);
 }
 
-LinkatSystemCallTraceReplayModule::
-LinkatSystemCallTraceReplayModule(DataSeriesModule &source,
-				  bool verbose_flag,
-				  int warn_level_flag):
-  LinkSystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-  old_descriptor_(series, "old_descriptor"),
-  new_descriptor_(series, "new_descriptor"),
-  flag_value_(series, "flag_value", Field::flag_nullable) {
+LinkatSystemCallTraceReplayModule::LinkatSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
+    : LinkSystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+      old_descriptor_(series, "old_descriptor"),
+      new_descriptor_(series, "new_descriptor"),
+      flag_value_(series, "flag_value", Field::flag_nullable) {
   sys_call_name_ = "linkat";
 }
 
 void LinkatSystemCallTraceReplayModule::print_specific_fields() {
   pid_t pid = executing_pid();
-  int replayed_old_fd = replayer_resources_manager_.get_fd(pid, old_descriptor_.val());
-  int replayed_new_fd = replayer_resources_manager_.get_fd(pid, new_descriptor_.val());
+  int replayed_old_fd =
+      replayer_resources_manager_.get_fd(pid, old_descriptor_.val());
+  int replayed_new_fd =
+      replayer_resources_manager_.get_fd(pid, new_descriptor_.val());
 
-  syscall_logger_->log_info("traced old fd(", old_descriptor_.val(), "), ",
-    "replayed old fd(", replayed_old_fd, "), ",
-    "traced new fd(", new_descriptor_.val(), "), ",
-    "replayed new fd(", replayed_new_fd, "), ",
-    "old path(", given_oldpathname_.val(), "), ", \
-    "new path(", given_newpathname_.val(), "), ", \
-    "flags(", flag_value_.val(), ")");
+  syscall_logger_->log_info(
+      "traced old fd(", old_descriptor_.val(), "), ", "replayed old fd(",
+      replayed_old_fd, "), ", "traced new fd(", new_descriptor_.val(), "), ",
+      "replayed new fd(", replayed_new_fd, "), ", "old path(",
+      given_oldpathname_.val(), "), ", "new path(", given_newpathname_.val(),
+      "), ", "flags(", flag_value_.val(), ")");
 }
 
 void LinkatSystemCallTraceReplayModule::processRow() {
@@ -89,5 +86,6 @@ void LinkatSystemCallTraceReplayModule::processRow() {
     return;
   }
   // Replay the linkat system call
-  replayed_ret_val_ = linkat(old_fd, old_path_name, new_fd, new_path_name, flags);
+  replayed_ret_val_ =
+      linkat(old_fd, old_path_name, new_fd, new_path_name, flags);
 }

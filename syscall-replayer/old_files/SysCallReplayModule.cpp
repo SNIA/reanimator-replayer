@@ -15,66 +15,65 @@
  */
 
 #include <iostream>
-#include <string>
 #include <sstream>
+#include <string>
 
 #include <algorithm>
-#include <vector>
-#include <queue>         
+#include <queue>
 #include <set>
+#include <vector>
 
 #include <DataSeries/PrefetchBufferModule.hpp>
-#include <DataSeries/TypeIndexModule.hpp>
 #include <DataSeries/RowAnalysisModule.hpp>
+#include <DataSeries/TypeIndexModule.hpp>
 
-#include <boost/foreach.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/foreach.hpp>
 #include <boost/program_options.hpp>
 
-#include <cstring>
 #include <csignal>
+#include <cstring>
 
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <getopt.h>
 #include <fcntl.h>
+#include <getopt.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include <stdexcept>
 
 #define DEFAULT_MODE 0
-#define WARN_MODE    1
-#define ABORT_MODE   2
+#define WARN_MODE 1
+#define ABORT_MODE 2
 
 class SystemCallTraceReplayModule : public RowAnalysisModule {
-protected:
+ protected:
   std::string sys_call_;
   bool verbose_;
-  int  warn_level_;
+  int warn_level_;
   DoubleField time_called_;
   Int64Field return_value_;
   bool completed;
   static std::map<int, int> fd_map;
-public:
-  SystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag, int warn_level_flag) : 
-    RowAnalysisModule(source),
-    verbose_(verbose_flag),
-    warn_level_(warn_level_flag),
-    time_called_(series, "time_called"),
-    return_value_(series, "return_value", Field::flag_nullable),
-    completed(false) {
-  }
 
-  double time_called() {
-    return (double)time_called_.val();
-  }
-  
+ public:
+  SystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                              int warn_level_flag)
+      : RowAnalysisModule(source),
+        verbose_(verbose_flag),
+        warn_level_(warn_level_flag),
+        time_called_(series, "time_called"),
+        return_value_(series, "return_value", Field::flag_nullable),
+        completed(false) {}
+
+  double time_called() { return (double)time_called_.val(); }
+
   Extent::Ptr getSharedExtent() {
     Extent::Ptr e = source.getSharedExtent();
     if (e == NULL) {
       if (!completed) {
-	completed = true;
-	completeProcessing();
+        completed = true;
+        completeProcessing();
       }
       return e;
     }
@@ -105,36 +104,37 @@ public:
   }
 
   void compare_retval(int ret_val) {
-    if (verbose_){
+    if (verbose_) {
       std::cout << "Captured return value: " << return_value_.val() << ", ";
       std::cout << "Replayed return value: " << ret_val << std::endl;
     }
 
     if (warn_level_ == WARN_MODE && return_value_.val() != ret_val) {
       std::cout << "time called:" << std::fixed << time_called() << std::endl;
-      std::cout << "Captured return value is different from replayed return value" << std::endl;
+      std::cout
+          << "Captured return value is different from replayed return value"
+          << std::endl;
       std::cout << "Captured return value: " << return_value_.val() << ", ";
       std::cout << "Replayed return value: " << ret_val << std::endl;
-    }else if (warn_level_ == ABORT_MODE && return_value_.val() != ret_val) {
+    } else if (warn_level_ == ABORT_MODE && return_value_.val() != ret_val) {
       abort();
     }
   }
 };
 
 struct LessThanByTimeCalled {
-  bool operator()(SystemCallTraceReplayModule* m1, SystemCallTraceReplayModule* m2) const {
+  bool operator()(SystemCallTraceReplayModule *m1,
+                  SystemCallTraceReplayModule *m2) const {
     // min heap uses this to sort the tree.
     if (m1->time_called() >= m2->time_called())
       return true;
-    else 
+    else
       return false;
   }
 };
 
-
 class OpenSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-
-private:
+ private:
   /* DataSeries Open System Call Trace Fields */
   Variable32Field given_pathname;
   BoolField flag_read_only;
@@ -166,10 +166,14 @@ private:
   BoolField mode_X_others;
 
   int getFlags() {
-    int access_mode_sum = flag_read_only.val() + flag_write_only.val() + flag_read_and_write.val();
+    int access_mode_sum = flag_read_only.val() + flag_write_only.val() +
+                          flag_read_and_write.val();
     if (access_mode_sum != 1) {
-      // Error since it is only allowed to set one of three access modes: O_RDONLY, O_WRONLY, or O_RDWR 
-      std::cerr << "Error: Multiple access modes are set (Only one access mode O_RDONLY, O_WRONLY, or O_RDWR can be set)." << std::endl;
+      // Error since it is only allowed to set one of three access modes:
+      // O_RDONLY, O_WRONLY, or O_RDWR
+      std::cerr << "Error: Multiple access modes are set (Only one access mode "
+                   "O_RDONLY, O_WRONLY, or O_RDWR can be set)."
+                << std::endl;
       return -1;
     }
     int flags = O_RDONLY;
@@ -256,7 +260,7 @@ private:
     }
     if (mode_X_others.val() == 1) {
       mode |= S_IXOTH;
-    }	    
+    }
     /*
       std::cout << "mode_R_user: " << mode_R_user.val() << std::endl;
       std::cout << "mode_W_user: " << mode_W_user.val() << std::endl;
@@ -271,54 +275,57 @@ private:
     return mode;
   }
 
-public:
-  OpenSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag, int warn_level_flag) : 
-    SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-    given_pathname(series, "given_pathname"),
-    flag_read_only(series, "flag_read_only"),
-    flag_write_only(series, "flag_write_only"),
-    flag_read_and_write(series, "flag_read_and_write"),
-    flag_append(series, "flag_append"),
-    flag_async(series, "flag_async"),
-    flag_close_on_exec(series, "flag_close_on_exec"),
-    flag_create(series, "flag_create"),
-    flag_direct(series, "flag_direct"),
-    flag_directory(series, "flag_directory"),
-    flag_exclusive(series, "flag_exclusive"),
-    flag_largefile(series, "flag_largefile"),
-    flag_no_access_time(series, "flag_no_access_time"),
-    flag_no_controlling_terminal(series, "flag_no_controlling_terminal"),
-    flag_no_follow(series, "flag_no_follow"),
-    flag_no_blocking_mode(series, "flag_no_blocking_mode"),
-    flag_no_delay(series, "flag_no_delay"),
-    flag_synchronous(series, "flag_synchronous"),
-    flag_truncate(series, "flag_truncate"),
-    mode_R_user(series, "mode_R_user"),
-    mode_W_user(series, "mode_W_user"),
-    mode_X_user(series, "mode_X_user"),
-    mode_R_group(series, "mode_R_group"),
-    mode_W_group(series, "mode_W_group"),
-    mode_X_group(series, "mode_X_group"),
-    mode_R_others(series, "mode_R_others"),
-    mode_W_others(series, "mode_W_others"),
-    mode_X_others(series, "mode_X_others") {
+ public:
+  OpenSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                  int warn_level_flag)
+      : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+        given_pathname(series, "given_pathname"),
+        flag_read_only(series, "flag_read_only"),
+        flag_write_only(series, "flag_write_only"),
+        flag_read_and_write(series, "flag_read_and_write"),
+        flag_append(series, "flag_append"),
+        flag_async(series, "flag_async"),
+        flag_close_on_exec(series, "flag_close_on_exec"),
+        flag_create(series, "flag_create"),
+        flag_direct(series, "flag_direct"),
+        flag_directory(series, "flag_directory"),
+        flag_exclusive(series, "flag_exclusive"),
+        flag_largefile(series, "flag_largefile"),
+        flag_no_access_time(series, "flag_no_access_time"),
+        flag_no_controlling_terminal(series, "flag_no_controlling_terminal"),
+        flag_no_follow(series, "flag_no_follow"),
+        flag_no_blocking_mode(series, "flag_no_blocking_mode"),
+        flag_no_delay(series, "flag_no_delay"),
+        flag_synchronous(series, "flag_synchronous"),
+        flag_truncate(series, "flag_truncate"),
+        mode_R_user(series, "mode_R_user"),
+        mode_W_user(series, "mode_W_user"),
+        mode_X_user(series, "mode_X_user"),
+        mode_R_group(series, "mode_R_group"),
+        mode_W_group(series, "mode_W_group"),
+        mode_X_group(series, "mode_X_group"),
+        mode_R_others(series, "mode_R_others"),
+        mode_W_others(series, "mode_W_others"),
+        mode_X_others(series, "mode_X_others") {
     sys_call_ = "open";
   }
 
   /* This function will be called by RowAnalysisModule once
    * before the first operation is replayed. */
   void prepareForProcessing() {
-    std::cout << "-----Open System Call Replayer starts to replay...-----" << std::endl;
+    std::cout << "-----Open System Call Replayer starts to replay...-----"
+              << std::endl;
   }
 
   /* This function will be called by RowAnalysisModule once
-   * for every system call operation in the trace file 
+   * for every system call operation in the trace file
    * being processed */
   void processRow() {
     char *pathname = (char *)given_pathname.val();
     int flags = getFlags();
     if (flags == -1) {
-      std::cout << given_pathname.val() << " is NOT successfully opened." << std::endl;
+      std::cout << given_pathname.val() << " is NOT successfully opened."
+                << std::endl;
       return;
     }
     mode_t mode = getMode();
@@ -332,7 +339,7 @@ public:
       std::cout << "flags(" << flags << "), ";
       std::cout << "mode(" << mode << ")\n";
     }
-			
+
     int replay_ret = open(pathname, flags, mode);
     compare_retval(replay_ret);
     fd_map[return_value] = replay_ret;
@@ -341,7 +348,8 @@ public:
       perror(pathname);
     } else {
       if (verbose_) {
-	std::cout << given_pathname.val() << " is successfully opened..." << std::endl;
+        std::cout << given_pathname.val() << " is successfully opened..."
+                  << std::endl;
       }
     }
   }
@@ -349,30 +357,33 @@ public:
   /* This function will be called once by RowAnalysisModule after all
    * system operations are being replayed.*/
   void completeProcessing() {
-    std::cout << "-----Open System Call Replayer finished replaying...-----" << std::endl;
+    std::cout << "-----Open System Call Replayer finished replaying...-----"
+              << std::endl;
   }
 };
 
 class CloseSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-private:
+ private:
   /* DataSeries Close System Call Trace Fields */
   Int32Field descriptor_;
 
-public:
-  CloseSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag, int warn_level_flag) : 
-    SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-    descriptor_(series, "descriptor"){
+ public:
+  CloseSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                   int warn_level_flag)
+      : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+        descriptor_(series, "descriptor") {
     sys_call_ = "close";
   }
 
   /* This function will be called by RowAnalysisModule once
    * before the first operation is replayed. */
   void prepareForProcessing() {
-    std::cout << "-----Close System Call Replayer starts to replay...-----" << std::endl;
+    std::cout << "-----Close System Call Replayer starts to replay...-----"
+              << std::endl;
   }
 
   /* This function will be called by RowAnalysisModule once
-   * for every system call operation in the trace file 
+   * for every system call operation in the trace file
    * being processed */
   void processRow() {
     int fd = fd_map[descriptor_.val()];
@@ -382,7 +393,7 @@ public:
       std::cout << "time called(" << std::fixed << time_called() << "), ";
       std::cout << "descriptor(" << descriptor_.val() << ")\n";
     }
-	
+
     int ret = close(fd);
     fd_map.erase(descriptor_.val());
     compare_retval(ret);
@@ -391,7 +402,8 @@ public:
       perror("close");
     } else {
       if (verbose_) {
-	std::cout << "fd " << descriptor_.val() << " is successfully closed..." << std::endl;
+        std::cout << "fd " << descriptor_.val() << " is successfully closed..."
+                  << std::endl;
       }
     }
   }
@@ -399,42 +411,46 @@ public:
   /* This function will be called once by RowAnalysisModule after all
    * system operations are being replayed.*/
   void completeProcessing() {
-    std::cout << "-----Close System Call Replayer finished replaying...-----" << std::endl;
+    std::cout << "-----Close System Call Replayer finished replaying...-----"
+              << std::endl;
   }
 };
 
 class ReadSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-private:
+ private:
   /* DataSeries Read System Call Trace Fields */
   bool verify_;
   Int32Field descriptor_;
   Variable32Field data_read_;
   Int64Field bytes_requested_;
-public:
-  ReadSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag, bool verify_flag, int warn_level_flag) : 
-    SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-    verify_(verify_flag),
-    descriptor_(series, "descriptor"), 
-    data_read_(series, "data_read", Field::flag_nullable), 
-    bytes_requested_(series, "bytes_requested") {
+
+ public:
+  ReadSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                  bool verify_flag, int warn_level_flag)
+      : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+        verify_(verify_flag),
+        descriptor_(series, "descriptor"),
+        data_read_(series, "data_read", Field::flag_nullable),
+        bytes_requested_(series, "bytes_requested") {
     sys_call_ = "read";
   }
 
   /* This function will be called by RowAnalysisModule once
    * before the first operation is replayed. */
   void prepareForProcessing() {
-    std::cout << "-----Read System Call Replayer starts to replay...-----" << std::endl;
+    std::cout << "-----Read System Call Replayer starts to replay...-----"
+              << std::endl;
   }
 
   /* This function will be called by RowAnalysisModule once
-   * for every system call operation in the trace file 
+   * for every system call operation in the trace file
    * being processed */
   void processRow() {
     int fd = fd_map[descriptor_.val()];
     int nbytes = bytes_requested_.val();
     if (verbose_) {
       std::cout << sys_call_ << ": ";
-      std::cout.precision(23);      
+      std::cout.precision(23);
       std::cout << "time called(" << std::fixed << time_called() << "), ";
       std::cout << "descriptor:" << descriptor_.val() << "), ";
       std::cout << "data read(" << data_read_.val() << "), ";
@@ -445,30 +461,32 @@ public:
     compare_retval(ret);
 
     if (verify_ == true) {
-      if (memcmp(data_read_.val(),buffer,ret) != 0){
+      if (memcmp(data_read_.val(), buffer, ret) != 0) {
         // data aren't same
         std::cerr << "Verification of data in read failed.\n";
         if (warn_level_ != DEFAULT_MODE) {
-          std::cout << "time called:" << std::fixed << time_called() << std::endl;
-          std::cout << "Captured read data is different from replayed read data" << std::endl;
+          std::cout << "time called:" << std::fixed << time_called()
+                    << std::endl;
+          std::cout << "Captured read data is different from replayed read data"
+                    << std::endl;
           std::cout << "Captured read data: " << data_read_.val() << ", ";
           std::cout << "Replayed read data: " << buffer << std::endl;
-	  if (warn_level_ == ABORT_MODE ) {
-	    abort();
-	  }
-	}
+          if (warn_level_ == ABORT_MODE) {
+            abort();
+          }
+        }
       } else {
         if (verbose_) {
           std::cout << "Verification of data in read success.\n";
         }
       }
     }
-    
+
     if (ret == -1) {
       perror("read");
     } else {
       if (verbose_) {
-	std::cout << "read is executed successfully!" << std::endl;
+        std::cout << "read is executed successfully!" << std::endl;
       }
     }
   }
@@ -476,12 +494,13 @@ public:
   /* This function will be called once by RowAnalysisModule after all
    * system operations are being replayed.*/
   void completeProcessing() {
-    std::cout << "-----Read System Call Replayer finished replaying...-----" << std::endl;
+    std::cout << "-----Read System Call Replayer finished replaying...-----"
+              << std::endl;
   }
 };
 
 class WriteSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-private:
+ private:
   /* DataSeries Write System Call Trace Fields */
   bool verify_;
   std::string pattern_data_;
@@ -489,42 +508,42 @@ private:
   Variable32Field data_written_;
   Int64Field bytes_requested_;
   std::ifstream random_file_;
-public:
-  WriteSystemCallTraceReplayModule(DataSeriesModule &source,
-				   bool verbose_flag,
-				   bool verify_flag,
- 				   int warn_level_flag,
-				   std::string pattern_data) : 
-    SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-    verify_(verify_flag),
-    pattern_data_(pattern_data),
-    descriptor_(series, "descriptor"), 
-    data_written_(series, "data_written", Field::flag_nullable), 
-    bytes_requested_(series, "bytes_requested"){
+
+ public:
+  WriteSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                   bool verify_flag, int warn_level_flag,
+                                   std::string pattern_data)
+      : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+        verify_(verify_flag),
+        pattern_data_(pattern_data),
+        descriptor_(series, "descriptor"),
+        data_written_(series, "data_written", Field::flag_nullable),
+        bytes_requested_(series, "bytes_requested") {
     sys_call_ = "write";
   }
-  
+
   /* This function will be called by RowAnalysisModule once
    * before the first operation is replayed. */
   void prepareForProcessing() {
-    std::cout << "-----Write System Call Replayer starts to replay...-----" << std::endl;
+    std::cout << "-----Write System Call Replayer starts to replay...-----"
+              << std::endl;
     if (pattern_data_ == "random") {
       random_file_.open("/dev/urandom");
       if (!random_file_.is_open()) {
-	std::cerr << "Unable to open file '/dev/urandom/'.\n";
-	exit(EXIT_FAILURE);
+        std::cerr << "Unable to open file '/dev/urandom/'.\n";
+        exit(EXIT_FAILURE);
       }
     }
   }
 
   /* This function will be called by RowAnalysisModule once
-   * for every system call operation in the trace file 
+   * for every system call operation in the trace file
    * being processed */
   void processRow() {
     size_t nbytes = (size_t)bytes_requested_.val();
     int fd = fd_map[descriptor_.val()];
     char *buffer;
-    
+
     // check to see if write data was in DS and user didn't specify pattern
     if (data_written_.isNull() && pattern_data_.empty()) {
       // let's write zeros.
@@ -534,16 +553,16 @@ public:
     if (!pattern_data_.empty()) {
       buffer = new char[nbytes];
       if (pattern_data_ == "random") {
-	random_file_.read(buffer, nbytes);
+        random_file_.read(buffer, nbytes);
       } else {
-	int pattern_hex;
-	std::stringstream pattern_stream;
-	pattern_stream << std::hex << pattern_data_;
-	pattern_stream >> pattern_hex;
-	memset(buffer, pattern_hex, nbytes);
+        int pattern_hex;
+        std::stringstream pattern_stream;
+        pattern_stream << std::hex << pattern_data_;
+        pattern_stream >> pattern_hex;
+        memset(buffer, pattern_hex, nbytes);
       }
     } else {
-	buffer = (char *)data_written_.val();
+      buffer = (char *)data_written_.val();
     }
 
     if (verbose_) {
@@ -557,16 +576,16 @@ public:
 
     int ret = write(fd, buffer, nbytes);
     compare_retval(ret);
-    
-    if (!pattern_data_.empty()){
+
+    if (!pattern_data_.empty()) {
       delete[] buffer;
     }
-    
+
     if (ret == -1) {
       perror("write");
     } else {
       if (verbose_) {
-	std::cout << "write is successfully replayed\n";
+        std::cout << "write is successfully replayed\n";
       }
     }
   }
@@ -574,10 +593,11 @@ public:
   /* This function will be called once by RowAnalysisModule after all
    * system operations are being replayed.*/
   void completeProcessing() {
-    std::cout << "-----Write System Call Replayer finished replaying...-----" << std::endl;
+    std::cout << "-----Write System Call Replayer finished replaying...-----"
+              << std::endl;
     if (pattern_data_ == "random") {
       random_file_.close();
-    } 
+    }
   }
 };
 
@@ -594,31 +614,29 @@ int main(int argc, char *argv[]) {
   std::string pattern_data = "";
   std::vector<std::string> input_files;
 
-  // Declare a group of options that will be 
+  // Declare a group of options that will be
   // allowed only on command line
   po::options_description generic("Generic options");
-  generic.add_options()
-    ("version,V", "print version of system call replayer")
-    ("help,h", "produce help message")
-    ;
+  generic.add_options()("version,V", "print version of system call replayer")(
+      "help,h", "produce help message");
 
-  // Declare a group of options that will be 
+  // Declare a group of options that will be
   // allowed both on command line and in
   // config file
   po::options_description config("Configuration");
-  config.add_options()
-    ("verbose,v", "system calls replay in verbose mode")
-    ("verify", "verifies that the data being written/read is exactly what was used originally")
-    ("warn,w", po::value<int>(), "system call replays in warn mode")
-    ("pattern,p", po::value<std::string>(), "write repeated pattern data in write system call")
-    ;
+  config.add_options()("verbose,v", "system calls replay in verbose mode")(
+      "verify",
+      "verifies that the data being written/read is exactly what was used "
+      "originally")("warn,w", po::value<int>(),
+                    "system call replays in warn mode")(
+      "pattern,p", po::value<std::string>(),
+      "write repeated pattern data in write system call");
 
   // Hidden options, will be allowed both on command line and
   // in config file, but will not be shown to the user.
   po::options_description hidden("Hidden options");
-  hidden.add_options()
-    ("input-files,I", po::value<std::vector<std::string> >(),"input files")
-    ;
+  hidden.add_options()("input-files,I", po::value<std::vector<std::string> >(),
+                       "input files");
 
   po::options_description cmdline_options;
   cmdline_options.add(generic).add(config).add(hidden);
@@ -635,25 +653,30 @@ int main(int argc, char *argv[]) {
   p.add("input-files", -1);
 
   po::variables_map vm;
-  po::store(po::command_line_parser(argc, argv).
-	    options(cmdline_options).positional(p).run(), vm);
+  po::store(po::command_line_parser(argc, argv)
+                .options(cmdline_options)
+                .positional(p)
+                .run(),
+            vm);
   po::notify(vm);
 
   if (vm.count("help")) {
     std::cerr << visible << "\n";
     return ret;
   }
-  
+
   if (vm.count("version")) {
-    std::cerr << "sysreplayer version 1.0" << "\n";
+    std::cerr << "sysreplayer version 1.0"
+              << "\n";
     return ret;
   }
 
-  if (vm.count("warn")){
+  if (vm.count("warn")) {
     warn_level = vm["warn"].as<int>();
-    if(warn_level > ABORT_MODE){
-      std::cout << "Wrong value for warn option" << std::endl;  
-      return EXIT_FAILURE;}
+    if (warn_level > ABORT_MODE) {
+      std::cout << "Wrong value for warn option" << std::endl;
+      return EXIT_FAILURE;
+    }
   }
 
   if (vm.count("verify")) {
@@ -663,11 +686,11 @@ int main(int argc, char *argv[]) {
   if (vm.count("verbose")) {
     verbose = true;
   }
-  
-  if (vm.count("pattern")){
+
+  if (vm.count("pattern")) {
     pattern_data = vm["pattern"].as<std::string>();
   }
-  
+
   if (vm.count("input-files")) {
     input_files = vm["input-files"].as<std::vector<std::string> >();
   } else {
@@ -691,14 +714,14 @@ int main(int argc, char *argv[]) {
   std::vector<TypeIndexModule *> type_index_modules;
 
   for (unsigned int i = 0; i < system_calls.size(); i++) {
-    TypeIndexModule *type_index_module = new TypeIndexModule(kExtentTypePrefix + system_calls[i]);
+    TypeIndexModule *type_index_module =
+        new TypeIndexModule(kExtentTypePrefix + system_calls[i]);
     type_index_modules.push_back(type_index_module);
   }
 
   /* Specify to read dataseries input files */
   for (std::vector<std::string>::iterator iter = input_files.begin();
-       iter != input_files.end();
-       iter++) {
+       iter != input_files.end(); iter++) {
     for (unsigned int j = 0; j < type_index_modules.size(); j++) {
       type_index_modules[j]->addSource(*iter);
     }
@@ -707,25 +730,23 @@ int main(int argc, char *argv[]) {
   std::vector<PrefetchBufferModule *> prefetch_buffer_modules;
   for (unsigned int i = 0; i < type_index_modules.size(); ++i) {
     /* Parallel decompress and replay, 64MiB buffer */
-    PrefetchBufferModule *module = new PrefetchBufferModule(*(type_index_modules[i]), 64 * 1024 * 1024);
+    PrefetchBufferModule *module =
+        new PrefetchBufferModule(*(type_index_modules[i]), 64 * 1024 * 1024);
     prefetch_buffer_modules.push_back(module);
   }
 
-  OpenSystemCallTraceReplayModule *open_replayer = new OpenSystemCallTraceReplayModule(*prefetch_buffer_modules[0],
-										       verbose,
-										       warn_level);
-  CloseSystemCallTraceReplayModule *close_replayer = new CloseSystemCallTraceReplayModule(*prefetch_buffer_modules[1],
-											  verbose,
-											  warn_level);
-  ReadSystemCallTraceReplayModule *read_replayer = new ReadSystemCallTraceReplayModule(*prefetch_buffer_modules[2],
-										       verbose,
-										       verify,
-										       warn_level);
-  WriteSystemCallTraceReplayModule *write_replayer = new WriteSystemCallTraceReplayModule(*prefetch_buffer_modules[3],
-											  verbose,
-											  verify,
-											  warn_level,
-											  pattern_data);
+  OpenSystemCallTraceReplayModule *open_replayer =
+      new OpenSystemCallTraceReplayModule(*prefetch_buffer_modules[0], verbose,
+                                          warn_level);
+  CloseSystemCallTraceReplayModule *close_replayer =
+      new CloseSystemCallTraceReplayModule(*prefetch_buffer_modules[1], verbose,
+                                           warn_level);
+  ReadSystemCallTraceReplayModule *read_replayer =
+      new ReadSystemCallTraceReplayModule(*prefetch_buffer_modules[2], verbose,
+                                          verify, warn_level);
+  WriteSystemCallTraceReplayModule *write_replayer =
+      new WriteSystemCallTraceReplayModule(*prefetch_buffer_modules[3], verbose,
+                                           verify, warn_level, pattern_data);
 
   std::vector<SystemCallTraceReplayModule *> system_call_trace_replay_modules;
   system_call_trace_replay_modules.push_back(open_replayer);
@@ -733,8 +754,12 @@ int main(int argc, char *argv[]) {
   system_call_trace_replay_modules.push_back(read_replayer);
   system_call_trace_replay_modules.push_back(write_replayer);
 
-  // Define a min heap that stores each module. The heap is ordered by time_called field.
-  std::priority_queue<SystemCallTraceReplayModule*, std::vector<SystemCallTraceReplayModule*>, LessThanByTimeCalled> replayers_heap;
+  // Define a min heap that stores each module. The heap is ordered by
+  // time_called field.
+  std::priority_queue<SystemCallTraceReplayModule *,
+                      std::vector<SystemCallTraceReplayModule *>,
+                      LessThanByTimeCalled>
+      replayers_heap;
   SystemCallTraceReplayModule *execute_replayer = NULL;
 
   // Add all the modules to min heap if the module has extents
@@ -745,16 +770,17 @@ int main(int argc, char *argv[]) {
       replayers_heap.push(module);
     }
   }
-  
+
   // Process all the records in the dataseries
-  while(!replayers_heap.empty()) {
+  while (!replayers_heap.empty()) {
     // Get a module that has min time_called
     execute_replayer = replayers_heap.top();
     replayers_heap.pop();
     // Replay the operation that has min time_called
     execute_replayer->execute();
     // Check to see if all the extents in the module are processed
-    if (execute_replayer->has_more_trace() || execute_replayer->getSharedExtent() != NULL){
+    if (execute_replayer->has_more_trace() ||
+        execute_replayer->getSharedExtent() != NULL) {
       // No, there are more extents, so we add it to min_heap
       replayers_heap.push(execute_replayer);
     }

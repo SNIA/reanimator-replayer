@@ -25,7 +25,7 @@
 #include "SystemCallTraceReplayModule.hpp"
 
 class CloseSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-private:
+ private:
   // DataSeries Close System Call Trace Fields
   Int32Field descriptor_;
   int32_t descVal;
@@ -40,20 +40,19 @@ private:
    */
   void processRow();
 
-public:
-  CloseSystemCallTraceReplayModule(DataSeriesModule &source,
-				   bool verbose_flag,
-				   int warn_level_flag);
+ public:
+  CloseSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                   int warn_level_flag);
   SystemCallTraceReplayModule *move() {
-    auto movePtr = new CloseSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    auto movePtr =
+        new CloseSystemCallTraceReplayModule(source, verbose_, warn_level_);
     movePtr->setMove(descVal);
-    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
-                       executingPidVal, errorNoVal, returnVal, replayerIndex);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
     return movePtr;
   }
-  void setMove(int desc) {
-    descVal = desc;
-  }
+  void setMove(int desc) { descVal = desc; }
   void prepareRow();
 };
 

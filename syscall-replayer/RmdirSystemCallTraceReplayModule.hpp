@@ -27,7 +27,7 @@
 #include <unistd.h>
 
 class RmdirSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-private:
+ private:
   // DataSeries Rmdir System Call Trace Fields
   Variable32Field given_pathname_;
   char *pathname;
@@ -43,20 +43,19 @@ private:
    */
   void processRow();
 
-public:
-  RmdirSystemCallTraceReplayModule(DataSeriesModule &source,
-				   bool verbose_flag,
-				   int warn_level_flag);
+ public:
+  RmdirSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                   int warn_level_flag);
   SystemCallTraceReplayModule *move() {
-    auto movePtr = new RmdirSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    auto movePtr =
+        new RmdirSystemCallTraceReplayModule(source, verbose_, warn_level_);
     movePtr->setMove(pathname);
-    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal, timeRecordedVal,
-                       executingPidVal, errorNoVal, returnVal, replayerIndex);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
     return movePtr;
   }
-  void setMove(char* path) {
-    pathname = path;
-  }
+  void setMove(char *path) { pathname = path; }
 
   void prepareRow();
 };

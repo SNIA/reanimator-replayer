@@ -22,16 +22,16 @@
 
 #include "BasicRLimitSystemCallTraceReplayModule.hpp"
 
-class SetRLimitSystemCallTraceReplayModule : public BasicRLimitSystemCallTraceReplayModule {
+class SetRLimitSystemCallTraceReplayModule
+    : public BasicRLimitSystemCallTraceReplayModule {
   /**
    * This function will gather arguments in the trace file
    * and then replay getrlimit system call with those arguments.
    */
   void processRow();
 
-public:
+ public:
   SetRLimitSystemCallTraceReplayModule(DataSeriesModule &source,
-           bool verbose_flag,
-           int warn_level_flag);
+                                       bool verbose_flag, int warn_level_flag);
 };
 #endif /* SETRLIMIT_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

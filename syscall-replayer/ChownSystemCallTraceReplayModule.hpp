@@ -26,7 +26,7 @@
 #include "SystemCallTraceReplayModule.hpp"
 
 class ChownSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-private:
+ private:
   // DataSeries Chown System Call Trace Fields
   Variable32Field given_pathname_;
   Int32Field new_owner_;
@@ -43,10 +43,9 @@ private:
    */
   void processRow();
 
-public:
-  ChownSystemCallTraceReplayModule(DataSeriesModule &source,
-				   bool verbose_flag,
-				   int warn_level_flag);
+ public:
+  ChownSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                   int warn_level_flag);
 };
 
 #endif /* CHOWN_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

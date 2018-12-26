@@ -23,11 +23,12 @@
 
 #include "SystemCallTraceReplayModule.hpp"
 
-#include <unistd.h>
 #include <sys/types.h>
+#include <unistd.h>
 
-class FTruncateSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-protected:
+class FTruncateSystemCallTraceReplayModule
+    : public SystemCallTraceReplayModule {
+ protected:
   // FTruncate System Call Trace Fields in Dataseries file
   Int32Field descriptor_;
   Int64Field truncate_length_;
@@ -49,10 +50,9 @@ protected:
    */
   int getReplayedFD();
 
-public:
+ public:
   FTruncateSystemCallTraceReplayModule(DataSeriesModule &source,
-              bool verbose_flag,
-              int warn_level_flag);
+                                       bool verbose_flag, int warn_level_flag);
 };
 
 #endif /* FTRUNCATE_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

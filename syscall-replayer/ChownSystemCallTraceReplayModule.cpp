@@ -19,21 +19,19 @@
 
 #include "ChownSystemCallTraceReplayModule.hpp"
 
-ChownSystemCallTraceReplayModule::
-ChownSystemCallTraceReplayModule(DataSeriesModule &source,
-				 bool verbose_flag,
-				 int warn_level_flag):
-  SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-  given_pathname_(series, "given_pathname"),
-  new_owner_(series, "new_owner"),
-  new_group_(series, "new_group") {
+ChownSystemCallTraceReplayModule::ChownSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
+    : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+      given_pathname_(series, "given_pathname"),
+      new_owner_(series, "new_owner"),
+      new_group_(series, "new_group") {
   sys_call_name_ = "chown";
 }
 
 void ChownSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("pathname(", given_pathname_.val(), "), ", \
-    "owner(", new_owner_.val(), "), ", \
-    "group(", new_group_.val(), ")");
+  syscall_logger_->log_info("pathname(", given_pathname_.val(), "), ", "owner(",
+                            new_owner_.val(), "), ", "group(", new_group_.val(),
+                            ")");
 }
 
 void ChownSystemCallTraceReplayModule::processRow() {

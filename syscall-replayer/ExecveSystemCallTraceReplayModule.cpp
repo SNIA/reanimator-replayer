@@ -18,15 +18,13 @@
 
 #include "ExecveSystemCallTraceReplayModule.hpp"
 
-ExecveSystemCallTraceReplayModule::
-ExecveSystemCallTraceReplayModule(DataSeriesModule &source,
-				  bool verbose_flag,
-				  int warn_level_flag):
-  SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-  given_pathname_(series, "given_pathname", Field::flag_nullable),
-  continuation_number_(series, "continuation_number"),
-  argument_(series, "argument", Field::flag_nullable),
-  environment_(series, "environment", Field::flag_nullable) {
+ExecveSystemCallTraceReplayModule::ExecveSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
+    : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+      given_pathname_(series, "given_pathname", Field::flag_nullable),
+      continuation_number_(series, "continuation_number"),
+      argument_(series, "argument", Field::flag_nullable),
+      environment_(series, "environment", Field::flag_nullable) {
   sys_call_name_ = "execve";
 }
 
@@ -47,9 +45,11 @@ void ExecveSystemCallTraceReplayModule::print_specific_fields() {
   // while (continuation_num >= 0 && series.morerecords()) {
   //   int continuation_num = continuation_number_.val();
   //   if (continuation_num == 0) {
-  //     syscall_logger_->log_info("continuation_number(", continuation_num, ")");
+  //     syscall_logger_->log_info("continuation_number(", continuation_num,
+  //     ")");
   //   } else if (continuation_num > 0) {
-  //     syscall_logger_->log_info("continuation_number(", continuation_num, "),");
+  //     syscall_logger_->log_info("continuation_number(", continuation_num,
+  //     "),");
   //     if (environment_.isNull())
   //       syscall_logger_->log_info("argument(", argument_.val(), ")");
   //     else if (argument_.isNull())
@@ -77,16 +77,20 @@ void ExecveSystemCallTraceReplayModule::processRow() {
    * to update fd manager.
    */
   // Get all traced fds in this process
-  std::unordered_set<int> traced_fds = replayer_resources_manager_.get_all_traced_fds(executingPidVal);
+  std::unordered_set<int> traced_fds =
+      replayer_resources_manager_.get_all_traced_fds(executingPidVal);
   for (std::unordered_set<int>::iterator iter = traced_fds.begin();
-    iter != traced_fds.end(); ++iter) {
+       iter != traced_fds.end(); ++iter) {
     int traced_fd = *iter;
-    int flags = replayer_resources_manager_.get_flags(executingPidVal, traced_fd);
+    int flags =
+        replayer_resources_manager_.get_flags(executingPidVal, traced_fd);
     /*
      * Check to see if fd has O_CLOEXEC flag set.
      * If the FD_CLOEXEC bit is set, the file descriptor will automatically
-     * be closed during a successful execve(2). (If the execve(2) fails, the file descriptor
-     * is left open.)  If the FD_CLOEXEC bit is not set, the file descriptor will
+     * be closed during a successful execve(2). (If the execve(2) fails, the
+     * file descriptor
+     * is left open.)  If the FD_CLOEXEC bit is not set, the file descriptor
+     * will
      * remain open across an execve(2).
      */
     if (flags & O_CLOEXEC && retVal >= 0) {

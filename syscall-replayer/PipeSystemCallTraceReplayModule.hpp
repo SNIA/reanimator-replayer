@@ -26,7 +26,7 @@
 #include "SystemCallTraceReplayModule.hpp"
 
 class PipeSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-private:
+ private:
   bool verify_;
   // Pipe System Call Trace Fields in Dataseries file
   Int32Field read_descriptor_;
@@ -43,12 +43,9 @@ private:
    */
   void processRow();
 
-public:
-  PipeSystemCallTraceReplayModule(DataSeriesModule &source,
-                                  bool verify_flag,
-                                  bool verbose_flag,
-                                  int warn_level_flag);
-
+ public:
+  PipeSystemCallTraceReplayModule(DataSeriesModule &source, bool verify_flag,
+                                  bool verbose_flag, int warn_level_flag);
 };
 
 #endif /* PIPE_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */
