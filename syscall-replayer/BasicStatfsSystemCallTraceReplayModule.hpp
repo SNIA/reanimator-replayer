@@ -22,9 +22,8 @@
 #ifndef BASIC_STATFS_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define BASIC_STATFS_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 
-#include "SystemCallTraceReplayModule.hpp"
-
 #include <sys/statfs.h>
+#include "SystemCallTraceReplayModule.hpp"
 
 class BasicStatfsSystemCallTraceReplayModule
     : public SystemCallTraceReplayModule {
@@ -46,14 +45,14 @@ class BasicStatfsSystemCallTraceReplayModule
   /**
    * Print statfs and fstatfs common fields in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay a statfs/fstatfs system call with those arguments.
    * This function will be defined in the derived classes.
    */
-  virtual void processRow() = 0;
+  void processRow() override = 0;
 
   /**
    * This function will verify that the data contained in the statfs buffer
@@ -77,13 +76,13 @@ class StatfsSystemCallTraceReplayModule
   /**
    * Print statfs sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and call replay a statfs system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
  public:
   StatfsSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
@@ -99,13 +98,13 @@ class FStatfsSystemCallTraceReplayModule
   /**
    * Print fstatfs sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and call replay a fstatfs system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
  public:
   FStatfsSystemCallTraceReplayModule(DataSeriesModule &source,

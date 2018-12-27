@@ -18,6 +18,8 @@
 
 #include "BasicStatfsSystemCallTraceReplayModule.hpp"
 
+typedef unsigned long u_long;
+
 BasicStatfsSystemCallTraceReplayModule::BasicStatfsSystemCallTraceReplayModule(
     DataSeriesModule &source, bool verbose_flag, bool verify_flag,
     int warn_level_flag)
@@ -55,7 +57,6 @@ void BasicStatfsSystemCallTraceReplayModule::print_specific_fields() {
 
 void BasicStatfsSystemCallTraceReplayModule::verifyResult(
     struct statfs replayed_statfs_buf) {
-  typedef unsigned long u_long;
   u_int statfs_result_type = (u_int)statfs_result_type_.val();
   u_int statfs_result_bsize = (u_int)statfs_result_bsize_.val();
   u_long statfs_result_blocks = (u_long)statfs_result_blocks_.val();
@@ -145,12 +146,12 @@ void StatfsSystemCallTraceReplayModule::print_specific_fields() {
 
 void StatfsSystemCallTraceReplayModule::processRow() {
   struct statfs statfs_buf;
-  char *pathname = (char *)given_pathname_.val();
+  const char *pathname = reinterpret_cast<const char *>(given_pathname_.val());
 
   // replay the statfs system call
   replayed_ret_val_ = statfs(pathname, &statfs_buf);
 
-  if (verify_ == true) {
+  if (verify_) {
     BasicStatfsSystemCallTraceReplayModule::verifyResult(statfs_buf);
   }
 }
@@ -189,7 +190,7 @@ void FStatfsSystemCallTraceReplayModule::processRow() {
   // replay the fstatfs system call
   replayed_ret_val_ = fstatfs(fd, &statfs_buf);
 
-  if (verify_ == true) {
+  if (verify_) {
     BasicStatfsSystemCallTraceReplayModule::verifyResult(statfs_buf);
   }
 }

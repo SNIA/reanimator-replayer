@@ -31,12 +31,16 @@ void BasicRLimitSystemCallTraceReplayModule::print_specific_fields() {
 }
 
 int BasicRLimitSystemCallTraceReplayModule::getResource() {
-  return (int)(resource_value_.val());
+  int returnVal = reinterpret_cast<int>(resource_value_.val());
+  return returnVal;
 }
 
-rlim_t BasicRLimitSystemCallTraceReplayModule::getSoftLimit(){
-    return (rlim_t)(resource_soft_limit_.val())}
+rlim_t BasicRLimitSystemCallTraceReplayModule::getSoftLimit() {
+  rlim_t returnVal = reinterpret_cast<long>(resource_soft_limit_.val());
+  return returnVal;
+}
 
 rlim_t BasicRLimitSystemCallTraceReplayModule::getHardLimit() {
-  return (rlim_t)(resource_hard_limit_.val())
+  rlim_t returnVal = reinterpret_cast<long>(resource_hard_limit_.val());
+  return returnVal;
 }

@@ -58,13 +58,13 @@ class BasicRLimitSystemCallTraceReplayModule
   /**
    * Print getrlimit sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and then replay resource related system call with those arguments.
    */
-  virtual void processRow() = 0;
+  void processRow() override = 0;
 
  public:
   BasicRLimitSystemCallTraceReplayModule(DataSeriesModule &source,
