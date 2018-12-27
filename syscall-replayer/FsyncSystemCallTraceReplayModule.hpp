@@ -34,18 +34,18 @@ class FsyncSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
   /**
    * Print fsync sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay an fsync system call with those arguments
    */
-  void processRow();
+  void processRow() override;
 
  public:
   FsyncSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
                                    int warn_level_flag);
-  SystemCallTraceReplayModule *move() {
+  SystemCallTraceReplayModule *move() override {
     auto movePtr =
         new FsyncSystemCallTraceReplayModule(source, verbose_, warn_level_);
     movePtr->setMove(traced_fd, simulated_ret_val);
@@ -58,7 +58,7 @@ class FsyncSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
     traced_fd = fd;
     simulated_ret_val = simulatedRetVal;
   }
-  void prepareRow();
+  void prepareRow() override;
 };
 
 #endif /* FSYNC_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

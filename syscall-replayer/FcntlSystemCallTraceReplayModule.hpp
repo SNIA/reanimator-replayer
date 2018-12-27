@@ -54,18 +54,18 @@ class FcntlSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
   /**
    * Print fcntl sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay an fcntl system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
  public:
   FcntlSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
                                    int warn_level_flag);
-  SystemCallTraceReplayModule *move() {
+  SystemCallTraceReplayModule *move() override {
     auto movePtr =
         new FcntlSystemCallTraceReplayModule(source, verbose_, warn_level_);
     movePtr->setMove(traced_fd, command_val, arg_val, lock_type_val,
@@ -89,7 +89,7 @@ class FcntlSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
     lock_pid_val = lockPidVal;
     simulated_ret_val = simulatedRetVal;
   }
-  void prepareRow();
+  void prepareRow() override;
 };
 
 #endif /* FCNTL_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

@@ -24,11 +24,10 @@
 #ifndef FCHMOD_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define FCHMOD_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 
-#include "SystemCallTraceReplayModule.hpp"
-
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include "SystemCallTraceReplayModule.hpp"
 
 class FChmodSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
  protected:
@@ -39,13 +38,13 @@ class FChmodSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
   /**
    * Print fchmod sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay an fchmod  system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
  public:
   FChmodSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
@@ -62,13 +61,13 @@ class FChmodatSystemCallTraceReplayModule
   /**
    * Print fchmod sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay an fchmod  system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
  public:
   FChmodatSystemCallTraceReplayModule(DataSeriesModule &source,

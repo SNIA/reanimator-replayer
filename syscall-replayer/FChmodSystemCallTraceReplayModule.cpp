@@ -77,11 +77,11 @@ void FChmodatSystemCallTraceReplayModule::print_specific_fields() {
 void FChmodatSystemCallTraceReplayModule::processRow() {
   pid_t pid = executing_pid();
   int fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
-  const char *pathname = (char *)given_pathname_.val();
+  const char *pathname = reinterpret_cast<const char *>(given_pathname_.val());
   mode_t mode = get_mode(mode_value_.val());
   int flags = flag_value_.val();
 
-  if (fd == SYSCALL_SIMULATED && pathname != NULL && pathname[0] != '/') {
+  if (fd == SYSCALL_SIMULATED && pathname != nullptr && pathname[0] != '/') {
     /*
      * fd originated from a socket, hence fchmodat cannot be replayed.
      * Traced system call would have failed with ENOTDIR.
