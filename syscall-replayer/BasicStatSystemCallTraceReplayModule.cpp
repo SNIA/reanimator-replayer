@@ -43,18 +43,42 @@ BasicStatSystemCallTraceReplayModule::BasicStatSystemCallTraceReplayModule(
 int BasicStatSystemCallTraceReplayModule::print_mode_value(u_int st_mode) {
   int printable_mode = 0;
   mode_t mode = (mode_t)st_mode;
-  if (mode & S_ISUID) printable_mode |= 0x4000;
-  if (mode & S_ISGID) printable_mode |= 0x2000;
-  if (mode & S_ISVTX) printable_mode |= 0x1000;
-  if (mode & S_IRUSR) printable_mode |= 0x400;
-  if (mode & S_IWUSR) printable_mode |= 0x200;
-  if (mode & S_IXUSR) printable_mode |= 0x100;
-  if (mode & S_IRGRP) printable_mode |= 0x040;
-  if (mode & S_IWGRP) printable_mode |= 0x020;
-  if (mode & S_IXGRP) printable_mode |= 0x010;
-  if (mode & S_IROTH) printable_mode |= 0x0004;
-  if (mode & S_IWOTH) printable_mode |= 0x002;
-  if (mode & S_IXOTH) printable_mode |= 0x001;
+  if ((mode & S_ISUID) != 0u) {
+    printable_mode |= 0x4000;
+  }
+  if ((mode & S_ISGID) != 0u) {
+    printable_mode |= 0x2000;
+  }
+  if ((mode & S_ISVTX) != 0u) {
+    printable_mode |= 0x1000;
+  }
+  if ((mode & S_IRUSR) != 0u) {
+    printable_mode |= 0x400;
+  }
+  if ((mode & S_IWUSR) != 0u) {
+    printable_mode |= 0x200;
+  }
+  if ((mode & S_IXUSR) != 0u) {
+    printable_mode |= 0x100;
+  }
+  if ((mode & S_IRGRP) != 0u) {
+    printable_mode |= 0x040;
+  }
+  if ((mode & S_IWGRP) != 0u) {
+    printable_mode |= 0x020;
+  }
+  if ((mode & S_IXGRP) != 0u) {
+    printable_mode |= 0x010;
+  }
+  if ((mode & S_IROTH) != 0u) {
+    printable_mode |= 0x0004;
+  }
+  if ((mode & S_IWOTH) != 0u) {
+    printable_mode |= 0x002;
+  }
+  if ((mode & S_IXOTH) != 0u) {
+    printable_mode |= 0x001;
+  }
 
   return printable_mode;
 }
@@ -194,7 +218,7 @@ void StatSystemCallTraceReplayModule::processRow() {
   // replay the stat system call
   replayed_ret_val_ = stat(pathname, &stat_buf);
 
-  if (verify_ == true) {
+  if (verify_) {
     BasicStatSystemCallTraceReplayModule::verifyResult(stat_buf);
   }
 }
@@ -202,7 +226,7 @@ void StatSystemCallTraceReplayModule::processRow() {
 void StatSystemCallTraceReplayModule::prepareRow() {
   auto pathBuf = reinterpret_cast<const char *>(given_pathname_.val());
   pathname = new char[std::strlen(pathBuf) + 1];
-  std::strcpy(pathname, pathBuf);
+  std::strncpy(pathname, pathBuf, (std::strlen(pathBuf) + 1));
   BasicStatSystemCallTraceReplayModule::prepareRow();
 }
 
@@ -222,12 +246,12 @@ void LStatSystemCallTraceReplayModule::print_specific_fields() {
 
 void LStatSystemCallTraceReplayModule::processRow() {
   struct stat stat_buf;
-  char *pathname = (char *)given_pathname_.val();
+  const char *pathname = reinterpret_cast<const char *>(given_pathname_.val());
 
   // replay the lstat system call
   replayed_ret_val_ = lstat(pathname, &stat_buf);
 
-  if (verify_ == true) {
+  if (verify_) {
     BasicStatSystemCallTraceReplayModule::verifyResult(stat_buf);
   }
 }
@@ -264,7 +288,7 @@ void FStatSystemCallTraceReplayModule::processRow() {
   // replay the fstat system call
   replayed_ret_val_ = fstat(fd, &stat_buf);
 
-  if (verify_ == true) {
+  if (verify_) {
     BasicStatSystemCallTraceReplayModule::verifyResult(stat_buf);
   }
 }
@@ -315,7 +339,7 @@ void FStatatSystemCallTraceReplayModule::processRow() {
   replayed_ret_val_ =
       fstatat(replayed_fd, pathname, &stat_buf, flags_value_.val());
 
-  if (verify_ == true) {
+  if (verify_) {
     BasicStatSystemCallTraceReplayModule::verifyResult(stat_buf);
   }
 }

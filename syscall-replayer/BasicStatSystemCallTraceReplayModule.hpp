@@ -24,11 +24,10 @@
 #ifndef BASIC_STAT_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define BASIC_STAT_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 
-#include "SystemCallTraceReplayModule.hpp"
-
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include "SystemCallTraceReplayModule.hpp"
 
 class BasicStatSystemCallTraceReplayModule
     : public SystemCallTraceReplayModule {
@@ -67,7 +66,7 @@ class BasicStatSystemCallTraceReplayModule
   /**
    * Print stat, lstat, and fstat sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * Print stat, lstat, and fstat sys call mode values in format as Format:
@@ -80,7 +79,7 @@ class BasicStatSystemCallTraceReplayModule
    * and replay a stat, lstat, or fstat system call with those arguments.
    * This function will be defined in the derived classes.
    */
-  virtual void processRow() = 0;
+  void processRow() override = 0;
 
   /**
    * This function will verify that the data contained in the stat buffer
@@ -97,7 +96,7 @@ class BasicStatSystemCallTraceReplayModule
   BasicStatSystemCallTraceReplayModule(DataSeriesModule &source,
                                        bool verbose_flag, bool verify_flag,
                                        int warn_level_flag);
-  void prepareRow();
+  void prepareRow() override;
 };
 
 class StatSystemCallTraceReplayModule
@@ -109,18 +108,18 @@ class StatSystemCallTraceReplayModule
   /**
    * Print stat sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and call replay a stat system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
  public:
   StatSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
                                   bool verify_flag, int warn_level_flag);
-  SystemCallTraceReplayModule *move() {
+  SystemCallTraceReplayModule *move() override {
     auto movePtr = new StatSystemCallTraceReplayModule(source, verbose_,
                                                        verify_, warn_level_);
     movePtr->setMove(pathname);
@@ -135,7 +134,7 @@ class StatSystemCallTraceReplayModule
     return movePtr;
   }
   void setMove(char *path) { pathname = path; }
-  void prepareRow();
+  void prepareRow() override;
 };
 
 class LStatSystemCallTraceReplayModule
@@ -147,13 +146,13 @@ class LStatSystemCallTraceReplayModule
   /**
    * Print lstat sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and call replay an lstat system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
  public:
   LStatSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
@@ -170,18 +169,18 @@ class FStatSystemCallTraceReplayModule
   /**
    * Print fstat sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and call replay an fstat system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
  public:
   FStatSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
                                    bool verify_flag, int warn_level_flag);
-  SystemCallTraceReplayModule *move() {
+  SystemCallTraceReplayModule *move() override {
     auto movePtr = new FStatSystemCallTraceReplayModule(source, verbose_,
                                                         verify_, warn_level_);
     movePtr->setMove(descriptorVal);
@@ -196,7 +195,7 @@ class FStatSystemCallTraceReplayModule
     return movePtr;
   }
   void setMove(int desc) { descriptorVal = desc; }
-  void prepareRow();
+  void prepareRow() override;
 };
 
 class FStatatSystemCallTraceReplayModule
@@ -210,13 +209,13 @@ class FStatatSystemCallTraceReplayModule
   /**
    * Print fstatat sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and call replay an fstatat system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
  public:
   FStatatSystemCallTraceReplayModule(DataSeriesModule &source,
