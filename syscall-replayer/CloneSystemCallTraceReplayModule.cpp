@@ -59,23 +59,25 @@ void CloneSystemCallTraceReplayModule::processRow() {
    */
   int flags = flagVal;
   bool shared_umask = false, shared_files = false;
-  if (flags & CLONE_FS) {
+  if ((flags & CLONE_FS) != 0 || (flags & CLONE_THREAD) != 0) {
     shared_umask = true;
   }
-  if (flags & CLONE_FILES) {
+  if ((flags & CLONE_FILES) != 0 || (flags & CLONE_THREAD) != 0) {
     shared_files = true;
   }
 
   pid_t ppid = executing_pid();
   pid_t pid = return_value();
+
   // Clone resources tables
   SystemCallTraceReplayModule::replayer_resources_manager_.clone_umask(
-      ppid, pid, true);
+      ppid, pid, shared_umask);
   SystemCallTraceReplayModule::replayer_resources_manager_.clone_fd_table(
-      ppid, pid, true);
+      ppid, pid, shared_files);
+
   nThreads++;
-  setRunning(pid, NULL);
-  threads.push_back(std::thread(executionThread, pid));
+  setRunning(pid, nullptr);
+  threads.emplace_back(executionThread, pid);
 }
 
 void CloneSystemCallTraceReplayModule::prepareRow() {
