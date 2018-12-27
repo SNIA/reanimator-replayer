@@ -32,18 +32,18 @@ class CloseSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
   /**
    * Print close sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay an close system call with those arguments
    */
-  void processRow();
+  void processRow() override;
 
  public:
   CloseSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
                                    int warn_level_flag);
-  SystemCallTraceReplayModule *move() {
+  SystemCallTraceReplayModule *move() override {
     auto movePtr =
         new CloseSystemCallTraceReplayModule(source, verbose_, warn_level_);
     movePtr->setMove(descVal);
@@ -53,7 +53,7 @@ class CloseSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
     return movePtr;
   }
   void setMove(int desc) { descVal = desc; }
-  void prepareRow();
+  void prepareRow() override;
 };
 
 #endif /* CLOSE_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

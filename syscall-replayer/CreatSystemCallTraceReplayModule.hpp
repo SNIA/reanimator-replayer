@@ -37,13 +37,13 @@ class CreatSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
   /**
    * Print creat sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay an creat system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
  public:
   CreatSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,

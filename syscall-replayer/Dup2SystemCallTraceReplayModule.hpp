@@ -35,13 +35,13 @@ class Dup2SystemCallTraceReplayModule : public SystemCallTraceReplayModule {
   /**
    * Print dup2 sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay a dup2 system call with those arguments
    */
-  void processRow();
+  void processRow() override;
 
  public:
   Dup2SystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
