@@ -35,7 +35,7 @@ void ChownSystemCallTraceReplayModule::print_specific_fields() {
 }
 
 void ChownSystemCallTraceReplayModule::processRow() {
-  char *path = (char *)given_pathname_.val();
+  const char *path = reinterpret_cast<const char *>(given_pathname_.val());
   uid_t owner = (uid_t)new_owner_.val();
   gid_t group = (gid_t)new_group_.val();
   // Replay the chown system call

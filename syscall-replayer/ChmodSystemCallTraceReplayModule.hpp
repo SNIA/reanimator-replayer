@@ -24,11 +24,10 @@
 #ifndef CHMOD_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define CHMOD_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 
-#include "SystemCallTraceReplayModule.hpp"
-
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include "SystemCallTraceReplayModule.hpp"
 
 class ChmodSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
  private:
@@ -41,19 +40,19 @@ class ChmodSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
   /**
    * Print chmod sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay a chmod system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
  public:
   ChmodSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
                                    int warn_level_flag);
 
-  SystemCallTraceReplayModule *move() {
+  SystemCallTraceReplayModule *move() override {
     auto movePtr =
         new ChmodSystemCallTraceReplayModule(source, verbose_, warn_level_);
     movePtr->setMove(pathname, modeVal);
@@ -66,7 +65,7 @@ class ChmodSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
     pathname = path;
     modeVal = mode;
   }
-  void prepareRow();
+  void prepareRow() override;
 };
 
 #endif /* CHMOD_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

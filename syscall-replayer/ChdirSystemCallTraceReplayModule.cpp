@@ -30,8 +30,7 @@ void ChdirSystemCallTraceReplayModule::print_specific_fields() {
 }
 
 void ChdirSystemCallTraceReplayModule::processRow() {
-  char *path = (char *)given_pathname_.val();
-
+  const char *path = reinterpret_cast<const char *>(given_pathname_.val());
   // Replay chdir system call
   replayed_ret_val_ = chdir(path);
 }
