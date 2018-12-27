@@ -23,6 +23,8 @@
 #define EXECVE_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 
 #include <unordered_set>
+#include <utility>
+#include <vector>
 #include "SystemCallTraceReplayModule.hpp"
 
 class ExecveSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
@@ -32,31 +34,33 @@ class ExecveSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
   Int32Field continuation_number_;
   Variable32Field argument_;
   Variable32Field environment_;
+
   int32_t continuation_num;
   int64_t retVal;
+  std::vector<std::pair<const char *, const char *> > environmentVariables;
   /**
    * Print execve common and sys call field values
    * This function is overridden from its base class
    * SystemCallTraceReplayModule as common field values
    * are not set in the first record.
    */
-  void print_sys_call_fields();
+  void print_sys_call_fields() override;
 
   /**
    * Print execve sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will simply return without replaying
    * execve system call.
    */
-  void processRow();
+  void processRow() override;
 
  public:
   ExecveSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
                                     int warn_level_flag);
-  SystemCallTraceReplayModule *move() {
+  SystemCallTraceReplayModule *move() override {
     auto movePtr =
         new ExecveSystemCallTraceReplayModule(source, verbose_, warn_level_);
     movePtr->setMove(continuation_num, retVal);
@@ -69,7 +73,7 @@ class ExecveSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
     continuation_num = contNum;
     retVal = ret;
   }
-  void prepareRow();
+  void prepareRow() override;
 };
 
 #endif /* EXECVE_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

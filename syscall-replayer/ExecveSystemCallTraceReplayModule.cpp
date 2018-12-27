@@ -33,41 +33,13 @@ void ExecveSystemCallTraceReplayModule::print_sys_call_fields() {
 }
 
 void ExecveSystemCallTraceReplayModule::print_specific_fields() {
-  // Save the position of the first record.
-  // const void *first_record_pos = series.getCurPos();
-
-  // TODO(XXX) fix Umit this
-
-  /*
-   * Iteratively fetch the new record to print the continuation
-   * number, argument and environment variables.
-   */
-  // while (continuation_num >= 0 && series.morerecords()) {
-  //   int continuation_num = continuation_number_.val();
-  //   if (continuation_num == 0) {
-  //     syscall_logger_->log_info("continuation_number(", continuation_num,
-  //     ")");
-  //   } else if (continuation_num > 0) {
-  //     syscall_logger_->log_info("continuation_number(", continuation_num,
-  //     "),");
-  //     if (environment_.isNull())
-  //       syscall_logger_->log_info("argument(", argument_.val(), ")");
-  //     else if (argument_.isNull())
-  //       syscall_logger_->log_info("environment(", environment_.val(), ")");
-  //   }
-  //   ++series;
-  // }
-
-  /*
-   * Print the common field values.
-   * Continuation_number equal to '-1' denotes the record with common fields.
-   */
-  // if (continuation_number_.val() == -1) {
-  //   print_common_fields();
-  // }
-
-  // Again, set the pointer to the first record.
-  // series.setCurPos(first_record_pos);
+  for (auto envPair : environmentVariables) {
+    syscall_logger_->log_info("argument(", envPair.second, ")", " environment(",
+                              envPair.first, ")");
+    delete[] envPair.second;
+    delete[] envPair.first;
+  }
+  print_common_fields();
 }
 
 void ExecveSystemCallTraceReplayModule::processRow() {
@@ -79,9 +51,7 @@ void ExecveSystemCallTraceReplayModule::processRow() {
   // Get all traced fds in this process
   std::unordered_set<int> traced_fds =
       replayer_resources_manager_.get_all_traced_fds(executingPidVal);
-  for (std::unordered_set<int>::iterator iter = traced_fds.begin();
-       iter != traced_fds.end(); ++iter) {
-    int traced_fd = *iter;
+  for (int traced_fd : traced_fds) {
     int flags =
         replayer_resources_manager_.get_flags(executingPidVal, traced_fd);
     /*
@@ -93,7 +63,7 @@ void ExecveSystemCallTraceReplayModule::processRow() {
      * will
      * remain open across an execve(2).
      */
-    if (flags & O_CLOEXEC && retVal >= 0) {
+    if (((flags & O_CLOEXEC) != 0) && retVal >= 0) {
       replayer_resources_manager_.remove_fd(executingPidVal, traced_fd);
     }
   }
@@ -111,6 +81,23 @@ void ExecveSystemCallTraceReplayModule::prepareRow() {
 
   // Count the number of rows processed
   while (continuation_num >= 0 && series.morerecords()) {
+    int continuation_num = continuation_number_.val();
+    if (verbose_) {
+      char *environmentVal = nullptr, *argumentVal = nullptr;
+      if (continuation_num > 0) {
+        if (!environment_.isNull()) {
+          auto envBuf = reinterpret_cast<const char *>(environment_.val());
+          environmentVal = new char[std::strlen(envBuf) + 1];
+          std::strncpy(environmentVal, envBuf, (std::strlen(envBuf) + 1));
+        }
+        if (!argument_.isNull()) {
+          auto argBuf = reinterpret_cast<const char *>(environment_.val());
+          argumentVal = new char[std::strlen(argBuf) + 1];
+          std::strncpy(argumentVal, argBuf, (std::strlen(argBuf) + 1));
+        }
+        environmentVariables.emplace_back(environmentVal, argumentVal);
+      }
+    }
     ++series;
     ++count;
   }
