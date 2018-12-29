@@ -100,6 +100,9 @@ class GetdentsSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
     }
   }
 
+  bool compareResults(struct dirent *realExecution, int64_t sizeOfRealExecution,
+                      struct dirent *replayed, int64_t sizeOfReplay);
+
  public:
   GetdentsSystemCallTraceReplayModule(DataSeriesModule &source,
                                       bool verbose_flag, bool verify_flag,

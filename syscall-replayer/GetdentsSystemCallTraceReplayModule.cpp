@@ -42,6 +42,43 @@ void GetdentsSystemCallTraceReplayModule::print_specific_fields() {
                             count_val, ")");
 }
 
+bool GetdentsSystemCallTraceReplayModule::compareResults(
+    struct dirent *realExecution, int64_t sizeOfRealExecution,
+    struct dirent *replayed, int64_t sizeOfReplay) {
+  if (sizeOfRealExecution != sizeOfReplay || sizeOfRealExecution == 0) {
+    return false;
+  }
+  for (int pos = 0; pos < return_val;) {
+    // getting dirent data for the real execution buffer
+    auto direntRecOrg =
+        (struct dirent *)(reinterpret_cast<char *>(realExecution) + pos);
+    auto typeOrg = *((reinterpret_cast<char *>(realExecution)) + pos +
+                     direntRecOrg->d_reclen - 1);
+    auto typeStrOrg = getDirentTypeStr(typeOrg);
+    auto offsetOrg = direntRecOrg->d_off;
+    auto recordLenOrg = direntRecOrg->d_reclen;
+    auto direntNameOrg = direntRecOrg->d_name;
+
+    // getting dirent data for the replayed execution buffer
+    auto direntRecReplayed =
+        (struct dirent *)(reinterpret_cast<char *>(replayed) + pos);
+    auto typeReplayed = *((reinterpret_cast<char *>(replayed)) + pos +
+                          direntRecReplayed->d_reclen - 1);
+    auto typeStrReplayed = getDirentTypeStr(typeReplayed);
+    auto offsetReplayed = direntRecReplayed->d_off;
+    auto recordLenReplayed = direntRecReplayed->d_reclen;
+    auto direntNameReplayed = direntRecReplayed->d_name;
+
+    if (typeStrOrg != typeStrReplayed || offsetOrg != offsetReplayed ||
+        recordLenOrg != recordLenReplayed ||
+        direntNameOrg != direntNameReplayed) {
+      return false;
+    }
+    pos += recordLenOrg;
+  }
+  return true;
+}
+
 void GetdentsSystemCallTraceReplayModule::processRow() {
   // Get replaying file descriptor.
   pid_t pid = executing_pid();
@@ -66,9 +103,8 @@ void GetdentsSystemCallTraceReplayModule::processRow() {
 
   if (verify_) {
     // Verify dirent buffer data and data in the trace file are same
-    if (replayed_ret_val_ != return_val ||
-        (replayed_ret_val_ > 0 &&
-         memcmp(dirent_buffer_val, buffer, replayed_ret_val_) != 0)) {
+    if (compareResults(dirent_buffer_val, return_val, buffer,
+                       replayed_ret_val_)) {
       // Data aren't same
       syscall_logger_->log_err("Verification of data in getdents failed.");
       if (!default_mode()) {
