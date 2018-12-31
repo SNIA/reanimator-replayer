@@ -69,8 +69,8 @@ void ReadvSystemCallTraceReplayModule::processRow() {
   int fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
   int count = count_.val(); /* Number of read io vectors */
   int iov_number = iov_number_.val();
-  char *traced_buffer[count];
-  char *replayed_buffer[count];
+  auto traced_buffer = new char *[count];
+  auto replayed_buffer = new char *[count];
 
   /*
    * The total number of rows processed by single readv system
@@ -138,7 +138,7 @@ void ReadvSystemCallTraceReplayModule::processRow() {
   replayed_ret_val_ = readv(fd, iov, count);
 
   // If replayer runs in verify mode.
-  if (verify_ == true) {
+  if (verify_) {
     // Verify each iovec read data and data in the trace file
     for (int iovcnt_ = 0; iovcnt_ < count; iovcnt_++) {
       if (memcmp(traced_buffer[iovcnt_], replayed_buffer[iovcnt_],
@@ -176,4 +176,7 @@ void ReadvSystemCallTraceReplayModule::processRow() {
    * pointer in the Extent Series to the first record.
    */
   series.setCurPos(first_record_pos);
+
+  delete[] traced_buffer;
+  delete[] replayed_buffer;
 }

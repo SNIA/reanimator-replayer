@@ -35,17 +35,17 @@ class PipeSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
   /**
    * Print pipe sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay a pipe system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
  public:
-  PipeSystemCallTraceReplayModule(DataSeriesModule &source, bool verify_flag,
-                                  bool verbose_flag, int warn_level_flag);
+  PipeSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                  bool verify_flag, int warn_level_flag);
 };
 
 #endif /* PIPE_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

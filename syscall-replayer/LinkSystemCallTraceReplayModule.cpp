@@ -71,9 +71,9 @@ void LinkatSystemCallTraceReplayModule::processRow() {
   const char *new_path_name = (const char *)given_newpathname_.val();
   int flags = flag_value_.val();
 
-  if ((old_fd == SYSCALL_SIMULATED && old_path_name != NULL &&
+  if ((old_fd == SYSCALL_SIMULATED && old_path_name != nullptr &&
        old_path_name[0] != '/') ||
-      (new_fd == SYSCALL_SIMULATED && new_path_name != NULL &&
+      (new_fd == SYSCALL_SIMULATED && new_path_name != nullptr &&
        new_path_name[0] != '/')) {
     /*
      * Either old_fd or new_fd or both originated from a socket.

@@ -39,18 +39,18 @@ class RenameSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
   /**
    * Print rename sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay a rename system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
  public:
   RenameSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
                                     int warn_level_flag);
-  SystemCallTraceReplayModule *move() {
+  SystemCallTraceReplayModule *move() override {
     auto movePtr =
         new RenameSystemCallTraceReplayModule(source, verbose_, warn_level_);
     movePtr->setMove(old_pathname, new_pathname);
@@ -64,7 +64,7 @@ class RenameSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
     new_pathname = n_path;
   }
 
-  void prepareRow();
+  void prepareRow() override;
 };
 
 #endif /* RENAME_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

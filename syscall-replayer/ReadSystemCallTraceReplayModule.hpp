@@ -40,18 +40,18 @@ class ReadSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
   /**
    * Print read sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and then replay an read system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
  public:
   ReadSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
                                   bool verify_flag, int warn_level_flag);
-  SystemCallTraceReplayModule *move() {
+  SystemCallTraceReplayModule *move() override {
     auto movePtr = new ReadSystemCallTraceReplayModule(source, verbose_,
                                                        verify_, warn_level_);
     movePtr->setMove(buffer, nbytes, traced_fd, dataReadBuf);
@@ -66,7 +66,7 @@ class ReadSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
     traced_fd = fd;
     dataReadBuf = verifyBuf;
   }
-  void prepareRow();
+  void prepareRow() override;
 };
 
 class PReadSystemCallTraceReplayModule
@@ -78,13 +78,13 @@ class PReadSystemCallTraceReplayModule
   /**
    * Print pread sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and then replay an pread system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
  public:
   PReadSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,

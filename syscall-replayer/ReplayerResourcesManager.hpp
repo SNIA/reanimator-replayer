@@ -76,7 +76,7 @@ class UmaskEntry : public BasicEntry {
   /**
    * Constructor
    */
-  UmaskEntry(mode_t m);
+  explicit UmaskEntry(mode_t m);
 
   /**
    * Return mask

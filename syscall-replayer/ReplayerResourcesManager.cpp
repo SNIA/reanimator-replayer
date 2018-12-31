@@ -33,10 +33,9 @@ void ReplayerResourcesManager::initialize(SystemCallTraceReplayLogger *logger,
   umask_table_[pid] = new UmaskEntry(0);
   fd_table_map_[pid] = new FileDescriptorTableEntry();
   fd_table_map_lock.unlock();
-  for (std::map<int, int>::iterator iter = fd_map.begin(); iter != fd_map.end();
-       ++iter) {
-    int traced_fd = iter->first;
-    int replayed_fd = iter->second;
+  for (auto &iter : fd_map) {
+    int traced_fd = iter.first;
+    int replayed_fd = iter.second;
     // Flags is 0
     add_fd(pid, traced_fd, replayed_fd, 0);
   }
@@ -78,9 +77,8 @@ void ReplayerResourcesManager::initialize(SystemCallTraceReplayLogger *logger,
     logger_->log_warn(
         "Find multiple fds that are used by the replayer. "
         "Printing all of them");
-    for (std::unordered_set<int>::iterator it = replayer_used_fds_.begin();
-         it != replayer_used_fds_.end(); it++) {
-      logger_->log_warn(*it);
+    for (int replayer_used_fd : replayer_used_fds_) {
+      logger_->log_warn(replayer_used_fd);
     }
   }
 }
@@ -167,8 +165,7 @@ void ReplayerResourcesManager::clone_fd_table(pid_t ppid, pid_t pid,
     //  We need to create new FD mapping for every FD in the old table.
     std::map<int, FileDescriptorEntry *> &p_fd_table =
         p_fd_table_ptr->get_fd_table();
-    FileDescriptorTableEntry *clone_fd_table_ptr =
-        new FileDescriptorTableEntry();
+    auto clone_fd_table_ptr = new FileDescriptorTableEntry();
     int old_fd, new_fd, traced_fd, flags;
     for (const auto &entry : p_fd_table) {
       old_fd = entry.second->get_fd();
@@ -229,11 +226,10 @@ void ReplayerResourcesManager::print_fd_manager() {
   logger_->log_info(
       "---------------------- File Descriptor Manager ----------------------");
   // Print file desriptor tables
-  for (PerPidFileDescriptorTableMap::iterator map_iter = fd_table_map_.begin();
-       map_iter != fd_table_map_.end(); map_iter++) {
-    pid_t pid = map_iter->first;
+  for (auto &map_iter : fd_table_map_) {
+    pid_t pid = map_iter.first;
     logger_->log_info("Pid: " + std::to_string(pid));
-    FileDescriptorTableEntry *table = map_iter->second;
+    FileDescriptorTableEntry *table = map_iter.second;
     logger_->log_info(table->to_string());
   }
 }
@@ -309,9 +305,8 @@ void ReplayerResourcesManager::validate_consistency() {
   // Add cached replayer fds to used fds (ex. logger fd)
   used_fds.insert(replayer_used_fds_.begin(), replayer_used_fds_.end());
 
-  for (PerPidFileDescriptorTableMap::iterator iter = fd_table_map_.begin();
-       iter != fd_table_map_.end(); ++iter) {
-    pid_t pid = iter->first;
+  for (auto &iter : fd_table_map_) {
+    pid_t pid = iter.first;
     std::unordered_set<int> process_used_fds =
         fd_table_map_[pid]->get_all_replayed_fds();
     used_fds.insert(process_used_fds.begin(), process_used_fds.end());
@@ -329,8 +324,8 @@ void ReplayerResourcesManager::validate_consistency() {
        * cause serious problems in replaying.
        */
       logger_->log_warn(
-          "Unknown and currently in used file descriptor to the resource manager \
-        is found: fd #",
+          "Unknown and currently in used file descriptor to the resource "
+          "manager is found: fd #",
           fd);
     } else if (!fd_used && used_fds.find(fd) != used_fds.end()) {
       /*
@@ -361,10 +356,7 @@ void ReplayerResourcesManager::validate_consistency() {
 
 bool ReplayerResourcesManager::is_fd_in_use(int fd) {
   int result = lseek(fd, 0, SEEK_CUR);
-  if (result >= 0 || EBADF != errno) {
-    return true;
-  }
-  return false;
+  return result >= 0 || EBADF != errno;
 }
 
 // =========================== BasicEntry Implementation
@@ -420,19 +412,16 @@ FileDescriptorTableEntry::FileDescriptorTableEntry(
     : BasicEntry() {
   std::map<int, FileDescriptorEntry *> &fd_table_copy =
       fd_table_entry.get_fd_table();
-  for (std::map<int, FileDescriptorEntry *>::iterator iter =
-           fd_table_copy.begin();
-       iter != fd_table_copy.end(); iter++) {
-    int traced_fd = iter->first;
-    FileDescriptorEntry *fd_ptr = iter->second;
+  for (auto &iter : fd_table_copy) {
+    int traced_fd = iter.first;
+    FileDescriptorEntry *fd_ptr = iter.second;
     add_fd_entry(traced_fd, fd_ptr->get_fd(), fd_ptr->get_flags());
   }
 }
 
 FileDescriptorTableEntry::~FileDescriptorTableEntry() {
-  for (std::map<int, FileDescriptorEntry *>::iterator iter = fd_table_.begin();
-       iter != fd_table_.end(); iter++) {
-    FileDescriptorEntry *fd_ptr = iter->second;
+  for (auto &iter : fd_table_) {
+    FileDescriptorEntry *fd_ptr = iter.second;
     delete fd_ptr;
   }
 }
@@ -487,27 +476,21 @@ int FileDescriptorTableEntry::get_fd(int traced_fd) {
 }
 
 bool FileDescriptorTableEntry::has_fd(int traced_fd) {
-  if (fd_table_.find(traced_fd) == fd_table_.end()) {
-    return false;
-  } else {
-    return true;
-  }
+  return fd_table_.find(traced_fd) != fd_table_.end();
 }
 
 std::unordered_set<int> FileDescriptorTableEntry::get_all_traced_fds() {
   std::unordered_set<int> fds;
-  for (std::map<int, FileDescriptorEntry *>::iterator iter = fd_table_.begin();
-       iter != fd_table_.end(); iter++) {
-    fds.insert(iter->first);
+  for (auto &iter : fd_table_) {
+    fds.insert(iter.first);
   }
   return fds;
 }
 
 std::unordered_set<int> FileDescriptorTableEntry::get_all_replayed_fds() {
   std::unordered_set<int> fds;
-  for (std::map<int, FileDescriptorEntry *>::iterator iter = fd_table_.begin();
-       iter != fd_table_.end(); iter++) {
-    FileDescriptorEntry *fd_ptr = iter->second;
+  for (auto &iter : fd_table_) {
+    FileDescriptorEntry *fd_ptr = iter.second;
     fds.insert(fd_ptr->get_fd());
   }
   return fds;
@@ -537,11 +520,9 @@ void FileDescriptorTableEntry::set_flags(int traced_fd, int flags) {
 std::string FileDescriptorTableEntry::to_string() {
   std::stringstream ss;
   ss << "Reference count: " << rc_ << std::endl;
-  for (std::map<int, FileDescriptorEntry *>::iterator table_iter =
-           fd_table_.begin();
-       table_iter != fd_table_.end(); table_iter++) {
-    int traced_fd = table_iter->first;
-    FileDescriptorEntry *fd_entry = table_iter->second;
+  for (auto &table_iter : fd_table_) {
+    int traced_fd = table_iter.first;
+    FileDescriptorEntry *fd_entry = table_iter.second;
     ss << "Traced fd: " << traced_fd << " -> ";
     ss << fd_entry->to_string() << std::endl;
   }

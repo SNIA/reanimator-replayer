@@ -30,28 +30,39 @@ class MunmapSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
   Int64Field start_address_;
   Int64Field length_;
 
+  int64_t startAddress;
+  int64_t sizeOfMap;
+
   /**
    * Print munmap sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will simply return without replaying
    * munmap system call.
    */
-  void processRow();
+  void processRow() override;
 
  public:
   MunmapSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
                                     int warn_level_flag);
-  SystemCallTraceReplayModule *move() {
+  SystemCallTraceReplayModule *move() override {
     auto movePtr =
         new MunmapSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    movePtr->setMove(startAddress, sizeOfMap);
     movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
                        timeRecordedVal, executingPidVal, errorNoVal, returnVal,
                        replayerIndex);
     return movePtr;
   }
+
+  void setMove(int64_t startAddr, int64_t mapSize) {
+    startAddress = startAddr;
+    sizeOfMap = mapSize;
+  }
+
+  void prepareRow() override;
 };
 
 #endif /* MUNMAP_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

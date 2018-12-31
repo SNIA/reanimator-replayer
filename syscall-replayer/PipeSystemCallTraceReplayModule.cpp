@@ -44,7 +44,7 @@ void PipeSystemCallTraceReplayModule::processRow() {
       syscall_logger_->log_info(
           "Pipe was passed NULL instead of an integer array.");
     }
-    replayed_ret_val_ = pipe(NULL);
+    replayed_ret_val_ = pipe(nullptr);
   } else {
     replayed_ret_val_ = pipe(pipefd);
   }
@@ -66,7 +66,9 @@ void PipeSystemCallTraceReplayModule::processRow() {
             "Captured write descriptor: ", write_descriptor_.val(),
             ", Replayed write descriptor: ", pipefd[1]);
       }
-      if (abort_mode()) abort();
+      if (abort_mode()) {
+        abort();
+      }
     }
   }
   /*

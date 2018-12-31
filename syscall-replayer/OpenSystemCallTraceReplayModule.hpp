@@ -36,24 +36,24 @@ class OpenSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
   Int32Field mode_value_;
   int flags;
   mode_t modeVal;
-  int traced_fd;
+  int64_t traced_fd;
   char *pathname;
 
   /**
    * Print open sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay an open system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
  public:
   OpenSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
                                   int warn_level_flag);
-  SystemCallTraceReplayModule *move() {
+  SystemCallTraceReplayModule *move() override {
     auto movePtr =
         new OpenSystemCallTraceReplayModule(source, verbose_, warn_level_);
     movePtr->setMove(pathname, modeVal, flags, traced_fd);
@@ -68,7 +68,7 @@ class OpenSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
     traced_fd = fd;
     flags = flag;
   }
-  void prepareRow();
+  void prepareRow() override;
 };
 
 class OpenatSystemCallTraceReplayModule
@@ -80,13 +80,13 @@ class OpenatSystemCallTraceReplayModule
   /**
    * Print openat sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay an openat system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
  public:
   OpenatSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,

@@ -31,20 +31,21 @@ ReadlinkSystemCallTraceReplayModule::ReadlinkSystemCallTraceReplayModule(
 
 void ReadlinkSystemCallTraceReplayModule::print_specific_fields() {
   syscall_logger_->log_info("link path(", given_pathname_.val(), "), ",
-                            "target path(", (char *)link_value_.val(), "), ",
-                            "buffer size(", buffer_size_.val(), ")");
+                            "target path(",
+                            reinterpret_cast<const char *>(link_value_.val()),
+                            "), ", "buffer size(", buffer_size_.val(), ")");
 }
 
 void ReadlinkSystemCallTraceReplayModule::processRow() {
-  char *pathname = (char *)given_pathname_.val();
-  int nbytes = (int)buffer_size_.val();
-  int return_value = (int)return_value_.val();
-  char target_path[nbytes];
+  const char *pathname = reinterpret_cast<const char *>(given_pathname_.val());
+  int nbytes = reinterpret_cast<int>(buffer_size_.val());
+  int64_t return_value = reinterpret_cast<int64_t>(return_value_.val());
+  char *target_path = new char[nbytes];
 
   // replay the readlink system call
   replayed_ret_val_ = readlink(pathname, target_path, nbytes);
 
-  if (verify_ == true) {
+  if (verify_) {
     // Verify readlink buffer and buffer in the trace file are same
     if (memcmp(link_value_.val(), target_path, return_value) != 0) {
       // Target path aren't same
@@ -56,8 +57,10 @@ void ReadlinkSystemCallTraceReplayModule::processRow() {
             ", Captured readlink path is different from",
             " replayed readlink path");
         syscall_logger_->log_warn(
-            "Captured readlink path: ", (char *)link_value_.val(), ", ",
-            "Replayed readlink path: ", (char *)target_path);
+            "Captured readlink path: ",
+            reinterpret_cast<const char *>(link_value_.val()), ", ",
+            "Replayed readlink path: ",
+            reinterpret_cast<const char *>(target_path));
         if (abort_mode()) {
           abort();
         }
@@ -68,4 +71,6 @@ void ReadlinkSystemCallTraceReplayModule::processRow() {
       }
     }
   }
+
+  delete[] target_path;
 }

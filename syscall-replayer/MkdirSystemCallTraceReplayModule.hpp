@@ -40,19 +40,19 @@ class MkdirSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
   /**
    * Print mkdir sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay an mkdir system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
  public:
   MkdirSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
                                    int warn_level_flag);
 
-  SystemCallTraceReplayModule *move() {
+  SystemCallTraceReplayModule *move() override {
     auto movePtr =
         new MkdirSystemCallTraceReplayModule(source, verbose_, warn_level_);
     movePtr->setMove(pathname, modeVal);
@@ -65,7 +65,7 @@ class MkdirSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
     pathname = path;
     modeVal = mode;
   }
-  void prepareRow();
+  void prepareRow() override;
 };
 
 class MkdiratSystemCallTraceReplayModule
@@ -77,13 +77,13 @@ class MkdiratSystemCallTraceReplayModule
   /**
    * Print mkdirat sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay a mkdirat system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
  public:
   MkdiratSystemCallTraceReplayModule(DataSeriesModule &source,

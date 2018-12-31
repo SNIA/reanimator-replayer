@@ -42,18 +42,18 @@ class LSeekSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
   /**
    * Print lseek sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and then replay lseek system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
  public:
   LSeekSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
                                    int warn_level_flag);
-  SystemCallTraceReplayModule *move() {
+  SystemCallTraceReplayModule *move() override {
     auto movePtr =
         new LSeekSystemCallTraceReplayModule(source, verbose_, warn_level_);
     movePtr->setMove(descriptorVal, offset, whence, replayed_fd);
@@ -68,6 +68,6 @@ class LSeekSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
     whence = seekType;
     replayed_fd = fd;
   }
-  void prepareRow();
+  void prepareRow() override;
 };
 #endif /* LSEEK_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

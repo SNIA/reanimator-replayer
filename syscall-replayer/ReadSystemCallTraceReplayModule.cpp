@@ -52,7 +52,7 @@ void ReadSystemCallTraceReplayModule::processRow() {
   // Replay read system call as normal.
   replayed_ret_val_ = read(replayed_fd, buffer, nbytes);
 
-  if (verify_ == true) {
+  if (verify_) {
     // Verify read data and data in the trace file are same
     if (memcmp(dataReadBuf, buffer, replayed_ret_val_) != 0) {
       // Data aren't same
@@ -86,7 +86,7 @@ void ReadSystemCallTraceReplayModule::prepareRow() {
   replayed_ret_val_ = return_value_.val();
   buffer = new char[nbytes];
 
-  if (verify_ == true) {
+  if (verify_) {
     auto dataBuf = reinterpret_cast<const char *>(data_read_.val());
     dataReadBuf = new char[replayed_ret_val_];
     std::memcpy(dataReadBuf, dataBuf, replayed_ret_val_);
@@ -120,7 +120,7 @@ void PReadSystemCallTraceReplayModule::processRow() {
   pid_t pid = executing_pid();
   int fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
   int nbytes = bytes_requested_.val();
-  char buffer[nbytes];
+  char *buffer = new char[nbytes];
   int offset = offset_.val();
 
   if (fd == SYSCALL_SIMULATED) {
@@ -135,7 +135,7 @@ void PReadSystemCallTraceReplayModule::processRow() {
 
   replayed_ret_val_ = pread(fd, buffer, nbytes, offset);
 
-  if (verify_ == true) {
+  if (verify_) {
     // Verify read data and data in the trace file are same
     if (memcmp(data_read_.val(), buffer, replayed_ret_val_) != 0) {
       // Data aren't same
@@ -158,4 +158,6 @@ void PReadSystemCallTraceReplayModule::processRow() {
       }
     }
   }
+
+  delete[] buffer;
 }

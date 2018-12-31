@@ -40,13 +40,13 @@ class IoctlSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
   /**
    * Print ioctl sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay an ioctl system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
  public:
   IoctlSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,

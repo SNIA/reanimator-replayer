@@ -60,10 +60,10 @@ void OpenSystemCallTraceReplayModule::processRow() {
 void OpenSystemCallTraceReplayModule::prepareRow() {
   auto pathBuf = reinterpret_cast<const char *>(given_pathname_.val());
   pathname = new char[std::strlen(pathBuf) + 1];
-  std::strcpy(pathname, pathBuf);
+  std::strncpy(pathname, pathBuf, std::strlen(pathBuf) + 1);
   flags = open_value_.val();
   modeVal = mode_value_.val();
-  traced_fd = (int)return_value_.val();
+  traced_fd = reinterpret_cast<int64_t>(return_value_.val());
   SystemCallTraceReplayModule::prepareRow();
 }
 
@@ -87,12 +87,12 @@ void OpenatSystemCallTraceReplayModule::print_specific_fields() {
 void OpenatSystemCallTraceReplayModule::processRow() {
   pid_t pid = executing_pid();
   int dirfd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
-  const char *pathname = (char *)given_pathname_.val();
+  const char *pathname = reinterpret_cast<const char *>(given_pathname_.val());
   int flags = open_value_.val();
   mode_t mode = get_mode(mode_value_.val());
-  int traced_fd = (int)return_value_.val();
+  int64_t traced_fd = reinterpret_cast<int64_t>(return_value_.val());
 
-  if (dirfd == SYSCALL_SIMULATED && pathname != NULL && pathname[0] != '/') {
+  if (dirfd == SYSCALL_SIMULATED && pathname != nullptr && pathname[0] != '/') {
     /*
      * dirfd originated from a socket, hence openat cannot be replayed.
      * Traced system call would have failed with ENOTDIR.

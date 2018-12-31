@@ -36,13 +36,13 @@ class LinkSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
   /**
    * Print link sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay a link system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
  public:
   LinkSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
@@ -60,13 +60,13 @@ class LinkatSystemCallTraceReplayModule
   /**
    * Print linkat sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay a linkat system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
  public:
   LinkatSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,

@@ -61,7 +61,7 @@ void IoctlSystemCallTraceReplayModule::processRow() {
   } else {
     // Copy the traced buffer data to the buffer
     void *buf = malloc(buffer_size_.val());
-    if (buf == NULL) {
+    if (buf == nullptr) {
       replayed_ret_val_ = ENOMEM;
     } else {
       memcpy(buf, ioctl_buffer_.val(), buffer_size_.val());
