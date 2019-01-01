@@ -22,9 +22,8 @@
 #ifndef RMDIR_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define RMDIR_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 
-#include "SystemCallTraceReplayModule.hpp"
-
 #include <unistd.h>
+#include "SystemCallTraceReplayModule.hpp"
 
 class RmdirSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
  private:
@@ -35,18 +34,18 @@ class RmdirSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
   /**
    * Print rmdir sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay an rmdir system call with those arguments
    */
-  void processRow();
+  void processRow() override;
 
  public:
   RmdirSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
                                    int warn_level_flag);
-  SystemCallTraceReplayModule *move() {
+  SystemCallTraceReplayModule *move() override {
     auto movePtr =
         new RmdirSystemCallTraceReplayModule(source, verbose_, warn_level_);
     movePtr->setMove(pathname);
@@ -57,7 +56,7 @@ class RmdirSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
   }
   void setMove(char *path) { pathname = path; }
 
-  void prepareRow();
+  void prepareRow() override;
 };
 
 #endif /* RMDIR_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

@@ -33,13 +33,13 @@ class VForkSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
   /**
    * Print vfork sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will simply return without replaying
    * vfork system call.
    */
-  void processRow();
+  void processRow() override;
 
  public:
   VForkSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,

@@ -15,6 +15,8 @@
  * about this class.
  */
 
+#include <utility>
+
 #include "SetxattrSystemCallTraceReplayModule.hpp"
 
 SetxattrSystemCallTraceReplayModule::SetxattrSystemCallTraceReplayModule(
@@ -22,7 +24,7 @@ SetxattrSystemCallTraceReplayModule::SetxattrSystemCallTraceReplayModule(
     int warn_level_flag, std::string pattern_data)
     : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
       verify_(verify_flag),
-      pattern_data_(pattern_data),
+      pattern_data_(std::move(pattern_data)),
       given_pathname_(series, "given_pathname"),
       xattr_name_(series, "xattr_name"),
       value_written_(series, "value_written", Field::flag_nullable),
@@ -39,9 +41,9 @@ void SetxattrSystemCallTraceReplayModule::print_specific_fields() {
 }
 
 void SetxattrSystemCallTraceReplayModule::processRow() {
-  const char *pathname = (char *)given_pathname_.val();
-  const char *xattr_name = (char *)xattr_name_.val();
-  char *value;
+  const char *pathname = reinterpret_cast<const char *>(given_pathname_.val());
+  const char *xattr_name = reinterpret_cast<const char *>(xattr_name_.val());
+  char *value = nullptr;
   size_t size = value_size_.val();
   int flags = flag_value_.val();
 
@@ -70,15 +72,17 @@ void SetxattrSystemCallTraceReplayModule::processRow() {
        */
       memset(value, pattern, size);
     }
+    // replay the setxattr system call
+    replayed_ret_val_ = setxattr(pathname, xattr_name, value, size, flags);
   } else {
     // Use the traced data
-    value = (char *)value_written_.val();
+    auto value = reinterpret_cast<const char *>(value_written_.val());
+    // replay the setxattr system call
+    replayed_ret_val_ = setxattr(pathname, xattr_name, value, size, flags);
   }
-  // replay the setxattr system call
-  replayed_ret_val_ = setxattr(pathname, xattr_name, value, size, flags);
 
   // Free the buffer
-  if (!pattern_data_.empty()) {
+  if (!pattern_data_.empty() && value != nullptr) {
     delete[] value;
   }
 }
@@ -99,9 +103,9 @@ void LSetxattrSystemCallTraceReplayModule::print_specific_fields() {
 }
 
 void LSetxattrSystemCallTraceReplayModule::processRow() {
-  const char *pathname = (char *)given_pathname_.val();
-  const char *xattr_name = (char *)xattr_name_.val();
-  char *value;
+  const char *pathname = reinterpret_cast<const char *>(given_pathname_.val());
+  const char *xattr_name = reinterpret_cast<const char *>(xattr_name_.val());
+  char *value = nullptr;
   size_t size = value_size_.val();
   int flags = flag_value_.val();
 
@@ -130,15 +134,17 @@ void LSetxattrSystemCallTraceReplayModule::processRow() {
        */
       memset(value, pattern, size);
     }
+    // replay the setxattr system call
+    replayed_ret_val_ = lsetxattr(pathname, xattr_name, value, size, flags);
   } else {
     // Use the traced data
-    value = (char *)value_written_.val();
+    auto value = reinterpret_cast<const char *>(value_written_.val());
+    // replay the setxattr system call
+    replayed_ret_val_ = lsetxattr(pathname, xattr_name, value, size, flags);
   }
-  // replay the setxattr system call
-  replayed_ret_val_ = lsetxattr(pathname, xattr_name, value, size, flags);
 
   // Free the buffer
-  if (!pattern_data_.empty()) {
+  if (!pattern_data_.empty() && value != nullptr) {
     delete[] value;
   }
 }
@@ -148,7 +154,7 @@ FSetxattrSystemCallTraceReplayModule::FSetxattrSystemCallTraceReplayModule(
     int warn_level_flag, std::string pattern_data)
     : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
       verify_(verify_flag),
-      pattern_data_(pattern_data),
+      pattern_data_(std::move(pattern_data)),
       descriptor_(series, "descriptor"),
       xattr_name_(series, "xattr_name"),
       value_written_(series, "value_written", Field::flag_nullable),
@@ -170,8 +176,8 @@ void FSetxattrSystemCallTraceReplayModule::print_specific_fields() {
 void FSetxattrSystemCallTraceReplayModule::processRow() {
   pid_t pid = executing_pid();
   int fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
-  const char *xattr_name = (char *)xattr_name_.val();
-  char *value;
+  const char *xattr_name = reinterpret_cast<const char *>(xattr_name_.val());
+  char *value = nullptr;
   size_t size = value_size_.val();
   int flags = flag_value_.val();
 
@@ -204,15 +210,17 @@ void FSetxattrSystemCallTraceReplayModule::processRow() {
        */
       memset(value, pattern, size);
     }
+    // replay the fsetxattr system call
+    replayed_ret_val_ = fsetxattr(fd, xattr_name, value, size, flags);
   } else {
     // Use the traced data
-    value = (char *)value_written_.val();
+    auto value = reinterpret_cast<const char *>(value_written_.val());
+    // replay the fsetxattr system call
+    replayed_ret_val_ = fsetxattr(fd, xattr_name, value, size, flags);
   }
-  // replay the fsetxattr system call
-  replayed_ret_val_ = fsetxattr(fd, xattr_name, value, size, flags);
 
   // Free the buffer
-  if (!pattern_data_.empty()) {
+  if (!pattern_data_.empty() && value != nullptr) {
     delete[] value;
   }
 }

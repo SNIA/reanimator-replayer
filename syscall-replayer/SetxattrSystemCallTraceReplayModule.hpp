@@ -42,13 +42,13 @@ class SetxattrSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
   /**
    * Print setxattr sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay a setxattr system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
  public:
   SetxattrSystemCallTraceReplayModule(DataSeriesModule &source,
@@ -63,13 +63,13 @@ class LSetxattrSystemCallTraceReplayModule
   /**
    * Print lsetxattr sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay a lsetxattr system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
  public:
   LSetxattrSystemCallTraceReplayModule(DataSeriesModule &source,
@@ -93,13 +93,13 @@ class FSetxattrSystemCallTraceReplayModule
   /**
    * Print fsetxattr sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay a fsetxattr system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
  public:
   FSetxattrSystemCallTraceReplayModule(DataSeriesModule &source,

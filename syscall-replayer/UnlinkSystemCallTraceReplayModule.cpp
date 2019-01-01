@@ -39,7 +39,7 @@ void UnlinkSystemCallTraceReplayModule::processRow() {
 void UnlinkSystemCallTraceReplayModule::prepareRow() {
   auto pathBuf = reinterpret_cast<const char *>(given_pathname_.val());
   pathname = new char[std::strlen(pathBuf) + 1];
-  std::strcpy(pathname, pathBuf);
+  std::strncpy(pathname, pathBuf, std::strlen(pathBuf) + 1);
   SystemCallTraceReplayModule::prepareRow();
 }
 
@@ -64,10 +64,10 @@ void UnlinkatSystemCallTraceReplayModule::processRow() {
   // Get replaying file descriptor.
   pid_t pid = executing_pid();
   int dirfd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
-  char *path = (char *)given_pathname_.val();
+  auto path = reinterpret_cast<const char *>(given_pathname_.val());
   int flags = flag_value_.val();
 
-  if (dirfd == SYSCALL_SIMULATED && path != NULL && path[0] != '/') {
+  if (dirfd == SYSCALL_SIMULATED && path != nullptr && path[0] != '/') {
     /*
      * dirfd originated from a socket, hence unlinkat cannot be replayed.
      * Traced system call would have failed with ENOTDIR.

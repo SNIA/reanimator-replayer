@@ -47,7 +47,7 @@ void UtimeSystemCallTraceReplayModule::print_specific_fields() {
 void UtimeSystemCallTraceReplayModule::processRow() {
   // Get replaying file given_pathname.
   struct utimbuf utimebuf;
-  const char *pathname = (char *)given_pathname_.val();
+  auto pathname = reinterpret_cast<const char *>(given_pathname_.val());
 
   // Replay the utime system call.
   if ((access_time_.isNull()) && (mod_time_.isNull())) {
@@ -61,7 +61,7 @@ void UtimeSystemCallTraceReplayModule::processRow() {
           " It will assign the current time to the file's",
           " access_time and mod_time.");
     }
-    replayed_ret_val_ = utime(pathname, NULL);
+    replayed_ret_val_ = utime(pathname, nullptr);
   } else {
     utimebuf.actime = Tfrac_to_sec(access_time_.val());
     utimebuf.modtime = Tfrac_to_sec(mod_time_.val());
@@ -81,7 +81,7 @@ UtimesSystemCallTraceReplayModule::UtimesSystemCallTraceReplayModule(
 void UtimesSystemCallTraceReplayModule::processRow() {
   // Get replaying file given_pathname and make timeval array.
   struct timeval tv[2];
-  const char *pathname = (char *)given_pathname_.val();
+  auto pathname = reinterpret_cast<const char *>(given_pathname_.val());
 
   // Replay the utimes system call.
   if ((access_time_.isNull()) && (mod_time_.isNull())) {
@@ -95,7 +95,7 @@ void UtimesSystemCallTraceReplayModule::processRow() {
           " It will assign the current time to the file's",
           " access_time and mod_time.");
     }
-    replayed_ret_val_ = utimes(pathname, NULL);
+    replayed_ret_val_ = utimes(pathname, nullptr);
   } else {
     struct timeval tv_access_time = Tfrac_to_timeval(access_time_.val());
     struct timeval tv_mod_time = Tfrac_to_timeval(mod_time_.val());
@@ -133,14 +133,14 @@ void UtimensatSystemCallTraceReplayModule::processRow() {
   int dirfd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
   struct timespec ts[2];
   const char *pathname;
-  if (given_pathname_.isNull())
-    pathname = NULL;
-  else {
-    pathname = (char *)given_pathname_.val();
+  if (given_pathname_.isNull()) {
+    pathname = nullptr;
+  } else {
+    pathname = reinterpret_cast<const char *>(given_pathname_.val());
   }
   int flags = flag_value_.val();
 
-  if (dirfd == SYSCALL_SIMULATED && pathname != NULL && pathname[0] != '/') {
+  if (dirfd == SYSCALL_SIMULATED && pathname != nullptr && pathname[0] != '/') {
     /*
      * dirfd originated from a socket, hence utimensat cannot be replayed.
      * Traced system call would have failed with ENOTDIR.

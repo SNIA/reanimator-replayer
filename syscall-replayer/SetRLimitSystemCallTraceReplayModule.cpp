@@ -34,10 +34,9 @@ void SetRLimitSystemCallTraceReplayModule::processRow() {
     replayed_ret_val_ = setrlimit(resource, &rlim);
   } else {
     if (verbose_mode() || !default_mode()) {
-      syscall_logger_->log_warn(
-          sys_call_name_,
-          ": Set resource limit to value other than RLIM_INFINITY is \
-        unsupported");
+      syscall_logger_->log_warn(sys_call_name_,
+                                ": Set resource limit to value other than "
+                                "RLIM_INFINITY is unsupported");
     }
   }
 }

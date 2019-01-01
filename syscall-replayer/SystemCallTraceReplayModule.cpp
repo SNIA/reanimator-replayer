@@ -75,7 +75,7 @@ int64_t SystemCallTraceReplayModule::unique_id() const { return uniqueIdVal; }
 
 Extent::Ptr SystemCallTraceReplayModule::getSharedExtent() {
   Extent::Ptr e = source.getSharedExtent();
-  if (e != NULL) {
+  if (e != nullptr) {
     if (!prepared) {
       firstExtent(*e);
     }
@@ -98,15 +98,14 @@ Extent::Ptr SystemCallTraceReplayModule::getSharedExtent() {
 bool SystemCallTraceReplayModule::cur_extent_has_more_record() {
   if (series.morerecords()) {
     return true;
-  } else {
-    series.clearExtent();
-    return false;
   }
+  series.clearExtent();
+  return false;
 }
 
 bool SystemCallTraceReplayModule::is_version_compatible(unsigned int major_v,
                                                         unsigned int minor_v) {
-  assert(series.getTypePtr() != NULL);
+  assert(series.getTypePtr() != nullptr);
   return series.getTypePtr()->versionCompatible(major_v, minor_v);
 }
 
@@ -116,9 +115,11 @@ void SystemCallTraceReplayModule::prepareRow() {
   timeReturnedVal = (uint64_t)time_returned_.val();
   timeRecordedVal = (uint64_t)time_recorded_.val();
   executingPidVal = (uint32_t)executing_pid_.val();
-  errorNoVal = (int)errno_number_.val();
+  errorNoVal = static_cast<int>(errno_number_.val());
   returnVal = (int64_t)return_value_.val();
-  for (int i = 1; i <= rows_per_call_; i++) ++series;
+  for (int i = 1; i <= rows_per_call_; i++) {
+    ++series;
+  }
 }
 
 void SystemCallTraceReplayModule::execute() {
@@ -134,7 +135,9 @@ void SystemCallTraceReplayModule::after_sys_call() {
    * program, then compare the errno numbers and return values,
    * else skip comparing them.
    */
-  if (isReplayable()) compare_retval_and_errno();
+  if (isReplayable()) {
+    compare_retval_and_errno();
+  }
   if (verbose_mode()) {
     syscall_logger_->log_info(
         "System call '", sys_call_name_,
@@ -191,7 +194,7 @@ void SystemCallTraceReplayModule::compare_retval_and_errno() {
 }
 
 double SystemCallTraceReplayModule::Tfrac_to_sec(uint64_t time) {
-  double time_in_secs = (double)(time * pow(2.0, -32));
+  double time_in_secs = static_cast<double>(time * pow(2.0, -32));
   return time_in_secs;
 }
 
@@ -199,8 +202,8 @@ struct timeval SystemCallTraceReplayModule::Tfrac_to_timeval(uint64_t time) {
   struct timeval tv;
   double time_in_secs = Tfrac_to_sec(time);
   uint32_t full_secs = (uint32_t)time_in_secs;
-  uint32_t u_secs =
-      (uint32_t)((time_in_secs - (double)full_secs) * pow(10.0, 6));
+  uint32_t u_secs = (uint32_t)((time_in_secs - static_cast<double>(full_secs)) *
+                               pow(10.0, 6));
   tv.tv_sec = full_secs;
   tv.tv_usec = u_secs;
   return tv;
@@ -210,8 +213,8 @@ struct timespec SystemCallTraceReplayModule::Tfrac_to_timespec(uint64_t time) {
   struct timespec ts;
   double time_in_secs = Tfrac_to_sec(time);
   uint32_t full_secs = (uint32_t)time_in_secs;
-  uint32_t n_secs =
-      (uint32_t)((time_in_secs - (double)full_secs) * pow(10.0, 9));
+  uint32_t n_secs = (uint32_t)((time_in_secs - static_cast<double>(full_secs)) *
+                               pow(10.0, 9));
   ts.tv_sec = full_secs;
   ts.tv_nsec = n_secs;
   return ts;
@@ -234,7 +237,7 @@ char *SystemCallTraceReplayModule::random_fill_buffer(char *buffer,
   size_t remaining = nbytes % size;
   size_t bytes = nbytes - remaining;
   size_t i, num;
-  srand(time(0));
+  srand(time(nullptr));
   num = rand();
   memcpy(buffer, &num, remaining);
   for (i = remaining; i < bytes; i += size) {
@@ -252,8 +255,6 @@ char *SystemCallTraceReplayModule::random_fill_buffer(char *buffer,
  *	      returns false.
  */
 bool SystemCallTraceReplayModule::isReplayable() {
-  if (sys_call_name_ == "exit" || sys_call_name_ == "execve" ||
-      sys_call_name_ == "mmap" || sys_call_name_ == "munmap")
-    return false;
-  return true;
+  return !(sys_call_name_ == "exit" || sys_call_name_ == "execve" ||
+           sys_call_name_ == "mmap" || sys_call_name_ == "munmap");
 }

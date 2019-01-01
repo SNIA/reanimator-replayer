@@ -39,20 +39,20 @@ class WriteSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
   /**
    * Print write sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * or create our own arguments (for example, pattern),
    * then replay an write system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
  public:
   WriteSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
                                    bool verify_flag, int warn_level_flag,
                                    std::string pattern_data);
-  SystemCallTraceReplayModule *move() {
+  SystemCallTraceReplayModule *move() override {
     auto movePtr = new WriteSystemCallTraceReplayModule(
         source, verbose_, verify_, warn_level_, pattern_data_);
     movePtr->setMove(data_buffer, nbytes, traced_fd);
@@ -66,7 +66,7 @@ class WriteSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
     nbytes = byte;
     traced_fd = fd;
   }
-  void prepareRow();
+  void prepareRow() override;
 };
 
 class PWriteSystemCallTraceReplayModule
@@ -78,13 +78,13 @@ class PWriteSystemCallTraceReplayModule
   /**
    * Print pwrite sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and then replay an pwrite system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
  public:
   PWriteSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,

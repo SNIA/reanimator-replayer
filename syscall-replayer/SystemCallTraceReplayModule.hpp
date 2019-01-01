@@ -25,21 +25,20 @@
 #ifndef SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 
-#include <DataSeries/RowAnalysisModule.hpp>
-#include "ReplayerResourcesManager.hpp"
-#include "SystemCallTraceReplayLogger.hpp"
-#include "strace2ds.h"
-
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <DataSeries/RowAnalysisModule.hpp>
 #include <boost/format.hpp>
 #include <fstream>
 #include <iostream>
 #include <map>
 #include <sstream>
 #include <string>
+#include "ReplayerResourcesManager.hpp"
+#include "SystemCallTraceReplayLogger.hpp"
+#include "strace2ds.h"
 
 #define DEFAULT_MODE 0
 #define WARN_MODE 1

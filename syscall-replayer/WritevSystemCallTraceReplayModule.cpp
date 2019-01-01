@@ -16,13 +16,15 @@
  * about this class.
  */
 
+#include <utility>
+
 #include "WritevSystemCallTraceReplayModule.hpp"
 
 WritevSystemCallTraceReplayModule::WritevSystemCallTraceReplayModule(
     DataSeriesModule &source, bool verbose_flag, int warn_level_flag,
     std::string pattern_data)
     : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-      pattern_data_(pattern_data),
+      pattern_data_(std::move(pattern_data)),
       descriptor_(series, "descriptor", Field::flag_nullable),
       count_(series, "count", Field::flag_nullable),
       iov_number_(series, "iov_number"),
@@ -69,7 +71,7 @@ void WritevSystemCallTraceReplayModule::processRow() {
   int fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
   int count = count_.val(); /* Number of write io vectors */
   int iov_number = iov_number_.val();
-  char *data_buffer[count];
+  auto data_buffer = new char *[count];
 
   /*
    * The total number of rows processed by single readv system
@@ -158,8 +160,11 @@ void WritevSystemCallTraceReplayModule::processRow() {
 
   // Free data buffer.
   for (int iovcnt_ = 0; iovcnt_ < count; iovcnt_++) {
-    if (!pattern_data_.empty()) delete[] data_buffer[iovcnt_];
+    if (!pattern_data_.empty()) {
+      delete[] data_buffer[iovcnt_];
+    }
   }
+  delete[] data_buffer;
 
   /*
    * After executing a single writev system call, set the

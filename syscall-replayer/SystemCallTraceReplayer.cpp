@@ -184,7 +184,7 @@ boost::program_options::variables_map get_options(int argc, char *argv[]) {
             vm);
   po::notify(vm);
 
-  if (vm.count("help")) {
+  if (vm.count("help") != 0u) {
     std::cerr << visible << std::endl;
     exit(EXIT_SUCCESS);
   }
@@ -213,12 +213,12 @@ void process_options(int argc, char *argv[], bool &verbose, bool &verify,
                      std::vector<std::string> &input_files) {
   boost::program_options::variables_map options_vm = get_options(argc, argv);
 
-  if (options_vm.count("version")) {
+  if (options_vm.count("version") != 0u) {
     std::cerr << "sysreplayer version 1.0" << std::endl;
     exit(EXIT_SUCCESS);
   }
 
-  if (options_vm.count("warn")) {
+  if (options_vm.count("warn") != 0u) {
     warn_level = options_vm["warn"].as<int>();
     if (warn_level > ABORT_MODE) {
       std::cerr << "Wrong value for warn option" << std::endl;
@@ -226,19 +226,19 @@ void process_options(int argc, char *argv[], bool &verbose, bool &verify,
     }
   }
 
-  if (options_vm.count("verify")) {
+  if (options_vm.count("verify") != 0u) {
     verify = true;
   }
 
-  if (options_vm.count("verbose")) {
+  if (options_vm.count("verbose") != 0u) {
     verbose = true;
   }
 
-  if (options_vm.count("pattern")) {
+  if (options_vm.count("pattern") != 0u) {
     pattern_data = options_vm["pattern"].as<std::string>();
   }
 
-  if (options_vm.count("logger")) {
+  if (options_vm.count("logger") != 0u) {
     log_filename = options_vm["logger"].as<std::string>();
   }
 
@@ -254,7 +254,7 @@ void process_options(int argc, char *argv[], bool &verbose, bool &verify,
     }
   }
 
-  if (options_vm.count("input-files")) {
+  if (options_vm.count("input-files") != 0u) {
     input_files = options_vm["input-files"].as<std::vector<std::string>>();
   } else {
     std::cout << "No dataseries input files.\n";
@@ -345,25 +345,23 @@ std::vector<PrefetchBufferModule *> create_prefetch_buffer_modules(
 
   std::vector<TypeIndexModule *> type_index_modules;
 
-  for (unsigned int i = 0; i < system_calls.size(); i++) {
+  for (auto &system_call : system_calls) {
     TypeIndexModule *type_index_module =
-        new TypeIndexModule(kExtentTypePrefix + system_calls[i]);
+        new TypeIndexModule(kExtentTypePrefix + system_call);
     type_index_modules.push_back(type_index_module);
   }
 
   // Specify to read dataseries input files
-  for (std::vector<std::string>::iterator iter = input_files.begin();
-       iter != input_files.end(); iter++) {
-    for (unsigned int j = 0; j < type_index_modules.size(); j++) {
-      type_index_modules[j]->addSource(*iter);
+  for (auto &input_file : input_files) {
+    for (auto &type_index_module : type_index_modules) {
+      type_index_module->addSource(input_file);
     }
   }
 
   std::vector<PrefetchBufferModule *> prefetch_buffer_modules;
-  for (unsigned int i = 0; i < type_index_modules.size(); ++i) {
+  for (auto &type_index_module : type_index_modules) {
     // Parallel decompress and replay, 8MiB buffer
-    PrefetchBufferModule *module =
-        new PrefetchBufferModule(*(type_index_modules[i]), 8 * 1024 * 1024);
+    auto module = new PrefetchBufferModule(*type_index_module, 8 * 1024 * 1024);
     prefetch_buffer_modules.push_back(module);
   }
 
@@ -382,183 +380,118 @@ create_system_call_trace_replay_modules(
     std::vector<PrefetchBufferModule *> prefetch_buffer_modules, bool verbose,
     bool verify, int warn_level, std::string &pattern_data) {
   int module_index = 0;
-  OpenSystemCallTraceReplayModule *open_module =
-      new OpenSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, warn_level);
-  OpenatSystemCallTraceReplayModule *openat_module =
-      new OpenatSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, warn_level);
-  CloseSystemCallTraceReplayModule *close_module =
-      new CloseSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, warn_level);
-  ReadSystemCallTraceReplayModule *read_module =
-      new ReadSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, verify,
-          warn_level);
+  auto open_module = new OpenSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto openat_module = new OpenatSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto close_module = new CloseSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto read_module = new ReadSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, verify, warn_level);
   WriteSystemCallTraceReplayModule *write_module =
       new WriteSystemCallTraceReplayModule(
           *prefetch_buffer_modules[module_index++], verbose, verify, warn_level,
           pattern_data);
-  LSeekSystemCallTraceReplayModule *lseek_module =
-      new LSeekSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, warn_level);
-  PReadSystemCallTraceReplayModule *pread_module =
-      new PReadSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, verify,
-          warn_level);
-  AccessSystemCallTraceReplayModule *access_module =
-      new AccessSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, warn_level);
-  FAccessatSystemCallTraceReplayModule *faccessat_module =
-      new FAccessatSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, warn_level);
-  ChdirSystemCallTraceReplayModule *chdir_module =
-      new ChdirSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, warn_level);
-  TruncateSystemCallTraceReplayModule *truncate_module =
-      new TruncateSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, warn_level);
-  CreatSystemCallTraceReplayModule *creat_module =
-      new CreatSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, warn_level);
-  LinkSystemCallTraceReplayModule *link_module =
-      new LinkSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, warn_level);
-  LinkatSystemCallTraceReplayModule *linkat_module =
-      new LinkatSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, warn_level);
-  UnlinkSystemCallTraceReplayModule *unlink_module =
-      new UnlinkSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, warn_level);
-  UnlinkatSystemCallTraceReplayModule *unlinkat_module =
-      new UnlinkatSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, warn_level);
-  SymlinkSystemCallTraceReplayModule *symlink_module =
-      new SymlinkSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, warn_level);
-  RmdirSystemCallTraceReplayModule *rmdir_module =
-      new RmdirSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, warn_level);
-  MkdirSystemCallTraceReplayModule *mkdir_module =
-      new MkdirSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, warn_level);
-  MkdiratSystemCallTraceReplayModule *mkdirat_module =
-      new MkdiratSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, warn_level);
-  StatSystemCallTraceReplayModule *stat_module =
-      new StatSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, verify,
-          warn_level);
-  StatfsSystemCallTraceReplayModule *statfs_module =
-      new StatfsSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, verify,
-          warn_level);
-  FStatfsSystemCallTraceReplayModule *fstatfs_module =
-      new FStatfsSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, verify,
-          warn_level);
+  auto lseek_module = new LSeekSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto pread_module = new PReadSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, verify, warn_level);
+  auto access_module = new AccessSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto faccessat_module = new FAccessatSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto chdir_module = new ChdirSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto truncate_module = new TruncateSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto creat_module = new CreatSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto link_module = new LinkSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto linkat_module = new LinkatSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto unlink_module = new UnlinkSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto unlinkat_module = new UnlinkatSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto symlink_module = new SymlinkSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto rmdir_module = new RmdirSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto mkdir_module = new MkdirSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto mkdirat_module = new MkdiratSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto stat_module = new StatSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, verify, warn_level);
+  auto statfs_module = new StatfsSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, verify, warn_level);
+  auto fstatfs_module = new FStatfsSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, verify, warn_level);
   PWriteSystemCallTraceReplayModule *pwrite_module =
       new PWriteSystemCallTraceReplayModule(
           *prefetch_buffer_modules[module_index++], verbose, verify, warn_level,
           pattern_data);
-  ReadlinkSystemCallTraceReplayModule *readlink_module =
-      new ReadlinkSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, verify,
-          warn_level);
-  UtimeSystemCallTraceReplayModule *utime_module =
-      new UtimeSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, verify,
-          warn_level);
-  ChmodSystemCallTraceReplayModule *chmod_module =
-      new ChmodSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, warn_level);
-  FChmodSystemCallTraceReplayModule *fchmod_module =
-      new FChmodSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, warn_level);
-  FChmodatSystemCallTraceReplayModule *fchmodat_module =
-      new FChmodatSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, warn_level);
-  ChownSystemCallTraceReplayModule *chown_module =
-      new ChownSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, warn_level);
-  ReadvSystemCallTraceReplayModule *readv_module =
-      new ReadvSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, verify,
-          warn_level);
+  auto readlink_module = new ReadlinkSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, verify, warn_level);
+  auto utime_module = new UtimeSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, verify, warn_level);
+  auto chmod_module = new ChmodSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto fchmod_module = new FChmodSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto fchmodat_module = new FChmodatSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto chown_module = new ChownSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto readv_module = new ReadvSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, verify, warn_level);
   WritevSystemCallTraceReplayModule *writev_module =
       new WritevSystemCallTraceReplayModule(
           *prefetch_buffer_modules[module_index++], verbose, warn_level,
           pattern_data);
-  LStatSystemCallTraceReplayModule *lstat_module =
-      new LStatSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, verify,
-          warn_level);
-  FStatSystemCallTraceReplayModule *fstat_module =
-      new FStatSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, verify,
-          warn_level);
-  FStatatSystemCallTraceReplayModule *fstatat_module =
-      new FStatatSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, verify,
-          warn_level);
-  UtimesSystemCallTraceReplayModule *utimes_module =
-      new UtimesSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, verify,
-          warn_level);
-  UtimensatSystemCallTraceReplayModule *utimensat_module =
-      new UtimensatSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, verify,
-          warn_level);
-  RenameSystemCallTraceReplayModule *rename_module =
-      new RenameSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, warn_level);
-  FsyncSystemCallTraceReplayModule *fsync_module =
-      new FsyncSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, warn_level);
-  MknodSystemCallTraceReplayModule *mknod_module =
-      new MknodSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, warn_level);
-  PipeSystemCallTraceReplayModule *pipe_module =
-      new PipeSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, verify,
-          warn_level);
-  DupSystemCallTraceReplayModule *dup_module =
-      new DupSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, warn_level);
-  Dup2SystemCallTraceReplayModule *dup2_module =
-      new Dup2SystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, warn_level);
-  FcntlSystemCallTraceReplayModule *fcntl_module =
-      new FcntlSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, warn_level);
-  ExitSystemCallTraceReplayModule *exit_module =
-      new ExitSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, warn_level);
-  ExecveSystemCallTraceReplayModule *execve_module =
-      new ExecveSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, warn_level);
-  MmapSystemCallTraceReplayModule *mmap_module =
-      new MmapSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, warn_level);
-  MunmapSystemCallTraceReplayModule *munmap_module =
-      new MunmapSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, warn_level);
-  GetdentsSystemCallTraceReplayModule *getdents_module =
-      new GetdentsSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, verify,
-          warn_level);
-  IoctlSystemCallTraceReplayModule *ioctl_module =
-      new IoctlSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, warn_level);
-  CloneSystemCallTraceReplayModule *clone_module =
-      new CloneSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, warn_level);
-  VForkSystemCallTraceReplayModule *vfork_module =
-      new VForkSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, warn_level);
-  UmaskSystemCallTraceReplayModule *umask_module =
-      new UmaskSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto lstat_module = new LStatSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, verify, warn_level);
+  auto fstat_module = new FStatSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, verify, warn_level);
+  auto fstatat_module = new FStatatSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, verify, warn_level);
+  auto utimes_module = new UtimesSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, verify, warn_level);
+  auto utimensat_module = new UtimensatSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, verify, warn_level);
+  auto rename_module = new RenameSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto fsync_module = new FsyncSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto mknod_module = new MknodSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto pipe_module = new PipeSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, verify, warn_level);
+  auto dup_module = new DupSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto dup2_module = new Dup2SystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto fcntl_module = new FcntlSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto exit_module = new ExitSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto execve_module = new ExecveSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto mmap_module = new MmapSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto munmap_module = new MunmapSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto getdents_module = new GetdentsSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, verify, warn_level);
+  auto ioctl_module = new IoctlSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto clone_module = new CloneSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto vfork_module = new VForkSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto umask_module = new UmaskSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
   SetxattrSystemCallTraceReplayModule *setxattr_module =
       new SetxattrSystemCallTraceReplayModule(
           *prefetch_buffer_modules[module_index++], verbose, verify, warn_level,
@@ -571,12 +504,10 @@ create_system_call_trace_replay_modules(
       new FSetxattrSystemCallTraceReplayModule(
           *prefetch_buffer_modules[module_index++], verbose, verify, warn_level,
           pattern_data);
-  FTruncateSystemCallTraceReplayModule *ftruncate_module =
-      new FTruncateSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, warn_level);
-  SocketSystemCallTraceReplayModule *socket_module =
-      new SocketSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto ftruncate_module = new FTruncateSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto socket_module = new SocketSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
 
   /*
    * This vector is going to used to load replaying modules.
@@ -652,8 +583,9 @@ create_system_call_trace_replay_modules(
 void load_syscall_modules(std::vector<SystemCallTraceReplayModule *>
                               &system_call_trace_replay_modules) {
   // Add all the modules to min heap if the module has extents
-  for (unsigned int i = 0; i < system_call_trace_replay_modules.size(); ++i) {
-    SystemCallTraceReplayModule *module = system_call_trace_replay_modules[i];
+  for (auto &system_call_trace_replay_module :
+       system_call_trace_replay_modules) {
+    SystemCallTraceReplayModule *module = system_call_trace_replay_module;
     // getSharedExtent() == NULL means that there are no extents in the module.
     if (module->getSharedExtent()) {
       /*
@@ -682,7 +614,7 @@ void load_syscall_modules(std::vector<SystemCallTraceReplayModule *>
       }
     } else {
       // Delete the module since it has no system call to replay.
-      system_call_trace_replay_modules[i] = NULL;
+      system_call_trace_replay_module = nullptr;
       delete module;
     }
   }
@@ -743,7 +675,7 @@ inline void batch_syscall_modules(SystemCallTraceReplayModule *module = nullptr,
                                   int batch_size = 50) {
   int count = batch_size;
 
-  SystemCallTraceReplayModule *current = NULL;
+  SystemCallTraceReplayModule *current = nullptr;
 
   if (finishedModules[module->getReplayerIndex()]) {
     return;
@@ -760,9 +692,9 @@ inline void batch_syscall_modules(SystemCallTraceReplayModule *module = nullptr,
     numberOfSyscalls[copy->getReplayerIndex()]++;
   }
 
-  while (--count) {
+  while (--count != 0) {
     if (readMod->cur_extent_has_more_record() ||
-        readMod->getSharedExtent() != NULL) {
+        readMod->getSharedExtent() != nullptr) {
       PROFILE_START(1)
       readMod->prepareRow();
       PROFILE_END(1, 2, fileReading_Batch_file)
@@ -805,7 +737,7 @@ void batch_for_all_syscalls(int batch_size = 50) {
 auto checkModulesFinished = []() -> bool {
   bool isAllFinished = true;
   for (int i = 0; i < replayerIdx; ++i) {
-    isAllFinished &= finishedModules[i];
+    isAllFinished &= static_cast<bool>(finishedModules[i]);
   }
   return isAllFinished;
 };
@@ -819,11 +751,7 @@ auto getMinSyscall = []() -> uint64_t {
 };
 
 auto checkSequential = [](SystemCallTraceReplayModule *check) -> bool {
-  if ((uint64_t)check->unique_id() > lastExecutedSyscallID + 150) {
-    return false;
-  } else {
-    return true;
-  }
+  return (uint64_t)check->unique_id() <= lastExecutedSyscallID + 150;
 };
 
 auto checkExecutionValidation = [](SystemCallTraceReplayModule *check) -> bool {
@@ -832,7 +760,7 @@ auto checkExecutionValidation = [](SystemCallTraceReplayModule *check) -> bool {
   }
   for (auto running : currentExecutions) {
     auto compare = running.second;
-    if (compare == NULL) {
+    if (compare == nullptr) {
       return false;
     }
     if (check != compare) {
@@ -849,11 +777,11 @@ auto checkExecutionValidation = [](SystemCallTraceReplayModule *check) -> bool {
   return true;
 };
 
-void readerThread(void) {
+void readerThread() {
   while (!checkModulesFinished()) {
     PROFILE_START(3)
     while (getMinSyscall() > (100 * nThreads)) {
-      SystemCallTraceReplayModule *execute_replayer = NULL;
+      SystemCallTraceReplayModule *execute_replayer = nullptr;
       while (allocationQueue.try_pop(execute_replayer)) {
         delete execute_replayer;
       }
@@ -864,8 +792,8 @@ void readerThread(void) {
 }
 
 void executionThread(int64_t threadID) {
-  SystemCallTraceReplayModule *execute_replayer = NULL;
-  SystemCallTraceReplayModule *prev_replayer = NULL;
+  SystemCallTraceReplayModule *execute_replayer = nullptr;
+  SystemCallTraceReplayModule *prev_replayer = nullptr;
   tbb::atomic<uint64_t> num_syscalls_processed = 0;
 
   PROFILE_START(10)
@@ -888,10 +816,10 @@ void executionThread(int64_t threadID) {
     PROFILE_START(1)
     if (nThreads > 1) {
       if (!checkExecutionValidation(execute_replayer)) {
-        setRunning(threadID, NULL);
+        setRunning(threadID, nullptr);
         executionHeaps[threadID].push(execute_replayer);
         numberOfSyscalls[execute_replayer->getReplayerIndex()]++;
-        prev_replayer = NULL;
+        prev_replayer = nullptr;
         continue;
       }
     }
@@ -910,7 +838,7 @@ void executionThread(int64_t threadID) {
           .validate_consistency();
     }
 
-    if (!(num_syscalls_processed % 1000000)) {
+    if ((num_syscalls_processed % 1000000) == 0u) {
       PROFILE_PRINT("total syscall execution time: ", duration)
       PROFILE_PRINT("total spinning over I/O wait time: ", executionSpinning)
       PROFILE_PRINT("total file reading time: ", fileReading)
@@ -989,8 +917,8 @@ int main(int argc, char *argv[]) {
   reader.join();
   executor.join();
 
-  for (auto it = threads.begin(); it != threads.end(); ++it) {
-    (*it).join();
+  for (auto &thread : threads) {
+    thread.join();
   }
 
   // Close /dev/urandom file

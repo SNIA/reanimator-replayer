@@ -28,7 +28,7 @@ class SetRLimitSystemCallTraceReplayModule
    * This function will gather arguments in the trace file
    * and then replay getrlimit system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
  public:
   SetRLimitSystemCallTraceReplayModule(DataSeriesModule &source,

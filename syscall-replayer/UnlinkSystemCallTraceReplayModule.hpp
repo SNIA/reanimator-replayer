@@ -37,18 +37,18 @@ class UnlinkSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
   /**
    * Print this sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay a unlink system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
  public:
   UnlinkSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
                                     int warn_level_flag);
-  SystemCallTraceReplayModule *move() {
+  SystemCallTraceReplayModule *move() override {
     auto movePtr =
         new UnlinkSystemCallTraceReplayModule(source, verbose_, warn_level_);
     movePtr->setMove(pathname);
@@ -59,7 +59,7 @@ class UnlinkSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
   }
   void setMove(char *path) { pathname = path; }
 
-  void prepareRow();
+  void prepareRow() override;
 };
 
 class UnlinkatSystemCallTraceReplayModule
@@ -72,13 +72,13 @@ class UnlinkatSystemCallTraceReplayModule
   /**
    * Print this sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay a unlinkat system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
  public:
   UnlinkatSystemCallTraceReplayModule(DataSeriesModule &source,

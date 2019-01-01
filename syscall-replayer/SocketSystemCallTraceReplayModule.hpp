@@ -34,7 +34,7 @@ class SocketSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
   /**
    * Print socket sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
@@ -44,7 +44,7 @@ class SocketSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
    * - if traced socket() call succeeded we add a special FD
    *   (SYSCALL_SIMULATED) to the fd-map.
    */
-  void processRow();
+  void processRow() override;
 
  public:
   SocketSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,

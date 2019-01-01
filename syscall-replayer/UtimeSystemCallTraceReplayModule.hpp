@@ -40,13 +40,13 @@ class UtimeSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
   /**
    * Print utime sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and then replay utime system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
  public:
   UtimeSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
@@ -60,7 +60,7 @@ class UtimesSystemCallTraceReplayModule
    * This function will gather arguments in the trace file
    * and then replay utimes system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
  public:
   UtimesSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
@@ -77,13 +77,13 @@ class UtimensatSystemCallTraceReplayModule
   /**
    * Print utimensat sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and then replay utimensats system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
  public:
   UtimensatSystemCallTraceReplayModule(DataSeriesModule &source,
