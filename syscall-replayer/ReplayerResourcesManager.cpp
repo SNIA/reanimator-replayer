@@ -245,8 +245,8 @@ void ReplayerResourcesManager::set_umask(pid_t pid, mode_t mode) {
 }
 
 void ReplayerResourcesManager::clone_umask(pid_t ppid, pid_t pid, bool shared) {
-  assert(umask_table_.find(ppid) != umask_table_.end());
   fd_table_map_lock.lock();
+  assert(umask_table_.find(ppid) != umask_table_.end());
   // Check if two processes share same umask
   if (shared) {
     // Make pid points to same umask
@@ -262,8 +262,8 @@ void ReplayerResourcesManager::clone_umask(pid_t ppid, pid_t pid, bool shared) {
 }
 
 void ReplayerResourcesManager::remove_umask(pid_t pid) {
-  assert(umask_table_.find(pid) != umask_table_.end());
   fd_table_map_lock.lock();
+  assert(umask_table_.find(pid) != umask_table_.end());
   // Decrement the reference count for this process's umask.
   unsigned int rc = umask_table_[pid]->decrement_rc();
   // If reference count reaches 0, we will remove the entry from the table.

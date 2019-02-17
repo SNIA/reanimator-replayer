@@ -86,8 +86,16 @@ void WriteSystemCallTraceReplayModule::prepareRow() {
   traced_fd = descriptor_.val();
   replayed_ret_val_ = return_value_.val();
   auto dataBuf = reinterpret_cast<const char *>(data_written_.val());
-  data_buffer = new char[nbytes];
-  std::memcpy(data_buffer, dataBuf, replayed_ret_val_);
+  if (nbytes != 0) {
+    data_buffer = new char[nbytes];
+    if (replayed_ret_val_ != -1) {
+      std::memcpy(data_buffer, dataBuf, replayed_ret_val_);
+    } else {
+      memset(data_buffer, 0, nbytes);
+    }
+  } else {
+    data_buffer = NULL;
+  }
   SystemCallTraceReplayModule::prepareRow();
 }
 

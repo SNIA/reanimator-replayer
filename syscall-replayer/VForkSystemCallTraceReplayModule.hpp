@@ -44,6 +44,18 @@ class VForkSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
  public:
   VForkSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
                                    int warn_level_flag);
+  SystemCallTraceReplayModule *move() override {
+    auto movePtr =
+        new VForkSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    movePtr->setMove();
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
+    return movePtr;
+  }
+
+  inline void setMove() {}
+  void prepareRow() override;
 };
 
 #endif /* VFORK_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */
