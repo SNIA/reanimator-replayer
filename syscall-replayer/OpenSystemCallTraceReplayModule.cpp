@@ -21,6 +21,8 @@
 #include <cstring>
 #include <memory>
 
+static char path_print[256];
+
 OpenSystemCallTraceReplayModule::OpenSystemCallTraceReplayModule(
     DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
     : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
@@ -31,7 +33,7 @@ OpenSystemCallTraceReplayModule::OpenSystemCallTraceReplayModule(
 }
 
 void OpenSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("pathname(", pathname, "), flags(", flags, "),",
+  syscall_logger_->log_info("pathname(", path_print, "), flags(", flags, "),",
                             "traced mode(", modeVal, "), ", "replayed mode(",
                             get_mode(modeVal), ")");
 }
@@ -53,6 +55,9 @@ void OpenSystemCallTraceReplayModule::processRow() {
      */
     replayer_resources_manager_.add_fd(executingPidVal, traced_fd,
                                        replayed_ret_val_, flags);
+  }
+  if (verbose_mode()) {
+    strcpy(path_print, pathname);
   }
   delete[] pathname;
 }
