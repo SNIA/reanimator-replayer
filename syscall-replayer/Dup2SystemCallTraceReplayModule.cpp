@@ -30,23 +30,23 @@ Dup2SystemCallTraceReplayModule::Dup2SystemCallTraceReplayModule(
 void Dup2SystemCallTraceReplayModule::print_specific_fields() {
   pid_t pid = executing_pid();
   int replayed_old_fd =
-      replayer_resources_manager_.get_fd(pid, old_descriptor_.val());
+      replayer_resources_manager_.get_fd(pid, old_file_descriptor);
   int replayed_new_fd =
-      replayer_resources_manager_.get_fd(pid, new_descriptor_.val());
+      replayer_resources_manager_.get_fd(pid, new_file_descriptor);
 
-  syscall_logger_->log_info("traced old fd(", old_descriptor_.val(), "), ",
+  syscall_logger_->log_info("traced old fd(", old_file_descriptor, "), ",
                             "replayed old fd(", replayed_old_fd, "), ",
-                            "traced new fd(", new_descriptor_.val(), "), ",
+                            "traced new fd(", new_file_descriptor, "), ",
                             "replayed new fd(", replayed_new_fd, ")");
 }
 
 void Dup2SystemCallTraceReplayModule::processRow() {
   // Get actual file descriptor
   pid_t pid = executing_pid();
-  int old_fd = replayer_resources_manager_.get_fd(pid, old_descriptor_.val());
+  int old_fd = replayer_resources_manager_.get_fd(pid, old_file_descriptor);
   int old_fd_flags =
-      replayer_resources_manager_.get_flags(pid, old_descriptor_.val());
-  int new_fd = new_descriptor_.val();
+      replayer_resources_manager_.get_flags(pid, old_file_descriptor);
+  int new_fd = new_file_descriptor;
   int replayed_new_fd = SYSCALL_SIMULATED;
 
   /*
@@ -107,7 +107,7 @@ void Dup2SystemCallTraceReplayModule::processRow() {
      * Action: 1
      */
 
-    replayed_ret_val_ = return_value_.val();
+    replayed_ret_val_ = return_value();
     replayer_resources_manager_.add_fd(pid, replayed_ret_val_,
                                        SYSCALL_SIMULATED, new_fd_flags);
     return;
@@ -124,4 +124,10 @@ void Dup2SystemCallTraceReplayModule::processRow() {
   // descriptor
   replayer_resources_manager_.add_fd(pid, return_value(), replayed_ret_val_,
                                      new_fd_flags);
+}
+
+void Dup2SystemCallTraceReplayModule::prepareRow() {
+  old_file_descriptor = old_descriptor_.val();
+  new_file_descriptor = new_descriptor_.val();
+  SystemCallTraceReplayModule::prepareRow();
 }

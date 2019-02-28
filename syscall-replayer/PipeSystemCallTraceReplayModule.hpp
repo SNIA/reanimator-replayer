@@ -32,6 +32,9 @@ class PipeSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
   Int32Field read_descriptor_;
   Int32Field write_descriptor_;
 
+  int32_t read_fd;
+  int32_t write_fd;
+
   /**
    * Print pipe sys call field values in a nice format
    */
@@ -46,6 +49,20 @@ class PipeSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
  public:
   PipeSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
                                   bool verify_flag, int warn_level_flag);
+  SystemCallTraceReplayModule *move() override {
+    auto movePtr = new PipeSystemCallTraceReplayModule(source, verbose_,
+                                                       verify_, warn_level_);
+    movePtr->setMove(read_fd, write_fd);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
+    return movePtr;
+  }
+  void setMove(int read, int write) {
+    read_fd = read;
+    write_fd = write;
+  }
+  void prepareRow() override;
 };
 
 #endif /* PIPE_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

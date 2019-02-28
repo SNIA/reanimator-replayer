@@ -29,6 +29,7 @@ class DupSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
  private:
   // DataSeries Dup System Call Trace Fields
   Int32Field descriptor_;
+  int32_t file_descriptor;
 
   /**
    * Print dup sys call field values in a nice format
@@ -44,6 +45,17 @@ class DupSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
  public:
   DupSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
                                  int warn_level_flag);
+  SystemCallTraceReplayModule *move() override {
+    auto movePtr =
+        new DupSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    movePtr->setMove(file_descriptor);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
+    return movePtr;
+  }
+  void setMove(int file_desc) { file_descriptor = file_desc; }
+  void prepareRow() override;
 };
 
 #endif /* DUP_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

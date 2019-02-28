@@ -30,15 +30,15 @@ PipeSystemCallTraceReplayModule::PipeSystemCallTraceReplayModule(
 }
 
 void PipeSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("read descriptor(", read_descriptor_.val(), "), ",
-                            "write descriptor(", write_descriptor_.val(), ")");
+  syscall_logger_->log_info("read descriptor(", read_fd, "), ",
+                            "write descriptor(", write_fd, ")");
 }
 
 void PipeSystemCallTraceReplayModule::processRow() {
   int pipefd[2];
 
   // replay the pipe system call
-  if ((read_descriptor_.val() == 0) && (write_descriptor_.val() == 0)) {
+  if ((read_fd == 0) && (write_fd == 0)) {
     // If both descriptors were set as 0, pass NULL to the pipe call
     if (verify_) {
       syscall_logger_->log_info(
@@ -54,17 +54,14 @@ void PipeSystemCallTraceReplayModule::processRow() {
      * Verify that the file descriptors returned by pipe are the same as
      * in the trace.
      */
-    if ((pipefd[0] != read_descriptor_.val()) ||
-        (pipefd[1] != write_descriptor_.val())) {
+    if ((pipefd[0] != read_fd) || (pipefd[1] != write_fd)) {
       syscall_logger_->log_err(
           "Captured and replayed pipe file descriptors differ.");
       if (verbose_mode()) {
-        syscall_logger_->log_warn(
-            "Captured read descriptor: ", read_descriptor_.val(),
-            ", Replayed read descriptor: ", pipefd[0]);
-        syscall_logger_->log_warn(
-            "Captured write descriptor: ", write_descriptor_.val(),
-            ", Replayed write descriptor: ", pipefd[1]);
+        syscall_logger_->log_warn("Captured read descriptor: ", read_fd,
+                                  ", Replayed read descriptor: ", pipefd[0]);
+        syscall_logger_->log_warn("Captured write descriptor: ", write_fd,
+                                  ", Replayed write descriptor: ", pipefd[1]);
       }
       if (abort_mode()) {
         abort();
@@ -81,8 +78,12 @@ void PipeSystemCallTraceReplayModule::processRow() {
    * by
    * pipe have flags 0.
    */
-  replayer_resources_manager_.add_fd(pid, read_descriptor_.val(),
-                                     SYSCALL_SIMULATED, 0);
-  replayer_resources_manager_.add_fd(pid, write_descriptor_.val(),
-                                     SYSCALL_SIMULATED, 0);
+  replayer_resources_manager_.add_fd(pid, read_fd, SYSCALL_SIMULATED, 0);
+  replayer_resources_manager_.add_fd(pid, write_fd, SYSCALL_SIMULATED, 0);
+}
+
+void PipeSystemCallTraceReplayModule::prepareRow() {
+  read_fd = read_descriptor_.val();
+  write_fd = write_descriptor_.val();
+  SystemCallTraceReplayModule::prepareRow();
 }

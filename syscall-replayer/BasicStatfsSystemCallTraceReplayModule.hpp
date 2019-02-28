@@ -42,6 +42,17 @@ class BasicStatfsSystemCallTraceReplayModule
   Int64Field statfs_result_frsize_;
   Int64Field statfs_result_flags_;
 
+  uint32_t statfsType;
+  uint32_t statfsBsize;
+  uint64_t statfsBlocks;
+  uint64_t statfsBfree;
+  uint64_t statfsBavail;
+  uint64_t statfsFiles;
+  uint64_t statfsFFree;
+  uint64_t statfsNamelen;
+  uint64_t statfsFrsize;
+  uint64_t statfsFlags;
+
   /**
    * Print statfs and fstatfs common fields in a nice format
    */
@@ -60,11 +71,16 @@ class BasicStatfsSystemCallTraceReplayModule
    * the trace.
    */
   void verifyResult(struct statfs replayed_statfs_buf);
+  void copyStatfsStruct(uint32_t type, uint32_t bsize, uint64_t blocks,
+                        uint64_t bfree, uint64_t bavail, uint64_t files,
+                        uint64_t ffree, uint64_t namelen, uint64_t frsize,
+                        uint64_t flags);
 
  public:
   BasicStatfsSystemCallTraceReplayModule(DataSeriesModule &source,
                                          bool verbose_flag, bool verify_flag,
                                          int warn_level_flag);
+  void prepareRow() override;
 };
 
 class StatfsSystemCallTraceReplayModule
@@ -72,7 +88,7 @@ class StatfsSystemCallTraceReplayModule
  private:
   // System Call Field pathname stored in DataSeries file
   Variable32Field given_pathname_;
-
+  char *pathname;
   /**
    * Print statfs sys call field values in a nice format
    */
@@ -87,6 +103,23 @@ class StatfsSystemCallTraceReplayModule
  public:
   StatfsSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
                                     bool verify_flag, int warn_level_flag);
+
+  SystemCallTraceReplayModule *move() override {
+    auto movePtr = new StatfsSystemCallTraceReplayModule(source, verbose_,
+                                                         verify_, warn_level_);
+    movePtr->setMove(pathname);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
+    if (verify_) {
+      movePtr->copyStatfsStruct(
+          statfsType, statfsBsize, statfsBlocks, statfsBfree, statfsBavail,
+          statfsFiles, statfsFFree, statfsNamelen, statfsFrsize, statfsFlags);
+    }
+    return movePtr;
+  }
+  void setMove(char *path) { pathname = path; }
+  void prepareRow() override;
 };
 
 class FStatfsSystemCallTraceReplayModule

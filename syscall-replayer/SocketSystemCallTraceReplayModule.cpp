@@ -26,13 +26,12 @@ SocketSystemCallTraceReplayModule::SocketSystemCallTraceReplayModule(
 }
 
 void SocketSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("domain(", domain_value_.val(), "), type(",
-                            type_value_.val(), "), protocol(",
-                            protocol_value_.val(), ")");
+  syscall_logger_->log_info("domain(", domain, "), type(", type, "), protocol(",
+                            protocol, ")");
 }
 
 void SocketSystemCallTraceReplayModule::processRow() {
-  const int traced_fd = static_cast<int>(return_value_.val());
+  const int traced_fd = return_value();
 
   if (traced_fd != SYSCALL_FAILURE) {
     /*
@@ -48,4 +47,11 @@ void SocketSystemCallTraceReplayModule::processRow() {
     // Traced socket() call was a failure. Replay returns failure.
     replayed_ret_val_ = -1;
   }
+}
+
+void SocketSystemCallTraceReplayModule::prepareRow() {
+  domain = domain_value_.val();
+  type = type_value_.val();
+  protocol = protocol_value_.val();
+  SystemCallTraceReplayModule::prepareRow();
 }

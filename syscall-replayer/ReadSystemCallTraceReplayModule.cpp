@@ -53,6 +53,12 @@ void ReadSystemCallTraceReplayModule::processRow() {
   replayed_ret_val_ = read(replayed_fd, buffer, nbytes);
 
   if (verify_) {
+    if (dataReadBuf == nullptr) {
+      if (replayed_ret_val_ == return_value()) {
+        syscall_logger_->log_info("Verification of data in read success.");
+      }
+    }
+
     // Verify read data and data in the trace file are same
     if (memcmp(dataReadBuf, buffer, replayed_ret_val_) != 0) {
       // Data aren't same
@@ -87,9 +93,13 @@ void ReadSystemCallTraceReplayModule::prepareRow() {
   buffer = new char[nbytes];
 
   if (verify_) {
-    auto dataBuf = reinterpret_cast<const char *>(data_read_.val());
-    dataReadBuf = new char[replayed_ret_val_];
-    std::memcpy(dataReadBuf, dataBuf, replayed_ret_val_);
+    if (replayed_ret_val_ > 0) {
+      auto dataBuf = reinterpret_cast<const char *>(data_read_.val());
+      dataReadBuf = new char[replayed_ret_val_];
+      std::memcpy(dataReadBuf, dataBuf, replayed_ret_val_);
+    } else {
+      dataReadBuf = nullptr;
+    }
   }
   SystemCallTraceReplayModule::prepareRow();
 }

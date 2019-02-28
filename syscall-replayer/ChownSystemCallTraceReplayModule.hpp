@@ -32,6 +32,10 @@ class ChownSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
   Int32Field new_owner_;
   Int32Field new_group_;
 
+  char *pathname;
+  uint32_t newOwner;
+  uint32_t newGroup;
+
   /**
    * Print chown sys call field values in a nice format
    */
@@ -46,6 +50,21 @@ class ChownSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
  public:
   ChownSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
                                    int warn_level_flag);
+  SystemCallTraceReplayModule *move() override {
+    auto movePtr =
+        new ChownSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    movePtr->setMove(pathname, newOwner, newGroup);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
+    return movePtr;
+  }
+  inline void setMove(char *path, int owner, int group) {
+    pathname = path;
+    newOwner = owner;
+    newGroup = group;
+  }
+  void prepareRow() override;
 };
 
 #endif /* CHOWN_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

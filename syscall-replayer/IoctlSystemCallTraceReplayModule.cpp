@@ -32,16 +32,16 @@ IoctlSystemCallTraceReplayModule::IoctlSystemCallTraceReplayModule(
 
 void IoctlSystemCallTraceReplayModule::print_specific_fields() {
   pid_t pid = executing_pid();
-  int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
-  syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
+  int replayed_fd = replayer_resources_manager_.get_fd(pid, file_descriptor);
+  syscall_logger_->log_info("traced fd(", file_descriptor, "), ",
                             "replayed fd(", replayed_fd, "), ", "request(",
-                            boost::format("0x%02x") % request_.val(), ")");
+                            boost::format("0x%02x") % req, ")");
 }
 
 void IoctlSystemCallTraceReplayModule::processRow() {
   pid_t pid = executing_pid();
-  int fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
-  u_long request = request_.val();
+  int fd = replayer_resources_manager_.get_fd(pid, file_descriptor);
+  u_long request = req;
   int parameter;
 
   if (fd == SYSCALL_SIMULATED) {
@@ -50,24 +50,31 @@ void IoctlSystemCallTraceReplayModule::processRow() {
      * The system call will not be replayed.
      * Traced return value will be returned.
      */
-    replayed_ret_val_ = return_value_.val();
+    replayed_ret_val_ = return_value();
     return;
   }
 
   // If there is no buffer data, pass the parameter value as the third argument
-  if (ioctl_buffer_.isNull()) {
-    parameter = parameter_.val();
+  if (buffer == nullptr) {
+    parameter = params;
     replayed_ret_val_ = ioctl(fd, request, parameter);
   } else {
-    // Copy the traced buffer data to the buffer
-    void *buf = malloc(buffer_size_.val());
-    if (buf == nullptr) {
-      replayed_ret_val_ = ENOMEM;
-    } else {
-      memcpy(buf, ioctl_buffer_.val(), buffer_size_.val());
-      // Replay the ioctl system call
-      replayed_ret_val_ = ioctl(fd, request, buf);
-      free(buf);
-    }
+    replayed_ret_val_ = ioctl(fd, request, buffer);
+    delete[] buffer;
   }
+}
+
+void IoctlSystemCallTraceReplayModule::prepareRow() {
+  file_descriptor = descriptor_.val();
+  req = request_.val();
+  params = parameter_.val();
+  size = buffer_size_.val();
+  if (ioctl_buffer_.isNull()) {
+    buffer = nullptr;
+  } else {
+    auto dataBuf = reinterpret_cast<const char *>(ioctl_buffer_.val());
+    buffer = new char[size];
+    std::memcpy(buffer, dataBuf, replayed_ret_val_);
+  }
+  SystemCallTraceReplayModule::prepareRow();
 }

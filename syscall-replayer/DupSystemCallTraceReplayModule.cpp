@@ -28,20 +28,20 @@ DupSystemCallTraceReplayModule::DupSystemCallTraceReplayModule(
 
 void DupSystemCallTraceReplayModule::print_specific_fields() {
   pid_t pid = executing_pid();
-  int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
+  int replayed_fd = replayer_resources_manager_.get_fd(pid, file_descriptor);
 
-  syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
+  syscall_logger_->log_info("traced fd(", file_descriptor, "), ",
                             "replayed fd(", replayed_fd, ")");
 }
 
 void DupSystemCallTraceReplayModule::processRow() {
   // Get actual file descriptor
   pid_t pid = executing_pid();
-  int fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
+  int fd = replayer_resources_manager_.get_fd(pid, file_descriptor);
 
   // Map replayed duplicated file descriptor to traced duplicated file
   // descriptor
-  int fd_flags = replayer_resources_manager_.get_flags(pid, descriptor_.val());
+  int fd_flags = replayer_resources_manager_.get_flags(pid, file_descriptor);
   int new_fd_flags = fd_flags & ~O_CLOEXEC;
 
   if (fd == SYSCALL_SIMULATED) {
@@ -50,11 +50,16 @@ void DupSystemCallTraceReplayModule::processRow() {
      * The system call will not be replayed.
      * Traced return value will be returned.
      */
-    replayed_ret_val_ = return_value_.val();
+    replayed_ret_val_ = return_value();
   } else {
     // replay the dup system call
     replayed_ret_val_ = dup(fd);
   }
   replayer_resources_manager_.add_fd(pid, return_value(), replayed_ret_val_,
                                      new_fd_flags);
+}
+
+void DupSystemCallTraceReplayModule::prepareRow() {
+  file_descriptor = descriptor_.val();
+  SystemCallTraceReplayModule::prepareRow();
 }

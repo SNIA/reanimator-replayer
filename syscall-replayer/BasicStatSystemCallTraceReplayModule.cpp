@@ -221,6 +221,8 @@ void StatSystemCallTraceReplayModule::processRow() {
   if (verify_) {
     BasicStatSystemCallTraceReplayModule::verifyResult(stat_buf);
   }
+
+  delete[] pathname;
 }
 
 void StatSystemCallTraceReplayModule::prepareRow() {
@@ -254,6 +256,13 @@ void LStatSystemCallTraceReplayModule::processRow() {
   if (verify_) {
     BasicStatSystemCallTraceReplayModule::verifyResult(stat_buf);
   }
+}
+
+void LStatSystemCallTraceReplayModule::prepareRow() {
+  auto pathBuf = reinterpret_cast<const char *>(given_pathname_.val());
+  pathname = new char[std::strlen(pathBuf) + 1];
+  std::strncpy(pathname, pathBuf, (std::strlen(pathBuf) + 1));
+  BasicStatSystemCallTraceReplayModule::prepareRow();
 }
 
 FStatSystemCallTraceReplayModule::FStatSystemCallTraceReplayModule(

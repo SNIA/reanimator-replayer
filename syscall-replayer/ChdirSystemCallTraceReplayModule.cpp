@@ -26,11 +26,17 @@ ChdirSystemCallTraceReplayModule::ChdirSystemCallTraceReplayModule(
 }
 
 void ChdirSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("pathname(", given_pathname_.val(), ")");
+  syscall_logger_->log_info("pathname(", pathname, ")");
 }
 
 void ChdirSystemCallTraceReplayModule::processRow() {
-  const char *path = reinterpret_cast<const char *>(given_pathname_.val());
-  // Replay chdir system call
-  replayed_ret_val_ = chdir(path);
+  replayed_ret_val_ = chdir(pathname);
+  delete[] pathname;
+}
+
+void ChdirSystemCallTraceReplayModule::prepareRow() {
+  auto pathBuf = reinterpret_cast<const char *>(given_pathname_.val());
+  pathname = new char[std::strlen(pathBuf) + 1];
+  std::strncpy(pathname, pathBuf, std::strlen(pathBuf) + 1);
+  SystemCallTraceReplayModule::prepareRow();
 }

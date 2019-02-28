@@ -34,6 +34,11 @@ class ReadlinkSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
   Variable32Field link_value_;
   Int32Field buffer_size_;
 
+  int nbytes;
+  char *buffer;
+  char *dataReadBuf;
+  char *pathname;
+
   /**
    * Print readlink sys call field values in a nice format
    */
@@ -49,5 +54,21 @@ class ReadlinkSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
   ReadlinkSystemCallTraceReplayModule(DataSeriesModule &source,
                                       bool verbose_flag, bool verify_flag,
                                       int warn_level_flag);
+  SystemCallTraceReplayModule *move() override {
+    auto movePtr = new ReadlinkSystemCallTraceReplayModule(
+        source, verbose_, verify_, warn_level_);
+    movePtr->setMove(buffer, nbytes, pathname, dataReadBuf);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
+    return movePtr;
+  }
+  inline void setMove(char *buf, int byte, char *path, char *verifyBuf) {
+    buffer = buf;
+    nbytes = byte;
+    pathname = path;
+    dataReadBuf = verifyBuf;
+  }
+  void prepareRow() override;
 };
 #endif /* READLINK_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

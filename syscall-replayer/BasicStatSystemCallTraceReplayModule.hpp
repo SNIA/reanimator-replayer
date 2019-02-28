@@ -142,6 +142,7 @@ class LStatSystemCallTraceReplayModule
  private:
   // System Call Field pathname stored in DataSeries file
   Variable32Field given_pathname_;
+  char *pathname;
 
   /**
    * Print lstat sys call field values in a nice format
@@ -157,6 +158,22 @@ class LStatSystemCallTraceReplayModule
  public:
   LStatSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
                                    bool verify_flag, int warn_level_flag);
+  SystemCallTraceReplayModule *move() override {
+    auto movePtr = new LStatSystemCallTraceReplayModule(source, verbose_,
+                                                        verify_, warn_level_);
+    movePtr->setMove(pathname);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
+    if (verify_) {
+      movePtr->copyStatStruct(statDev, statINo, statMode, statNLink, statUID,
+                              statGID, statRDev, statBlkSize, statBlocks,
+                              statSize, statATime, statMTime, statCTime);
+    }
+    return movePtr;
+  }
+  void setMove(char *path) { pathname = path; }
+  void prepareRow() override;
 };
 
 class FStatSystemCallTraceReplayModule
