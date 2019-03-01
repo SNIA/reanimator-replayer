@@ -242,14 +242,12 @@ LStatSystemCallTraceReplayModule::LStatSystemCallTraceReplayModule(
 }
 
 void LStatSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("pathname(", given_pathname_.val(), "),");
+  syscall_logger_->log_info("pathname(", pathname, "),");
   BasicStatSystemCallTraceReplayModule::print_specific_fields();
 }
 
 void LStatSystemCallTraceReplayModule::processRow() {
   struct stat stat_buf;
-  const char *pathname = reinterpret_cast<const char *>(given_pathname_.val());
-
   // replay the lstat system call
   replayed_ret_val_ = lstat(pathname, &stat_buf);
 

@@ -81,7 +81,7 @@ void ExecveSystemCallTraceReplayModule::prepareRow() {
 
   // Count the number of rows processed
   while (continuation_num >= 0 && series.morerecords()) {
-    int continuation_num = continuation_number_.val();
+    continuation_num = continuation_number_.val();
     if (verbose_) {
       char *environmentVal = nullptr, *argumentVal = nullptr;
       if (continuation_num > 0) {
@@ -108,4 +108,5 @@ void ExecveSystemCallTraceReplayModule::prepareRow() {
   // Again, set the pointer to the first record
   series.setCurPos(first_record_pos);
   SystemCallTraceReplayModule::prepareRow();
+  timeReturnedVal = timeRecordedVal;
 }

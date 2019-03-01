@@ -191,9 +191,7 @@ void ReplayerResourcesManager::clone_fd_table(pid_t ppid, pid_t pid,
 
       traced_fd = entry.first;
       flags = entry.second->get_flags();
-      if (!(flags & O_CLOEXEC)) {
-        clone_fd_table_ptr->add_fd_entry(traced_fd, new_fd, flags);
-      }
+      clone_fd_table_ptr->add_fd_entry(traced_fd, new_fd, flags);
     }
     fd_table_map_lock.lock();
     fd_table_map_[pid] = clone_fd_table_ptr;
