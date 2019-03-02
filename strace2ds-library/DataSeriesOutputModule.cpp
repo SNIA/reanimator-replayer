@@ -88,6 +88,9 @@ DataSeriesOutputModule::DataSeriesOutputModule(std::ifstream &table_stream,
 
   // Initialize Cache
   initCache();
+
+  // Initialize Syscall Name Number Map
+  initSyscallNameNumberMap();
 }
 
 // Initializes all the caches with NULL values
@@ -292,6 +295,64 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
 }
 
 /*
+* Creates mapping of syscall name with the syscall
+* number
+*/
+void DataSeriesOutputModule::initSyscallNameNumberMap() {
+  const char *env_path = getenv("STRACE2DS");
+  if (!env_path)
+    env_path = "/usr/local/strace2ds";
+  std::string file_path = std::string(env_path) + "/" + "tables/syscalls_name_number.table";
+
+  std::string input_path(file_path);
+  std::ifstream in_file(input_path.c_str());
+
+  std::string line = " ", name, number;
+  while (getline(in_file, line)) {
+    std::stringstream fss(line);
+    getline(fss, name, ' ');
+    getline(fss, number, ' ');
+    if (name.size() > 0 && number.size() > 0) {
+      syscall_name_num_map[name] = stoi(number);
+    }
+  }
+}
+
+/*
+ * conversions for system calls that is named differently
+ */
+void DataSeriesOutputModule::syscall_name_conversion(std::string *extent_name) {
+  if (*extent_name == "newfstat") {
+    *extent_name = "fstat";
+  }
+
+  if (*extent_name == "newlstat") {
+    *extent_name = "lstat";
+  }
+
+  if (*extent_name == "newfstatat") {
+    *extent_name = "fstatat";
+  }
+
+  if (*extent_name == "pread64") {
+    *extent_name = "pread";
+  }
+
+  if (*extent_name == "pwrite64") {
+    *extent_name = "pwrite";
+  }
+
+  if (*extent_name == "newstat") {
+    *extent_name = "stat";
+  }
+
+  // temp. solution
+  if (*extent_name == "fdatasync") {
+    *extent_name = "fsync";
+  }
+}
+
+/*
  * Register the record and field values into DS fields.
  *
  * @param extent_name: represents the name of a system call being recorded.
@@ -304,7 +365,7 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
  * @param v_args: represent the helper arguments obtained from strace which are
  *                copied from the address space of actual process being traced.
  */
-bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
+bool DataSeriesOutputModule::writeRecord(const char *extent_name_arg, long *args,
 					 void
 					 *common_fields[DS_NUM_COMMON_FIELDS],
 					 void **v_args) {
@@ -313,6 +374,13 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
   struct timeval tv_time_recorded;
   int var32_len;
   uint64_t time_called_Tfrac, time_returned_Tfrac;
+  SysCallArgsMapFuncPtr fxn = NULL;
+  OutputModule *output_module = NULL;
+  FieldMap *field_map = NULL;
+  config_table_entry_pair **extent_config_table_ = NULL;
+  int scno = -1;
+  std::string extent_name(extent_name_arg);
+
   memset(sys_call_args_map, 0, sizeof(void*) * MAX_SYSCALL_FIELDS);
   /*
    * Create a map from field names to field values.
@@ -331,19 +399,30 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
    * set these values into the map.
    */
 
+  if (common_fields[DS_COMMON_FIELD_SYSCALL_NUM] != NULL)
+    scno = *static_cast<int*>(common_fields[DS_COMMON_FIELD_SYSCALL_NUM]);
+
   /* set time called field */
   if (common_fields[DS_COMMON_FIELD_TIME_CALLED] != NULL) {
-    // Convert tv_time_called to Tfracs
-    time_called_Tfrac = timeval_to_Tfrac(
-      *(struct timeval *) common_fields[DS_COMMON_FIELD_TIME_CALLED]);
+    if (scno == LTTNG_DEFAULT_SYSCALL_NUM) {
+      time_called_Tfrac = *((uint64_t *)common_fields[DS_COMMON_FIELD_TIME_CALLED]);
+    } else {
+      // Convert tv_time_called to Tfracs
+      time_called_Tfrac = timeval_to_Tfrac(
+        *(struct timeval *) common_fields[DS_COMMON_FIELD_TIME_CALLED]);
+    }
     sys_call_args_map[SYSCALL_FIELD_TIME_CALLED] = &time_called_Tfrac;
   }
 
   /* set time returned field */
   if (common_fields[DS_COMMON_FIELD_TIME_RETURNED] != NULL) {
-    // Convert tv_time_returned to Tfracs
-    time_returned_Tfrac = timeval_to_Tfrac(
-      *(struct timeval *) common_fields[DS_COMMON_FIELD_TIME_RETURNED]);
+    if (scno == LTTNG_DEFAULT_SYSCALL_NUM) {
+      time_returned_Tfrac = *((uint64_t *)common_fields[DS_COMMON_FIELD_TIME_RETURNED]);
+    } else {
+      // Convert tv_time_returned to Tfracs
+      time_returned_Tfrac = timeval_to_Tfrac(
+        *(struct timeval *) common_fields[DS_COMMON_FIELD_TIME_RETURNED]);
+    }
     sys_call_args_map[SYSCALL_FIELD_TIME_RETURNED] = &time_returned_Tfrac;
   }
 
@@ -371,14 +450,10 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
       common_fields[DS_COMMON_FIELD_ERRNO_NUMBER];
   }
 
-  int scno = -1;
-  if (common_fields[DS_COMMON_FIELD_SYSCALL_NUM] != NULL)
-    scno = *static_cast<int*>(common_fields[DS_COMMON_FIELD_SYSCALL_NUM]);
-
-  SysCallArgsMapFuncPtr fxn = NULL;
-  OutputModule *output_module = NULL;
-  FieldMap *field_map = NULL;
-  config_table_entry_pair **extent_config_table_ = NULL;
+  if (scno == LTTNG_DEFAULT_SYSCALL_NUM) {
+     scno = syscall_name_num_map[extent_name];
+     syscall_name_conversion(&extent_name);
+  }
 
   if (scno >= 0) {
     // lookup func_ptr_map_cache_ here, if cached directly use
@@ -422,6 +497,8 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name, long *args,
   // set system call specific field
   if (fxn != NULL)
     (this->*fxn)(sys_call_args_map, args, v_args);
+  else
+    return false;
 
   // Create a new record to write
   output_module->newRecord();
@@ -509,10 +586,12 @@ DataSeriesOutputModule::~DataSeriesOutputModule() {
 
   for (auto const &module_map_iter : modules_) {
     // module_map_iter.second is an OutputModule
-    module_map_iter.second->flushExtent();
-    module_map_iter.second->close();
-    delete (ExtentSeries *)&module_map_iter.second->getSeries();
-    delete module_map_iter.second;
+    if (module_map_iter.second != NULL) {
+      module_map_iter.second->flushExtent();
+      module_map_iter.second->close();
+      delete (ExtentSeries *)&module_map_iter.second->getSeries();
+      delete module_map_iter.second;
+    }
   }
 
   /*Pointers to common fields are shared and shouldn't be deleted more than once!*/
@@ -534,6 +613,8 @@ DataSeriesOutputModule::~DataSeriesOutputModule() {
   for (auto const &config_table_iter : config_table_) {
     extent_config_table = config_table_iter.second;
 
+    if (!extent_config_table)
+      continue;
     /*delete std::pair objects*/
     for (i = 0; i < MAX_SYSCALL_FIELDS; i++) {
 

@@ -29,6 +29,7 @@
 #define USE_ENUMS
 #include <cassert>
 #include <cstring>
+#include <string>
 
 #include <iostream>
 #include <utility>
@@ -69,6 +70,8 @@ class DataSeriesOutputModule;
  */
 #define DEFAULT_EXTENT_SIZE 0x400000 /* 4MB */
 
+#define LTTNG_DEFAULT_SYSCALL_NUM -100
+
 /*pair<nullable, ExtentType>*/
 typedef std::pair<bool, ExtentType::fieldType> config_table_entry_pair;
 
@@ -96,6 +99,9 @@ typedef void (DataSeriesOutputModule::*SysCallArgsMapFuncPtr)(void **,
 
 // map<extent_name, SysCallArgsMapFuncPtr>
 typedef std::unordered_map<std::string, SysCallArgsMapFuncPtr> FuncPtrMap;
+
+// map<syscall_name, syscall_number>
+typedef std::unordered_map<std::string, int> SyscallNameNumberMap;
 
 extern unsigned nsyscalls;
 
@@ -190,6 +196,8 @@ private:
 
   std::string field_names[MAX_SYSCALL_FIELDS];
 
+  SyscallNameNumberMap syscall_name_num_map;
+
   // Disable copy constructor
   DataSeriesOutputModule(const DataSeriesOutputModule&);
 
@@ -222,6 +230,17 @@ private:
    * of it corresponding args map function
    */
   void initArgsMapFuncPtr();
+
+  /*
+   * Creates mapping of syscall name with the syscall
+   * number
+   */
+  void initSyscallNameNumberMap();
+
+  /*
+   * name conversion for the syscalls that named differently
+   */
+  void syscall_name_conversion(std::string *extent_name);
 
   // Initializes all the caches with NULL values
   void initCache();
