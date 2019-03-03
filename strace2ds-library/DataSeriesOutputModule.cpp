@@ -166,6 +166,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["fstatfs"] = &DataSeriesOutputModule::makeFStatfsArgsMap;
   // fsync system call
   func_ptr_map_["fsync"] = &DataSeriesOutputModule::makeFsyncArgsMap;
+  // fdatasync system call
+  func_ptr_map_["fdatasync"] = &DataSeriesOutputModule::makeFdatasyncArgsMap;
   // ftruncate system call
   func_ptr_map_["ftruncate"] = &DataSeriesOutputModule::makeFTruncateArgsMap;
   // getdents system call
@@ -344,11 +346,6 @@ void DataSeriesOutputModule::syscall_name_conversion(std::string *extent_name) {
 
   if (*extent_name == "newstat") {
     *extent_name = "stat";
-  }
-
-  // temp. solution
-  if (*extent_name == "fdatasync") {
-    *extent_name = "fsync";
   }
 }
 

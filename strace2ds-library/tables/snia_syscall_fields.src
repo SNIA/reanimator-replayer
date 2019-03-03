@@ -163,6 +163,7 @@ ioctl	parameter	1	int64
 ioctl	ioctl_buffer	1	variable32
 ioctl	buffer_size	0	int64
 fsync	descriptor	0	int32
+fdatasync	descriptor	0	int32
 open	given_pathname	0	variable32
 open	full_pathname	1	variable32
 open	open_value	1	int32

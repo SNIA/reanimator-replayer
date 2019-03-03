@@ -470,6 +470,9 @@ private:
   // Maps Fsync System Call <field, value> pairs
   void makeFsyncArgsMap(void **args_map, long *args, void **v_args);
 
+  // Maps FDatasync System Call <field, value> pairs
+  void makeFdatasyncArgsMap(void **args_map, long *args, void **v_args);
+
   // Maps Mknod System Call <field, value> pairs
   void makeMknodArgsMap(void **args_map, long *args, void **v_args);
 
