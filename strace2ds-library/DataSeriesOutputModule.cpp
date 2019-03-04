@@ -18,6 +18,17 @@
 
 #include "DataSeriesOutputModule.hpp"
 
+#define INVALID_FIELD_LENGTH -1
+#define GET_INT_LENGTH(len, args_map, field_enum) {                     \
+    if (args_map[field_enum] != NULL) {                                 \
+      len = *(reinterpret_cast<int *>(args_map[field_enum]));           \
+    } else {                                                            \
+      len = INVALID_FIELD_LENGTH;                                       \
+      args_map[SYSCALL_FIELD_BUFFER_NOT_CAPTURED] = (void *)true;       \
+    }                                                                   \
+  }
+
+
 bool DataSeriesOutputModule::true_ = true;
 bool DataSeriesOutputModule::false_ = false;
 
@@ -32,7 +43,6 @@ DataSeriesOutputModule::DataSeriesOutputModule(std::ifstream &table_stream,
    * compress a ds file).
    */
   ds_sink_(output_file, 0, 0), record_num_(0) {
-
   /* 
    * Provide a hint to the library to set the number of buckets to be the most appropriate for 
    * the number of elements
@@ -447,6 +457,10 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name_arg, long *args
       common_fields[DS_COMMON_FIELD_ERRNO_NUMBER];
   }
 
+  /* set buffer not captured field */
+  sys_call_args_map[SYSCALL_FIELD_BUFFER_NOT_CAPTURED] =
+    common_fields[DS_COMMON_FIELD_BUFFER_NOT_CAPTURED];
+
   if (scno == LTTNG_DEFAULT_SYSCALL_NUM) {
      scno = syscall_name_num_map[extent_name];
      syscall_name_conversion(&extent_name);
@@ -528,6 +542,13 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name_arg, long *args
       if (extent_field_value_.second == ExtentType::ft_variable32) {
         var32_len = getVariable32FieldLength(sys_call_args_map, field_enum);
       }
+
+      if (var32_len < 0) {
+        common_fields[DS_COMMON_FIELD_BUFFER_NOT_CAPTURED] = (void *)true;
+        setField((*field_map)[SYSCALL_FIELD_BUFFER_NOT_CAPTURED],
+                 sys_call_args_map[SYSCALL_FIELD_BUFFER_NOT_CAPTURED], 0);
+      }
+
       setField(extent_field_value_, field_value, var32_len);
       continue;
     } else {
@@ -606,6 +627,7 @@ DataSeriesOutputModule::~DataSeriesOutputModule() {
   delete extent_config_table[SYSCALL_FIELD_EXECUTING_UID];
   delete extent_config_table[SYSCALL_FIELD_RETURN_VALUE];
   delete extent_config_table[SYSCALL_FIELD_UNIQUE_ID];
+  delete extent_config_table[SYSCALL_FIELD_BUFFER_NOT_CAPTURED];
 
   for (auto const &config_table_iter : config_table_) {
     extent_config_table = config_table_iter.second;
@@ -630,6 +652,7 @@ DataSeriesOutputModule::~DataSeriesOutputModule() {
 	case SYSCALL_FIELD_EXECUTING_UID:
 	case SYSCALL_FIELD_RETURN_VALUE:
 	case SYSCALL_FIELD_UNIQUE_ID:
+        case SYSCALL_FIELD_BUFFER_NOT_CAPTURED:
 	  continue;
 	default:
 	  if(extent_config_table[i] != NULL)
@@ -925,20 +948,20 @@ int DataSeriesOutputModule::getVariable32FieldLength(void **args_map,
 	case SYSCALL_FIELD_DATA_WRITTEN:
 	case SYSCALL_FIELD_LINK_VALUE:
 	case SYSCALL_FIELD_DIRENT_BUFFER:
-	  length = *(int *)(args_map[SYSCALL_FIELD_RETURN_VALUE]);
+          GET_INT_LENGTH(length, args_map, SYSCALL_FIELD_RETURN_VALUE)
 	  break;
 	case SYSCALL_FIELD_IOCTL_BUFFER:
 	  length = ioctl_size_;
 	  break;
 	case SYSCALL_FIELD_SOCKADDR_BUFFER:
-	  length = *(int *)(args_map[SYSCALL_FIELD_SOCKADDR_LENGTH]);
+          GET_INT_LENGTH(length, args_map, SYSCALL_FIELD_SOCKADDR_LENGTH)
 	  break;
 	case SYSCALL_FIELD_OPTION_VALUE:
-	  length = *(int *)(args_map[SYSCALL_FIELD_BUFFER_SIZE]);
+          GET_INT_LENGTH(length, args_map, SYSCALL_FIELD_BUFFER_SIZE)
 	  break;
 	case SYSCALL_FIELD_IOV_DATA_READ:
 	case SYSCALL_FIELD_IOV_DATA_WRITTEN:
-	  length = *(int *)(args_map[SYSCALL_FIELD_BYTES_REQUESTED]);
+          GET_INT_LENGTH(length, args_map, SYSCALL_FIELD_BYTES_REQUESTED)
 	  break;
 	default:
 	  length = 0;

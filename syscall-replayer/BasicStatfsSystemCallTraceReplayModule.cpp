@@ -150,7 +150,7 @@ StatfsSystemCallTraceReplayModule::StatfsSystemCallTraceReplayModule(
     int warn_level_flag)
     : BasicStatfsSystemCallTraceReplayModule(source, verbose_flag, verify_flag,
                                              warn_level_flag),
-      given_pathname_(series, "given_pathname") {
+      given_pathname_(series, "given_pathname", Field::flag_nullable) {
   sys_call_name_ = "statfs";
 }
 

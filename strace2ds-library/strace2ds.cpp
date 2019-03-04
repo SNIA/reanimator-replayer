@@ -86,6 +86,7 @@ void ds_write_umask_at_start(DataSeriesOutputModule *ds_module, int pid) {
   common_fields[DS_COMMON_FIELD_EXECUTING_PID] = &pid;
   common_fields[DS_COMMON_FIELD_UNIQUE_ID] = &unique_id;
   common_fields[DS_COMMON_FIELD_SYSCALL_NUM] = &syscall_num;
+  common_fields[DS_COMMON_FIELD_BUFFER_NOT_CAPTURED] = (void *)false;
 
   /*
    * Now everything is set. Just call ds_write_record to write one umask record

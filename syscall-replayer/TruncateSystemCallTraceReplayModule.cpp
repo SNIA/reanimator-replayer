@@ -24,7 +24,7 @@
 TruncateSystemCallTraceReplayModule::TruncateSystemCallTraceReplayModule(
     DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
     : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-      given_pathname_(series, "given_pathname"),
+      given_pathname_(series, "given_pathname", Field::flag_nullable),
       truncate_length_(series, "truncate_length") {
   sys_call_name_ = "truncate";
 }

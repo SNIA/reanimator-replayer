@@ -21,8 +21,8 @@
 SymlinkSystemCallTraceReplayModule::SymlinkSystemCallTraceReplayModule(
     DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
     : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-      target_pathname_(series, "target_pathname"),
-      given_pathname_(series, "given_pathname") {
+      target_pathname_(series, "target_pathname", Field::flag_nullable),
+      given_pathname_(series, "given_pathname", Field::flag_nullable) {
   sys_call_name_ = "symlink";
 }
 

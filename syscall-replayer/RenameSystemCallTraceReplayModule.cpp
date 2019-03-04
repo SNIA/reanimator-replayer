@@ -22,8 +22,8 @@
 RenameSystemCallTraceReplayModule::RenameSystemCallTraceReplayModule(
     DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
     : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-      given_oldname_(series, "given_oldname"),
-      given_newname_(series, "given_newname") {
+      given_oldname_(series, "given_oldname", Field::flag_nullable),
+      given_newname_(series, "given_newname", Field::flag_nullable) {
   sys_call_name_ = "rename";
 }
 

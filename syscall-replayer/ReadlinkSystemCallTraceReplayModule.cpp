@@ -23,8 +23,8 @@ ReadlinkSystemCallTraceReplayModule::ReadlinkSystemCallTraceReplayModule(
     int warn_level_flag)
     : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
       verify_(verify_flag),
-      given_pathname_(series, "given_pathname"),
-      link_value_(series, "link_value"),
+      given_pathname_(series, "given_pathname", Field::flag_nullable),
+      link_value_(series, "link_value", Field::flag_nullable),
       buffer_size_(series, "buffer_size", Field::flag_nullable) {
   sys_call_name_ = "readlink";
 }

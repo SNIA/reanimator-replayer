@@ -26,7 +26,7 @@ static char path_print[256];
 OpenSystemCallTraceReplayModule::OpenSystemCallTraceReplayModule(
     DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
     : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-      given_pathname_(series, "given_pathname"),
+      given_pathname_(series, "given_pathname", Field::flag_nullable),
       open_value_(series, "open_value", Field::flag_nullable),
       mode_value_(series, "mode_value", Field::flag_nullable) {
   sys_call_name_ = "open";

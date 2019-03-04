@@ -21,8 +21,8 @@
 LinkSystemCallTraceReplayModule::LinkSystemCallTraceReplayModule(
     DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
     : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-      given_oldpathname_(series, "given_oldpathname"),
-      given_newpathname_(series, "given_newpathname") {
+      given_oldpathname_(series, "given_oldpathname", Field::flag_nullable),
+      given_newpathname_(series, "given_newpathname", Field::flag_nullable) {
   sys_call_name_ = "link";
 }
 

@@ -203,7 +203,7 @@ StatSystemCallTraceReplayModule::StatSystemCallTraceReplayModule(
     int warn_level_flag)
     : BasicStatSystemCallTraceReplayModule(source, verbose_flag, verify_flag,
                                            warn_level_flag),
-      given_pathname_(series, "given_pathname") {
+      given_pathname_(series, "given_pathname", Field::flag_nullable) {
   sys_call_name_ = "stat";
 }
 
@@ -237,7 +237,7 @@ LStatSystemCallTraceReplayModule::LStatSystemCallTraceReplayModule(
     int warn_level_flag)
     : BasicStatSystemCallTraceReplayModule(source, verbose_flag, verify_flag,
                                            warn_level_flag),
-      given_pathname_(series, "given_pathname") {
+      given_pathname_(series, "given_pathname", Field::flag_nullable) {
   sys_call_name_ = "lstat";
 }
 
@@ -312,7 +312,7 @@ FStatatSystemCallTraceReplayModule::FStatatSystemCallTraceReplayModule(
     : BasicStatSystemCallTraceReplayModule(source, verbose_flag, verify_flag,
                                            warn_level_flag),
       descriptor_(series, "descriptor"),
-      given_pathname_(series, "given_pathname"),
+      given_pathname_(series, "given_pathname", Field::flag_nullable),
       flags_value_(series, "flags_value", Field::flag_nullable) {
   sys_call_name_ = "fstatat";
 }

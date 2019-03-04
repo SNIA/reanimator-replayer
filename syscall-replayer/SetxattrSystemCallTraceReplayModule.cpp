@@ -25,8 +25,8 @@ SetxattrSystemCallTraceReplayModule::SetxattrSystemCallTraceReplayModule(
     : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
       verify_(verify_flag),
       pattern_data_(std::move(pattern_data)),
-      given_pathname_(series, "given_pathname"),
-      xattr_name_(series, "xattr_name"),
+      given_pathname_(series, "given_pathname", Field::flag_nullable),
+      xattr_name_(series, "xattr_name", Field::flag_nullable),
       value_written_(series, "value_written", Field::flag_nullable),
       value_size_(series, "value_size"),
       flag_value_(series, "flag_value", Field::flag_nullable) {
@@ -156,7 +156,7 @@ FSetxattrSystemCallTraceReplayModule::FSetxattrSystemCallTraceReplayModule(
       verify_(verify_flag),
       pattern_data_(std::move(pattern_data)),
       descriptor_(series, "descriptor"),
-      xattr_name_(series, "xattr_name"),
+      xattr_name_(series, "xattr_name", Field::flag_nullable),
       value_written_(series, "value_written", Field::flag_nullable),
       value_size_(series, "value_size"),
       flag_value_(series, "flag_value", Field::flag_nullable) {

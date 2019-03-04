@@ -58,7 +58,7 @@ void FChmodSystemCallTraceReplayModule::processRow() {
 FChmodatSystemCallTraceReplayModule::FChmodatSystemCallTraceReplayModule(
     DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
     : FChmodSystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-      given_pathname_(series, "given_pathname"),
+      given_pathname_(series, "given_pathname", Field::flag_nullable),
       flag_value_(series, "flag_value", Field::flag_nullable) {
   sys_call_name_ = "fchmodat";
 }

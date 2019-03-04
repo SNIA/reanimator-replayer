@@ -22,7 +22,7 @@
 MknodSystemCallTraceReplayModule::MknodSystemCallTraceReplayModule(
     DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
     : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-      given_pathname_(series, "given_pathname"),
+      given_pathname_(series, "given_pathname", Field::flag_nullable),
       mode_value_(series, "mode_value", Field::flag_nullable),
       type_(series, "type"),
       dev_(series, "dev", Field::flag_nullable) {
