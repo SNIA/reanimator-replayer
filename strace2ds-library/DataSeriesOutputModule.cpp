@@ -178,6 +178,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["fsync"] = &DataSeriesOutputModule::makeFsyncArgsMap;
   // fdatasync system call
   func_ptr_map_["fdatasync"] = &DataSeriesOutputModule::makeFdatasyncArgsMap;
+  // fallocate system call
+  func_ptr_map_["fallocate"] = &DataSeriesOutputModule::makeFallocateArgsMap;
   // ftruncate system call
   func_ptr_map_["ftruncate"] = &DataSeriesOutputModule::makeFTruncateArgsMap;
   // getdents system call

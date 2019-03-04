@@ -473,6 +473,9 @@ private:
   // Maps FDatasync System Call <field, value> pairs
   void makeFdatasyncArgsMap(void **args_map, long *args, void **v_args);
 
+  // Maps Fallocate System Call <field, value> pairs
+  void makeFallocateArgsMap(void **args_map, long *args, void **v_args);
+
   // Maps Mknod System Call <field, value> pairs
   void makeMknodArgsMap(void **args_map, long *args, void **v_args);
 

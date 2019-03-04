@@ -165,6 +165,10 @@ ioctl	ioctl_buffer	1	variable32
 ioctl	buffer_size	0	int64
 fsync	descriptor	0	int32
 fdatasync	descriptor	0	int32
+fallocate	descriptor	0	int32
+fallocate	mode_value	0	int32
+fallocate	allocate_offset	0	int64
+fallocate	allocate_len	0	int64
 open	given_pathname	1	variable32
 open	full_pathname	1	variable32
 open	open_value	1	int32
