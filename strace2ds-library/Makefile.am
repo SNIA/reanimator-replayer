@@ -61,6 +61,7 @@ libstrace2ds_la_SOURCES = DataSeriesOutputModule.cpp 	\
 			  MakeFsyncArgsMap.cpp		\
 			  MakeFdatasyncArgsMap.cpp	\
 			  MakeFallocateArgsMap.cpp	\
+			  MakeReadaheadArgsMap.cpp	\
 			  MakeMknodArgsMap.cpp		\
 			  MakeMknodatArgsMap.cpp	\
 			  MakePipeArgsMap.cpp		\
@@ -115,6 +116,7 @@ XML_FILES=			\
 	xml/fsync.xml		\
 	xml/fdatasync.xml	\
 	xml/fallocate.xml	\
+	xml/readahead.xml	\
 	xml/ioctl.xml		\
 	xml/link.xml		\
 	xml/lseek.xml		\

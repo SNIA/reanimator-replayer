@@ -169,6 +169,9 @@ fallocate	descriptor	0	int32
 fallocate	mode_value	0	int32
 fallocate	allocate_offset	0	int64
 fallocate	allocate_len	0	int64
+readahead	descriptor	0	int32
+readahead	readahead_size	0	int64
+readahead	readahead_off	0	int64
 open	given_pathname	1	variable32
 open	full_pathname	1	variable32
 open	open_value	1	int32

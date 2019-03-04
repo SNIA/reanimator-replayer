@@ -476,6 +476,9 @@ private:
   // Maps Fallocate System Call <field, value> pairs
   void makeFallocateArgsMap(void **args_map, long *args, void **v_args);
 
+  // Maps Readahead System Call <field, value> pairs
+  void makeReadaheadArgsMap(void **args_map, long *args, void **v_args);
+
   // Maps Mknod System Call <field, value> pairs
   void makeMknodArgsMap(void **args_map, long *args, void **v_args);
 
