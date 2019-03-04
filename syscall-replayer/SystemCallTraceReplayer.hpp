@@ -23,6 +23,7 @@
 #include "FTruncateSystemCallTraceReplayModule.hpp"
 #include "FcntlSystemCallTraceReplayModule.hpp"
 #include "FsyncSystemCallTraceReplayModule.hpp"
+#include "FdatasyncSystemCallTraceReplayModule.hpp"
 #include "GetdentsSystemCallTraceReplayModule.hpp"
 #include "IoctlSystemCallTraceReplayModule.hpp"
 #include "LSeekSystemCallTraceReplayModule.hpp"

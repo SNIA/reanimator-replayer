@@ -61,6 +61,7 @@ SYSTEM_CALL_REPLAY_MODULE_OBJECTS = SystemCallTraceReplayer.o \
 				    WritevSystemCallTraceReplayModule.o \
 				    RenameSystemCallTraceReplayModule.o \
 				    FsyncSystemCallTraceReplayModule.o \
+				    FdatasyncSystemCallTraceReplayModule.o \
 				    MknodSystemCallTraceReplayModule.o \
 				    PipeSystemCallTraceReplayModule.o \
 				    DupSystemCallTraceReplayModule.o \

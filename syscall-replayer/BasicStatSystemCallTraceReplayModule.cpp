@@ -141,8 +141,11 @@ void BasicStatSystemCallTraceReplayModule::verifyResult(
    * st_mode, st_nlink, st_uid, st_gid, st_size, st_blksize and
    * st_blocks fileds of struct stat.
    */
-  if (statINo != replayed_stat_buf.st_ino ||
-      statMode != replayed_stat_buf.st_mode ||
+  /*
+   * Fixed: Inode numbers can not be matched if we are creating
+   * new files even they have the same path
+   */
+  if (statMode != replayed_stat_buf.st_mode ||
       statNLink != replayed_stat_buf.st_nlink ||
       statUID != replayed_stat_buf.st_uid ||
       statGID != replayed_stat_buf.st_gid ||
