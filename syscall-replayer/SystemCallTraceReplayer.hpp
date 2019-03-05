@@ -24,6 +24,7 @@
 #include "FcntlSystemCallTraceReplayModule.hpp"
 #include "FsyncSystemCallTraceReplayModule.hpp"
 #include "FdatasyncSystemCallTraceReplayModule.hpp"
+#include "FallocateSystemCallTraceReplayModule.hpp"
 #include "GetdentsSystemCallTraceReplayModule.hpp"
 #include "IoctlSystemCallTraceReplayModule.hpp"
 #include "LSeekSystemCallTraceReplayModule.hpp"

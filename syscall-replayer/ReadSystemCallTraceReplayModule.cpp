@@ -55,7 +55,8 @@ void ReadSystemCallTraceReplayModule::processRow() {
   if (verify_) {
     if (dataReadBuf == nullptr) {
       if (replayed_ret_val_ == return_value()) {
-        syscall_logger_->log_info("Verification of data in read success.");
+        syscall_logger_->log_info(
+            "Verification of data because of not captured in read success.");
       }
     }
 
@@ -77,7 +78,8 @@ void ReadSystemCallTraceReplayModule::processRow() {
       }
     } else {
       if (verbose_mode()) {
-        syscall_logger_->log_info("Verification of data in read success.");
+        syscall_logger_->log_info(
+            "Verification of data comparison in read success.");
       }
     }
     delete[] dataReadBuf;
