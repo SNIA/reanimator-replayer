@@ -325,6 +325,7 @@ std::vector<PrefetchBufferModule *> create_prefetch_buffer_modules(
   system_calls.push_back("fsync");
   system_calls.push_back("fdatasync");
   system_calls.push_back("fallocate");
+  system_calls.push_back("readahead");
   system_calls.push_back("mknod");
   system_calls.push_back("pipe");
   system_calls.push_back("dup");
@@ -470,6 +471,8 @@ create_system_call_trace_replay_modules(
       *prefetch_buffer_modules[module_index++], verbose, warn_level);
   auto fallocate_module = new FallocateSystemCallTraceReplayModule(
       *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto readahead_module = new ReadaheadSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
   auto mknod_module = new MknodSystemCallTraceReplayModule(
       *prefetch_buffer_modules[module_index++], verbose, warn_level);
   auto pipe_module = new PipeSystemCallTraceReplayModule(
@@ -562,6 +565,7 @@ create_system_call_trace_replay_modules(
   system_call_trace_replay_modules.push_back(fsync_module);
   system_call_trace_replay_modules.push_back(fdatasync_module);
   system_call_trace_replay_modules.push_back(fallocate_module);
+  system_call_trace_replay_modules.push_back(readahead_module);
   system_call_trace_replay_modules.push_back(mknod_module);
   system_call_trace_replay_modules.push_back(pipe_module);
   system_call_trace_replay_modules.push_back(dup_module);
