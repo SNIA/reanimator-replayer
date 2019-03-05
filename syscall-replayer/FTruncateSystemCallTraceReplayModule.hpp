@@ -32,6 +32,8 @@ class FTruncateSystemCallTraceReplayModule
   // FTruncate System Call Trace Fields in Dataseries file
   Int32Field descriptor_;
   Int64Field truncate_length_;
+  int traced_fd;
+  int64_t length;
 
   /**
    * Print ftruncate sys call field values in a nice format
@@ -53,6 +55,22 @@ class FTruncateSystemCallTraceReplayModule
  public:
   FTruncateSystemCallTraceReplayModule(DataSeriesModule &source,
                                        bool verbose_flag, int warn_level_flag);
+  SystemCallTraceReplayModule *move() override {
+    auto movePtr =
+        new FTruncateSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    movePtr->setMove(traced_fd, length);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
+    return movePtr;
+  }
+
+  void setMove(int fd, int64_t len) {
+    traced_fd = fd;
+    length = len;
+  }
+
+  void prepareRow() override;
 };
 
 #endif /* FTRUNCATE_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

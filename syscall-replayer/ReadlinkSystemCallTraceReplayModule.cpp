@@ -40,7 +40,7 @@ void ReadlinkSystemCallTraceReplayModule::processRow() {
 
   if (verify_) {
     // Verify readlink buffer and buffer in the trace file are same
-    if (memcmp(dataReadBuf, buffer, returnVal) != 0) {
+    if (dataReadBuf != nullptr && memcmp(dataReadBuf, buffer, returnVal) != 0) {
       // Target path aren't same
       syscall_logger_->log_err("Verification of path in readlink failed.");
       if (!default_mode()) {
@@ -76,8 +76,12 @@ void ReadlinkSystemCallTraceReplayModule::prepareRow() {
   buffer = new char[nbytes];
   if (verify_) {
     auto dataBuf = reinterpret_cast<const char *>(link_value_.val());
-    dataReadBuf = new char[replayed_ret_val_];
-    std::memcpy(dataReadBuf, dataBuf, replayed_ret_val_);
+    if (replayed_ret_val_ > 0) {
+      dataReadBuf = new char[replayed_ret_val_];
+      std::memcpy(dataReadBuf, dataBuf, replayed_ret_val_);
+    } else {
+      dataReadBuf = nullptr;
+    }
   }
   SystemCallTraceReplayModule::prepareRow();
 }

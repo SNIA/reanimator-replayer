@@ -27,20 +27,24 @@ FTruncateSystemCallTraceReplayModule::FTruncateSystemCallTraceReplayModule(
 }
 
 void FTruncateSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
-                            "replayed fd(", getReplayedFD(), "), ", "length(",
-                            truncate_length_.val(), ")");
+  syscall_logger_->log_info("traced fd(", traced_fd, "), ", "replayed fd(",
+                            getReplayedFD(), "), ", "length(", length, ")");
 }
 
 int FTruncateSystemCallTraceReplayModule::getReplayedFD() {
   // Get replaying file descriptor.
   pid_t pid = executing_pid();
-  return replayer_resources_manager_.get_fd(pid, descriptor_.val());
+  return replayer_resources_manager_.get_fd(pid, traced_fd);
 }
 
 void FTruncateSystemCallTraceReplayModule::processRow() {
   int fd = getReplayedFD();
-  int64_t length = truncate_length_.val();
   // Replay ftruncate system call
   replayed_ret_val_ = ftruncate(fd, length);
+}
+
+void FTruncateSystemCallTraceReplayModule::prepareRow() {
+  traced_fd = descriptor_.val();
+  length = truncate_length_.val();
+  SystemCallTraceReplayModule::prepareRow();
 }

@@ -684,12 +684,13 @@ void prepare_replay() {
 
 inline void batch_syscall_modules(SystemCallTraceReplayModule *module = nullptr,
                                   bool isFirstTime = false,
-                                  int batch_size = 50) {
+                                  unsigned int batch_size = 50) {
   int count = batch_size;
 
   SystemCallTraceReplayModule *current = nullptr;
 
-  if (finishedModules[module->getReplayerIndex()]) {
+  if (finishedModules[module->getReplayerIndex()] ||
+      numberOfSyscalls[module->getReplayerIndex()] > batch_size * 2) {
     return;
   }
 
