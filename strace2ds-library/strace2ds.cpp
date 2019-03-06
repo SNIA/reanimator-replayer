@@ -62,7 +62,7 @@ void ds_write_umask_at_start(DataSeriesOutputModule *ds_module, int pid) {
   long args[1]; /* umask args */
   int unique_id = 0; /* unique id of this umask record*/
   const char *syscall_name = "umask";
-  unsigned short syscall_num = UMASK_SYSCALL_NUM;
+  uint64_t syscall_num = UMASK_SYSCALL_NUM;
   void *common_fields[DS_NUM_COMMON_FIELDS];
   // Initialize common_fields with NULL arguments.
   memset(common_fields, 0, sizeof(void *) * DS_NUM_COMMON_FIELDS);
