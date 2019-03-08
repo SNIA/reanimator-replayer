@@ -61,7 +61,8 @@ void ReadSystemCallTraceReplayModule::processRow() {
     }
 
     // Verify read data and data in the trace file are same
-    if (memcmp(dataReadBuf, buffer, replayed_ret_val_) != 0) {
+    if (dataReadBuf != NULL && replayed_ret_val_ >= 0 &&
+        memcmp(dataReadBuf, buffer, replayed_ret_val_) != 0) {
       // Data aren't same
       syscall_logger_->log_info("Verification of data in read failed. retval:",
                                 replayed_ret_val_);
