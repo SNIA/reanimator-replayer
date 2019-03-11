@@ -38,20 +38,7 @@ void ReadSystemCallTraceReplayModule::print_specific_fields() {
                             "bytes requested(", nbytes, ")");
 }
 
-void ReadSystemCallTraceReplayModule::processRow() {
-  auto replayed_fd =
-      replayer_resources_manager_.get_fd(executingPidVal, traced_fd);
-  if (replayed_fd == SYSCALL_SIMULATED) {
-    /*
-     * FD for the read call originated from an AF_UNIX socket().
-     * The system call will not be replayed.
-     * Original return value will be returned.
-     */
-    return;
-  }
-  // Replay read system call as normal.
-  replayed_ret_val_ = read(replayed_fd, buffer, nbytes);
-
+void ReadSystemCallTraceReplayModule::verifyRow() {
   if (verify_) {
     if (dataReadBuf == nullptr) {
       if (replayed_ret_val_ == return_value()) {
@@ -89,6 +76,23 @@ void ReadSystemCallTraceReplayModule::processRow() {
   delete[] buffer;
 }
 
+void ReadSystemCallTraceReplayModule::processRow() {
+  auto replayed_fd =
+      replayer_resources_manager_.get_fd(executingPidVal, traced_fd);
+  if (replayed_fd == SYSCALL_SIMULATED) {
+    /*
+     * FD for the read call originated from an AF_UNIX socket().
+     * The system call will not be replayed.
+     * Original return value will be returned.
+     */
+    return;
+  }
+  // Replay read system call as normal.
+  replayed_ret_val_ = read(replayed_fd, buffer, nbytes);
+
+  verifyRow();
+}
+
 void ReadSystemCallTraceReplayModule::prepareRow() {
   traced_fd = descriptor_.val();
   nbytes = bytes_requested_.val();
@@ -118,23 +122,17 @@ PReadSystemCallTraceReplayModule::PReadSystemCallTraceReplayModule(
 
 void PReadSystemCallTraceReplayModule::print_specific_fields() {
   pid_t pid = executing_pid();
-  int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
-  syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
-                            "replayed fd(", replayed_fd, "), ", "data read(",
-                            data_read_.val(), "), ", "bytes requested(",
-                            bytes_requested_.val(),
-                            "), "
-                            "offset(",
-                            offset_.val(), ")");
+  int replayed_fd = replayer_resources_manager_.get_fd(pid, traced_fd);
+  syscall_logger_->log_info(
+      "traced fd(", traced_fd, "), ", "replayed fd(", replayed_fd, "), ",
+      // "data read(", data_read_.val(),
+      "), ", "bytes requested(", nbytes, "), ", "offset(", off, ")");
 }
 
 void PReadSystemCallTraceReplayModule::processRow() {
   // Get replaying file descriptor.
   pid_t pid = executing_pid();
-  int fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
-  int nbytes = bytes_requested_.val();
-  char *buffer = new char[nbytes];
-  int offset = offset_.val();
+  int fd = replayer_resources_manager_.get_fd(pid, traced_fd);
 
   if (fd == SYSCALL_SIMULATED) {
     /*
@@ -142,35 +140,16 @@ void PReadSystemCallTraceReplayModule::processRow() {
      * The system call will not be replayed.
      * Traced return value will be returned.
      */
-    replayed_ret_val_ = return_value_.val();
+    replayed_ret_val_ = return_value();
     return;
   }
 
-  replayed_ret_val_ = pread(fd, buffer, nbytes, offset);
+  replayed_ret_val_ = pread(fd, buffer, nbytes, off);
 
-  if (verify_) {
-    // Verify read data and data in the trace file are same
-    if (memcmp(data_read_.val(), buffer, replayed_ret_val_) != 0) {
-      // Data aren't same
-      syscall_logger_->log_err("Verification of data in pread failed.");
-      if (!default_mode()) {
-        syscall_logger_->log_warn(
-            "time called:",
-            boost::format(DEC_PRECISION) % Tfrac_to_sec(time_called()),
-            " Captured pread data is different from replayed pread data");
-        syscall_logger_->log_warn("Captured pread data: ", data_read_.val(),
-                                  ", ",
-                                  "Replayed pread data: ", std::string(buffer));
-        if (warn_level_ == ABORT_MODE) {
-          abort();
-        }
-      }
-    } else {
-      if (verbose_) {
-        syscall_logger_->log_info("Verification of data in pread success.");
-      }
-    }
-  }
+  verifyRow();
+}
 
-  delete[] buffer;
+void PReadSystemCallTraceReplayModule::prepareRow() {
+  off = offset_.val();
+  ReadSystemCallTraceReplayModule::prepareRow();
 }

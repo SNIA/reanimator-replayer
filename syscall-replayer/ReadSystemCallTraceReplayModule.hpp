@@ -48,6 +48,8 @@ class ReadSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
    */
   void processRow() override;
 
+  void verifyRow();
+
  public:
   ReadSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
                                   bool verify_flag, int warn_level_flag);
@@ -74,6 +76,7 @@ class PReadSystemCallTraceReplayModule
  private:
   // PRead System Call Trace Fields in Dataseries file
   Int64Field offset_;
+  int64_t off;
 
   /**
    * Print pread sys call field values in a nice format
@@ -89,5 +92,20 @@ class PReadSystemCallTraceReplayModule
  public:
   PReadSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
                                    bool verify_flag, int warn_level_flag);
+  SystemCallTraceReplayModule *move() override {
+    auto movePtr = new PReadSystemCallTraceReplayModule(source, verbose_,
+                                                        verify_, warn_level_);
+    movePtr->setMove(buffer, nbytes, traced_fd, off, dataReadBuf);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
+    return movePtr;
+  }
+  inline void setMove(char *buf, int byte, int fd, int offset,
+                      char *verifyBuf) {
+    ReadSystemCallTraceReplayModule::setMove(buf, byte, fd, verifyBuf);
+    off = offset;
+  }
+  void prepareRow() override;
 };
 #endif /* READ_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */
