@@ -269,6 +269,8 @@ ftruncate	descriptor	0	int32
 ftruncate	truncate_length	0	int64
 chdir	given_pathname	1	variable32
 chdir	full_pathname	1	variable32
+chroot	given_pathname	1	variable32
+chroot	full_pathname	1	variable32
 mkdir	given_pathname	1	variable32
 mkdir	full_pathname	1	variable32
 mkdir	mode_value	1	int32
@@ -499,6 +501,7 @@ fchmodat	mode_W_others	0	bool
 fchmodat	mode_X_others	0	bool
 fchmodat	flag_value	1	int32
 fchmodat	flag_at_symlink_nofollow	0	bool
+fchdir	descriptor	0	int32
 utimensat	descriptor	0	int32
 utimensat	descriptor_current_working_directory	1	bool
 utimensat	given_pathname	1	variable32

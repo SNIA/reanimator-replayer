@@ -7,6 +7,7 @@ libstrace2ds_la_SOURCES = DataSeriesOutputModule.cpp 	\
 			  MakeReadArgsMap.cpp        	\
 			  MakeWriteArgsMap.cpp       	\
 			  MakeChdirArgsMap.cpp       	\
+			  MakeChrootArgsMap.cpp       	\
 			  MakeRmdirArgsMap.cpp       	\
 			  MakeUnlinkArgsMap.cpp      	\
 			  MakeUnlinkAtArgsMap.cpp    	\
@@ -30,6 +31,7 @@ libstrace2ds_la_SOURCES = DataSeriesOutputModule.cpp 	\
 			  MakeFRemovexAttrArgsMap.cpp   \
 			  MakeFChmodArgsMap.cpp         \
 			  MakeFChmodAtArgsMap.cpp       \
+			  MakeFChdirArgsMap.cpp         \
 			  MakeLinkArgsMap.cpp           \
 			  MakeLinkAtArgsMap.cpp         \
 			  MakeSymLinkArgsMap.cpp        \
@@ -103,6 +105,7 @@ SNIA_SYSCALL_FIELDS_TABLE_FILE=tables/snia_syscall_fields.table
 XML_FILES=			\
 	xml/access.xml		\
 	xml/chdir.xml		\
+	xml/chroot.xml		\
 	xml/chmod.xml		\
 	xml/chown.xml		\
 	xml/close.xml		\
@@ -146,6 +149,7 @@ XML_FILES=			\
 	xml/exit.xml		\
 	xml/fchmod.xml		\
 	xml/fchmodat.xml	\
+	xml/fchdir.xml		\
 	xml/flock.xml		\
 	xml/fstatfs.xml		\
 	xml/getdents.xml	\

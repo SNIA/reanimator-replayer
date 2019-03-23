@@ -294,6 +294,9 @@ private:
   // Maps Chdir System Call <field, value> pairs
   void makeChdirArgsMap(void **args_map, long *args, void **v_args);
 
+  // Maps Chdir System Call <field, value> pairs
+  void makeChrootArgsMap(void **args_map, long *args, void **v_args);
+
   // Maps Rmdir System Call <field, value> pairs
   void makeRmdirArgsMap(void **args_map, long *args, void **v_args);
 
@@ -359,6 +362,9 @@ private:
 
   // Maps FChmod System Calls <field, value> pairs
   void makeFChmodArgsMap(void **args_map, long *args, void **v_args);
+
+  // Maps FChdir System Calls <field, value> pairs
+  void makeFChdirArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps FChmodat System Calls <field, value> pairs
   void makeFChmodatArgsMap(void **args_map, long *args, void **v_args);

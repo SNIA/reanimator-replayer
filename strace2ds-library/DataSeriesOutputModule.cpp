@@ -130,6 +130,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["bind"] = &DataSeriesOutputModule::makeBindArgsMap;
   // chdir system call
   func_ptr_map_["chdir"] = &DataSeriesOutputModule::makeChdirArgsMap;
+  // chdir system call
+  func_ptr_map_["chroot"] = &DataSeriesOutputModule::makeChrootArgsMap;
   // chmod system call
   func_ptr_map_["chmod"] = &DataSeriesOutputModule::makeChmodArgsMap;
   // chown system call
@@ -156,6 +158,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["fchmod"] = &DataSeriesOutputModule::makeFChmodArgsMap;
   // fchmodat system call
   func_ptr_map_["fchmodat"] = &DataSeriesOutputModule::makeFChmodatArgsMap;
+  // fchdir system call
+  func_ptr_map_["fchdir"] = &DataSeriesOutputModule::makeFChdirArgsMap;
   // fcntl system call
   func_ptr_map_["fcntl"] = &DataSeriesOutputModule::makeFcntlArgsMap;
   // fgetxattr system call
