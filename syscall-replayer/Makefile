@@ -49,6 +49,8 @@ SYSTEM_CALL_REPLAY_MODULE_OBJECTS = SystemCallTraceReplayer.o \
 				    LinkSystemCallTraceReplayModule.o \
 				    CreatSystemCallTraceReplayModule.o \
 				    ChdirSystemCallTraceReplayModule.o \
+				    FChdirSystemCallTraceReplayModule.o \
+				    ChrootSystemCallTraceReplayModule.o \
 				    SymlinkSystemCallTraceReplayModule.o \
 				    MkdirSystemCallTraceReplayModule.o \
 				    BasicStatSystemCallTraceReplayModule.o \

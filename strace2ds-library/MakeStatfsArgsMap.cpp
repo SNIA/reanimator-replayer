@@ -18,8 +18,7 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeStatfsArgsMap(void **args_map,
-                                               long *args,
+void DataSeriesOutputModule::makeStatfsArgsMap(void **args_map, long *args,
                                                void **v_args) {
   // Initialize all non-nullable boolean fields to False.
   initArgsMap(args_map, "statfs");
@@ -31,24 +30,26 @@ void DataSeriesOutputModule::makeStatfsArgsMap(void **args_map,
   }
 
   if (v_args[1] != NULL) {
-    struct statfs *statfsbuf = (struct statfs *) v_args[1];
+    if (!args_map[SYSCALL_FIELD_BUFFER_NOT_CAPTURED]) {
+      struct statfs *statfsbuf = (struct statfs *)v_args[1];
 
-    args_map[SYSCALL_FIELD_STATFS_RESULT_TYPE] = &statfsbuf->f_type;
-    args_map[SYSCALL_FIELD_STATFS_RESULT_BSIZE] = &statfsbuf->f_bsize;
-    args_map[SYSCALL_FIELD_STATFS_RESULT_BLOCKS] = &statfsbuf->f_blocks;
-    args_map[SYSCALL_FIELD_STATFS_RESULT_BFREE] = &statfsbuf->f_bfree;
-    args_map[SYSCALL_FIELD_STATFS_RESULT_BAVAIL] = &statfsbuf->f_bavail;
-    args_map[SYSCALL_FIELD_STATFS_RESULT_FILES] = &statfsbuf->f_files;
-    args_map[SYSCALL_FIELD_STATFS_RESULT_FFREE] = &statfsbuf->f_ffree;
-    args_map[SYSCALL_FIELD_STATFS_RESULT_FSID] = &statfsbuf->f_fsid;
-    args_map[SYSCALL_FIELD_STATFS_RESULT_NAMELEN] = &statfsbuf->f_namelen;
-    args_map[SYSCALL_FIELD_STATFS_RESULT_FRSIZE] = &statfsbuf->f_frsize;
-    args_map[SYSCALL_FIELD_STATFS_RESULT_FLAGS] = &statfsbuf->f_flags;
+      args_map[SYSCALL_FIELD_STATFS_RESULT_TYPE] = &statfsbuf->f_type;
+      args_map[SYSCALL_FIELD_STATFS_RESULT_BSIZE] = &statfsbuf->f_bsize;
+      args_map[SYSCALL_FIELD_STATFS_RESULT_BLOCKS] = &statfsbuf->f_blocks;
+      args_map[SYSCALL_FIELD_STATFS_RESULT_BFREE] = &statfsbuf->f_bfree;
+      args_map[SYSCALL_FIELD_STATFS_RESULT_BAVAIL] = &statfsbuf->f_bavail;
+      args_map[SYSCALL_FIELD_STATFS_RESULT_FILES] = &statfsbuf->f_files;
+      args_map[SYSCALL_FIELD_STATFS_RESULT_FFREE] = &statfsbuf->f_ffree;
+      args_map[SYSCALL_FIELD_STATFS_RESULT_FSID] = &statfsbuf->f_fsid;
+      args_map[SYSCALL_FIELD_STATFS_RESULT_NAMELEN] = &statfsbuf->f_namelen;
+      args_map[SYSCALL_FIELD_STATFS_RESULT_FRSIZE] = &statfsbuf->f_frsize;
+      args_map[SYSCALL_FIELD_STATFS_RESULT_FLAGS] = &statfsbuf->f_flags;
 
-    u_int flag = processStatfsFlags(args_map, statfsbuf->f_flags);
-    if (flag != 0) {
-      std::cerr << "Statfs: These flag are not processed/unknown->0x";
-      std::cerr << std::hex << flag << std::dec << std::endl;
+      u_int flag = processStatfsFlags(args_map, statfsbuf->f_flags);
+      if (flag != 0) {
+        std::cerr << "Statfs: These flag are not processed/unknown->0x";
+        std::cerr << std::hex << flag << std::dec << std::endl;
+      }
     }
   } else {
     std::cerr << "Statfs: Struct statfs is set as NULL!!" << std::endl;

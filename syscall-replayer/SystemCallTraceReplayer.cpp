@@ -294,6 +294,8 @@ std::vector<PrefetchBufferModule *> create_prefetch_buffer_modules(
   system_calls.push_back("access");
   system_calls.push_back("faccessat");
   system_calls.push_back("chdir");
+  system_calls.push_back("fchdir");
+  system_calls.push_back("chroot");
   system_calls.push_back("truncate");
   system_calls.push_back("creat");
   system_calls.push_back("link");
@@ -404,6 +406,10 @@ create_system_call_trace_replay_modules(
   auto faccessat_module = new FAccessatSystemCallTraceReplayModule(
       *prefetch_buffer_modules[module_index++], verbose, warn_level);
   auto chdir_module = new ChdirSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto fchdir_module = new FChdirSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto chroot_module = new ChrootSystemCallTraceReplayModule(
       *prefetch_buffer_modules[module_index++], verbose, warn_level);
   auto truncate_module = new TruncateSystemCallTraceReplayModule(
       *prefetch_buffer_modules[module_index++], verbose, warn_level);
@@ -534,6 +540,8 @@ create_system_call_trace_replay_modules(
   system_call_trace_replay_modules.push_back(access_module);
   system_call_trace_replay_modules.push_back(faccessat_module);
   system_call_trace_replay_modules.push_back(chdir_module);
+  system_call_trace_replay_modules.push_back(fchdir_module);
+  system_call_trace_replay_modules.push_back(chroot_module);
   system_call_trace_replay_modules.push_back(truncate_module);
   system_call_trace_replay_modules.push_back(creat_module);
   system_call_trace_replay_modules.push_back(link_module);
