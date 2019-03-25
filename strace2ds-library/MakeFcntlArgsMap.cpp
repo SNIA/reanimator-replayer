@@ -18,9 +18,10 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeFcntlArgsMap(void **args_map,
-					      long *args,
-					      void **v_args) {
+#define F_SET_RW_HINT 1030
+
+void DataSeriesOutputModule::makeFcntlArgsMap(void **args_map, long *args,
+                                              void **v_args) {
   // Set all non-nullable boolean fields to false
   initArgsMap(args_map, "fcntl");
 
@@ -34,7 +35,6 @@ void DataSeriesOutputModule::makeFcntlArgsMap(void **args_map,
    * fields in the map
    */
   switch (command) {
-
   // File descriptor dup command
   case F_DUPFD:
     args_map[SYSCALL_FIELD_COMMAND_DUP] = &true_;
@@ -50,15 +50,22 @@ void DataSeriesOutputModule::makeFcntlArgsMap(void **args_map,
   case F_SETFD: {
     args_map[SYSCALL_FIELD_COMMAND_SET_DESCRIPTOR_FLAGS] = &true_;
     args_map[SYSCALL_FIELD_ARGUMENT_VALUE] = &args[2];
-    u_int fd_flag = (u_int) args[2];
-    process_Flag_and_Mode_Args(args_map, fd_flag, FD_CLOEXEC,
-			       SYSCALL_FIELD_ARGUMENT_DESCRIPTOR_FLAG_EXEC_CLOSE);
+    u_int fd_flag = (u_int)args[2];
+    process_Flag_and_Mode_Args(
+        args_map, fd_flag, FD_CLOEXEC,
+        SYSCALL_FIELD_ARGUMENT_DESCRIPTOR_FLAG_EXEC_CLOSE);
     if (fd_flag != 0) {
       std::cerr << "Fcntl: SETFD: These flags are not processed/unknown->0x"
-		<< std::hex << fd_flag << std::dec << std::endl;
+                << std::hex << fd_flag << std::dec << std::endl;
     }
     break;
   }
+
+  case F_SET_RW_HINT: {
+    args_map[SYSCALL_FIELD_ARGUMENT_VALUE] = &args[2];
+    break;
+  }
+
   // Get file status flags command
   case F_GETFL:
     args_map[SYSCALL_FIELD_COMMAND_GET_STATUS_FLAGS] = &true_;
@@ -71,26 +78,26 @@ void DataSeriesOutputModule::makeFcntlArgsMap(void **args_map,
     u_int status_flag = processFcntlStatusFlags(args_map, args[2]);
     if (status_flag != 0) {
       std::cerr << "Fcntl: SETFL: These flags are not processed/unknown->0x"
-		<< std::hex << status_flag << std::dec << std::endl;
+                << std::hex << status_flag << std::dec << std::endl;
     }
     break;
   }
   // Set lock command
   case F_SETLK:
     args_map[SYSCALL_FIELD_COMMAND_SET_LOCK] = &true_;
-    processFcntlFlock(args_map, (struct flock *) v_args[0]);
+    processFcntlFlock(args_map, (struct flock *)v_args[0]);
     break;
 
   // Set lock wait command
   case F_SETLKW:
     args_map[SYSCALL_FIELD_COMMAND_SET_LOCK_WAIT] = &true_;
-    processFcntlFlock(args_map, (struct flock *) v_args[0]);
+    processFcntlFlock(args_map, (struct flock *)v_args[0]);
     break;
 
   // Get lock command
   case F_GETLK:
     args_map[SYSCALL_FIELD_COMMAND_GET_LOCK] = &true_;
-    processFcntlFlock(args_map, (struct flock *) v_args[0]);
+    processFcntlFlock(args_map, (struct flock *)v_args[0]);
     break;
 
   // Get process id command
@@ -118,7 +125,7 @@ void DataSeriesOutputModule::makeFcntlArgsMap(void **args_map,
   // Get lease command
   case F_GETLEASE: {
     args_map[SYSCALL_FIELD_COMMAND_GET_LEASE] = &true_;
-    int return_value = *(int *) args_map[SYSCALL_FIELD_RETURN_VALUE];
+    int return_value = *(int *)args_map[SYSCALL_FIELD_RETURN_VALUE];
     processFcntlLease(args_map, return_value);
     break;
   }
@@ -136,7 +143,7 @@ void DataSeriesOutputModule::makeFcntlArgsMap(void **args_map,
     u_int notify_value = processFcntlNotify(args_map, args);
     if (notify_value != 0) {
       std::cerr << "Fcntl: F_NOTIFY: These flags are not processed/unknown->"
-		<< std::hex << notify_value << std::dec << std::endl;
+                << std::hex << notify_value << std::dec << std::endl;
     }
     break;
   }
@@ -161,7 +168,7 @@ void DataSeriesOutputModule::makeFcntlArgsMap(void **args_map,
  *                   to the fcntl system call.
  */
 u_int DataSeriesOutputModule::processFcntlStatusFlags(void **args_map,
-						      u_int status_flag) {
+                                                      u_int status_flag) {
 
   /*
    * Process each individual flag bit that has been set
@@ -169,55 +176,57 @@ u_int DataSeriesOutputModule::processFcntlStatusFlags(void **args_map,
    */
   // set read only flag
   process_Flag_and_Mode_Args(args_map, status_flag, O_RDONLY,
-			     SYSCALL_FIELD_ARGUMENT_STATUS_FLAG_READ_ONLY);
+                             SYSCALL_FIELD_ARGUMENT_STATUS_FLAG_READ_ONLY);
   // set write only flag
   process_Flag_and_Mode_Args(args_map, status_flag, O_WRONLY,
-			     SYSCALL_FIELD_ARGUMENT_STATUS_FLAG_WRITE_ONLY);
+                             SYSCALL_FIELD_ARGUMENT_STATUS_FLAG_WRITE_ONLY);
   // set read and write flag
   process_Flag_and_Mode_Args(args_map, status_flag, O_RDWR,
-			     SYSCALL_FIELD_ARGUMENT_STATUS_FLAG_READ_AND_WRITE);
+                             SYSCALL_FIELD_ARGUMENT_STATUS_FLAG_READ_AND_WRITE);
   // set append flag
   process_Flag_and_Mode_Args(args_map, status_flag, O_APPEND,
-			     SYSCALL_FIELD_ARGUMENT_STATUS_FLAG_APPEND);
+                             SYSCALL_FIELD_ARGUMENT_STATUS_FLAG_APPEND);
   // set async flag
   process_Flag_and_Mode_Args(args_map, status_flag, O_ASYNC,
-			     SYSCALL_FIELD_ARGUMENT_STATUS_FLAG_ASYNC);
+                             SYSCALL_FIELD_ARGUMENT_STATUS_FLAG_ASYNC);
   // set create flag
   process_Flag_and_Mode_Args(args_map, status_flag, O_CREAT,
-			     SYSCALL_FIELD_ARGUMENT_STATUS_FLAG_CREATE);
+                             SYSCALL_FIELD_ARGUMENT_STATUS_FLAG_CREATE);
   // set direct flag
   process_Flag_and_Mode_Args(args_map, status_flag, O_DIRECT,
-			     SYSCALL_FIELD_ARGUMENT_STATUS_FLAG_DIRECT);
+                             SYSCALL_FIELD_ARGUMENT_STATUS_FLAG_DIRECT);
   // set directory flag
   process_Flag_and_Mode_Args(args_map, status_flag, O_DIRECTORY,
-			     SYSCALL_FIELD_ARGUMENT_STATUS_FLAG_DIRECTORY);
+                             SYSCALL_FIELD_ARGUMENT_STATUS_FLAG_DIRECTORY);
   // set exclusive flag
   process_Flag_and_Mode_Args(args_map, status_flag, O_EXCL,
-			     SYSCALL_FIELD_ARGUMENT_STATUS_FLAG_EXCLUSIVE);
+                             SYSCALL_FIELD_ARGUMENT_STATUS_FLAG_EXCLUSIVE);
   // set largefile flag
   process_Flag_and_Mode_Args(args_map, status_flag, O_LARGEFILE,
-			     SYSCALL_FIELD_ARGUMENT_STATUS_FLAG_LARGEFILE);
+                             SYSCALL_FIELD_ARGUMENT_STATUS_FLAG_LARGEFILE);
   // set last access time flag
   process_Flag_and_Mode_Args(args_map, status_flag, O_NOATIME,
-			     SYSCALL_FIELD_ARGUMENT_STATUS_FLAG_NO_ACCESS_TIME);
+                             SYSCALL_FIELD_ARGUMENT_STATUS_FLAG_NO_ACCESS_TIME);
   // set controlling terminal flag
-  process_Flag_and_Mode_Args(args_map, status_flag, O_NOCTTY,
-			     SYSCALL_FIELD_ARGUMENT_STATUS_FLAG_NO_CONTROLLING_TERMINAL);
+  process_Flag_and_Mode_Args(
+      args_map, status_flag, O_NOCTTY,
+      SYSCALL_FIELD_ARGUMENT_STATUS_FLAG_NO_CONTROLLING_TERMINAL);
   // set no_follow flag (in case of symbolic link)
   process_Flag_and_Mode_Args(args_map, status_flag, O_NOFOLLOW,
-			     SYSCALL_FIELD_ARGUMENT_STATUS_FLAG_NO_FOLLOW);
+                             SYSCALL_FIELD_ARGUMENT_STATUS_FLAG_NO_FOLLOW);
   // set non blocking mode flag
-  process_Flag_and_Mode_Args(args_map, status_flag, O_NONBLOCK,
-			     SYSCALL_FIELD_ARGUMENT_STATUS_FLAG_NO_BLOCKING_MODE);
+  process_Flag_and_Mode_Args(
+      args_map, status_flag, O_NONBLOCK,
+      SYSCALL_FIELD_ARGUMENT_STATUS_FLAG_NO_BLOCKING_MODE);
   // set no delay flag
   process_Flag_and_Mode_Args(args_map, status_flag, O_NDELAY,
-			     SYSCALL_FIELD_ARGUMENT_STATUS_FLAG_NO_DELAY);
+                             SYSCALL_FIELD_ARGUMENT_STATUS_FLAG_NO_DELAY);
   // set synchronized IO flag
   process_Flag_and_Mode_Args(args_map, status_flag, O_SYNC,
-			     SYSCALL_FIELD_ARGUMENT_STATUS_FLAG_SYNCHRONOUS);
+                             SYSCALL_FIELD_ARGUMENT_STATUS_FLAG_SYNCHRONOUS);
   // set truncate mode flag
   process_Flag_and_Mode_Args(args_map, status_flag, O_TRUNC,
-			     SYSCALL_FIELD_ARGUMENT_STATUS_FLAG_TRUNCATE);
+                             SYSCALL_FIELD_ARGUMENT_STATUS_FLAG_TRUNCATE);
 
   /*
    * Return remaining unprocessed flags so that caller can
@@ -232,7 +241,7 @@ u_int DataSeriesOutputModule::processFcntlStatusFlags(void **args_map,
  * Fcntl with command F_SETLK, F_SETLKW, or F_GETLK into the map
  */
 void DataSeriesOutputModule::processFcntlFlock(void **args_map,
-					       struct flock *lock) {
+                                               struct flock *lock) {
   if (lock != NULL) {
     // Save the values in the flock structure to the map
     processFcntlFlockType(args_map, lock);
@@ -255,7 +264,7 @@ void DataSeriesOutputModule::processFcntlFlock(void **args_map,
  * and sets the corresponding field in the map
  */
 void DataSeriesOutputModule::processFcntlFlockType(void **args_map,
-						   struct flock *lock) {
+                                                   struct flock *lock) {
   // Save the lock type value into the map
   args_map[SYSCALL_FIELD_LOCK_TYPE] = &lock->l_type;
   u_int type = lock->l_type;
@@ -288,7 +297,7 @@ void DataSeriesOutputModule::processFcntlFlockType(void **args_map,
  * and sets the corresponding field in the map
  */
 void DataSeriesOutputModule::processFcntlFlockWhence(void **args_map,
-						     struct flock *lock) {
+                                                     struct flock *lock) {
   // Save the lock whence value into the map
   args_map[SYSCALL_FIELD_LOCK_WHENCE] = &lock->l_whence;
   u_int whence = lock->l_whence;
@@ -312,7 +321,7 @@ void DataSeriesOutputModule::processFcntlFlockWhence(void **args_map,
     break;
   // If the whence value isn't a known whence value, print a warning message
   default:
-    std:: cerr << "Fcntl: Lock whence is unknown->" << whence << std::endl;
+    std::cerr << "Fcntl: Lock whence is unknown->" << whence << std::endl;
   }
 }
 
@@ -320,8 +329,7 @@ void DataSeriesOutputModule::processFcntlFlockWhence(void **args_map,
  * This function processes the lease value passed to an Fcntl system call with
  * an F_SETLEASE command or returned from an F_GETLEASE command
  */
-void DataSeriesOutputModule::processFcntlLease(void **args_map,
-					       int lease) {
+void DataSeriesOutputModule::processFcntlLease(void **args_map, int lease) {
   /*
    * If the lease argument matches one of the possible values, set the
    * corresponding field in the map to True
@@ -349,28 +357,27 @@ void DataSeriesOutputModule::processFcntlLease(void **args_map,
  * This function processes the notify value passed to an Fcntl system call
  * with an F_NOTIFY command.  It returns any unprocessed notify_value bits.
  */
-u_int DataSeriesOutputModule::processFcntlNotify(void **args_map,
-						 long *args) {
+u_int DataSeriesOutputModule::processFcntlNotify(void **args_map, long *args) {
   u_int notify_value = args[2];
 
   // set access argument bit
   process_Flag_and_Mode_Args(args_map, notify_value, DN_ACCESS,
-			     SYSCALL_FIELD_ARGUMENT_NOTIFY_ACCESS);
+                             SYSCALL_FIELD_ARGUMENT_NOTIFY_ACCESS);
   // set access argument bit
   process_Flag_and_Mode_Args(args_map, notify_value, DN_MODIFY,
-			     SYSCALL_FIELD_ARGUMENT_NOTIFY_MODIFY);
+                             SYSCALL_FIELD_ARGUMENT_NOTIFY_MODIFY);
   // set access argument bit
   process_Flag_and_Mode_Args(args_map, notify_value, DN_CREATE,
-			     SYSCALL_FIELD_ARGUMENT_NOTIFY_CREATE);
+                             SYSCALL_FIELD_ARGUMENT_NOTIFY_CREATE);
   // set access argument bit
   process_Flag_and_Mode_Args(args_map, notify_value, DN_DELETE,
-			     SYSCALL_FIELD_ARGUMENT_NOTIFY_DELETE);
+                             SYSCALL_FIELD_ARGUMENT_NOTIFY_DELETE);
   // set access argument bit
   process_Flag_and_Mode_Args(args_map, notify_value, DN_RENAME,
-			     SYSCALL_FIELD_ARGUMENT_NOTIFY_RENAME);
+                             SYSCALL_FIELD_ARGUMENT_NOTIFY_RENAME);
   // set access argument bit
   process_Flag_and_Mode_Args(args_map, notify_value, DN_ATTRIB,
-			     SYSCALL_FIELD_ARGUMENT_NOTIFY_ATTRIBUTE);
+                             SYSCALL_FIELD_ARGUMENT_NOTIFY_ATTRIBUTE);
 
   /*
    * Return remaining notify flags so that caller can
