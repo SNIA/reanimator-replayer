@@ -34,6 +34,7 @@ class FChmodSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
   // FChmod System Call Trace Fields in Dataseries file
   Int32Field descriptor_;
   Int32Field mode_value_;
+  int32_t traced_fd, mode_value;
 
   /**
    * Print fchmod sys call field values in a nice format
@@ -49,6 +50,20 @@ class FChmodSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
  public:
   FChmodSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
                                     int warn_level_flag);
+  SystemCallTraceReplayModule *move() override {
+    auto movePtr =
+        new FChmodSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    movePtr->setMove(traced_fd, mode_value);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
+    return movePtr;
+  }
+  void setMove(int fd, int mode) {
+    traced_fd = fd;
+    mode_value = mode;
+  }
+  void prepareRow() override;
 };
 
 class FChmodatSystemCallTraceReplayModule

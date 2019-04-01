@@ -17,6 +17,8 @@
  */
 
 #include "ExecveSystemCallTraceReplayModule.hpp"
+#include <sys/socket.h>
+#include <sys/types.h>
 
 ExecveSystemCallTraceReplayModule::ExecveSystemCallTraceReplayModule(
     DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
@@ -54,6 +56,8 @@ void ExecveSystemCallTraceReplayModule::processRow() {
   for (int traced_fd : traced_fds) {
     int flags =
         replayer_resources_manager_.get_flags(executingPidVal, traced_fd);
+    int replayed_fd =
+        replayer_resources_manager_.get_fd(executingPidVal, traced_fd);
     /*
      * Check to see if fd has O_CLOEXEC flag set.
      * If the FD_CLOEXEC bit is set, the file descriptor will automatically
@@ -65,6 +69,12 @@ void ExecveSystemCallTraceReplayModule::processRow() {
      */
     if (((flags & O_CLOEXEC) != 0) && retVal >= 0) {
       replayer_resources_manager_.remove_fd(executingPidVal, traced_fd);
+    }
+
+    if (replayed_fd == SYSCALL_SIMULATED) {
+      if (((flags & SOCK_CLOEXEC) != 0) || ((flags & 0x80000) != 0)) {
+        replayer_resources_manager_.remove_fd(executingPidVal, traced_fd);
+      }
     }
   }
 

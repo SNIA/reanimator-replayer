@@ -34,12 +34,16 @@ void AccessSystemCallTraceReplayModule::print_specific_fields() {
                             "traced mode(",
                             mode_value, "), ", "replayed mode(",
                             get_mode(mode_value), ")");
+  // delete[] pathname;
 }
 
 void AccessSystemCallTraceReplayModule::processRow() {
   // Replay the access system call
   replayed_ret_val_ = access(pathname, get_mode(mode_value));
-  delete pathname;
+
+  if (!verbose_mode()) {
+    delete[] pathname;
+  }
 }
 
 void AccessSystemCallTraceReplayModule::prepareRow() {

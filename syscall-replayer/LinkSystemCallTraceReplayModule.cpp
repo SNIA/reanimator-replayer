@@ -27,16 +27,30 @@ LinkSystemCallTraceReplayModule::LinkSystemCallTraceReplayModule(
 }
 
 void LinkSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("old path(", given_oldpathname_.val(), "), ",
-                            "new path(", given_newpathname_.val(), ")");
+  syscall_logger_->log_info("old path(", old_pathname, "), ", "new path(",
+                            new_pathname, ")");
+  delete[] new_pathname;
+  delete[] old_pathname;
 }
 
 void LinkSystemCallTraceReplayModule::processRow() {
-  const char *old_path_name = (const char *)given_oldpathname_.val();
-  const char *new_path_name = (const char *)given_newpathname_.val();
-
   // Replay the link system call
-  replayed_ret_val_ = link(old_path_name, new_path_name);
+  replayed_ret_val_ = link(old_pathname, new_pathname);
+
+  if (!verbose_mode()) {
+    delete[] new_pathname;
+    delete[] old_pathname;
+  }
+}
+
+void LinkSystemCallTraceReplayModule::prepareRow() {
+  auto old_pathBuf = reinterpret_cast<const char *>(given_oldpathname_.val());
+  old_pathname = new char[std::strlen(old_pathBuf) + 1];
+  std::strncpy(old_pathname, old_pathBuf, std::strlen(old_pathBuf) + 1);
+  auto new_pathBuf = reinterpret_cast<const char *>(given_newpathname_.val());
+  new_pathname = new char[std::strlen(new_pathBuf) + 1];
+  std::strncpy(new_pathname, new_pathBuf, std::strlen(new_pathBuf) + 1);
+  SystemCallTraceReplayModule::prepareRow();
 }
 
 LinkatSystemCallTraceReplayModule::LinkatSystemCallTraceReplayModule(

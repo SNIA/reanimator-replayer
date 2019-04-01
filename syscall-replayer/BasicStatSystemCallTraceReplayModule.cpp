@@ -322,19 +322,17 @@ FStatatSystemCallTraceReplayModule::FStatatSystemCallTraceReplayModule(
 
 void FStatatSystemCallTraceReplayModule::print_specific_fields() {
   pid_t pid = executing_pid();
-  int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
-  syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
-                            "replayed fd(", replayed_fd, ")", "pathname(",
-                            given_pathname_.val(), "), ", "flags_value(",
-                            flags_value_.val(), ")");
+  int replayed_fd = replayer_resources_manager_.get_fd(pid, traced_fd);
+  syscall_logger_->log_info("traced fd(", traced_fd, "), ", "replayed fd(",
+                            replayed_fd, ")", "pathname(", pathname, "), ",
+                            "flags_value(", flag_value, ")");
   BasicStatSystemCallTraceReplayModule::print_specific_fields();
 }
 
 void FStatatSystemCallTraceReplayModule::processRow() {
   struct stat stat_buf;
   pid_t pid = executing_pid();
-  int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
-  char *pathname = (char *)given_pathname_.val();
+  int replayed_fd = replayer_resources_manager_.get_fd(pid, traced_fd);
 
   if (replayed_fd == SYSCALL_SIMULATED) {
     /*
@@ -342,14 +340,23 @@ void FStatatSystemCallTraceReplayModule::processRow() {
      * The system call will not be replayed.
      * Original return value will be returned.
      */
-    replayed_ret_val_ = return_value_.val();
+    replayed_ret_val_ = return_value();
     return;
   }
   // replay the fstat system call
-  replayed_ret_val_ =
-      fstatat(replayed_fd, pathname, &stat_buf, flags_value_.val());
+  replayed_ret_val_ = fstatat(replayed_fd, pathname, &stat_buf, flag_value);
 
   if (verify_) {
     BasicStatSystemCallTraceReplayModule::verifyResult(stat_buf);
   }
+  delete[] pathname;
+}
+
+void FStatatSystemCallTraceReplayModule::prepareRow() {
+  traced_fd = descriptor_.val();
+  flag_value = flags_value_.val();
+  auto pathBuf = reinterpret_cast<const char *>(given_pathname_.val());
+  pathname = new char[std::strlen(pathBuf) + 1];
+  std::strncpy(pathname, pathBuf, std::strlen(pathBuf) + 1);
+  BasicStatSystemCallTraceReplayModule::prepareRow();
 }

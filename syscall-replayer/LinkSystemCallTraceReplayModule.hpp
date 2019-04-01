@@ -32,6 +32,8 @@ class LinkSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
   // Link System Call Trace Fields in Dataseries file
   Variable32Field given_oldpathname_;
   Variable32Field given_newpathname_;
+  char *old_pathname;
+  char *new_pathname;
 
   /**
    * Print link sys call field values in a nice format
@@ -47,6 +49,20 @@ class LinkSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
  public:
   LinkSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
                                   int warn_level_flag);
+  SystemCallTraceReplayModule *move() override {
+    auto movePtr =
+        new LinkSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    movePtr->setMove(old_pathname, new_pathname);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
+    return movePtr;
+  }
+  void setMove(char *old_path, char *new_path) {
+    old_pathname = old_path;
+    new_pathname = new_path;
+  }
+  void prepareRow() override;
 };
 
 class LinkatSystemCallTraceReplayModule

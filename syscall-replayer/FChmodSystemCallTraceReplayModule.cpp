@@ -39,8 +39,8 @@ void FChmodSystemCallTraceReplayModule::print_specific_fields() {
 
 void FChmodSystemCallTraceReplayModule::processRow() {
   pid_t pid = executing_pid();
-  int fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
-  mode_t mode = get_mode(mode_value_.val());
+  int fd = replayer_resources_manager_.get_fd(pid, traced_fd);
+  mode_t mode = get_mode(mode_value);
 
   if (fd == SYSCALL_SIMULATED) {
     /*
@@ -48,11 +48,17 @@ void FChmodSystemCallTraceReplayModule::processRow() {
      * The system call will not be replayed.
      * Traced return value will be returned.
      */
-    replayed_ret_val_ = return_value_.val();
+    replayed_ret_val_ = return_value();
     return;
   }
   // Replay the fchmod system call
   replayed_ret_val_ = fchmod(fd, mode);
+}
+
+void FChmodSystemCallTraceReplayModule::prepareRow() {
+  traced_fd = descriptor_.val();
+  mode_value = mode_value_.val();
+  SystemCallTraceReplayModule::prepareRow();
 }
 
 FChmodatSystemCallTraceReplayModule::FChmodatSystemCallTraceReplayModule(

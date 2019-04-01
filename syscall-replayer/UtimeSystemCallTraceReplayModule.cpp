@@ -47,10 +47,9 @@ void UtimeSystemCallTraceReplayModule::print_specific_fields() {
 void UtimeSystemCallTraceReplayModule::processRow() {
   // Get replaying file given_pathname.
   struct utimbuf utimebuf;
-  auto pathname = reinterpret_cast<const char *>(given_pathname_.val());
 
   // Replay the utime system call.
-  if ((access_time_.isNull()) && (mod_time_.isNull())) {
+  if (access_t != -1 && mod_t != -1) {
     /*
      * If access_time and mod_time are both null, then assume the utimbuf
      * is NULL.
@@ -63,11 +62,30 @@ void UtimeSystemCallTraceReplayModule::processRow() {
     }
     replayed_ret_val_ = utime(pathname, nullptr);
   } else {
-    utimebuf.actime = Tfrac_to_sec(access_time_.val());
-    utimebuf.modtime = Tfrac_to_sec(mod_time_.val());
+    utimebuf.actime = Tfrac_to_sec(access_t);
+    utimebuf.modtime = Tfrac_to_sec(mod_t);
 
     replayed_ret_val_ = utime(pathname, &utimebuf);
   }
+}
+
+void UtimeSystemCallTraceReplayModule::prepareRow() {
+  auto pathBuf = reinterpret_cast<const char *>(given_pathname_.val());
+  pathname = new char[std::strlen(pathBuf) + 1];
+  std::strncpy(pathname, pathBuf, std::strlen(pathBuf) + 1);
+
+  if (access_time_.isNull()) {
+    access_t = -1;
+  } else {
+    access_t = access_time_.val();
+  }
+
+  if (mod_time_.isNull()) {
+    mod_t = -1;
+  } else {
+    mod_t = mod_time_.val();
+  }
+  SystemCallTraceReplayModule::prepareRow();
 }
 
 UtimesSystemCallTraceReplayModule::UtimesSystemCallTraceReplayModule(

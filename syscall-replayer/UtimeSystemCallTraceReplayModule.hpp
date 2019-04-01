@@ -36,6 +36,9 @@ class UtimeSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
   Variable32Field given_pathname_;
   Int64Field access_time_;
   Int64Field mod_time_;
+  char *pathname;
+  int64_t access_t;
+  int64_t mod_t;
 
   /**
    * Print utime sys call field values in a nice format
@@ -51,6 +54,21 @@ class UtimeSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
  public:
   UtimeSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
                                    bool verify_flag, int warn_level_flag);
+  SystemCallTraceReplayModule *move() override {
+    auto movePtr = new UtimeSystemCallTraceReplayModule(source, verbose_,
+                                                        verify_, warn_level_);
+    movePtr->setMove(pathname, access_t, mod_t);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
+    return movePtr;
+  }
+  void setMove(char *path, int64_t access, int64_t mod) {
+    pathname = path;
+    access_t = access;
+    mod_t = mod;
+  }
+  void prepareRow() override;
 };
 
 class UtimesSystemCallTraceReplayModule

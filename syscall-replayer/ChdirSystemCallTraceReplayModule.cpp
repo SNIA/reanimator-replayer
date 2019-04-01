@@ -27,11 +27,14 @@ ChdirSystemCallTraceReplayModule::ChdirSystemCallTraceReplayModule(
 
 void ChdirSystemCallTraceReplayModule::print_specific_fields() {
   syscall_logger_->log_info("pathname(", pathname, ")");
+  delete[] pathname;
 }
 
 void ChdirSystemCallTraceReplayModule::processRow() {
   replayed_ret_val_ = chdir(pathname);
-  delete[] pathname;
+  if (!verbose_mode()) {
+    delete[] pathname;
+  }
 }
 
 void ChdirSystemCallTraceReplayModule::prepareRow() {

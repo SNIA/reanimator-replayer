@@ -222,6 +222,9 @@ class FStatatSystemCallTraceReplayModule
   Int32Field descriptor_;
   Variable32Field given_pathname_;
   Int32Field flags_value_;
+  int32_t traced_fd;
+  int32_t flag_value;
+  char *pathname;
 
   /**
    * Print fstatat sys call field values in a nice format
@@ -238,5 +241,25 @@ class FStatatSystemCallTraceReplayModule
   FStatatSystemCallTraceReplayModule(DataSeriesModule &source,
                                      bool verbose_flag, bool verify_flag,
                                      int warn_level_flag);
+  SystemCallTraceReplayModule *move() override {
+    auto movePtr = new FStatatSystemCallTraceReplayModule(source, verbose_,
+                                                          verify_, warn_level_);
+    movePtr->setMove(traced_fd, flag_value, pathname);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
+    if (verify_) {
+      movePtr->copyStatStruct(statDev, statINo, statMode, statNLink, statUID,
+                              statGID, statRDev, statBlkSize, statBlocks,
+                              statSize, statATime, statMTime, statCTime);
+    }
+    return movePtr;
+  }
+  void setMove(int fd, int flag, char *path) {
+    traced_fd = fd;
+    flag_value = flag;
+    pathname = path;
+  }
+  void prepareRow() override;
 };
 #endif /* BASIC_STAT_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

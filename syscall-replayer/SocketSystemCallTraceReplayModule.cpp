@@ -41,7 +41,7 @@ void SocketSystemCallTraceReplayModule::processRow() {
      */
     pid_t pid = executing_pid();
     replayer_resources_manager_.add_fd(pid, traced_fd, SYSCALL_SIMULATED,
-                                       0);  // fake FD
+                                       type);  // fake FD
     replayed_ret_val_ = traced_fd;
   } else {
     // Traced socket() call was a failure. Replay returns failure.
