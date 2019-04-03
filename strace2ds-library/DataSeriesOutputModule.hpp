@@ -598,6 +598,12 @@ private:
   // Maps VFork System Call <field, value> pairs
   void makeVForkArgsMap(void **args_map, long *args, void **v_args);
 
+  // Maps epoll_create System Call <field, value> pairs
+  void makeEpollCreateArgsMap(void **args_map, long *args, void **v_args);
+
+  // Maps epoll_create1 System Call <field, value> pairs
+  void makeEpollCreate1ArgsMap(void **args_map, long *args, void **v_args);
+
   // Maps Socket System Call <field, value> pairs
   void makeSocketArgsMap(void **args_map, long *args, void **v_args);
 

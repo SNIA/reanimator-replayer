@@ -30,7 +30,7 @@ void ChrootSystemCallTraceReplayModule::print_specific_fields() {
 }
 
 void ChrootSystemCallTraceReplayModule::processRow() {
-  replayed_ret_val_ = chroot(pathname);
+  // replayed_ret_val_ = chroot(pathname);
   delete[] pathname;
 }
 

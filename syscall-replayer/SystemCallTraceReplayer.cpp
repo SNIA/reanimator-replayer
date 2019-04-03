@@ -347,6 +347,9 @@ std::vector<PrefetchBufferModule *> create_prefetch_buffer_modules(
   system_calls.push_back("fsetxattr");
   system_calls.push_back("ftruncate");
   system_calls.push_back("socket");
+  system_calls.push_back("socketpair");
+  system_calls.push_back("epoll_create");
+  system_calls.push_back("accept");
 
   std::vector<TypeIndexModule *> type_index_modules;
 
@@ -523,6 +526,12 @@ create_system_call_trace_replay_modules(
       *prefetch_buffer_modules[module_index++], verbose, warn_level);
   auto socket_module = new SocketSystemCallTraceReplayModule(
       *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto socketpair_module = new SocketPairSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto epoll_create_module = new EPollCreateSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto accept_module = new AcceptSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
 
   /*
    * This vector is going to used to load replaying modules.
@@ -593,6 +602,9 @@ create_system_call_trace_replay_modules(
   system_call_trace_replay_modules.push_back(fsetxattr_module);
   system_call_trace_replay_modules.push_back(ftruncate_module);
   system_call_trace_replay_modules.push_back(socket_module);
+  system_call_trace_replay_modules.push_back(socketpair_module);
+  system_call_trace_replay_modules.push_back(epoll_create_module);
+  system_call_trace_replay_modules.push_back(accept_module);
 
   return system_call_trace_replay_modules;
 }

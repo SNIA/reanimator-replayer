@@ -282,6 +282,10 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["shutdown"] = &DataSeriesOutputModule::makeShutdownArgsMap;
   // socket system call
   func_ptr_map_["socket"] = &DataSeriesOutputModule::makeSocketArgsMap;
+  // socket system call
+  func_ptr_map_["epoll_create"] = &DataSeriesOutputModule::makeEpollCreateArgsMap;
+  // socket system call
+  func_ptr_map_["epoll_create1"] = &DataSeriesOutputModule::makeEpollCreate1ArgsMap;
   // socketpair system call
   func_ptr_map_["socketpair"] = &DataSeriesOutputModule::makeSocketpairArgsMap;
   // stat system call

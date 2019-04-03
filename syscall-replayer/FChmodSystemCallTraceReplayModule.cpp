@@ -29,12 +29,11 @@ FChmodSystemCallTraceReplayModule::FChmodSystemCallTraceReplayModule(
 
 void FChmodSystemCallTraceReplayModule::print_specific_fields() {
   pid_t pid = executing_pid();
-  int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
+  int replayed_fd = replayer_resources_manager_.get_fd(pid, traced_fd);
 
-  syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
-                            "replayed fd(", replayed_fd, "), ", "traced mode(",
-                            mode_value_.val(), ")", "replayed mode(",
-                            get_mode(mode_value_.val()), ")");
+  syscall_logger_->log_info("traced fd(", traced_fd, "), ", "replayed fd(",
+                            replayed_fd, "), ", "traced mode(", mode_value, ")",
+                            "replayed mode(", get_mode(mode_value), ")");
 }
 
 void FChmodSystemCallTraceReplayModule::processRow() {

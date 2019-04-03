@@ -702,6 +702,8 @@ setrlimit	resource_hard_limit	0	int64
 socket	domain	0	int32
 socket	type	0	int32
 socket	protocol	0	int32
+epoll_create		epoll_size	0	int32
+epoll_create1		epoll_flags	0	int32
 connect	descriptor	0	int32
 connect	sockaddr_buffer	1	variable32
 connect	sockaddr_length	0	int32

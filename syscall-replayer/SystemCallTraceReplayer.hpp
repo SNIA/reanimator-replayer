@@ -6,6 +6,7 @@
 #include <DataSeries/PrefetchBufferModule.hpp>
 #include <DataSeries/TypeIndexModule.hpp>
 
+#include "AcceptSystemCallTraceReplayModule.hpp"
 #include "AccessSystemCallTraceReplayModule.hpp"
 #include "BasicStatSystemCallTraceReplayModule.hpp"
 #include "BasicStatfsSystemCallTraceReplayModule.hpp"
@@ -18,6 +19,7 @@
 #include "CreatSystemCallTraceReplayModule.hpp"
 #include "Dup2SystemCallTraceReplayModule.hpp"
 #include "DupSystemCallTraceReplayModule.hpp"
+#include "EPollCreateSystemCallTraceReplayModule.hpp"
 #include "ExecveSystemCallTraceReplayModule.hpp"
 #include "ExitSystemCallTraceReplayModule.hpp"
 #include "FChdirSystemCallTraceReplayModule.hpp"
@@ -44,6 +46,7 @@
 #include "RenameSystemCallTraceReplayModule.hpp"
 #include "RmdirSystemCallTraceReplayModule.hpp"
 #include "SetxattrSystemCallTraceReplayModule.hpp"
+#include "SocketPairSystemCallTraceReplayModule.hpp"
 #include "SocketSystemCallTraceReplayModule.hpp"
 #include "SymlinkSystemCallTraceReplayModule.hpp"
 #include "TruncateSystemCallTraceReplayModule.hpp"

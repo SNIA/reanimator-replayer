@@ -27,9 +27,8 @@ MunmapSystemCallTraceReplayModule::MunmapSystemCallTraceReplayModule(
 }
 
 void MunmapSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("start_address(",
-                            boost::format("0x%02x") % startAddress, "), ",
-                            "length(", sizeOfMap, ")");
+  syscall_logger_->log_info("start_address(", startAddress, "), ", "length(",
+                            sizeOfMap, ")");
 }
 
 void MunmapSystemCallTraceReplayModule::processRow() {

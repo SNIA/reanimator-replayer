@@ -80,6 +80,8 @@ libstrace2ds_la_SOURCES = DataSeriesOutputModule.cpp 	\
 			  MakeCloneArgsMap.cpp		\
 			  MakeVForkArgsMap.cpp		\
 			  MakeSocketArgsMap.cpp		\
+			  MakeEpollCreateArgsMap.cpp	\
+			  MakeEpollCreate1ArgsMap.cpp	\
 			  MakeConnectArgsMap.cpp	\
 			  MakeBindArgsMap.cpp		\
 			  MakeAcceptArgsMap.cpp		\
@@ -183,6 +185,8 @@ XML_FILES=			\
 	xml/symlinkat.xml	\
 	xml/umask.xml		\
 	xml/socket.xml		\
+	xml/epoll_create.xml	\
+	xml/epoll_create1.xml	\
 	xml/connect.xml		\
 	xml/bind.xml		\
 	xml/listen.xml		\

@@ -86,15 +86,14 @@ int BasicStatSystemCallTraceReplayModule::print_mode_value(u_int st_mode) {
 void BasicStatSystemCallTraceReplayModule::print_specific_fields() {
   syscall_logger_->log_info(
       "device id(", statDev, "), ", "file inode number(", statINo, "), ",
-      "file mode(", boost::format("0x%02x") % print_mode_value(statMode), "), ",
-      "file nlinks(", statNLink, "), ", "file UID(", statUID, "), ",
-      "file GID(", statGID, "), ", "file size(", statSize, "), ",
-      "file blksize(", statBlkSize, "), ", "file blocks(", statBlocks, ") ",
-      "file atime(", boost::format(DEC_PRECISION) % Tfrac_to_sec(statATime),
-      ") ", "file mtime(",
-      boost::format(DEC_PRECISION) % Tfrac_to_sec(statMTime), ") ",
-      "file ctime(", boost::format(DEC_PRECISION) % Tfrac_to_sec(statCTime),
-      ")");
+      "file mode(", print_mode_value(statMode), "), ", "file nlinks(",
+      statNLink, "), ", "file UID(", statUID, "), ", "file GID(", statGID,
+      "), ", "file size(", statSize, "), ", "file blksize(", statBlkSize, "), ",
+      "file blocks(", statBlocks, ") ", "file atime(",
+      boost::format(DEC_PRECISION) % Tfrac_to_sec(statATime), ") ",
+      "file mtime(", boost::format(DEC_PRECISION) % Tfrac_to_sec(statMTime),
+      ") ", "file ctime(",
+      boost::format(DEC_PRECISION) % Tfrac_to_sec(statCTime), ")");
 }
 
 void BasicStatSystemCallTraceReplayModule::copyStatStruct(
@@ -165,11 +164,8 @@ void BasicStatSystemCallTraceReplayModule::verifyResult(
           "Captured file inode: ", statINo, ", ",
           "Replayed file inode: ", replayed_stat_buf.st_ino);
       syscall_logger_->log_warn(
-          "Captured file mode: ",
-          boost::format("0x%02x") % print_mode_value(statMode), ", ",
-          "Replayed file mode: ",
-          boost::format("0x%02x") %
-              print_mode_value(replayed_stat_buf.st_mode));
+          "Captured file mode: ", print_mode_value(statMode), ", ",
+          "Replayed file mode: ", print_mode_value(replayed_stat_buf.st_mode));
       syscall_logger_->log_warn(
           "Captured file nlink: ", statNLink, ", ",
           "Replayed file nlink: ", replayed_stat_buf.st_nlink);
