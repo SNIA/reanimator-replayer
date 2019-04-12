@@ -124,6 +124,8 @@ void DataSeriesOutputModule::initCache() {
 void DataSeriesOutputModule::initArgsMapFuncPtr() {
   // accept system call
   func_ptr_map_["accept"] = &DataSeriesOutputModule::makeAcceptArgsMap;
+  // accept4 system call
+  func_ptr_map_["accept4"] = &DataSeriesOutputModule::makeAccept4ArgsMap;
   // access system call
   func_ptr_map_["access"] = &DataSeriesOutputModule::makeAccessArgsMap;
   // bind system call
@@ -148,6 +150,8 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["dup"] = &DataSeriesOutputModule::makeDupArgsMap;
   // dup2 system call
   func_ptr_map_["dup2"] = &DataSeriesOutputModule::makeDup2ArgsMap;
+  // dup3 system call
+  func_ptr_map_["dup3"] = &DataSeriesOutputModule::makeDup3ArgsMap;
   // execve system call
   func_ptr_map_["execve"] = &DataSeriesOutputModule::makeExecveArgsMap;
   // _exit system call

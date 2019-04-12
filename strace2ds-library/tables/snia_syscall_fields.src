@@ -410,6 +410,9 @@ fork
 dup	descriptor	0	int32
 dup2	old_descriptor	0	int32
 dup2	new_descriptor	0	int32
+dup3	old_descriptor	0	int32
+dup3	new_descriptor	0	int32
+dup3	flags	0	int32
 rename	given_oldname	1	variable32
 rename	full_oldname	1	variable32
 rename	given_newname	1	variable32
@@ -713,6 +716,10 @@ bind	sockaddr_length	0	int32
 accept	descriptor      0	int32
 accept	sockaddr_buffer 1	variable32
 accept	sockaddr_length	1	int32
+accept4	descriptor      0	int32
+accept4	sockaddr_buffer 1	variable32
+accept4	sockaddr_length	1	int32
+accept4	flags	1	int32
 getsockname    descriptor      0       int32
 getsockname    sockaddr_buffer 1       variable32
 getsockname    sockaddr_length 1       int32

@@ -69,6 +69,7 @@ libstrace2ds_la_SOURCES = DataSeriesOutputModule.cpp 	\
 			  MakePipeArgsMap.cpp		\
 			  MakeDupArgsMap.cpp		\
 			  MakeDup2ArgsMap.cpp		\
+			  MakeDup3ArgsMap.cpp		\
 			  MakeFcntlArgsMap.cpp		\
 			  MakeExitArgsMap.cpp		\
 			  MakeExecveArgsMap.cpp		\
@@ -85,6 +86,7 @@ libstrace2ds_la_SOURCES = DataSeriesOutputModule.cpp 	\
 			  MakeConnectArgsMap.cpp	\
 			  MakeBindArgsMap.cpp		\
 			  MakeAcceptArgsMap.cpp		\
+			  MakeAccept4ArgsMap.cpp	\
 			  MakeGetpeernameArgsMap.cpp    \
 			  MakeGetsocknameArgsMap.cpp    \
 			  MakeListenArgsMap.cpp		\
@@ -114,6 +116,7 @@ XML_FILES=			\
 	xml/creat.xml		\
 	xml/dup.xml		\
 	xml/dup2.xml		\
+	xml/dup3.xml		\
 	xml/execve.xml		\
 	xml/fcntl.xml		\
 	xml/fork.xml		\
@@ -191,6 +194,7 @@ XML_FILES=			\
 	xml/bind.xml		\
 	xml/listen.xml		\
 	xml/accept.xml		\
+	xml/accept4.xml		\
 	xml/getsockname.xml     \
 	xml/getpeername.xml	\
 	xml/shutdown.xml	\

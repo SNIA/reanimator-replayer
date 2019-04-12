@@ -503,6 +503,9 @@ private:
   // Maps Dup2 System Call <field, value> pairs
   void makeDup2ArgsMap(void **args_map, long *args, void **v_args);
 
+  // Maps Dup3 System Call <field, value> pairs
+  void makeDup3ArgsMap(void **args_map, long *args, void **v_args);
+
   // Maps Fcntl System Call <field, value> pairs
   void makeFcntlArgsMap(void **args_map, long *args, void **v_args);
 
@@ -615,6 +618,9 @@ private:
 
   // Maps Accept System Call <field, value> pairs
   void makeAcceptArgsMap(void **args_map, long *args, void **v_args);
+
+  // Maps Accept4 System Call <field, value> pairs
+  void makeAccept4ArgsMap(void **args_map, long *args, void **v_args);
 
   // Maps Getsockname System Call <field, value> pairs
   void makeGetsocknameArgsMap(void **args_map, long *args, void **v_args);
