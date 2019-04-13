@@ -135,6 +135,8 @@ class FileDescriptorTableEntry : public BasicEntry {
  private:
   // <traced fd, replayed FileDescriptorEntry>
   std::map<int, FileDescriptorEntry*> fd_table_;
+  // TODO(Umit) might be removed I will take a look at
+  std::mutex fd_table_entry_mutex;
 
  public:
   /**

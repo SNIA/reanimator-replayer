@@ -332,6 +332,7 @@ std::vector<PrefetchBufferModule *> create_prefetch_buffer_modules(
   system_calls.push_back("pipe");
   system_calls.push_back("dup");
   system_calls.push_back("dup2");
+  system_calls.push_back("dup3");
   system_calls.push_back("fcntl");
   system_calls.push_back("exit");
   system_calls.push_back("execve");
@@ -350,6 +351,7 @@ std::vector<PrefetchBufferModule *> create_prefetch_buffer_modules(
   system_calls.push_back("socketpair");
   system_calls.push_back("epoll_create");
   system_calls.push_back("accept");
+  system_calls.push_back("accept4");
 
   std::vector<TypeIndexModule *> type_index_modules;
 
@@ -490,6 +492,8 @@ create_system_call_trace_replay_modules(
       *prefetch_buffer_modules[module_index++], verbose, warn_level);
   auto dup2_module = new Dup2SystemCallTraceReplayModule(
       *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto dup3_module = new Dup3SystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
   auto fcntl_module = new FcntlSystemCallTraceReplayModule(
       *prefetch_buffer_modules[module_index++], verbose, warn_level);
   auto exit_module = new ExitSystemCallTraceReplayModule(
@@ -531,6 +535,8 @@ create_system_call_trace_replay_modules(
   auto epoll_create_module = new EPollCreateSystemCallTraceReplayModule(
       *prefetch_buffer_modules[module_index++], verbose, warn_level);
   auto accept_module = new AcceptSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, warn_level);
+  auto accept4_module = new Accept4SystemCallTraceReplayModule(
       *prefetch_buffer_modules[module_index++], verbose, warn_level);
 
   /*
@@ -587,6 +593,7 @@ create_system_call_trace_replay_modules(
   system_call_trace_replay_modules.push_back(pipe_module);
   system_call_trace_replay_modules.push_back(dup_module);
   system_call_trace_replay_modules.push_back(dup2_module);
+  system_call_trace_replay_modules.push_back(dup3_module);
   system_call_trace_replay_modules.push_back(fcntl_module);
   system_call_trace_replay_modules.push_back(exit_module);
   system_call_trace_replay_modules.push_back(execve_module);
@@ -605,6 +612,7 @@ create_system_call_trace_replay_modules(
   system_call_trace_replay_modules.push_back(socketpair_module);
   system_call_trace_replay_modules.push_back(epoll_create_module);
   system_call_trace_replay_modules.push_back(accept_module);
+  system_call_trace_replay_modules.push_back(accept4_module);
 
   return system_call_trace_replay_modules;
 }

@@ -70,6 +70,7 @@ SYSTEM_CALL_REPLAY_MODULE_OBJECTS = SystemCallTraceReplayer.o \
 				    PipeSystemCallTraceReplayModule.o \
 				    DupSystemCallTraceReplayModule.o \
 				    Dup2SystemCallTraceReplayModule.o \
+				    Dup3SystemCallTraceReplayModule.o \
 				    ExitSystemCallTraceReplayModule.o \
 				    ExecveSystemCallTraceReplayModule.o \
 				    MmapSystemCallTraceReplayModule.o \
@@ -87,6 +88,7 @@ SYSTEM_CALL_REPLAY_MODULE_OBJECTS = SystemCallTraceReplayer.o \
 				    SocketSystemCallTraceReplayModule.o \
 				    SocketPairSystemCallTraceReplayModule.o \
 				    AcceptSystemCallTraceReplayModule.o \
+				    Accept4SystemCallTraceReplayModule.o \
 				    EPollCreateSystemCallTraceReplayModule.o
 
 # Modify following variables if the path of your replayer is different.

@@ -22,6 +22,8 @@
 #include <sys/types.h>
 #include <iostream>
 
+// #define WEBSERVER_TESTING
+
 ReplayerResourcesManager::ReplayerResourcesManager() {}
 
 void ReplayerResourcesManager::initialize(SystemCallTraceReplayLogger *logger,
@@ -431,6 +433,9 @@ std::map<int, FileDescriptorEntry *> &FileDescriptorTableEntry::get_fd_table() {
 
 void FileDescriptorTableEntry::add_fd_entry(int traced_fd, int replayed_fd,
                                             int flags) {
+#ifdef WEBSERVER_TESTING
+  fd_table_entry_mutex.lock();
+#endif
   // fd_table_ shouldn't have an entry for traced_fd if traced_fd is NOT -1
   assert(traced_fd == -1 || fd_table_.find(traced_fd) == fd_table_.end());
   /*
@@ -444,6 +449,9 @@ void FileDescriptorTableEntry::add_fd_entry(int traced_fd, int replayed_fd,
     // Create a FileDescriptorEntry
     fd_table_[traced_fd] = new FileDescriptorEntry(replayed_fd, flags);
   }
+#ifdef WEBSERVER_TESTING
+  fd_table_entry_mutex.unlock();
+#endif
 }
 
 int FileDescriptorTableEntry::remove_fd_entry(int traced_fd) {
@@ -454,11 +462,17 @@ int FileDescriptorTableEntry::remove_fd_entry(int traced_fd) {
   if (!has_fd(traced_fd)) {
     return -1;
   }
+#ifdef WEBSERVER_TESTING
+  fd_table_entry_mutex.lock();
+#endif
   int replayed_fd = fd_table_[traced_fd]->get_fd();
   // Free the memory
   delete fd_table_[traced_fd];
   // Erase the entry
   fd_table_.erase(traced_fd);
+#ifdef WEBSERVER_TESTING
+  fd_table_entry_mutex.unlock();
+#endif
   return replayed_fd;
 }
 

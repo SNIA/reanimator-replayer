@@ -22,6 +22,7 @@
 #include <memory>
 
 static char path_print[256];
+// #define WEBSERVER_TESTING
 
 OpenSystemCallTraceReplayModule::OpenSystemCallTraceReplayModule(
     DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
@@ -41,13 +42,18 @@ void OpenSystemCallTraceReplayModule::print_specific_fields() {
 void OpenSystemCallTraceReplayModule::processRow() {
   // replay the open system call
   replayed_ret_val_ = open(pathname, flags, get_mode(modeVal));
-  if (traced_fd == -1 && replayed_ret_val_ != -1) {
+  if (traced_fd <= -1 && replayed_ret_val_ != -1) {
     /*
      * Original system open failed, but replay system succeeds.
      * Therefore, we will close the replayed fd.
      */
     close(replayed_ret_val_);
   } else {
+#ifdef WEBSERVER_TESTING
+    if (replayer_resources_manager_.has_fd(executingPidVal, traced_fd)) {
+      replayer_resources_manager_.remove_fd(executingPidVal, traced_fd);
+    }
+#endif
     /*
      * Even if traced fd is valid, but replayed fd is -1,
      * we will still add the entry and replay it.
