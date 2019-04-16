@@ -89,11 +89,7 @@ void WriteSystemCallTraceReplayModule::prepareRow() {
   if (nbytes != 0) {
     data_buffer = new char[nbytes];
     if (data_buffer != NULL && replayed_ret_val_ > 0) {
-      if (replayed_ret_val_ != -1) {
-        std::memcpy(data_buffer, dataBuf, replayed_ret_val_);
-      } else {
-        memset(data_buffer, 0, nbytes);
-      }
+      std::memcpy(data_buffer, dataBuf, replayed_ret_val_);
     }
   } else {
     data_buffer = NULL;
