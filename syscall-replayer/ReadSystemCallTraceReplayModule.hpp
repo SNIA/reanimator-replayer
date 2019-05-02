@@ -76,7 +76,7 @@ class PReadSystemCallTraceReplayModule
  private:
   // PRead System Call Trace Fields in Dataseries file
   Int64Field offset_;
-  int64_t off;
+  off_t off;
 
   /**
    * Print pread sys call field values in a nice format
@@ -101,7 +101,7 @@ class PReadSystemCallTraceReplayModule
                        replayerIndex);
     return movePtr;
   }
-  inline void setMove(char *buf, int byte, int fd, int offset,
+  inline void setMove(char *buf, int byte, int fd, off_t offset,
                       char *verifyBuf) {
     ReadSystemCallTraceReplayModule::setMove(buf, byte, fd, verifyBuf);
     off = offset;
