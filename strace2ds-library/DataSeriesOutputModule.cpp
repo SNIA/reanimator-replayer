@@ -580,6 +580,8 @@ bool DataSeriesOutputModule::writeRecord(const char *extent_name_arg, long *args
       }
     }
   }
+
+  return true;
 }
 
 void DataSeriesOutputModule::setIoctlSize(uint64_t size) {
