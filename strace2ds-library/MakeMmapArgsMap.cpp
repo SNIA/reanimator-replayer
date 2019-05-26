@@ -18,9 +18,8 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeMmapArgsMap(void **args_map,
-					     long *args,
-					     void **v_args) {
+void DataSeriesOutputModule::makeMmapArgsMap(void **args_map, long *args,
+                                             void **v_args) {
   // Initialize all non-nullable boolean fields to False.
   initArgsMap(args_map, "mmap");
 
@@ -48,23 +47,23 @@ void DataSeriesOutputModule::makeMmapArgsMap(void **args_map,
 }
 
 u_int DataSeriesOutputModule::processMmapProtectionArgs(void **args_map,
-							u_int mmap_prot_flags) {
+                                                        u_int mmap_prot_flags) {
   /*
    * Process each individual mmap protection bit that has been set
    * in the argument mmap_prot_flags.
    */
   // set exec protection flag
   process_Flag_and_Mode_Args(args_map, mmap_prot_flags, PROT_EXEC,
-			     SYSCALL_FIELD_PROTECTION_EXEC);
+                             SYSCALL_FIELD_PROTECTION_EXEC);
   // set read protection flag
   process_Flag_and_Mode_Args(args_map, mmap_prot_flags, PROT_READ,
-			     SYSCALL_FIELD_PROTECTION_READ);
+                             SYSCALL_FIELD_PROTECTION_READ);
   // set write protection flag
   process_Flag_and_Mode_Args(args_map, mmap_prot_flags, PROT_WRITE,
-			     SYSCALL_FIELD_PROTECTION_WRITE);
+                             SYSCALL_FIELD_PROTECTION_WRITE);
   // set none protection flag
   process_Flag_and_Mode_Args(args_map, mmap_prot_flags, PROT_NONE,
-			     SYSCALL_FIELD_PROTECTION_NONE);
+                             SYSCALL_FIELD_PROTECTION_NONE);
 
   /*
    * Return remaining mmap protection flags so that caller can
@@ -75,56 +74,56 @@ u_int DataSeriesOutputModule::processMmapProtectionArgs(void **args_map,
 }
 
 u_int DataSeriesOutputModule::processMmapFlags(void **args_map,
-					       u_int mmap_flags) {
+                                               u_int mmap_flags) {
   /*
    * Process each individual mmap flag bit that has been set
    * in the argument mmap_flags.
    */
   // set mmap fixed flag
   process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_FIXED,
-			     SYSCALL_FIELD_FLAG_FIXED);
+                             SYSCALL_FIELD_FLAG_FIXED);
   // set mmap shared flag
   process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_SHARED,
-			     SYSCALL_FIELD_FLAG_SHARED);
+                             SYSCALL_FIELD_FLAG_SHARED);
   // set mmap private flag
   process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_PRIVATE,
-			     SYSCALL_FIELD_FLAG_PRIVATE);
+                             SYSCALL_FIELD_FLAG_PRIVATE);
   // set mmap 32bit flag
   process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_32BIT,
-			     SYSCALL_FIELD_FLAG_32BIT);
+                             SYSCALL_FIELD_FLAG_32BIT);
   // set mmap anonymous flag
   process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_ANONYMOUS,
-			     SYSCALL_FIELD_FLAG_ANONYMOUS);
+                             SYSCALL_FIELD_FLAG_ANONYMOUS);
   // set mmap denywrite flag
   process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_DENYWRITE,
-			     SYSCALL_FIELD_FLAG_DENYWRITE);
+                             SYSCALL_FIELD_FLAG_DENYWRITE);
   // set mmap executable flag
   process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_EXECUTABLE,
-			     SYSCALL_FIELD_FLAG_EXECUTABLE);
+                             SYSCALL_FIELD_FLAG_EXECUTABLE);
   // set mmap file flag
   process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_FILE,
-			     SYSCALL_FIELD_FLAG_FILE);
+                             SYSCALL_FIELD_FLAG_FILE);
   // set mmap grows_down flag
   process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_GROWSDOWN,
-			     SYSCALL_FIELD_FLAG_GROWS_DOWN);
+                             SYSCALL_FIELD_FLAG_GROWS_DOWN);
   // set mmap huge TLB flag
   process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_HUGETLB,
-			     SYSCALL_FIELD_FLAG_HUGE_TLB);
+                             SYSCALL_FIELD_FLAG_HUGE_TLB);
   // set mmap locked flag
   process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_LOCKED,
-			     SYSCALL_FIELD_FLAG_LOCKED);
+                             SYSCALL_FIELD_FLAG_LOCKED);
   // set mmap non-blocking flag
   process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_NONBLOCK,
-			     SYSCALL_FIELD_FLAG_NON_BLOCK);
+                             SYSCALL_FIELD_FLAG_NON_BLOCK);
   // set mmap no reserve flag
   process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_NORESERVE,
-			     SYSCALL_FIELD_FLAG_NO_RESERVE);
+                             SYSCALL_FIELD_FLAG_NO_RESERVE);
   // set mmap populate flag
   process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_POPULATE,
-			     SYSCALL_FIELD_FLAG_POPULATE);
+                             SYSCALL_FIELD_FLAG_POPULATE);
   // set mmap stack flag
   process_Flag_and_Mode_Args(args_map, mmap_flags, MAP_STACK,
-			     SYSCALL_FIELD_FLAG_STACK);
+                             SYSCALL_FIELD_FLAG_STACK);
 
   /*
    * Return remaining mmap flags so that caller can

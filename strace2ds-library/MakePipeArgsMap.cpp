@@ -18,14 +18,13 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makePipeArgsMap(void **args_map,
-					     long *args,
-					     void **v_args) {
+void DataSeriesOutputModule::makePipeArgsMap(void **args_map, long *args,
+                                             void **v_args) {
   static int pipefd[2];
 
   if (v_args[0] != NULL) {
-    pipefd[0] = ((int *) v_args[0])[0];
-    pipefd[1] = ((int *) v_args[0])[1];
+    pipefd[0] = ((int *)v_args[0])[0];
+    pipefd[1] = ((int *)v_args[0])[1];
   } else {
     /*
      * In the case of a NULL file descriptor array, set

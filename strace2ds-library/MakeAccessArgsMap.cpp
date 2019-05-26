@@ -18,9 +18,8 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeAccessArgsMap(void **args_map,
-					       long *args,
-					       void **v_args) {
+void DataSeriesOutputModule::makeAccessArgsMap(void **args_map, long *args,
+                                               void **v_args) {
   // Initialize all non-nullable boolean fields to False.
   initArgsMap(args_map, "access");
   u_int mode_offset = 1;

@@ -18,9 +18,8 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeMunmapArgsMap(void **args_map,
-					       long *args,
-					       void **v_args) {
+void DataSeriesOutputModule::makeMunmapArgsMap(void **args_map, long *args,
+                                               void **v_args) {
   args_map[SYSCALL_FIELD_START_ADDRESS] = &args[0];
   args_map[SYSCALL_FIELD_LENGTH] = &args[1];
 }

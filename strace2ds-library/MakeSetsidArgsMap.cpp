@@ -18,8 +18,7 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeSetsidArgsMap(void **args_map,
-					       long *args,
-					       void **v_args) {
+void DataSeriesOutputModule::makeSetsidArgsMap(void **args_map, long *args,
+                                               void **v_args) {
   // Takes no arguments
 }

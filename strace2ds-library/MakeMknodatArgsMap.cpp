@@ -18,9 +18,8 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeMknodatArgsMap(void **args_map,
-						long *args,
-						void **v_args) {
+void DataSeriesOutputModule::makeMknodatArgsMap(void **args_map, long *args,
+                                                void **v_args) {
   static int32_t dev;
   args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
   initArgsMap(args_map, "mknodat");
@@ -41,13 +40,12 @@ void DataSeriesOutputModule::makeMknodatArgsMap(void **args_map,
   }
 
   if ((args[2] & S_IFCHR) || (args[2] & S_IFBLK)) {
-    dev = (int32_t) args[3];
+    dev = (int32_t)args[3];
     args_map[SYSCALL_FIELD_DEV] = &dev;
   }
 }
 
-mode_t DataSeriesOutputModule::processMknodType(void **args_map,
-						mode_t mode) {
+mode_t DataSeriesOutputModule::processMknodType(void **args_map, mode_t mode) {
   static u_int type;
 
   /*

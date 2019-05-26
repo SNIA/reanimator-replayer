@@ -15,9 +15,8 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeSocketpairArgsMap(void **args_map,
-						   long *args,
-						   void **v_args) {
+void DataSeriesOutputModule::makeSocketpairArgsMap(void **args_map, long *args,
+                                                   void **v_args) {
   static int sv[2];
 
   args_map[SYSCALL_FIELD_DOMAIN] = &args[0];
@@ -25,8 +24,8 @@ void DataSeriesOutputModule::makeSocketpairArgsMap(void **args_map,
   args_map[SYSCALL_FIELD_PROTOCOL] = &args[2];
 
   if (v_args[0] != NULL) {
-    sv[0] = ((int *) v_args[0])[0];
-    sv[1] = ((int *) v_args[0])[1];
+    sv[0] = ((int *)v_args[0])[0];
+    sv[1] = ((int *)v_args[0])[1];
   } else {
     /*
      * In the case of a NULL socket array, set

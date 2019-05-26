@@ -18,9 +18,8 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeVForkArgsMap(void **args_map,
-					      long *args,
-					      void **v_args) {
+void DataSeriesOutputModule::makeVForkArgsMap(void **args_map, long *args,
+                                              void **v_args) {
   /*
    * VFork takes no arguments, so we do not need to set any specific
    * fields in args_map

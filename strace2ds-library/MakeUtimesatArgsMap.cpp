@@ -18,9 +18,8 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeUtimensatArgsMap(void **args_map,
-						  long *args,
-						  void **v_args) {
+void DataSeriesOutputModule::makeUtimensatArgsMap(void **args_map, long *args,
+                                                  void **v_args) {
   static uint64_t access_time_Tfrac;
   static uint64_t mod_time_Tfrac;
   initArgsMap(args_map, "utimensat");
@@ -29,11 +28,15 @@ void DataSeriesOutputModule::makeUtimensatArgsMap(void **args_map,
   if (args[0] == AT_FDCWD) {
     args_map[SYSCALL_FIELD_DESCRIPTOR_CURRENT_WORKING_DIRECTORY] = &true_;
     if (v_args[0] == NULL) {
-      std::cerr << "Utimensat: Pathname is set as NULL and dirfd is set as AT_FDCWD!!" << std::endl;
+      std::cerr
+          << "Utimensat: Pathname is set as NULL and dirfd is set as AT_FDCWD!!"
+          << std::endl;
     }
   } else {
     if (v_args[0] == NULL && (args[3] & AT_SYMLINK_NOFOLLOW)) {
-      std::cerr << "Utimensat: Pathname is set as NULL and dirfd is not set as AT_FDCWD and flag contains AT_SYMLINK_NOFOLLOW" << std::endl;
+      std::cerr << "Utimensat: Pathname is set as NULL and dirfd is not set as "
+                   "AT_FDCWD and flag contains AT_SYMLINK_NOFOLLOW"
+                << std::endl;
     }
   }
 
@@ -43,7 +46,7 @@ void DataSeriesOutputModule::makeUtimensatArgsMap(void **args_map,
 
   // If the timespec array is not NULL, set the corresponding values in the map
   if (v_args[1] != NULL) {
-    struct timespec *ts = (struct timespec *) v_args[1];
+    struct timespec *ts = (struct timespec *)v_args[1];
 
     // Check for the special values UTIME_NOW and UTIME_OMIT
     if ((ts[0].tv_nsec == UTIME_NOW) || (ts[1].tv_nsec == UTIME_NOW))
@@ -62,9 +65,9 @@ void DataSeriesOutputModule::makeUtimensatArgsMap(void **args_map,
   args_map[SYSCALL_FIELD_FLAG_VALUE] = &args[3];
   u_int flag = args[3];
   process_Flag_and_Mode_Args(args_map, flag, AT_SYMLINK_NOFOLLOW,
-			     SYSCALL_FIELD_FLAG_SYMLINK_NOFOLLOW);
+                             SYSCALL_FIELD_FLAG_SYMLINK_NOFOLLOW);
   if (flag != 0) {
     std::cerr << "Utimensat: These flags are not processed/unknown->"
-	      << std::hex << flag << std::dec << std::endl;
+              << std::hex << flag << std::dec << std::endl;
   }
 }

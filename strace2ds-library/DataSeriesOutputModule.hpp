@@ -31,30 +31,30 @@
 #include <cstring>
 #include <string>
 
-#include <iostream>
-#include <utility>
-#include <unordered_map>
-#include <sstream>
 #include <atomic>
+#include <iostream>
+#include <sstream>
+#include <unordered_map>
+#include <utility>
 
-#include <DataSeries/ExtentType.hpp>
 #include <DataSeries/DataSeriesFile.hpp>
 #include <DataSeries/DataSeriesModule.hpp>
+#include <DataSeries/ExtentType.hpp>
 
 #include <strace2ds.h>
 
 #include <fcntl.h>
-#include <utime.h>
-#include <sys/stat.h>
-#include <sys/mman.h>
-#include <sys/statfs.h>
-#include <sys/statvfs.h>
-#include <sys/socket.h>
 #include <sched.h>
 #include <signal.h>
-#include <sys/xattr.h>
-#include <sys/time.h>
+#include <sys/mman.h>
 #include <sys/resource.h>
+#include <sys/socket.h>
+#include <sys/stat.h>
+#include <sys/statfs.h>
+#include <sys/statvfs.h>
+#include <sys/time.h>
+#include <sys/xattr.h>
+#include <utime.h>
 #include "strace2ds-enums.h"
 
 class DataSeriesOutputModule;
@@ -76,8 +76,8 @@ class DataSeriesOutputModule;
 typedef std::pair<bool, ExtentType::fieldType> config_table_entry_pair;
 
 /* map<extentname, config_table_entry_pair **> */
-typedef std::unordered_map<std::string,
-		 config_table_entry_pair **> config_table_type;
+typedef std::unordered_map<std::string, config_table_entry_pair **>
+    config_table_type;
 
 /* pair<DS Field, DS field type> */
 typedef std::pair<void *, ExtentType::fieldType> ExtentFieldTypePair;
@@ -89,13 +89,11 @@ typedef ExtentFieldTypePair FieldMap[MAX_SYSCALL_FIELDS];
 typedef std::unordered_map<std::string, FieldMap> ExtentMap;
 
 // map<extent name, OutputModule>
-typedef std::unordered_map<std::string, OutputModule*> OutputModuleMap;
-
+typedef std::unordered_map<std::string, OutputModule *> OutputModuleMap;
 
 // function pointer type for system call args map
-typedef void (DataSeriesOutputModule::*SysCallArgsMapFuncPtr)(void **,
-							      long *,
-							      void **);
+typedef void (DataSeriesOutputModule::*SysCallArgsMapFuncPtr)(void **, long *,
+                                                              void **);
 
 // map<extent_name, SysCallArgsMapFuncPtr>
 typedef std::unordered_map<std::string, SysCallArgsMapFuncPtr> FuncPtrMap;
@@ -106,7 +104,7 @@ typedef std::unordered_map<std::string, int> SyscallNameNumberMap;
 extern unsigned nsyscalls;
 
 class DataSeriesOutputModule {
-public:
+ public:
   static bool true_;
   static bool false_;
 
@@ -114,13 +112,12 @@ public:
   std::unordered_map<long, int> untraced_sys_call_counts_;
 
   // Constructor to set up all extents and fields
-  DataSeriesOutputModule(std::ifstream &table_stream,
-			 const std::string xml_dir,
-			 const char *output_file);
+  DataSeriesOutputModule(std::ifstream &table_stream, const std::string xml_dir,
+                         const char *output_file);
 
   // Register the record and field values into DS fields
   bool writeRecord(const char *extent_name, long *args,
-		   void *common_fields[DS_NUM_COMMON_FIELDS], void **v_args);
+                   void *common_fields[DS_NUM_COMMON_FIELDS], void **v_args);
 
   // Sets the ioctl_size_ variable for an Ioctl System Call
   void setIoctlSize(uint64_t size);
@@ -142,7 +139,7 @@ public:
   // Destructor to delete the module
   ~DataSeriesOutputModule();
 
-private:
+ private:
   OutputModuleMap modules_;
   /*
    * Since OutputModuleMap's value is of type OutputModule*, we create
@@ -199,7 +196,7 @@ private:
   SyscallNameNumberMap syscall_name_num_map;
 
   // Disable copy constructor
-  DataSeriesOutputModule(const DataSeriesOutputModule&);
+  DataSeriesOutputModule(const DataSeriesOutputModule &);
 
   // Initialize config table
   void initConfigTable(std::ifstream &table_stream);
@@ -208,22 +205,19 @@ private:
   void addExtent(const std::string &extent_name, ExtentSeries &series);
 
   // Add a field(system call arg) to the desired extent
-  void addField(const std::string &extent_name,
-		const std::string &field_name,
-		void *field,
-		const ExtentType::fieldType field_type);
+  void addField(const std::string &extent_name, const std::string &field_name,
+                void *field, const ExtentType::fieldType field_type);
 
   // Set corresponding DS field to the given value
-  void setField(const ExtentFieldTypePair& extent_field_value_,
-		void *field_value,
-		int var32);
+  void setField(const ExtentFieldTypePair &extent_field_value_,
+                void *field_value, int var32);
 
   // Set corresponding DS field to null
-  void setFieldNull(const ExtentFieldTypePair& extent_field_value_);
+  void setFieldNull(const ExtentFieldTypePair &extent_field_value_);
 
   template <typename FieldType, typename ValueType>
-  void doSetField(const ExtentFieldTypePair& extent_field_value_,
-		  void *field_value);
+  void doSetField(const ExtentFieldTypePair &extent_field_value_,
+                  void *field_value);
 
   /*
    * Creates mapping of sys call name with the address
@@ -246,8 +240,7 @@ private:
   void initCache();
 
   // Returns the length for field of type variable32
-  int getVariable32FieldLength(void **args_map,
-			       const int field_enum);
+  int getVariable32FieldLength(void **args_map, const int field_enum);
 
   // Initialize args map for given system call
   void initArgsMap(void **args_map, const char *extent_name);
@@ -262,10 +255,8 @@ private:
   void makeOpenatArgsMap(void **args_map, long *args, void **v_args);
 
   // Processes individual flag and mode bits
-  void process_Flag_and_Mode_Args(void **args_map,
-				  unsigned int &num,
-				  int value,
-				  int field_enum);
+  void process_Flag_and_Mode_Args(void **args_map, unsigned int &num, int value,
+                                  int field_enum);
 
   /*
    * Maps individual flag value for Open system call to its corresponding
@@ -400,9 +391,7 @@ private:
   u_int processFAccessatFlags(void **args_map, u_int faccessat_flags);
 
   // Maps individual Access mode bits to the corresponding field names
-  mode_t processAccessMode(void **args_map,
-			   long *args,
-			   u_int mode_offset);
+  mode_t processAccessMode(void **args_map, long *args, u_int mode_offset);
 
   // Maps LSeek System Call <field, value> pairs
   void makeLSeekArgsMap(void **args_map, long *args, void **v_args);
@@ -672,5 +661,5 @@ private:
   void makeSendmsgArgsMap(void **args_map, long *args, void **v_args);
 };
 
-#endif //USE_ENUMS
-#endif // DATA_SERIES_OUTPUT_MODULE_HPP
+#endif  // USE_ENUMS
+#endif  // DATA_SERIES_OUTPUT_MODULE_HPP

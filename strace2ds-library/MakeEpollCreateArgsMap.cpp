@@ -18,8 +18,7 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeEpollCreateArgsMap(void **args_map,
-                                                    long *args,
+void DataSeriesOutputModule::makeEpollCreateArgsMap(void **args_map, long *args,
                                                     void **v_args) {
   args_map[SYSCALL_FIELD_EPOLL_SIZE] = &args[0];
 }

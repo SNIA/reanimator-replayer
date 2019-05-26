@@ -18,9 +18,8 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeFallocateArgsMap(void **args_map,
-					      long *args,
-					      void **v_args) {
+void DataSeriesOutputModule::makeFallocateArgsMap(void **args_map, long *args,
+                                                  void **v_args) {
   args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
   args_map[SYSCALL_FIELD_MODE_VALUE] = &args[1];
   args_map[SYSCALL_FIELD_ALLOCATE_OFFSET] = &args[2];

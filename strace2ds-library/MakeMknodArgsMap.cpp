@@ -18,9 +18,8 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeMknodArgsMap(void **args_map,
-					      long *args,
-					      void **v_args) {
+void DataSeriesOutputModule::makeMknodArgsMap(void **args_map, long *args,
+                                              void **v_args) {
   static int32_t dev;
   initArgsMap(args_map, "mknod");
   if (v_args[0] != NULL) {
@@ -39,7 +38,7 @@ void DataSeriesOutputModule::makeMknodArgsMap(void **args_map,
   }
 
   if ((args[1] & S_IFCHR) || (args[1] & S_IFBLK)) {
-    dev = (int32_t) args[2];
+    dev = (int32_t)args[2];
     args_map[SYSCALL_FIELD_DEV] = &dev;
   }
 }

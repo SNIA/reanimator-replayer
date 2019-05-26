@@ -18,9 +18,8 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeLStatArgsMap(void **args_map,
-					      long *args,
-					      void **v_args) {
+void DataSeriesOutputModule::makeLStatArgsMap(void **args_map, long *args,
+                                              void **v_args) {
   if (v_args[0] != NULL) {
     args_map[SYSCALL_FIELD_GIVEN_PATHNAME] = &v_args[0];
   } else {
@@ -28,7 +27,7 @@ void DataSeriesOutputModule::makeLStatArgsMap(void **args_map,
   }
 
   if (v_args[1] != NULL) {
-    struct stat *statbuf = (struct stat *) v_args[1];
+    struct stat *statbuf = (struct stat *)v_args[1];
 
     args_map[SYSCALL_FIELD_STAT_RESULT_DEV] = &statbuf->st_dev;
     args_map[SYSCALL_FIELD_STAT_RESULT_INO] = &statbuf->st_ino;

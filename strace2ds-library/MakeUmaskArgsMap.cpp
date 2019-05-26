@@ -18,9 +18,8 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeUmaskArgsMap(void **args_map,
-					      long *args,
-					      void **v_args) {
+void DataSeriesOutputModule::makeUmaskArgsMap(void **args_map, long *args,
+                                              void **v_args) {
   initArgsMap(args_map, "umask");
   int mode_offset = 0;
   mode_t mode = processMode(args_map, args, mode_offset);

@@ -18,9 +18,8 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeReadaheadArgsMap(void **args_map,
-					      long *args,
-					      void **v_args) {
+void DataSeriesOutputModule::makeReadaheadArgsMap(void **args_map, long *args,
+                                                  void **v_args) {
   args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
   args_map[SYSCALL_FIELD_READAHEAD_SIZE] = &args[1];
   args_map[SYSCALL_FIELD_READAHEAD_OFF] = &args[2];

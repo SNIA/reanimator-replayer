@@ -18,16 +18,15 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeFStatfsArgsMap(void **args_map,
-						long *args,
-						void **v_args) {
+void DataSeriesOutputModule::makeFStatfsArgsMap(void **args_map, long *args,
+                                                void **v_args) {
   // Initialize all non-nullable boolean fields to False.
   initArgsMap(args_map, "fstatfs");
 
   args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
 
   if (v_args[0] != NULL) {
-    struct statfs *statfsbuf = (struct statfs *) v_args[0];
+    struct statfs *statfsbuf = (struct statfs *)v_args[0];
 
     args_map[SYSCALL_FIELD_STATFS_RESULT_TYPE] = &statfsbuf->f_type;
     args_map[SYSCALL_FIELD_STATFS_RESULT_BSIZE] = &statfsbuf->f_bsize;
@@ -59,34 +58,36 @@ u_int DataSeriesOutputModule::processStatfsFlags(void **args_map,
    */
   // set mandatory lock flag
   process_Flag_and_Mode_Args(args_map, statfs_flags, ST_MANDLOCK,
-                            SYSCALL_FIELD_STATFS_RESULT_FLAGS_MANDATORY_LOCK);
+                             SYSCALL_FIELD_STATFS_RESULT_FLAGS_MANDATORY_LOCK);
   // set no access time flag
   process_Flag_and_Mode_Args(args_map, statfs_flags, ST_NOATIME,
-                            SYSCALL_FIELD_STATFS_RESULT_FLAGS_NO_ACCESS_TIME);
+                             SYSCALL_FIELD_STATFS_RESULT_FLAGS_NO_ACCESS_TIME);
   // set no dev flag
   process_Flag_and_Mode_Args(args_map, statfs_flags, ST_NODEV,
-                            SYSCALL_FIELD_STATFS_RESULT_FLAGS_NO_DEV);
+                             SYSCALL_FIELD_STATFS_RESULT_FLAGS_NO_DEV);
   // set no directory access time flag
-  process_Flag_and_Mode_Args(args_map, statfs_flags, ST_NODIRATIME,
-                            SYSCALL_FIELD_STATFS_RESULT_FLAGS_NO_DIRECTORY_ACCESS_TIME);
+  process_Flag_and_Mode_Args(
+      args_map, statfs_flags, ST_NODIRATIME,
+      SYSCALL_FIELD_STATFS_RESULT_FLAGS_NO_DIRECTORY_ACCESS_TIME);
   // set no exec flag
   process_Flag_and_Mode_Args(args_map, statfs_flags, ST_NOEXEC,
-                            SYSCALL_FIELD_STATFS_RESULT_FLAGS_NO_EXEC);
+                             SYSCALL_FIELD_STATFS_RESULT_FLAGS_NO_EXEC);
   // set no set uid flag
   process_Flag_and_Mode_Args(args_map, statfs_flags, ST_NOSUID,
-                            SYSCALL_FIELD_STATFS_RESULT_FLAGS_NO_SET_UID);
+                             SYSCALL_FIELD_STATFS_RESULT_FLAGS_NO_SET_UID);
   // set read only flag
   process_Flag_and_Mode_Args(args_map, statfs_flags, ST_RDONLY,
-                            SYSCALL_FIELD_STATFS_RESULT_FLAGS_READ_ONLY);
+                             SYSCALL_FIELD_STATFS_RESULT_FLAGS_READ_ONLY);
   // set relative access time flag
-  process_Flag_and_Mode_Args(args_map, statfs_flags, ST_RELATIME,
-                            SYSCALL_FIELD_STATFS_RESULT_FLAGS_RELATIVE_ACCESS_TIME);
+  process_Flag_and_Mode_Args(
+      args_map, statfs_flags, ST_RELATIME,
+      SYSCALL_FIELD_STATFS_RESULT_FLAGS_RELATIVE_ACCESS_TIME);
   // set synchronous flag
   process_Flag_and_Mode_Args(args_map, statfs_flags, ST_SYNCHRONOUS,
-                            SYSCALL_FIELD_STATFS_RESULT_FLAGS_SYNCHRONOUS);
+                             SYSCALL_FIELD_STATFS_RESULT_FLAGS_SYNCHRONOUS);
   // set valid flag (f_flags support is implemented)
   process_Flag_and_Mode_Args(args_map, statfs_flags, ST_VALID,
-           SYSCALL_FIELD_STATFS_RESULT_FLAGS_VALID);
+                             SYSCALL_FIELD_STATFS_RESULT_FLAGS_VALID);
 
   /*
    * Return remaining statfs flags so that caller can

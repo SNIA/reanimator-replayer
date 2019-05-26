@@ -18,9 +18,8 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeSendArgsMap(void **args_map,
-					      long *args,
-					      void **v_args) {
+void DataSeriesOutputModule::makeSendArgsMap(void **args_map, long *args,
+                                             void **v_args) {
   // Initialize all non-nullable boolean fields to False.
   initArgsMap(args_map, "send");
   args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
@@ -36,32 +35,32 @@ void DataSeriesOutputModule::makeSendArgsMap(void **args_map,
 }
 
 u_int DataSeriesOutputModule::processSendFlags(void **args_map,
-					       u_int send_flags) {
+                                               u_int send_flags) {
   /*
    * Process each individual send flag bit that has been set
    * in the argument send_flags.
    */
   // set send confirm flag
   process_Flag_and_Mode_Args(args_map, send_flags, MSG_CONFIRM,
-			     SYSCALL_FIELD_FLAG_CONFIRM);
+                             SYSCALL_FIELD_FLAG_CONFIRM);
   // set send dontroute flag
   process_Flag_and_Mode_Args(args_map, send_flags, MSG_DONTROUTE,
-			     SYSCALL_FIELD_FLAG_DONTROUTE);
+                             SYSCALL_FIELD_FLAG_DONTROUTE);
   // set send dontwait flag
   process_Flag_and_Mode_Args(args_map, send_flags, MSG_DONTWAIT,
-			     SYSCALL_FIELD_FLAG_DONTWAIT);
+                             SYSCALL_FIELD_FLAG_DONTWAIT);
   // set send eor flag
   process_Flag_and_Mode_Args(args_map, send_flags, MSG_EOR,
-			     SYSCALL_FIELD_FLAG_EOR);
+                             SYSCALL_FIELD_FLAG_EOR);
   // set send more flag
   process_Flag_and_Mode_Args(args_map, send_flags, MSG_MORE,
-			     SYSCALL_FIELD_FLAG_MORE);
+                             SYSCALL_FIELD_FLAG_MORE);
   // set send nosignal flag
   process_Flag_and_Mode_Args(args_map, send_flags, MSG_NOSIGNAL,
-			     SYSCALL_FIELD_FLAG_NOSIGNAL);
+                             SYSCALL_FIELD_FLAG_NOSIGNAL);
   // set send oob flag
   process_Flag_and_Mode_Args(args_map, send_flags, MSG_OOB,
-			     SYSCALL_FIELD_FLAG_OOB);
+                             SYSCALL_FIELD_FLAG_OOB);
   /*
    * Return remaining send flags so that caller can
    * warn of unknown flags if the send_flags is not set

@@ -21,9 +21,8 @@
  * incomplete.
  */
 
-void DataSeriesOutputModule::makeRecvArgsMap(void **args_map,
-					     long *args,
-					     void **v_args) {
+void DataSeriesOutputModule::makeRecvArgsMap(void **args_map, long *args,
+                                             void **v_args) {
   initArgsMap(args_map, "recv");
   args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
   args_map[SYSCALL_FIELD_DATA_READ] = &v_args[0];
@@ -38,32 +37,32 @@ void DataSeriesOutputModule::makeRecvArgsMap(void **args_map,
 }
 
 u_int DataSeriesOutputModule::processRecvFlags(void **args_map,
-					       u_int recv_flags) {
+                                               u_int recv_flags) {
   /*
    * Process each individual recv flag bit that has been set
    * in the argument recv_flags.
    */
   // set recv cmsg_cloexec flag
   process_Flag_and_Mode_Args(args_map, recv_flags, MSG_CMSG_CLOEXEC,
-			     SYSCALL_FIELD_FLAG_CMSG_CLOEXEC);
+                             SYSCALL_FIELD_FLAG_CMSG_CLOEXEC);
   // set recv dontwait flag
   process_Flag_and_Mode_Args(args_map, recv_flags, MSG_DONTWAIT,
-			     SYSCALL_FIELD_FLAG_DONTWAIT);
+                             SYSCALL_FIELD_FLAG_DONTWAIT);
   // set recv errqueue flag
   process_Flag_and_Mode_Args(args_map, recv_flags, MSG_ERRQUEUE,
-			     SYSCALL_FIELD_FLAG_ERRQUEUE);
+                             SYSCALL_FIELD_FLAG_ERRQUEUE);
   // set recv oob flag
   process_Flag_and_Mode_Args(args_map, recv_flags, MSG_OOB,
-			     SYSCALL_FIELD_FLAG_OOB);
+                             SYSCALL_FIELD_FLAG_OOB);
   // set recv peek flag
   process_Flag_and_Mode_Args(args_map, recv_flags, MSG_PEEK,
-			     SYSCALL_FIELD_FLAG_PEEK);
+                             SYSCALL_FIELD_FLAG_PEEK);
   // set recv trunc flag
   process_Flag_and_Mode_Args(args_map, recv_flags, MSG_TRUNC,
-			     SYSCALL_FIELD_FLAG_TRUNC);
+                             SYSCALL_FIELD_FLAG_TRUNC);
   // set recv waitall flag
   process_Flag_and_Mode_Args(args_map, recv_flags, MSG_WAITALL,
-			     SYSCALL_FIELD_FLAG_WAITALL);
+                             SYSCALL_FIELD_FLAG_WAITALL);
   /*
    * Return remaining recv flags so that caller can
    * warn of unknown flags if the recv_flags is not set as zero.

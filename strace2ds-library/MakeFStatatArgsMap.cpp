@@ -18,9 +18,8 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeFStatatArgsMap(void **args_map,
-						long *args,
-						void **v_args) {
+void DataSeriesOutputModule::makeFStatatArgsMap(void **args_map, long *args,
+                                                void **v_args) {
   // Initialize all non-nullable boolean fields to False.
   initArgsMap(args_map, "fstatat");
 
@@ -33,7 +32,7 @@ void DataSeriesOutputModule::makeFStatatArgsMap(void **args_map,
   }
 
   if (v_args[1] != NULL) {
-    struct stat *statbuf = (struct stat *) v_args[1];
+    struct stat *statbuf = (struct stat *)v_args[1];
 
     args_map[SYSCALL_FIELD_STAT_RESULT_DEV] = &statbuf->st_dev;
     args_map[SYSCALL_FIELD_STAT_RESULT_INO] = &statbuf->st_ino;
@@ -64,26 +63,26 @@ void DataSeriesOutputModule::makeFStatatArgsMap(void **args_map,
 
   u_int flag = processFStatatFlags(args_map, args[3]);
   if (flag != 0) {
-    std::cerr << "FStatat: These flags are not processed/unknown->"
-	      << std::hex << flag << std::dec << std::endl;
+    std::cerr << "FStatat: These flags are not processed/unknown->" << std::hex
+              << flag << std::dec << std::endl;
   }
 }
 
 u_int DataSeriesOutputModule::processFStatatFlags(void **args_map,
-						  u_int fstatat_flags) {
+                                                  u_int fstatat_flags) {
   /*
    * Process each individual statfs flag bit that has been set
    * in the argument fstatat_flags.
    */
   // set at empty path flag
   process_Flag_and_Mode_Args(args_map, fstatat_flags, AT_EMPTY_PATH,
-			     SYSCALL_FIELD_FLAGS_AT_EMPTY_PATH);
+                             SYSCALL_FIELD_FLAGS_AT_EMPTY_PATH);
   // set no auto mount flag
   process_Flag_and_Mode_Args(args_map, fstatat_flags, AT_NO_AUTOMOUNT,
-			     SYSCALL_FIELD_FLAGS_AT_NO_AUTOMOUNT);
+                             SYSCALL_FIELD_FLAGS_AT_NO_AUTOMOUNT);
   // set symlink nofollow flag
   process_Flag_and_Mode_Args(args_map, fstatat_flags, AT_SYMLINK_NOFOLLOW,
-			     SYSCALL_FIELD_FLAGS_AT_SYMLINK_NOFOLLOW);
+                             SYSCALL_FIELD_FLAGS_AT_SYMLINK_NOFOLLOW);
 
   /*
    * Return remaining fstatat flags so that caller can

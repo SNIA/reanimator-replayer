@@ -18,12 +18,11 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeSendmsgArgsMap(void **args_map,
-					      long *args,
-					      void **v_args) {
+void DataSeriesOutputModule::makeSendmsgArgsMap(void **args_map, long *args,
+                                                void **v_args) {
   int iov_number = -1;
   if (v_args[0] != NULL) {
-    iov_number = *(int *) v_args[0];
+    iov_number = *(int *)v_args[0];
   }
 
   /*
@@ -43,11 +42,12 @@ void DataSeriesOutputModule::makeSendmsgArgsMap(void **args_map,
       std::cerr << "Sendmsg: These flag are not processed/unknown->0x";
       std::cerr << std::hex << flag << std::dec << std::endl;
     }
-    if (v_args[0] != NULL && v_args[1] != NULL ) {
+    if (v_args[0] != NULL && v_args[1] != NULL) {
       args_map[SYSCALL_FIELD_IOV_NUMBER] = v_args[0];
       args_map[SYSCALL_FIELD_BYTES_REQUESTED] = v_args[1];
     } else {
-      std::cerr << "Sendmsg: struct msghdr buffer is set as NULL!!" << std::endl;
+      std::cerr << "Sendmsg: struct msghdr buffer is set as NULL!!"
+                << std::endl;
     }
   } else {
     /*

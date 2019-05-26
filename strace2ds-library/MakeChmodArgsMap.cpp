@@ -18,9 +18,8 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeChmodArgsMap(void **args_map,
-					      long *args,
-					      void **v_args) {
+void DataSeriesOutputModule::makeChmodArgsMap(void **args_map, long *args,
+                                              void **v_args) {
   initArgsMap(args_map, "chmod");
   int mode_offset = 1;
   if (v_args[0] != NULL) {

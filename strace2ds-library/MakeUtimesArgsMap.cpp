@@ -18,9 +18,8 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeUtimesArgsMap(void **args_map,
-					       long *args,
-					       void **v_args) {
+void DataSeriesOutputModule::makeUtimesArgsMap(void **args_map, long *args,
+                                               void **v_args) {
   static uint64_t access_time_Tfrac;
   static uint64_t mod_time_Tfrac;
 
@@ -32,7 +31,7 @@ void DataSeriesOutputModule::makeUtimesArgsMap(void **args_map,
 
   // If the timeval array is not NULL, set the corresponding values in the map
   if (v_args[1] != NULL) {
-    struct timeval *tv = (struct timeval *) v_args[1];
+    struct timeval *tv = (struct timeval *)v_args[1];
 
     // Convert timeval arguments to Tfracs (uint64_t)
     access_time_Tfrac = timeval_to_Tfrac(tv[0]);

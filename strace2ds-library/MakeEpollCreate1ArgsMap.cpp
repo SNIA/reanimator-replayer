@@ -19,7 +19,7 @@
 #include "DataSeriesOutputModule.hpp"
 
 void DataSeriesOutputModule::makeEpollCreate1ArgsMap(void **args_map,
-                                                    long *args,
-                                                    void **v_args) {
+                                                     long *args,
+                                                     void **v_args) {
   args_map[SYSCALL_FIELD_EPOLL_FLAGS] = &args[0];
 }

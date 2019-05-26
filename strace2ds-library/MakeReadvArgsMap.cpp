@@ -18,10 +18,9 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeReadvArgsMap(void **args_map,
-					      long *args,
-					      void **v_args) {
-  int iov_number = *(int *) v_args[0];
+void DataSeriesOutputModule::makeReadvArgsMap(void **args_map, long *args,
+                                              void **v_args) {
+  int iov_number = *(int *)v_args[0];
 
   /*
    * iov_number equal to '-1' denotes the first record for the
