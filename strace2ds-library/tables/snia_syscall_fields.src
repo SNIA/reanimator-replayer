@@ -816,3 +816,6 @@ sendmsg	flag_oob	0	bool
 sendmsg	iov_number	0	int32
 sendmsg	bytes_requested	0	int64
 sendmsg	iov_data_written	1	variable32
+mmapread	mmap_descriptor	0	int32
+mmapread	mmap_bytes_requested	0	int64
+mmapread	mmap_data_read	1	variable32

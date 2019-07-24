@@ -279,6 +279,9 @@ class DataSeriesOutputModule {
   // Maps Read System Call <field, value> pairs
   void makeReadArgsMap(void **args_map, long *args, void **v_args);
 
+  // Maps Read System Call <field, value> pairs
+  void makeMmapReadArgsMap(void **args_map, long *args, void **v_args);
+
   // Maps Write System Call <field, value> pairs
   void makeWriteArgsMap(void **args_map, long *args, void **v_args);
 
