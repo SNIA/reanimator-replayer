@@ -263,7 +263,7 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   // readv system call
   func_ptr_map_["readv"] = &DataSeriesOutputModule::makeReadvArgsMap;
   // read system call
-  func_ptr_map_["mmapread"] = &DataSeriesOutputModule::makeMmapReadArgsMap;
+  func_ptr_map_["mmappread"] = &DataSeriesOutputModule::makeMmapPreadArgsMap;
   // recv system call
   func_ptr_map_["recv"] = &DataSeriesOutputModule::makeRecvArgsMap;
   // recvfrom system call
@@ -962,6 +962,7 @@ int DataSeriesOutputModule::getVariable32FieldLength(void **args_map,
       case SYSCALL_FIELD_DATA_WRITTEN:
       case SYSCALL_FIELD_LINK_VALUE:
       case SYSCALL_FIELD_DIRENT_BUFFER:
+      case SYSCALL_FIELD_MMAP_DATA_READ:
         GET_INT_LENGTH(length, args_map, SYSCALL_FIELD_RETURN_VALUE)
         break;
       case SYSCALL_FIELD_IOCTL_BUFFER:

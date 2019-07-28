@@ -162,7 +162,7 @@ void ds_set_ioctl_size(DataSeriesOutputModule *ds_module, int size) {
  * Return the size of the buffer passed to an ioctl system call
  */
 int ds_get_ioctl_size(DataSeriesOutputModule *ds_module) {
-  ((DataSeriesOutputModule *)ds_module)->getIoctlSize();
+  return ((DataSeriesOutputModule *)ds_module)->getIoctlSize();
 }
 
 /*
@@ -187,7 +187,7 @@ void ds_set_clone_ctid_index(DataSeriesOutputModule *ds_module,
  * system call
  */
 unsigned int ds_get_clone_ctid_index(DataSeriesOutputModule *ds_module) {
-  ((DataSeriesOutputModule *)ds_module)->getCloneCTIDIndex();
+  return ((DataSeriesOutputModule *)ds_module)->getCloneCTIDIndex();
 }
 
 /*

@@ -2,5 +2,5 @@
 *.lo
 *.a
 *.so
-autom4te.cache
 *.xml
+autom4te.cache
