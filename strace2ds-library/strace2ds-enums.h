@@ -1,5 +1,5 @@
 /*
- * This file was auto generated on Mon Jul 29 03:49:06 2019.
+ * This file was auto generated on Fri Aug 16 12:09:18 2019.
  * DO NOT EDIT BY HAND.
  */
 #ifdef USE_ENUMS
@@ -106,7 +106,8 @@ enum syscall_names {
 	SYSCALL_NAME_SENDTO = 99,
 	SYSCALL_NAME_SENDMSG = 100,
 	SYSCALL_NAME_MMAPPREAD = 101,
-	MAX_SYSCALL_NAMES = 102
+	SYSCALL_NAME_MMAPPWRITE = 102,
+	MAX_SYSCALL_NAMES = 103
 };
 
 enum syscall_fields {
@@ -502,6 +503,7 @@ enum syscall_fields {
 #define SYSCALL_NAME_MKNODAT "mknodat"
 #define SYSCALL_NAME_MMAP "mmap"
 #define SYSCALL_NAME_MMAPPREAD "mmappread"
+#define SYSCALL_NAME_MMAPPWRITE "mmappwrite"
 #define SYSCALL_NAME_MUNMAP "munmap"
 #define SYSCALL_NAME_OPEN "open"
 #define SYSCALL_NAME_OPENAT "openat"

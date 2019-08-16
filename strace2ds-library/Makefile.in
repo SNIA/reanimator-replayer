@@ -140,7 +140,8 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 libstrace2ds_la_LIBADD =
 am_libstrace2ds_la_OBJECTS = DataSeriesOutputModule.lo \
 	MakeCloseArgsMap.lo MakeOpenArgsMap.lo MakeOpenAtArgsMap.lo \
-	MakeReadArgsMap.lo MakeMmapPreadArgsMap.lo MakeWriteArgsMap.lo \
+	MakeReadArgsMap.lo MakeMmapPreadArgsMap.lo \
+	MakeMmapPwriteArgsMap.lo MakeWriteArgsMap.lo \
 	MakeChdirArgsMap.lo MakeChrootArgsMap.lo MakeRmdirArgsMap.lo \
 	MakeUnlinkArgsMap.lo MakeUnlinkAtArgsMap.lo \
 	MakeMkdirArgsMap.lo MakeMkdirAtArgsMap.lo MakeCreatArgsMap.lo \
@@ -260,6 +261,7 @@ am__depfiles_remade = ./$(DEPDIR)/DataSeriesOutputModule.Plo \
 	./$(DEPDIR)/MakeMknodatArgsMap.Plo \
 	./$(DEPDIR)/MakeMmapArgsMap.Plo \
 	./$(DEPDIR)/MakeMmapPreadArgsMap.Plo \
+	./$(DEPDIR)/MakeMmapPwriteArgsMap.Plo \
 	./$(DEPDIR)/MakeOpenArgsMap.Plo \
 	./$(DEPDIR)/MakeOpenAtArgsMap.Plo \
 	./$(DEPDIR)/MakePReadArgsMap.Plo \
@@ -500,6 +502,7 @@ libstrace2ds_la_SOURCES = DataSeriesOutputModule.cpp 	\
 			  MakeOpenAtArgsMap.cpp      	\
 			  MakeReadArgsMap.cpp        	\
 			  MakeMmapPreadArgsMap.cpp     	\
+			  MakeMmapPwriteArgsMap.cpp    	\
 			  MakeWriteArgsMap.cpp       	\
 			  MakeChdirArgsMap.cpp       	\
 			  MakeChrootArgsMap.cpp       	\
@@ -633,6 +636,7 @@ XML_FILES = \
 	xml/pwrite.xml		\
 	xml/read.xml		\
 	xml/mmappread.xml	\
+	xml/mmappwrite.xml	\
 	xml/readlink.xml	\
 	xml/readv.xml		\
 	xml/rename.xml		\
@@ -866,6 +870,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MakeMknodatArgsMap.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MakeMmapArgsMap.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MakeMmapPreadArgsMap.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MakeMmapPwriteArgsMap.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MakeOpenArgsMap.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MakeOpenAtArgsMap.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MakePReadArgsMap.Plo@am__quote@ # am--include-marker
@@ -1337,6 +1342,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/MakeMknodatArgsMap.Plo
 	-rm -f ./$(DEPDIR)/MakeMmapArgsMap.Plo
 	-rm -f ./$(DEPDIR)/MakeMmapPreadArgsMap.Plo
+	-rm -f ./$(DEPDIR)/MakeMmapPwriteArgsMap.Plo
 	-rm -f ./$(DEPDIR)/MakeOpenArgsMap.Plo
 	-rm -f ./$(DEPDIR)/MakeOpenAtArgsMap.Plo
 	-rm -f ./$(DEPDIR)/MakePReadArgsMap.Plo
@@ -1487,6 +1493,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/MakeMknodatArgsMap.Plo
 	-rm -f ./$(DEPDIR)/MakeMmapArgsMap.Plo
 	-rm -f ./$(DEPDIR)/MakeMmapPreadArgsMap.Plo
+	-rm -f ./$(DEPDIR)/MakeMmapPwriteArgsMap.Plo
 	-rm -f ./$(DEPDIR)/MakeOpenArgsMap.Plo
 	-rm -f ./$(DEPDIR)/MakeOpenAtArgsMap.Plo
 	-rm -f ./$(DEPDIR)/MakePReadArgsMap.Plo

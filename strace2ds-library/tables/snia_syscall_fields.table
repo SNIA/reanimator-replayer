@@ -1,5 +1,5 @@
 # SNIA SYSCALL TABLE FILE
-# DO NOT EDIT BY HAND: Auto-generated on Mon Jul 29 03:49:06 2019
+# DO NOT EDIT BY HAND: Auto-generated on Fri Aug 16 12:09:18 2019
 # Format: syscall_name syscall_id field_id field_name is_nullable type
 Common	0	312	time_called	1	int64
 Common	0	314	time_returned	1	int64
@@ -821,3 +821,7 @@ mmappread	101	189	mmap_descriptor	0	int32
 mmappread	101	187	mmap_bytes_requested	0	int64
 mmappread	101	188	mmap_data_read	1	variable32
 mmappread	101	190	mmap_offset	0	int64
+mmappwrite	102	189	mmap_descriptor	0	int32
+mmappwrite	102	187	mmap_bytes_requested	0	int64
+mmappwrite	102	188	mmap_data_read	1	variable32
+mmappwrite	102	190	mmap_offset	0	int64

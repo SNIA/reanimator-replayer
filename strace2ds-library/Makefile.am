@@ -6,6 +6,7 @@ libstrace2ds_la_SOURCES = DataSeriesOutputModule.cpp 	\
 			  MakeOpenAtArgsMap.cpp      	\
 			  MakeReadArgsMap.cpp        	\
 			  MakeMmapPreadArgsMap.cpp     	\
+			  MakeMmapPwriteArgsMap.cpp    	\
 			  MakeWriteArgsMap.cpp       	\
 			  MakeChdirArgsMap.cpp       	\
 			  MakeChrootArgsMap.cpp       	\
@@ -140,6 +141,7 @@ XML_FILES=			\
 	xml/pwrite.xml		\
 	xml/read.xml		\
 	xml/mmappread.xml	\
+	xml/mmappwrite.xml	\
 	xml/readlink.xml	\
 	xml/readv.xml		\
 	xml/rename.xml		\

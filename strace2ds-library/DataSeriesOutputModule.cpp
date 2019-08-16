@@ -262,8 +262,10 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
   func_ptr_map_["readlink"] = &DataSeriesOutputModule::makeReadlinkArgsMap;
   // readv system call
   func_ptr_map_["readv"] = &DataSeriesOutputModule::makeReadvArgsMap;
-  // read system call
+  // mmappread system call
   func_ptr_map_["mmappread"] = &DataSeriesOutputModule::makeMmapPreadArgsMap;
+  // mmappread system call
+  func_ptr_map_["mmappwrite"] = &DataSeriesOutputModule::makeMmapPwriteArgsMap;
   // recv system call
   func_ptr_map_["recv"] = &DataSeriesOutputModule::makeRecvArgsMap;
   // recvfrom system call

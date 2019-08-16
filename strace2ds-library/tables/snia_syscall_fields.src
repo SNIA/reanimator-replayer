@@ -820,3 +820,7 @@ mmappread	mmap_descriptor	0	int32
 mmappread	mmap_bytes_requested	0	int64
 mmappread	mmap_data_read	1	variable32
 mmappread	mmap_offset	0	int64
+mmappwrite	mmap_descriptor	0	int32
+mmappwrite	mmap_bytes_requested	0	int64
+mmappwrite	mmap_data_read	1	variable32
+mmappwrite	mmap_offset	0	int64
