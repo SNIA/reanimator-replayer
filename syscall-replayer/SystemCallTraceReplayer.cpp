@@ -291,6 +291,7 @@ std::vector<PrefetchBufferModule *> create_prefetch_buffer_modules(
   system_calls.push_back("write");
   system_calls.push_back("lseek");
   system_calls.push_back("pread");
+  system_calls.push_back("mmappread");
   system_calls.push_back("access");
   system_calls.push_back("faccessat");
   system_calls.push_back("chdir");
@@ -310,6 +311,7 @@ std::vector<PrefetchBufferModule *> create_prefetch_buffer_modules(
   system_calls.push_back("statfs");
   system_calls.push_back("fstatfs");
   system_calls.push_back("pwrite");
+  system_calls.push_back("mmappwrite");
   system_calls.push_back("readlink");
   system_calls.push_back("utime");
   system_calls.push_back("chmod");
@@ -406,6 +408,8 @@ create_system_call_trace_replay_modules(
       *prefetch_buffer_modules[module_index++], verbose, warn_level);
   auto pread_module = new PReadSystemCallTraceReplayModule(
       *prefetch_buffer_modules[module_index++], verbose, verify, warn_level);
+  auto mmappread_module = new MmapPReadSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, verify, warn_level);
   auto access_module = new AccessSystemCallTraceReplayModule(
       *prefetch_buffer_modules[module_index++], verbose, warn_level);
   auto faccessat_module = new FAccessatSystemCallTraceReplayModule(
@@ -442,10 +446,12 @@ create_system_call_trace_replay_modules(
       *prefetch_buffer_modules[module_index++], verbose, verify, warn_level);
   auto fstatfs_module = new FStatfsSystemCallTraceReplayModule(
       *prefetch_buffer_modules[module_index++], verbose, verify, warn_level);
-  PWriteSystemCallTraceReplayModule *pwrite_module =
-      new PWriteSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, verify, warn_level,
-          pattern_data);
+  auto pwrite_module = new PWriteSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, verify, warn_level,
+      pattern_data);
+  auto mmappwrite_module = new MmapPWriteSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, verify, warn_level,
+      pattern_data);
   auto readlink_module = new ReadlinkSystemCallTraceReplayModule(
       *prefetch_buffer_modules[module_index++], verbose, verify, warn_level);
   auto utime_module = new UtimeSystemCallTraceReplayModule(
@@ -552,6 +558,7 @@ create_system_call_trace_replay_modules(
   system_call_trace_replay_modules.push_back(write_module);
   system_call_trace_replay_modules.push_back(lseek_module);
   system_call_trace_replay_modules.push_back(pread_module);
+  system_call_trace_replay_modules.push_back(mmappread_module);
   system_call_trace_replay_modules.push_back(access_module);
   system_call_trace_replay_modules.push_back(faccessat_module);
   system_call_trace_replay_modules.push_back(chdir_module);
@@ -571,6 +578,7 @@ create_system_call_trace_replay_modules(
   system_call_trace_replay_modules.push_back(statfs_module);
   system_call_trace_replay_modules.push_back(fstatfs_module);
   system_call_trace_replay_modules.push_back(pwrite_module);
+  system_call_trace_replay_modules.push_back(mmappwrite_module);
   system_call_trace_replay_modules.push_back(readlink_module);
   system_call_trace_replay_modules.push_back(utime_module);
   system_call_trace_replay_modules.push_back(chmod_module);

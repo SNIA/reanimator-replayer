@@ -964,7 +964,6 @@ int DataSeriesOutputModule::getVariable32FieldLength(void **args_map,
       case SYSCALL_FIELD_DATA_WRITTEN:
       case SYSCALL_FIELD_LINK_VALUE:
       case SYSCALL_FIELD_DIRENT_BUFFER:
-      case SYSCALL_FIELD_MMAP_DATA_READ:
         GET_INT_LENGTH(length, args_map, SYSCALL_FIELD_RETURN_VALUE)
         break;
       case SYSCALL_FIELD_IOCTL_BUFFER:

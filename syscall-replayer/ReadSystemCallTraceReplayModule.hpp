@@ -73,7 +73,7 @@ class ReadSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 
 class PReadSystemCallTraceReplayModule
     : public ReadSystemCallTraceReplayModule {
- private:
+ protected:
   // PRead System Call Trace Fields in Dataseries file
   Int64Field offset_;
   off_t off;
@@ -108,4 +108,13 @@ class PReadSystemCallTraceReplayModule
   }
   void prepareRow() override;
 };
+
+class MmapPReadSystemCallTraceReplayModule
+    : public PReadSystemCallTraceReplayModule {
+ public:
+  MmapPReadSystemCallTraceReplayModule(DataSeriesModule &source,
+                                       bool verbose_flag, bool verify_flag,
+                                       int warn_level_flag);
+};
+
 #endif /* READ_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

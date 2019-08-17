@@ -71,7 +71,7 @@ class WriteSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
 
 class PWriteSystemCallTraceReplayModule
     : public WriteSystemCallTraceReplayModule {
- private:
+ protected:
   // PWrite System Call Trace Fields in Dataseries file
   Int64Field offset_;
 
@@ -90,5 +90,14 @@ class PWriteSystemCallTraceReplayModule
   PWriteSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
                                     bool verify_flag, int warn_level_flag,
                                     std::string pattern_data);
+};
+
+class MmapPWriteSystemCallTraceReplayModule
+    : public PWriteSystemCallTraceReplayModule {
+ public:
+  MmapPWriteSystemCallTraceReplayModule(DataSeriesModule &source,
+                                        bool verbose_flag, bool verify_flag,
+                                        int warn_level_flag,
+                                        std::string pattern_data);
 };
 #endif /* WRITE_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

@@ -171,3 +171,11 @@ void PWriteSystemCallTraceReplayModule::processRow() {
     delete[] data_buffer;
   }
 }
+
+MmapPWriteSystemCallTraceReplayModule::MmapPWriteSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, bool verify_flag,
+    int warn_level_flag, std::string pattern_data)
+    : PWriteSystemCallTraceReplayModule(source, verbose_flag, verify_flag,
+                                        warn_level_flag, pattern_data) {
+  sys_call_name_ = "mmappwrite";
+}
