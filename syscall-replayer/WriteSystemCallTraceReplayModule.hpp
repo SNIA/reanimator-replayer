@@ -74,7 +74,7 @@ class PWriteSystemCallTraceReplayModule
  protected:
   // PWrite System Call Trace Fields in Dataseries file
   Int64Field offset_;
-
+  off_t off;
   /**
    * Print pwrite sys call field values in a nice format
    */
@@ -90,6 +90,20 @@ class PWriteSystemCallTraceReplayModule
   PWriteSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
                                     bool verify_flag, int warn_level_flag,
                                     std::string pattern_data);
+  SystemCallTraceReplayModule *move() override {
+    auto movePtr = new PWriteSystemCallTraceReplayModule(
+        source, verbose_, verify_, warn_level_, pattern_data_);
+    movePtr->setMove(data_buffer, nbytes, traced_fd, off);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
+    return movePtr;
+  }
+  inline void setMove(char *buf, int byte, int fd, off_t offset) {
+    WriteSystemCallTraceReplayModule::setMove(buf, byte, fd);
+    off = offset;
+  }
+  void prepareRow() override;
 };
 
 class MmapPWriteSystemCallTraceReplayModule

@@ -400,10 +400,9 @@ create_system_call_trace_replay_modules(
       *prefetch_buffer_modules[module_index++], verbose, warn_level);
   auto read_module = new ReadSystemCallTraceReplayModule(
       *prefetch_buffer_modules[module_index++], verbose, verify, warn_level);
-  WriteSystemCallTraceReplayModule *write_module =
-      new WriteSystemCallTraceReplayModule(
-          *prefetch_buffer_modules[module_index++], verbose, verify, warn_level,
-          pattern_data);
+  auto write_module = new WriteSystemCallTraceReplayModule(
+      *prefetch_buffer_modules[module_index++], verbose, verify, warn_level,
+      pattern_data);
   auto lseek_module = new LSeekSystemCallTraceReplayModule(
       *prefetch_buffer_modules[module_index++], verbose, warn_level);
   auto pread_module = new PReadSystemCallTraceReplayModule(

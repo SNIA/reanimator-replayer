@@ -108,20 +108,16 @@ PWriteSystemCallTraceReplayModule::PWriteSystemCallTraceReplayModule(
 
 void PWriteSystemCallTraceReplayModule::print_specific_fields() {
   pid_t pid = executing_pid();
-  int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
-  syscall_logger_->log_info(
-      "traced fd(", descriptor_.val(), "), ", "replayed fd(", replayed_fd,
-      "), ", "data(", data_written_.val(), "), ", "nbytes(",
-      bytes_requested_.val(), "), ", "offset(", offset_.val(), ")");
+  int replayed_fd = replayer_resources_manager_.get_fd(pid, traced_fd);
+  syscall_logger_->log_info("traced fd(", traced_fd, "), ", "replayed fd(",
+                            replayed_fd, "), ", "data(", data_buffer, "), ",
+                            "nbytes(", nbytes, "), ", "offset(", off, ")");
 }
 
 void PWriteSystemCallTraceReplayModule::processRow() {
   // Get replaying file descriptor.
   pid_t pid = executing_pid();
-  int fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
-  size_t nbytes = bytes_requested_.val();
-  char *data_buffer = nullptr;
-  int offset = offset_.val();
+  int fd = replayer_resources_manager_.get_fd(pid, traced_fd);
 
   if (fd == SYSCALL_SIMULATED) {
     /*
@@ -129,14 +125,8 @@ void PWriteSystemCallTraceReplayModule::processRow() {
      * The system call will not be replayed.
      * Traced return value will be returned.
      */
-    replayed_ret_val_ = return_value_.val();
+    replayed_ret_val_ = return_value();
     return;
-  }
-
-  // Check to see if write data is NULL in DS or user didn't specify pattern
-  if (data_written_.isNull() && pattern_data_.empty()) {
-    // Let's write zeros.
-    pattern_data_ = "0x0";
   }
 
   // Check to see if user wants to use pattern
@@ -159,17 +149,22 @@ void PWriteSystemCallTraceReplayModule::processRow() {
        */
       memset(data_buffer, pattern, nbytes);
     }
-    replayed_ret_val_ = pwrite(fd, data_buffer, nbytes, offset);
+    replayed_ret_val_ = pwrite(fd, data_buffer, nbytes, off);
   } else {
     // Write the traced data
-    auto data_buffer = reinterpret_cast<const char *>(data_written_.val());
-    replayed_ret_val_ = pwrite(fd, data_buffer, nbytes, offset);
+    replayed_ret_val_ = pwrite(fd, data_buffer, nbytes, off);
   }
 
   // Free the buffer
   if (!pattern_data_.empty() && data_buffer != nullptr) {
     delete[] data_buffer;
   }
+  delete[] data_buffer;
+}
+
+void PWriteSystemCallTraceReplayModule::prepareRow() {
+  off = offset_.val();
+  WriteSystemCallTraceReplayModule::prepareRow();
 }
 
 MmapPWriteSystemCallTraceReplayModule::MmapPWriteSystemCallTraceReplayModule(
