@@ -1,0 +1,2 @@
+REVIEWBOARD_URL = 'https://rb.fsl.cs.sunysb.edu/'
+REPOSITORY = 'trace2model'
