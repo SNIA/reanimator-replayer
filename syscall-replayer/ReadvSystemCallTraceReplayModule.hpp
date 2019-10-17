@@ -23,13 +23,13 @@
 #ifndef READV_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define READV_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 
-#include <unistd.h>
 #include <sys/uio.h>
+#include <unistd.h>
 
 #include "SystemCallTraceReplayModule.hpp"
 
 class ReadvSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-private:
+ private:
   bool verify_;
   // Readv System Call Trace Fields in Dataseries file
   Int32Field descriptor_;
@@ -41,18 +41,16 @@ private:
   /**
    * Print readv sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and then replay an readv system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
-public:
-  ReadvSystemCallTraceReplayModule(DataSeriesModule &source,
-				  bool verbose_flag,
-				  bool verify_flag,
-				  int warn_level_flag);
+ public:
+  ReadvSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                   bool verify_flag, int warn_level_flag);
 };
 #endif /* READV_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

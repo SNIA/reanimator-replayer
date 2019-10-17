@@ -16,11 +16,11 @@
  * ./open-test-prog
  */
 
-#include <iostream>
-#include <unistd.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <fcntl.h>
+#include <unistd.h>
+#include <iostream>
 
 int main(int argc, char *argv[]) {
   char tmp_name[] = "tmp-fileXXXXXX";

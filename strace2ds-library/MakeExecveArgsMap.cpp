@@ -18,10 +18,9 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeExecveArgsMap(void **args_map,
-					       long *args,
-					       void **v_args) {
-  int continuation_number = *(int *) v_args[0];
+void DataSeriesOutputModule::makeExecveArgsMap(void **args_map, long *args,
+                                               void **v_args) {
+  int continuation_number = *(int *)v_args[0];
   args_map[SYSCALL_FIELD_CONTINUATION_NUMBER] = v_args[0];
 
   /*
@@ -39,7 +38,7 @@ void DataSeriesOutputModule::makeExecveArgsMap(void **args_map,
      * If continuation number is greater than '0', then add
      * record to set the argument or environment variables.
      */
-    char *arg_env = (char *) v_args[2];
+    char *arg_env = (char *)v_args[2];
     if (strcmp(arg_env, "arg") == 0) {
       /*
        * If arg_env is equal to "arg", then we only save the
@@ -47,7 +46,7 @@ void DataSeriesOutputModule::makeExecveArgsMap(void **args_map,
        * record.
        */
       if (v_args[1] != NULL) {
-	args_map[SYSCALL_FIELD_ARGUMENT] = &v_args[1];
+        args_map[SYSCALL_FIELD_ARGUMENT] = &v_args[1];
       }
     } else if (strcmp(arg_env, "env") == 0) {
       /*
@@ -56,9 +55,9 @@ void DataSeriesOutputModule::makeExecveArgsMap(void **args_map,
        * new record.
        */
       if (v_args[1] != NULL)
-	args_map[SYSCALL_FIELD_ENVIRONMENT] = &v_args[1];
+        args_map[SYSCALL_FIELD_ENVIRONMENT] = &v_args[1];
       else
-	std::cerr << "Execve : Environment is set as NULL!!" << std::endl;
+        std::cerr << "Execve : Environment is set as NULL!!" << std::endl;
     }
   }
 }

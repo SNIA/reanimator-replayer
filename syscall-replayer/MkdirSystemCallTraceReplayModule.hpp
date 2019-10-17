@@ -25,56 +25,69 @@
 
 #include "SystemCallTraceReplayModule.hpp"
 
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 class MkdirSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-protected:
+ protected:
   // Mkdir System Call Trace Fields in Dataseries file
   Variable32Field given_pathname_;
   Int32Field mode_value_;
+  mode_t modeVal;
+  char *pathname;
 
   /**
    * Print mkdir sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay an mkdir system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
-public:
-  MkdirSystemCallTraceReplayModule(DataSeriesModule &source,
-				   bool verbose_flag,
-				   int warn_level_flag);
+ public:
+  MkdirSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                   int warn_level_flag);
 
+  SystemCallTraceReplayModule *move() override {
+    auto movePtr =
+        new MkdirSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    movePtr->setMove(pathname, modeVal);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
+    return movePtr;
+  }
+  void setMove(char *path, int mode) {
+    pathname = path;
+    modeVal = mode;
+  }
+  void prepareRow() override;
 };
 
-class MkdiratSystemCallTraceReplayModule :
-  public MkdirSystemCallTraceReplayModule {
-private:
+class MkdiratSystemCallTraceReplayModule
+    : public MkdirSystemCallTraceReplayModule {
+ private:
   // Mkdirat System Call Trace Fields in Dataseries file
   Int32Field descriptor_;
 
   /**
    * Print mkdirat sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay a mkdirat system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
-public:
+ public:
   MkdiratSystemCallTraceReplayModule(DataSeriesModule &source,
-				     bool verbose_flag,
-				     int warn_level_flag);
-
+                                     bool verbose_flag, int warn_level_flag);
 };
 
 #endif /* MKDIR_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

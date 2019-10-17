@@ -27,28 +27,48 @@
 #include "SystemCallTraceReplayModule.hpp"
 
 class ReadlinkSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-private:
+ private:
   // Readlink System Call Trace Fields in Dataseries file
   bool verify_;
   Variable32Field given_pathname_;
   Variable32Field link_value_;
   Int32Field buffer_size_;
 
+  int nbytes;
+  char *buffer;
+  char *dataReadBuf;
+  char *pathname;
+
   /**
    * Print readlink sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and then replay readlink system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
-public:
+ public:
   ReadlinkSystemCallTraceReplayModule(DataSeriesModule &source,
-				   bool verbose_flag,
-				   bool verify_flag,
-				   int warn_level_flag);
+                                      bool verbose_flag, bool verify_flag,
+                                      int warn_level_flag);
+  SystemCallTraceReplayModule *move() override {
+    auto movePtr = new ReadlinkSystemCallTraceReplayModule(
+        source, verbose_, verify_, warn_level_);
+    movePtr->setMove(buffer, nbytes, pathname, dataReadBuf);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
+    return movePtr;
+  }
+  inline void setMove(char *buf, int byte, char *path, char *verifyBuf) {
+    buffer = buf;
+    nbytes = byte;
+    pathname = path;
+    dataReadBuf = verifyBuf;
+  }
+  void prepareRow() override;
 };
 #endif /* READLINK_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

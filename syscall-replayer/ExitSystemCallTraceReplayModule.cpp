@@ -17,35 +17,40 @@
  */
 
 #include "ExitSystemCallTraceReplayModule.hpp"
+#include <climits>
 
-ExitSystemCallTraceReplayModule::
-ExitSystemCallTraceReplayModule(DataSeriesModule &source,
-				bool verbose_flag,
-				int warn_level_flag):
-  SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-  exit_status_(series, "exit_status"),
-  generated_(series, "generated") {
+ExitSystemCallTraceReplayModule::ExitSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
+    : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+      exit_status_(series, "exit_status"),
+      generated_(series, "generated") {
   sys_call_name_ = "exit";
 }
 
 void ExitSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("exit_status(", exit_status_.val(), "), ", \
-    "generated(", generated_.val(), ")");
+  syscall_logger_->log_info("exit_status(", exitStat, "), ", "generated(",
+                            generated, ")");
 }
 
+/*
+ * NOTE: On replaying exit system call, our replayer will terminate.
+ * Hence we do not replay exit system call, but we update replayer resources
+ */
 void ExitSystemCallTraceReplayModule::processRow() {
-  /*
-   * NOTE: On replaying exit system call, our replayer will terminate.
-   * Hence we do not replay exit system call, but we update replayer resources
-   */
-  pid_t pid = executing_pid();
   // Remove umask table
-  SystemCallTraceReplayModule::replayer_resources_manager_.remove_umask(pid);
+  SystemCallTraceReplayModule::replayer_resources_manager_.remove_umask(
+      executingPidVal);
   // Remove fd table
-  std::unordered_set<int> fds_to_close = replayer_resources_manager_.remove_fd_table(pid);
-  for (std::unordered_set<int>::iterator iter = fds_to_close.begin();
-    iter != fds_to_close.end();
-    iter++) {
-    close(*iter);
+  auto fds_to_close =
+      replayer_resources_manager_.remove_fd_table(executingPidVal);
+  for (auto fd : fds_to_close) {
+    close(fd);
   }
+}
+
+void ExitSystemCallTraceReplayModule::prepareRow() {
+  exitStat = exit_status_.val();
+  generated = generated_.val();
+  SystemCallTraceReplayModule::prepareRow();
+  timeReturnedVal = ULLONG_MAX;
 }

@@ -23,25 +23,28 @@
 
 #include "SystemCallTraceReplayModule.hpp"
 
-#include <unistd.h>
 #include <sys/types.h>
+#include <unistd.h>
 
-class FTruncateSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-protected:
+class FTruncateSystemCallTraceReplayModule
+    : public SystemCallTraceReplayModule {
+ protected:
   // FTruncate System Call Trace Fields in Dataseries file
   Int32Field descriptor_;
   Int64Field truncate_length_;
+  int traced_fd;
+  int64_t length;
 
   /**
    * Print ftruncate sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay a ftruncate system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
   /**
    * This function will return the file descriptor that
@@ -49,10 +52,25 @@ protected:
    */
   int getReplayedFD();
 
-public:
+ public:
   FTruncateSystemCallTraceReplayModule(DataSeriesModule &source,
-              bool verbose_flag,
-              int warn_level_flag);
+                                       bool verbose_flag, int warn_level_flag);
+  SystemCallTraceReplayModule *move() override {
+    auto movePtr =
+        new FTruncateSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    movePtr->setMove(traced_fd, length);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
+    return movePtr;
+  }
+
+  void setMove(int fd, int64_t len) {
+    traced_fd = fd;
+    length = len;
+  }
+
+  void prepareRow() override;
 };
 
 #endif /* FTRUNCATE_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

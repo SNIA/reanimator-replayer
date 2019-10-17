@@ -18,9 +18,8 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeOpenArgsMap(void **args_map,
-					     long *args,
-					     void **v_args) {
+void DataSeriesOutputModule::makeOpenArgsMap(void **args_map, long *args,
+                                             void **v_args) {
   int offset = 0;
 
   // Initialize all non-nullable boolean fields to False.

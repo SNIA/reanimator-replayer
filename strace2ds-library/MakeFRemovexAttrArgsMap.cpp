@@ -19,8 +19,8 @@
 #include "DataSeriesOutputModule.hpp"
 
 void DataSeriesOutputModule::makeFRemovexattrArgsMap(void **args_map,
-						     long *args,
-						     void **v_args) {
+                                                     long *args,
+                                                     void **v_args) {
   args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
 
   if (v_args[0] != NULL) {

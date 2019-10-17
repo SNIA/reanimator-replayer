@@ -28,30 +28,46 @@
 #include <unistd.h>
 
 class AccessSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-protected:
+ protected:
   // Access System Call Trace Fields in Dataseries file
   Variable32Field given_pathname_;
   Int32Field mode_value_;
+  char *pathname;
+  int mode_value;
 
   /**
    * Print this sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay a access system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
-public:
-  AccessSystemCallTraceReplayModule(DataSeriesModule &source,
-				    bool verbose_flag,
-				    int warn_level_flag);
+ public:
+  AccessSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                    int warn_level_flag);
+  SystemCallTraceReplayModule *move() override {
+    auto movePtr =
+        new AccessSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    movePtr->setMove(pathname, mode_value);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
+    return movePtr;
+  }
+  void setMove(char *path, int mode) {
+    pathname = path;
+    mode_value = mode;
+  }
+  void prepareRow() override;
 };
 
-class FAccessatSystemCallTraceReplayModule : public AccessSystemCallTraceReplayModule {
-private:
+class FAccessatSystemCallTraceReplayModule
+    : public AccessSystemCallTraceReplayModule {
+ private:
   // FAccessat System Call Trace Fields in Dataseries file
   Int32Field descriptor_;
   Int32Field flags_value_;
@@ -59,17 +75,16 @@ private:
   /**
    * Print this sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay a faccessat system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
-public:
+ public:
   FAccessatSystemCallTraceReplayModule(DataSeriesModule &source,
-				       bool verbose_flag,
-				       int warn_level_flag);
+                                       bool verbose_flag, int warn_level_flag);
 };
 #endif /* ACCESS_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

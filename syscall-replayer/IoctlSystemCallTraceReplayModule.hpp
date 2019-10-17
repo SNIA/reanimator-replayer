@@ -25,11 +25,11 @@
 
 #include "SystemCallTraceReplayModule.hpp"
 
-#include <cerrno>
 #include <sys/ioctl.h>
+#include <cerrno>
 
 class IoctlSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-private:
+ private:
   // Ioctl System Call Trace Fields in Dataseries file
   Int32Field descriptor_;
   Int32Field request_;
@@ -37,22 +37,44 @@ private:
   Variable32Field ioctl_buffer_;
   Int64Field buffer_size_;
 
+  int32_t file_descriptor;
+  uint32_t req;
+  uint64_t params;
+  char *buffer;
+  uint64_t size;
+
   /**
    * Print ioctl sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay an ioctl system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
-public:
-  IoctlSystemCallTraceReplayModule(DataSeriesModule &source,
-                                   bool verbose_flag,
+ public:
+  IoctlSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
                                    int warn_level_flag);
-
+  SystemCallTraceReplayModule *move() override {
+    auto movePtr =
+        new IoctlSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    movePtr->setMove(file_descriptor, req, params, buffer, size);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
+    return movePtr;
+  }
+  inline void setMove(int32_t fd, uint32_t request, uint64_t param, char *buf,
+                      uint64_t bufsize) {
+    file_descriptor = fd;
+    req = request;
+    params = param;
+    buffer = buf;
+    size = bufsize;
+  }
+  void prepareRow() override;
 };
 
 #endif /* IOCTL_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

@@ -19,14 +19,13 @@
 #include "DataSeriesOutputModule.hpp"
 
 uint64_t DataSeriesOutputModule::timespec_to_Tfrac(struct timespec ts) {
-  double time_seconds = (double) ts.tv_sec + pow(10.0, -9) * ts.tv_nsec;
-  uint64_t time_Tfracs = (uint64_t)(time_seconds * (((uint64_t)1)<<32));
+  double time_seconds = (double)ts.tv_sec + pow(10.0, -9) * ts.tv_nsec;
+  uint64_t time_Tfracs = (uint64_t)(time_seconds * (((uint64_t)1) << 32));
   return time_Tfracs;
 }
 
-void DataSeriesOutputModule::makeCreatArgsMap(void **args_map,
-					      long *args,
-					      void **v_args) {
+void DataSeriesOutputModule::makeCreatArgsMap(void **args_map, long *args,
+                                              void **v_args) {
   initArgsMap(args_map, "creat");
   int mode_offset = 1;
   if (v_args[0] != NULL) {

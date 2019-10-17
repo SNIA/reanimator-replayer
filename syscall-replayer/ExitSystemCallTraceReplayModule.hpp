@@ -25,26 +25,42 @@
 #include "SystemCallTraceReplayModule.hpp"
 
 class ExitSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-private:
+ private:
   // DataSeries Exit System Call Trace Fields
   Int32Field exit_status_;
   BoolField generated_;
 
+  int32_t exitStat;
+  bool generated;
+
   /**
    * Print exit sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will simply return without replaying
    * exit system call.
    */
-  void processRow();
+  void processRow() override;
 
-public:
-  ExitSystemCallTraceReplayModule(DataSeriesModule &source,
-				  bool verbose_flag,
-				  int warn_level_flag);
+ public:
+  ExitSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                  int warn_level_flag);
+  SystemCallTraceReplayModule *move() override {
+    auto movePtr =
+        new ExitSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    movePtr->setMove(exitStat, generated);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
+    return movePtr;
+  }
+  void setMove(int32_t exitStatus, bool isGenerated) {
+    exitStat = exitStatus;
+    generated = isGenerated;
+  }
+  void prepareRow() override;
 };
 
 #endif /* EXIT_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

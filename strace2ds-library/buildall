@@ -15,13 +15,13 @@ function runcmd
 runcmd autoreconf -v -i
 runcmd /bin/rm -fr BUILD
 runcmd mkdir -p BUILD
-if [ ! -e "./xml" ] || [ "./xml" -ot "./tables/snia_syscall_fields.src" ]
-then
+#if [ ! -e "./xml" ] || [ "./xml" -ot "./tables/snia_syscall_fields.src" ]
+#then
     runcmd mkdir -p xml
     runcmd cd tables
     runcmd perl gen-xml-enums.pl
     runcmd cd ../ 
-fi
+#fi
 runcmd cp -r ./xml BUILD
 runcmd cd BUILD
 runcmd ../configure --enable-shared --disable-static --prefix=$HOME/lib/strace2ds

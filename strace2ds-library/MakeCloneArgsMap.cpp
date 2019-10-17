@@ -18,9 +18,8 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeCloneArgsMap(void **args_map,
-					      long *args,
-					      void **v_args) {
+void DataSeriesOutputModule::makeCloneArgsMap(void **args_map, long *args,
+                                              void **v_args) {
   initArgsMap(args_map, "clone");
 
   args_map[SYSCALL_FIELD_FLAG_VALUE] = &args[0];
@@ -41,8 +40,8 @@ void DataSeriesOutputModule::makeCloneArgsMap(void **args_map,
 
   if (v_args[1] != NULL) {
     args_map[SYSCALL_FIELD_CHILD_THREAD_ID] = &v_args[1];
-  } else if ((args[0] & CLONE_CHILD_SETTID)
-	     || (args[0] & CLONE_CHILD_CLEARTID)) {
+  } else if ((args[0] & CLONE_CHILD_SETTID) ||
+             (args[0] & CLONE_CHILD_CLEARTID)) {
     std::cerr << "Clone: Child thread ID is set as NULL!!" << std::endl;
   }
 
@@ -52,227 +51,220 @@ void DataSeriesOutputModule::makeCloneArgsMap(void **args_map,
     args_map[SYSCALL_FIELD_NEW_TLS] = &args[3];
 }
 
-
-u_int DataSeriesOutputModule::processCloneFlags(void **args_map,
-						u_int flag) {
+u_int DataSeriesOutputModule::processCloneFlags(void **args_map, u_int flag) {
   /*
    * Process each individual clone flag bit that has been set.
    */
   // set child_cleartid flag
   process_Flag_and_Mode_Args(args_map, flag, CLONE_CHILD_CLEARTID,
-			     SYSCALL_FIELD_FLAG_CHILD_CLEARTID);
+                             SYSCALL_FIELD_FLAG_CHILD_CLEARTID);
 
   // set child_settid flag
   process_Flag_and_Mode_Args(args_map, flag, CLONE_CHILD_SETTID,
-			     SYSCALL_FIELD_FLAG_CHILD_SETTID);
+                             SYSCALL_FIELD_FLAG_CHILD_SETTID);
 
   // set files flag
   process_Flag_and_Mode_Args(args_map, flag, CLONE_FILES,
-			     SYSCALL_FIELD_FLAG_FILES);
+                             SYSCALL_FIELD_FLAG_FILES);
 
   // set filesystem flag
   process_Flag_and_Mode_Args(args_map, flag, CLONE_FS,
-			     SYSCALL_FIELD_FLAG_FILESYSTEM);
+                             SYSCALL_FIELD_FLAG_FILESYSTEM);
 
   // set I/O flag
-  process_Flag_and_Mode_Args(args_map, flag, CLONE_IO,
-			     SYSCALL_FIELD_FLAG_IO);
+  process_Flag_and_Mode_Args(args_map, flag, CLONE_IO, SYSCALL_FIELD_FLAG_IO);
 
   // set newipc flag
   process_Flag_and_Mode_Args(args_map, flag, CLONE_NEWIPC,
-			     SYSCALL_FIELD_FLAG_NEWIPC);
+                             SYSCALL_FIELD_FLAG_NEWIPC);
 
   // set newnet flag
   process_Flag_and_Mode_Args(args_map, flag, CLONE_NEWNET,
-			     SYSCALL_FIELD_FLAG_NEWNET);
+                             SYSCALL_FIELD_FLAG_NEWNET);
 
   // set newns flag
   process_Flag_and_Mode_Args(args_map, flag, CLONE_NEWNS,
-			     SYSCALL_FIELD_FLAG_NEWNS);
+                             SYSCALL_FIELD_FLAG_NEWNS);
 
   // set newpid flag
   process_Flag_and_Mode_Args(args_map, flag, CLONE_NEWPID,
-			     SYSCALL_FIELD_FLAG_NEWPID);
+                             SYSCALL_FIELD_FLAG_NEWPID);
 
   // set newuser flag
   process_Flag_and_Mode_Args(args_map, flag, CLONE_NEWUSER,
-			     SYSCALL_FIELD_FLAG_NEWUSER);
+                             SYSCALL_FIELD_FLAG_NEWUSER);
 
   // set newuts flag
   process_Flag_and_Mode_Args(args_map, flag, CLONE_NEWUTS,
-			     SYSCALL_FIELD_FLAG_NEWUTS);
+                             SYSCALL_FIELD_FLAG_NEWUTS);
 
   // set parent flag
   process_Flag_and_Mode_Args(args_map, flag, CLONE_PARENT,
-			     SYSCALL_FIELD_FLAG_PARENT);
+                             SYSCALL_FIELD_FLAG_PARENT);
 
   // set parent_settid flag
   process_Flag_and_Mode_Args(args_map, flag, CLONE_PARENT_SETTID,
-			     SYSCALL_FIELD_FLAG_PARENT_SETTID);
+                             SYSCALL_FIELD_FLAG_PARENT_SETTID);
 
   // set ptrace flag
   process_Flag_and_Mode_Args(args_map, flag, CLONE_PTRACE,
-			     SYSCALL_FIELD_FLAG_PTRACE);
+                             SYSCALL_FIELD_FLAG_PTRACE);
 
   // set settls flag
   process_Flag_and_Mode_Args(args_map, flag, CLONE_SETTLS,
-			     SYSCALL_FIELD_FLAG_SETTLS);
+                             SYSCALL_FIELD_FLAG_SETTLS);
 
   // set sighand flag
   process_Flag_and_Mode_Args(args_map, flag, CLONE_SIGHAND,
-			     SYSCALL_FIELD_FLAG_SIGHAND);
+                             SYSCALL_FIELD_FLAG_SIGHAND);
 
   // set sysvsem flag
   process_Flag_and_Mode_Args(args_map, flag, CLONE_SYSVSEM,
-			     SYSCALL_FIELD_FLAG_SYSVSEM);
+                             SYSCALL_FIELD_FLAG_SYSVSEM);
 
   // set thread flag
   process_Flag_and_Mode_Args(args_map, flag, CLONE_THREAD,
-			     SYSCALL_FIELD_FLAG_THREAD);
+                             SYSCALL_FIELD_FLAG_THREAD);
 
   // set untraced flag
   process_Flag_and_Mode_Args(args_map, flag, CLONE_UNTRACED,
-			     SYSCALL_FIELD_FLAG_UNTRACED);
+                             SYSCALL_FIELD_FLAG_UNTRACED);
 
   // set vfork flag
   process_Flag_and_Mode_Args(args_map, flag, CLONE_VFORK,
-			     SYSCALL_FIELD_FLAG_VFORK);
+                             SYSCALL_FIELD_FLAG_VFORK);
 
   // set vm flag
-  process_Flag_and_Mode_Args(args_map, flag, CLONE_VM,
-			     SYSCALL_FIELD_FLAG_VM);
+  process_Flag_and_Mode_Args(args_map, flag, CLONE_VM, SYSCALL_FIELD_FLAG_VM);
 
   return flag;
 }
 
-u_int DataSeriesOutputModule::processCloneSignals(void **args_map,
-						 u_int flag) {
+u_int DataSeriesOutputModule::processCloneSignals(void **args_map, u_int flag) {
   /*
    * Process each individual clone signal bit that has been set in the flags
    * passed to clone
    */
   // set signal_hangup field
   process_Flag_and_Mode_Args(args_map, flag, SIGHUP,
-			     SYSCALL_FIELD_SIGNAL_HANGUP);
+                             SYSCALL_FIELD_SIGNAL_HANGUP);
   // set signal_terminal_interrupt field
   process_Flag_and_Mode_Args(args_map, flag, SIGINT,
-			     SYSCALL_FIELD_SIGNAL_TERMINAL_INTERRUPT);
+                             SYSCALL_FIELD_SIGNAL_TERMINAL_INTERRUPT);
 
   // set signal_terminal_quit field
   process_Flag_and_Mode_Args(args_map, flag, SIGQUIT,
-			     SYSCALL_FIELD_SIGNAL_TERMINAL_QUIT);
+                             SYSCALL_FIELD_SIGNAL_TERMINAL_QUIT);
 
   // set signal_illegal field
   process_Flag_and_Mode_Args(args_map, flag, SIGILL,
-			     SYSCALL_FIELD_SIGNAL_ILLEGAL);
+                             SYSCALL_FIELD_SIGNAL_ILLEGAL);
 
   // set signal_trace_trap field
   process_Flag_and_Mode_Args(args_map, flag, SIGTRAP,
-			     SYSCALL_FIELD_SIGNAL_TRACE_TRAP);
+                             SYSCALL_FIELD_SIGNAL_TRACE_TRAP);
 
   // set signal_abort field
   process_Flag_and_Mode_Args(args_map, flag, SIGABRT,
-			     SYSCALL_FIELD_SIGNAL_ABORT);
+                             SYSCALL_FIELD_SIGNAL_ABORT);
 
   // set signal_iot_trap field
   process_Flag_and_Mode_Args(args_map, flag, SIGIOT,
-			     SYSCALL_FIELD_SIGNAL_IOT_TRAP);
+                             SYSCALL_FIELD_SIGNAL_IOT_TRAP);
 
   // set signal_bus field
-  process_Flag_and_Mode_Args(args_map, flag, SIGBUS,
-			     SYSCALL_FIELD_SIGNAL_BUS);
+  process_Flag_and_Mode_Args(args_map, flag, SIGBUS, SYSCALL_FIELD_SIGNAL_BUS);
 
   // set signal_floating_point_exception field
   process_Flag_and_Mode_Args(args_map, flag, SIGFPE,
-			     SYSCALL_FIELD_SIGNAL_FLOATING_POINT_EXCEPTION);
+                             SYSCALL_FIELD_SIGNAL_FLOATING_POINT_EXCEPTION);
 
   // set signal_kill field
   process_Flag_and_Mode_Args(args_map, flag, SIGKILL,
-			     SYSCALL_FIELD_SIGNAL_KILL);
+                             SYSCALL_FIELD_SIGNAL_KILL);
 
   // set signal_user_defined_1 field
   process_Flag_and_Mode_Args(args_map, flag, SIGUSR1,
-			     SYSCALL_FIELD_SIGNAL_USER_DEFINED_1);
+                             SYSCALL_FIELD_SIGNAL_USER_DEFINED_1);
 
   // set signal_segv field
   process_Flag_and_Mode_Args(args_map, flag, SIGSEGV,
-			     SYSCALL_FIELD_SIGNAL_SEGV);
+                             SYSCALL_FIELD_SIGNAL_SEGV);
 
   // set signal_user_defined_2 field
   process_Flag_and_Mode_Args(args_map, flag, SIGUSR2,
-			     SYSCALL_FIELD_SIGNAL_USER_DEFINED_2);
+                             SYSCALL_FIELD_SIGNAL_USER_DEFINED_2);
 
   // set signal_pipe field
   process_Flag_and_Mode_Args(args_map, flag, SIGPIPE,
-			     SYSCALL_FIELD_SIGNAL_PIPE);
+                             SYSCALL_FIELD_SIGNAL_PIPE);
 
   // set signal_alarm field
   process_Flag_and_Mode_Args(args_map, flag, SIGALRM,
-			     SYSCALL_FIELD_SIGNAL_ALARM);
+                             SYSCALL_FIELD_SIGNAL_ALARM);
 
   // set signal_termination field
   process_Flag_and_Mode_Args(args_map, flag, SIGTERM,
-			     SYSCALL_FIELD_SIGNAL_TERMINATION);
+                             SYSCALL_FIELD_SIGNAL_TERMINATION);
 
   // set signal_stack_fault field
   process_Flag_and_Mode_Args(args_map, flag, SIGSTKFLT,
-			     SYSCALL_FIELD_SIGNAL_STACK_FAULT);
+                             SYSCALL_FIELD_SIGNAL_STACK_FAULT);
 
   // set signal_child field
   process_Flag_and_Mode_Args(args_map, flag, SIGCHLD,
-			     SYSCALL_FIELD_SIGNAL_CHILD);
+                             SYSCALL_FIELD_SIGNAL_CHILD);
 
   // set signal_continue field
   process_Flag_and_Mode_Args(args_map, flag, SIGCONT,
-			     SYSCALL_FIELD_SIGNAL_CONTINUE);
+                             SYSCALL_FIELD_SIGNAL_CONTINUE);
 
   // set signal_stop field
   process_Flag_and_Mode_Args(args_map, flag, SIGSTOP,
-			     SYSCALL_FIELD_SIGNAL_STOP);
+                             SYSCALL_FIELD_SIGNAL_STOP);
 
   // set signal_terminal_stop field
   process_Flag_and_Mode_Args(args_map, flag, SIGTSTP,
-			     SYSCALL_FIELD_SIGNAL_TERMINAL_STOP);
+                             SYSCALL_FIELD_SIGNAL_TERMINAL_STOP);
 
   // set signal_tty_read field
   process_Flag_and_Mode_Args(args_map, flag, SIGTTIN,
-			     SYSCALL_FIELD_SIGNAL_TTY_READ);
+                             SYSCALL_FIELD_SIGNAL_TTY_READ);
 
   // set signal_tty_write field
   process_Flag_and_Mode_Args(args_map, flag, SIGTTOU,
-			     SYSCALL_FIELD_SIGNAL_TTY_WRITE);
+                             SYSCALL_FIELD_SIGNAL_TTY_WRITE);
 
   // set signal_urgent field
   process_Flag_and_Mode_Args(args_map, flag, SIGURG,
-			     SYSCALL_FIELD_SIGNAL_URGENT);
+                             SYSCALL_FIELD_SIGNAL_URGENT);
 
   // set signal_cpu_exceeded field
   process_Flag_and_Mode_Args(args_map, flag, SIGXCPU,
-			     SYSCALL_FIELD_SIGNAL_CPU_EXCEEDED);
+                             SYSCALL_FIELD_SIGNAL_CPU_EXCEEDED);
 
   // set signal_file_size_exceeded field
   process_Flag_and_Mode_Args(args_map, flag, SIGXFSZ,
-			     SYSCALL_FIELD_SIGNAL_FILE_SIZE_EXCEEDED);
+                             SYSCALL_FIELD_SIGNAL_FILE_SIZE_EXCEEDED);
 
   // set signal_virtual_alarm field
   process_Flag_and_Mode_Args(args_map, flag, SIGVTALRM,
-			     SYSCALL_FIELD_SIGNAL_VIRTUAL_ALARM);
+                             SYSCALL_FIELD_SIGNAL_VIRTUAL_ALARM);
 
   // set signal_prof_alarm field
   process_Flag_and_Mode_Args(args_map, flag, SIGPROF,
-			     SYSCALL_FIELD_SIGNAL_PROF_ALARM);
+                             SYSCALL_FIELD_SIGNAL_PROF_ALARM);
 
   // set signal_window_size_change field
   process_Flag_and_Mode_Args(args_map, flag, SIGWINCH,
-			     SYSCALL_FIELD_SIGNAL_WINDOW_SIZE_CHANGE);
+                             SYSCALL_FIELD_SIGNAL_WINDOW_SIZE_CHANGE);
 
   // set signal_io field
-  process_Flag_and_Mode_Args(args_map, flag, SIGIO,
-			     SYSCALL_FIELD_SIGNAL_IO);
+  process_Flag_and_Mode_Args(args_map, flag, SIGIO, SYSCALL_FIELD_SIGNAL_IO);
 
   // set signal_power field
   process_Flag_and_Mode_Args(args_map, flag, SIGPWR,
-			     SYSCALL_FIELD_SIGNAL_POWER);
+                             SYSCALL_FIELD_SIGNAL_POWER);
 
   return flag;
 }

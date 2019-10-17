@@ -7,20 +7,20 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
- * 
+ *
  * This program creates a file, opens it and closes it.
- * Note: consult close man page for more information about 
+ * Note: consult close man page for more information about
  *       closesystem call.
  *
  * USAGE:
  * ./close-test-prog
  */
 
-#include <iostream>
-#include <unistd.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <fcntl.h>
+#include <unistd.h>
+#include <iostream>
 
 int main(int argc, char *argv[]) {
   char tmp_name[] = "tmp-fileXXXXXX";

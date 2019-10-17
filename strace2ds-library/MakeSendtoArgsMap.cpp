@@ -18,9 +18,8 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeSendtoArgsMap(void **args_map,
-					      long *args,
-					      void **v_args) {
+void DataSeriesOutputModule::makeSendtoArgsMap(void **args_map, long *args,
+                                               void **v_args) {
   // Initialize all non-nullable boolean fields to False.
   initArgsMap(args_map, "sendto");
   args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];

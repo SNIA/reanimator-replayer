@@ -29,26 +29,42 @@
 #include <unistd.h>
 
 class RenameSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-protected:
+ protected:
   // Rename System Call Trace Fields in Dataseries file
   Variable32Field given_oldname_;
   Variable32Field given_newname_;
+  char *old_pathname;
+  char *new_pathname;
 
   /**
    * Print rename sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay a rename system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
-public:
-  RenameSystemCallTraceReplayModule(DataSeriesModule &source,
-                                  bool verbose_flag,
-                                  int warn_level_flag);
+ public:
+  RenameSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                    int warn_level_flag);
+  SystemCallTraceReplayModule *move() override {
+    auto movePtr =
+        new RenameSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    movePtr->setMove(old_pathname, new_pathname);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
+    return movePtr;
+  }
+  void setMove(char *o_path, char *n_path) {
+    old_pathname = o_path;
+    new_pathname = n_path;
+  }
+
+  void prepareRow() override;
 };
 
 #endif /* RENAME_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

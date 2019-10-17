@@ -24,34 +24,48 @@
 #ifndef CHMOD_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define CHMOD_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include "SystemCallTraceReplayModule.hpp"
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-
 class ChmodSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-private:
+ private:
   // Chmod System Call Trace Fields in Dataseries file
   Variable32Field given_pathname_;
   Int32Field mode_value_;
+  mode_t modeVal;
+  char *pathname;
 
   /**
    * Print chmod sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay a chmod system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
-public:
-  ChmodSystemCallTraceReplayModule(DataSeriesModule &source,
-				   bool verbose_flag,
-				   int warn_level_flag);
+ public:
+  ChmodSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                   int warn_level_flag);
 
+  SystemCallTraceReplayModule *move() override {
+    auto movePtr =
+        new ChmodSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    movePtr->setMove(pathname, modeVal);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
+    return movePtr;
+  }
+  void setMove(char *path, int mode) {
+    pathname = path;
+    modeVal = mode;
+  }
+  void prepareRow() override;
 };
 
 #endif /* CHMOD_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

@@ -30,8 +30,8 @@ extern "C" {
  * return NULL if failed
  */
 DataSeriesOutputModule *ds_create_module(const char *output_file,
-					 const char *table_file_name,
-					 const char *xml_dir_path) {
+                                         const char *table_file_name,
+                                         const char *xml_dir_path) {
   std::ifstream table_stream(table_file_name);
   std::string xml_dir(xml_dir_path);
 
@@ -40,29 +40,31 @@ DataSeriesOutputModule *ds_create_module(const char *output_file,
     return NULL;
   }
   /* Create Tables and Fields */
-  DataSeriesOutputModule *ds_module = new DataSeriesOutputModule(table_stream,
-								 xml_dir,
-								 output_file);
+  DataSeriesOutputModule *ds_module =
+      new DataSeriesOutputModule(table_stream, xml_dir, output_file);
   return ds_module;
 }
 
 /*
- * Traced application has a default mask value that is different from the replayer.
+ * Traced application has a default mask value that is different from the
+ * replayer.
  * Therefore, we need to call umask twice in here. First call is to get the
  * original value of mask value, and second call is to restore the mask
  * value. Write one record at the very beginning of DataSeries output file.
- * By doing so, replayer will set its mask value to be same as the traced application.
- * This function simulates the behavior of strace trace_syscall_exiting function. Note that we can't
+ * By doing so, replayer will set its mask value to be same as the traced
+ * application.
+ * This function simulates the behavior of strace trace_syscall_exiting
+ * function. Note that we can't
  * call trace_syscall_exiting directly because strace does its
  * own things in trace_syscall_exiting function.
  */
 void ds_write_umask_at_start(DataSeriesOutputModule *ds_module, int pid) {
   struct timeval etime; /* Syscall entry time */
   struct timeval dtime; /* Syscall departure time */
-  long args[1]; /* umask args */
-  int unique_id = 0; /* unique id of this umask record*/
+  long args[1];         /* umask args */
+  int unique_id = 0;    /* unique id of this umask record*/
   const char *syscall_name = "umask";
-  unsigned short syscall_num = UMASK_SYSCALL_NUM;
+  uint64_t syscall_num = UMASK_SYSCALL_NUM;
   void *common_fields[DS_NUM_COMMON_FIELDS];
   // Initialize common_fields with NULL arguments.
   memset(common_fields, 0, sizeof(void *) * DS_NUM_COMMON_FIELDS);
@@ -86,6 +88,7 @@ void ds_write_umask_at_start(DataSeriesOutputModule *ds_module, int pid) {
   common_fields[DS_COMMON_FIELD_EXECUTING_PID] = &pid;
   common_fields[DS_COMMON_FIELD_UNIQUE_ID] = &unique_id;
   common_fields[DS_COMMON_FIELD_SYSCALL_NUM] = &syscall_num;
+  common_fields[DS_COMMON_FIELD_BUFFER_NOT_CAPTURED] = (void *)false;
 
   /*
    * Now everything is set. Just call ds_write_record to write one umask record
@@ -98,11 +101,9 @@ void ds_write_umask_at_start(DataSeriesOutputModule *ds_module, int pid) {
  * Write a record into the DataSeries output file.
  * We are incrementing record number atomically.
  */
-void ds_write_record(DataSeriesOutputModule *ds_module,
-		     const char *extent_name,
-		     long *args,
-		     void *common_fields[DS_NUM_COMMON_FIELDS],
-		     void **v_args) {
+void ds_write_record(DataSeriesOutputModule *ds_module, const char *extent_name,
+                     long *args, void *common_fields[DS_NUM_COMMON_FIELDS],
+                     void **v_args) {
   uint64_t unique_id = ds_module->getNextID();
   common_fields[DS_COMMON_FIELD_UNIQUE_ID] = &unique_id;
   ds_module->writeRecord(extent_name, args, common_fields, v_args);
@@ -113,10 +114,9 @@ void ds_write_record(DataSeriesOutputModule *ds_module,
  * Note: We are not incrementing record number here.
  */
 void ds_write_into_same_record(DataSeriesOutputModule *ds_module,
-                                 const char *extent_name,
-                                 long *args,
-                                 void *common_fields[DS_NUM_COMMON_FIELDS],
-                                 void **v_args) {
+                               const char *extent_name, long *args,
+                               void *common_fields[DS_NUM_COMMON_FIELDS],
+                               void **v_args) {
   ds_module->writeRecord(extent_name, args, common_fields, v_args);
 }
 
@@ -125,12 +125,11 @@ void ds_write_into_same_record(DataSeriesOutputModule *ds_module,
  * by the library, print a warning message.
  */
 void ds_print_warning(DataSeriesOutputModule *ds_module,
-		      const char *sys_call_name,
-		      long sys_call_number) {
-  ((DataSeriesOutputModule *)ds_module)->untraced_sys_call_counts_[
-						sys_call_number]++;
+                      const char *sys_call_name, long sys_call_number) {
+  ((DataSeriesOutputModule *)ds_module)
+      ->untraced_sys_call_counts_[sys_call_number]++;
   std::cerr << "WARNING: Attempting to trace unsupported system call: "
-	    << sys_call_name << " (" << sys_call_number << ")" << std::endl;
+            << sys_call_name << " (" << sys_call_number << ")" << std::endl;
 }
 
 /*
@@ -139,17 +138,16 @@ void ds_print_warning(DataSeriesOutputModule *ds_module,
  * system calls along with their count.
  */
 void ds_add_to_untraced_set(DataSeriesOutputModule *ds_module,
-			    const char *sys_call_name,
-			    long sys_call_number) {
-  if (!((DataSeriesOutputModule *)ds_module)->untraced_sys_call_counts_[
-						sys_call_number]) {
-    ((DataSeriesOutputModule *)ds_module)->untraced_sys_call_counts_[
-						sys_call_number] = 1;
-    std::cerr << "WARNING: Ignoring to replay system call: "
-	    << sys_call_name << " (" << sys_call_number << ")" << std::endl;
+                            const char *sys_call_name, long sys_call_number) {
+  if (!((DataSeriesOutputModule *)ds_module)
+           ->untraced_sys_call_counts_[sys_call_number]) {
+    ((DataSeriesOutputModule *)ds_module)
+        ->untraced_sys_call_counts_[sys_call_number] = 1;
+    std::cerr << "WARNING: Ignoring to replay system call: " << sys_call_name
+              << " (" << sys_call_number << ")" << std::endl;
   } else {
-    ((DataSeriesOutputModule *)ds_module)->untraced_sys_call_counts_[
-						sys_call_number]++;
+    ((DataSeriesOutputModule *)ds_module)
+        ->untraced_sys_call_counts_[sys_call_number]++;
   }
 }
 
@@ -157,14 +155,14 @@ void ds_add_to_untraced_set(DataSeriesOutputModule *ds_module,
  * Record the size of the buffer passed to an ioctl system call
  */
 void ds_set_ioctl_size(DataSeriesOutputModule *ds_module, int size) {
-  ((DataSeriesOutputModule *) ds_module)->setIoctlSize(size);
+  ((DataSeriesOutputModule *)ds_module)->setIoctlSize(size);
 }
 
 /*
  * Return the size of the buffer passed to an ioctl system call
  */
 int ds_get_ioctl_size(DataSeriesOutputModule *ds_module) {
-  ((DataSeriesOutputModule *) ds_module)->getIoctlSize();
+  return ((DataSeriesOutputModule *)ds_module)->getIoctlSize();
 }
 
 /*
@@ -180,8 +178,8 @@ uint64_t ds_get_next_id(DataSeriesOutputModule *ds_module) {
  * architectures
  */
 void ds_set_clone_ctid_index(DataSeriesOutputModule *ds_module,
-			     unsigned int ctid_index) {
-  ((DataSeriesOutputModule *) ds_module)->setCloneCTIDIndex(ctid_index);
+                             unsigned int ctid_index) {
+  ((DataSeriesOutputModule *)ds_module)->setCloneCTIDIndex(ctid_index);
 }
 
 /*
@@ -189,7 +187,7 @@ void ds_set_clone_ctid_index(DataSeriesOutputModule *ds_module,
  * system call
  */
 unsigned int ds_get_clone_ctid_index(DataSeriesOutputModule *ds_module) {
-  ((DataSeriesOutputModule *) ds_module)->getCloneCTIDIndex();
+  return ((DataSeriesOutputModule *)ds_module)->getCloneCTIDIndex();
 }
 
 /*

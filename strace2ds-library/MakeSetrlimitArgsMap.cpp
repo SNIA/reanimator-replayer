@@ -18,9 +18,8 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeSetrlimitArgsMap(void **args_map,
-						  long *args,
-						  void **v_args) {
+void DataSeriesOutputModule::makeSetrlimitArgsMap(void **args_map, long *args,
+                                                  void **v_args) {
   args_map[SYSCALL_FIELD_RESOURCE_VALUE] = &args[0];
   /*
    * TODO: The correct value of args_map["resource"] should be 0 if resource is
@@ -30,7 +29,7 @@ void DataSeriesOutputModule::makeSetrlimitArgsMap(void **args_map,
    */
   args_map[SYSCALL_FIELD_RESOURCE] = &args[0];
   if (v_args[0] != NULL) {
-    struct rlimit *rlim = (struct rlimit *) v_args[0];
+    struct rlimit *rlim = (struct rlimit *)v_args[0];
     args_map[SYSCALL_FIELD_RESOURCE_SOFT_LIMIT] = &rlim->rlim_cur;
     args_map[SYSCALL_FIELD_RESOURCE_HARD_LIMIT] = &rlim->rlim_max;
   } else {

@@ -25,25 +25,35 @@
 #include "SystemCallTraceReplayModule.hpp"
 
 class CloseSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-private:
+ private:
   // DataSeries Close System Call Trace Fields
   Int32Field descriptor_;
-
+  int32_t descVal;
   /**
    * Print close sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay an close system call with those arguments
    */
-  void processRow();
+  void processRow() override;
 
-public:
-  CloseSystemCallTraceReplayModule(DataSeriesModule &source,
-				   bool verbose_flag,
-				   int warn_level_flag);
+ public:
+  CloseSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                   int warn_level_flag);
+  SystemCallTraceReplayModule *move() override {
+    auto movePtr =
+        new CloseSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    movePtr->setMove(descVal);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
+    return movePtr;
+  }
+  void setMove(int desc) { descVal = desc; }
+  void prepareRow() override;
 };
 
 #endif /* CLOSE_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

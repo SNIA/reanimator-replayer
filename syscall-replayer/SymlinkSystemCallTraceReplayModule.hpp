@@ -28,7 +28,7 @@
 #include <unistd.h>
 
 class SymlinkSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-protected:
+ protected:
   // Symlink System Call Trace Fields in Dataseries file
   Variable32Field target_pathname_;
   Variable32Field given_pathname_;
@@ -36,18 +36,17 @@ protected:
   /**
    * Print symlink sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay a symlink system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
-public:
+ public:
   SymlinkSystemCallTraceReplayModule(DataSeriesModule &source,
-				     bool verbose_flag,
-				     int warn_level_flag);
+                                     bool verbose_flag, int warn_level_flag);
 };
 
 #endif /* SYMLINK_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

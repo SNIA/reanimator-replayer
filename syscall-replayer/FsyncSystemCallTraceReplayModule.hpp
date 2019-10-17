@@ -26,25 +26,39 @@
 #include "SystemCallTraceReplayModule.hpp"
 
 class FsyncSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-private:
+ private:
   // DataSeries Fsync System Call Trace Fields
   Int32Field descriptor_;
-
+  int traced_fd;
+  int simulated_ret_val;
   /**
    * Print fsync sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay an fsync system call with those arguments
    */
-  void processRow();
+  void processRow() override;
 
-public:
-  FsyncSystemCallTraceReplayModule(DataSeriesModule &source,
-				   bool verbose_flag,
-				   int warn_level_flag);
+ public:
+  FsyncSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                   int warn_level_flag);
+  SystemCallTraceReplayModule *move() override {
+    auto movePtr =
+        new FsyncSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    movePtr->setMove(traced_fd, simulated_ret_val);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
+    return movePtr;
+  }
+  void setMove(int fd, int simulatedRetVal) {
+    traced_fd = fd;
+    simulated_ret_val = simulatedRetVal;
+  }
+  void prepareRow() override;
 };
 
 #endif /* FSYNC_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

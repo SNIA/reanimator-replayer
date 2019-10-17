@@ -18,9 +18,8 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeLinkatArgsMap(void **args_map,
-					       long *args,
-					       void **v_args) {
+void DataSeriesOutputModule::makeLinkatArgsMap(void **args_map, long *args,
+                                               void **v_args) {
   initArgsMap(args_map, "linkat");
 
   args_map[SYSCALL_FIELD_OLD_DESCRIPTOR] = &args[0];
@@ -47,11 +46,11 @@ void DataSeriesOutputModule::makeLinkatArgsMap(void **args_map,
   args_map[SYSCALL_FIELD_FLAG_VALUE] = &args[4];
   u_int flag = args[4];
   process_Flag_and_Mode_Args(args_map, flag, AT_EMPTY_PATH,
-			     SYSCALL_FIELD_FLAG_EMPTY_PATH);
+                             SYSCALL_FIELD_FLAG_EMPTY_PATH);
   process_Flag_and_Mode_Args(args_map, flag, AT_SYMLINK_FOLLOW,
-			     SYSCALL_FIELD_FLAG_SYMLINK_FOLLOW);
+                             SYSCALL_FIELD_FLAG_SYMLINK_FOLLOW);
   if (flag != 0) {
-    std::cerr << "Linkat: These flags are not processed/unknown->"
-	      << std::hex << flag << std::dec << std::endl;
+    std::cerr << "Linkat: These flags are not processed/unknown->" << std::hex
+              << flag << std::dec << std::endl;
   }
 }

@@ -22,9 +22,8 @@
  * on syscall entry.
  */
 
-void DataSeriesOutputModule::makeAcceptArgsMap(void **args_map,
-					       long *args,
-					       void **v_args) {
+void DataSeriesOutputModule::makeAcceptArgsMap(void **args_map, long *args,
+                                               void **v_args) {
   args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
   args_map[SYSCALL_FIELD_SOCKADDR_BUFFER] = NULL;
   args_map[SYSCALL_FIELD_SOCKADDR_LENGTH] = v_args[0];

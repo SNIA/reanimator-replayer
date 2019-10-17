@@ -19,13 +19,13 @@
 # make - compile source files that are out-dated
 # make test - test the replayer to see if it is working
 
-OPTFLAGS = -g -O2 -Wall
+OPTFLAGS = -g -O4 -Wall
 
 CPPFLAGS = -I/usr/local/dataseries/include -I/usr/include/libxml2/ \
-	   -I$(HOME)/lib/strace2ds/include -std=c++11
+	   -I$(HOME)/lib/strace2ds/include -std=c++11 -fno-builtin-malloc -fno-builtin-calloc -fno-builtin-realloc -fno-builtin-free
 
-LDFLAGS =  -lboost_program_options -laio -lDataSeries \
-	   -lLintel -L/usr/local/dataseries/lib
+LDFLAGS =  -ltbb -lpthread -lboost_program_options -laio -lDataSeries \
+	   -lLintel -L/usr/local/dataseries/lib -lprofiler -ltcmalloc
 
 CXXFLAGS = $(OPTFLAGS) -D_GNU_SOURCE -D_LARGEFILE_SOURCE \
 	   -D_FILE_OFFSET_BITS=64 $(LDFLAGS) $(CPPFLAGS)
@@ -49,6 +49,8 @@ SYSTEM_CALL_REPLAY_MODULE_OBJECTS = SystemCallTraceReplayer.o \
 				    LinkSystemCallTraceReplayModule.o \
 				    CreatSystemCallTraceReplayModule.o \
 				    ChdirSystemCallTraceReplayModule.o \
+				    FChdirSystemCallTraceReplayModule.o \
+				    ChrootSystemCallTraceReplayModule.o \
 				    SymlinkSystemCallTraceReplayModule.o \
 				    MkdirSystemCallTraceReplayModule.o \
 				    BasicStatSystemCallTraceReplayModule.o \
@@ -61,10 +63,14 @@ SYSTEM_CALL_REPLAY_MODULE_OBJECTS = SystemCallTraceReplayer.o \
 				    WritevSystemCallTraceReplayModule.o \
 				    RenameSystemCallTraceReplayModule.o \
 				    FsyncSystemCallTraceReplayModule.o \
+				    FdatasyncSystemCallTraceReplayModule.o \
+				    FallocateSystemCallTraceReplayModule.o \
+				    ReadaheadSystemCallTraceReplayModule.o \
 				    MknodSystemCallTraceReplayModule.o \
 				    PipeSystemCallTraceReplayModule.o \
 				    DupSystemCallTraceReplayModule.o \
 				    Dup2SystemCallTraceReplayModule.o \
+				    Dup3SystemCallTraceReplayModule.o \
 				    ExitSystemCallTraceReplayModule.o \
 				    ExecveSystemCallTraceReplayModule.o \
 				    MmapSystemCallTraceReplayModule.o \
@@ -79,7 +85,11 @@ SYSTEM_CALL_REPLAY_MODULE_OBJECTS = SystemCallTraceReplayer.o \
 				    UmaskSystemCallTraceReplayModule.o \
 				    FTruncateSystemCallTraceReplayModule.o \
 				    SetxattrSystemCallTraceReplayModule.o \
-				    SocketSystemCallTraceReplayModule.o
+				    SocketSystemCallTraceReplayModule.o \
+				    SocketPairSystemCallTraceReplayModule.o \
+				    AcceptSystemCallTraceReplayModule.o \
+				    Accept4SystemCallTraceReplayModule.o \
+				    EPollCreateSystemCallTraceReplayModule.o
 
 # Modify following variables if the path of your replayer is different.
 SYS_CALL_REPLAYER_DIR=$(HOME)/lib/trace2model/syscall-replayer
@@ -102,3 +112,5 @@ test: $(TARGETS)
 
 clean:
 	rm -f $(TARGETS) $(SYSTEM_CALL_REPLAY_MODULE_OBJECTS) $(SYSTEM_CALL_REPLAY_RESOURCES_MANAGER) *~ \#*\#
+
+

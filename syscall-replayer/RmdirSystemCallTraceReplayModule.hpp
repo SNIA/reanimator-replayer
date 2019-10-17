@@ -22,30 +22,41 @@
 #ifndef RMDIR_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define RMDIR_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 
+#include <unistd.h>
 #include "SystemCallTraceReplayModule.hpp"
 
-#include <unistd.h>
-
 class RmdirSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-private:
+ private:
   // DataSeries Rmdir System Call Trace Fields
   Variable32Field given_pathname_;
+  char *pathname;
 
   /**
    * Print rmdir sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay an rmdir system call with those arguments
    */
-  void processRow();
+  void processRow() override;
 
-public:
-  RmdirSystemCallTraceReplayModule(DataSeriesModule &source,
-				   bool verbose_flag,
-				   int warn_level_flag);
+ public:
+  RmdirSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                   int warn_level_flag);
+  SystemCallTraceReplayModule *move() override {
+    auto movePtr =
+        new RmdirSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    movePtr->setMove(pathname);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
+    return movePtr;
+  }
+  void setMove(char *path) { pathname = path; }
+
+  void prepareRow() override;
 };
 
 #endif /* RMDIR_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

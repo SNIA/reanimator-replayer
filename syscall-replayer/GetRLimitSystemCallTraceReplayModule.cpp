@@ -16,12 +16,11 @@
 
 #include "GetRLimitSystemCallTraceReplayModule.hpp"
 
-GetRLimitSystemCallTraceReplayModule::
-GetRLimitSystemCallTraceReplayModule(DataSeriesModule &source,
-				 bool verbose_flag,
-				 int warn_level_flag):
-  BasicRLimitSystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-  verify_(verify_flag) {
+GetRLimitSystemCallTraceReplayModule::GetRLimitSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
+    : BasicRLimitSystemCallTraceReplayModule(source, verbose_flag,
+                                             warn_level_flag),
+      verify_(verify_flag) {
   sys_call_name_ = "getrlimit";
 }
 
@@ -42,26 +41,30 @@ void GetRLimitSystemCallTraceReplayModule::verifyResult(struct rlimit *rlim) {
   if (soft_limit != rlim->rlim_cur || soft_limit != rlim->rlim_max) {
     // Not same
     if (verbose_mode()) {
-      syscall_logger_->log_err("Verification of ", sys_call_name_, \
-      " struct rlimit content failed.");
+      syscall_logger_->log_err("Verification of ", sys_call_name_,
+                               " struct rlimit content failed.");
     }
     if (!default_mode()) {
-      syscall_logger_->log_warn("time called:", \
-        boost::format(DEC_PRECISION) % Tfrac_to_sec(time_called()), \
-        "Captured ", sys_call_name_, " struct rlimit content is different from replayed ", \
-        sys_call_name_, " content");
-      syscall_logger_->log_warn("Captured soft resource limit: ", soft_limit, ", ", \
-        "Replayed system soft resource limit: ", rlim->rlim_cur);
-      syscall_logger_->log_warn("Captured hard resource limit: ", hard_limit, ", ", \
-        "Replayed system hard resource limit: ", rlim->rlim_max);
+      syscall_logger_->log_warn(
+          "time called:",
+          boost::format(DEC_PRECISION) % Tfrac_to_sec(time_called()),
+          "Captured ", sys_call_name_,
+          " struct rlimit content is different from replayed ", sys_call_name_,
+          " content");
+      syscall_logger_->log_warn(
+          "Captured soft resource limit: ", soft_limit, ", ",
+          "Replayed system soft resource limit: ", rlim->rlim_cur);
+      syscall_logger_->log_warn(
+          "Captured hard resource limit: ", hard_limit, ", ",
+          "Replayed system hard resource limit: ", rlim->rlim_max);
       if (abort_mode()) {
         abort();
-      }  
+      }
     }
   } else {
     if (verbose_mode()) {
-      syscall_logger_->log_info("Verification of ", sys_call_name_, \
-        " struct rlimit succeeded.");
+      syscall_logger_->log_info("Verification of ", sys_call_name_,
+                                " struct rlimit succeeded.");
     }
   }
 }

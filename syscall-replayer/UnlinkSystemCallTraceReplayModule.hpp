@@ -26,34 +26,45 @@
 
 #include "SystemCallTraceReplayModule.hpp"
 
-#include <unistd.h>
 #include <fcntl.h>
+#include <unistd.h>
 
 class UnlinkSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-protected:
+ protected:
   // Unlink System Call Trace Fields in Dataseries file
   Variable32Field given_pathname_;
-
+  char *pathname;
   /**
    * Print this sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay a unlink system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
-public:
-  UnlinkSystemCallTraceReplayModule(DataSeriesModule &source,
-				    bool verbose_flag,
-				    int warn_level_flag);
+ public:
+  UnlinkSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                    int warn_level_flag);
+  SystemCallTraceReplayModule *move() override {
+    auto movePtr =
+        new UnlinkSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    movePtr->setMove(pathname);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
+    return movePtr;
+  }
+  void setMove(char *path) { pathname = path; }
+
+  void prepareRow() override;
 };
 
-class UnlinkatSystemCallTraceReplayModule :
-  public UnlinkSystemCallTraceReplayModule {
-private:
+class UnlinkatSystemCallTraceReplayModule
+    : public UnlinkSystemCallTraceReplayModule {
+ private:
   // Unlinkat System Call Trace Fields in Dataseries file
   Int32Field descriptor_;
   Int32Field flag_value_;
@@ -61,18 +72,17 @@ private:
   /**
    * Print this sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay a unlinkat system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
-public:
+ public:
   UnlinkatSystemCallTraceReplayModule(DataSeriesModule &source,
-				      bool verbose_flag,
-				      int warn_level_flag);
+                                      bool verbose_flag, int warn_level_flag);
 };
 
 #endif /* UNLINK_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

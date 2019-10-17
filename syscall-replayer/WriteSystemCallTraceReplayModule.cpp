@@ -16,38 +16,33 @@
  * about this class.
  */
 
+#include <utility>
+
 #include "WriteSystemCallTraceReplayModule.hpp"
 
-WriteSystemCallTraceReplayModule::
-WriteSystemCallTraceReplayModule(DataSeriesModule &source,
-				 bool verbose_flag,
-				 bool verify_flag,
-				 int warn_level_flag,
-				 std::string pattern_data):
-  SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-  verify_(verify_flag),
-  pattern_data_(pattern_data),
-  descriptor_(series, "descriptor"),
-  data_written_(series, "data_written", Field::flag_nullable),
-  bytes_requested_(series, "bytes_requested") {
+WriteSystemCallTraceReplayModule::WriteSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, bool verify_flag,
+    int warn_level_flag, std::string pattern_data)
+    : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+      verify_(verify_flag),
+      pattern_data_(std::move(pattern_data)),
+      descriptor_(series, "descriptor"),
+      data_written_(series, "data_written", Field::flag_nullable),
+      bytes_requested_(series, "bytes_requested") {
   sys_call_name_ = "write";
 }
 
 void WriteSystemCallTraceReplayModule::print_specific_fields() {
   pid_t pid = executing_pid();
-  int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
-  syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
-    "replayed fd(", replayed_fd, "), ",
-	   "data(", data_written_.val(), "), ", \
-	   "nbytes(", bytes_requested_.val(), ")");
+  int replayed_fd = replayer_resources_manager_.get_fd(pid, traced_fd);
+  syscall_logger_->log_info("traced fd(", traced_fd, "), ", "replayed fd(",
+                            replayed_fd, "), ", "data(", data_buffer, "), ",
+                            "nbytes(", nbytes, ")");
 }
 
 void WriteSystemCallTraceReplayModule::processRow() {
-  size_t nbytes = bytes_requested_.val();
-  pid_t pid = executing_pid();
-  int traced_fd = descriptor_.val();
-  int replayed_fd = replayer_resources_manager_.get_fd(pid, traced_fd);
-  char *data_buffer;
+  int replayed_fd =
+      replayer_resources_manager_.get_fd(executingPidVal, traced_fd);
 
   if (replayed_fd == SYSCALL_SIMULATED) {
     /*
@@ -55,13 +50,11 @@ void WriteSystemCallTraceReplayModule::processRow() {
      * The system call will not be replayed.
      * Original return value will be returned.
      */
-    replayed_ret_val_ = return_value_.val();
     return;
   }
 
   // Check to see if user wants to use pattern
   if (!pattern_data_.empty()) {
-    data_buffer = new char[nbytes];
     if (pattern_data_ == "random") {
       // Fill write buffer using rand()
       data_buffer = random_fill_buffer(data_buffer, nbytes);
@@ -79,48 +72,52 @@ void WriteSystemCallTraceReplayModule::processRow() {
        */
       memset(data_buffer, pattern, nbytes);
     }
-  } else {
-    // Write the traced data
-    data_buffer = (char *)data_written_.val();
   }
 
   // Replay write system call as normal.
   replayed_ret_val_ = write(replayed_fd, data_buffer, nbytes);
 
   // Free the buffer
-  if (!pattern_data_.empty()){
-    delete[] data_buffer;
-  }
+  delete[] data_buffer;
 }
 
-PWriteSystemCallTraceReplayModule::
-PWriteSystemCallTraceReplayModule(DataSeriesModule &source,
-				  bool verbose_flag,
-				  bool verify_flag,
-				  int warn_level_flag,
-				  std::string pattern_data):
-  WriteSystemCallTraceReplayModule(source, verbose_flag,
-				   verify_flag, warn_level_flag, pattern_data),
-  offset_(series, "offset") {
+void WriteSystemCallTraceReplayModule::prepareRow() {
+  nbytes = bytes_requested_.val();
+  traced_fd = descriptor_.val();
+  replayed_ret_val_ = return_value_.val();
+  auto dataBuf = reinterpret_cast<const char *>(data_written_.val());
+  if (nbytes != 0) {
+    data_buffer = new char[nbytes];
+    if (data_buffer != NULL && replayed_ret_val_ > 0) {
+      std::memcpy(data_buffer, dataBuf, replayed_ret_val_);
+    }
+  } else {
+    data_buffer = NULL;
+  }
+  SystemCallTraceReplayModule::prepareRow();
+}
+
+PWriteSystemCallTraceReplayModule::PWriteSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, bool verify_flag,
+    int warn_level_flag, std::string pattern_data)
+    : WriteSystemCallTraceReplayModule(source, verbose_flag, verify_flag,
+                                       warn_level_flag, pattern_data),
+      offset_(series, "offset") {
   sys_call_name_ = "pwrite";
 }
 
 void PWriteSystemCallTraceReplayModule::print_specific_fields() {
   pid_t pid = executing_pid();
-  int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
-  syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
-    "replayed fd(", replayed_fd, "), ",
-	   "data(", data_written_.val(), "), ", \
-	   "nbytes(", bytes_requested_.val(), "), ", \
-	   "offset(", offset_.val(), ")");
+  int replayed_fd = replayer_resources_manager_.get_fd(pid, traced_fd);
+  syscall_logger_->log_info("traced fd(", traced_fd, "), ", "replayed fd(",
+                            replayed_fd, "), ", "data(", data_buffer, "), ",
+                            "nbytes(", nbytes, "), ", "offset(", off, ")");
 }
 
 void PWriteSystemCallTraceReplayModule::processRow() {
   // Get replaying file descriptor.
   pid_t pid = executing_pid();
-  int fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
-  size_t nbytes = bytes_requested_.val();
-  char *data_buffer;
+  int fd = replayer_resources_manager_.get_fd(pid, traced_fd);
 
   if (fd == SYSCALL_SIMULATED) {
     /*
@@ -128,14 +125,8 @@ void PWriteSystemCallTraceReplayModule::processRow() {
      * The system call will not be replayed.
      * Traced return value will be returned.
      */
-    replayed_ret_val_ = return_value_.val();
+    replayed_ret_val_ = return_value();
     return;
-  }
-
-  // Check to see if write data is NULL in DS or user didn't specify pattern
-  if (data_written_.isNull() && pattern_data_.empty() ) {
-    // Let's write zeros.
-    pattern_data_ = "0x0";
   }
 
   // Check to see if user wants to use pattern
@@ -158,15 +149,28 @@ void PWriteSystemCallTraceReplayModule::processRow() {
        */
       memset(data_buffer, pattern, nbytes);
     }
+    replayed_ret_val_ = pwrite(fd, data_buffer, nbytes, off);
   } else {
     // Write the traced data
-    data_buffer = (char *)data_written_.val();
+    replayed_ret_val_ = pwrite(fd, data_buffer, nbytes, off);
   }
 
-  int offset = offset_.val();
-  replayed_ret_val_ = pwrite(fd, data_buffer, nbytes, offset);
-
   // Free the buffer
-  if (!pattern_data_.empty())
+  if (!pattern_data_.empty() && data_buffer != nullptr) {
     delete[] data_buffer;
+  }
+  delete[] data_buffer;
+}
+
+void PWriteSystemCallTraceReplayModule::prepareRow() {
+  off = offset_.val();
+  WriteSystemCallTraceReplayModule::prepareRow();
+}
+
+MmapPWriteSystemCallTraceReplayModule::MmapPWriteSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, bool verify_flag,
+    int warn_level_flag, std::string pattern_data)
+    : PWriteSystemCallTraceReplayModule(source, verbose_flag, verify_flag,
+                                        warn_level_flag, pattern_data) {
+  sys_call_name_ = "mmappwrite";
 }

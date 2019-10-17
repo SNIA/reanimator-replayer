@@ -18,9 +18,8 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeSocketArgsMap(void **args_map,
-					       long *args,
-					       void **v_args) {
+void DataSeriesOutputModule::makeSocketArgsMap(void **args_map, long *args,
+                                               void **v_args) {
   args_map[SYSCALL_FIELD_DOMAIN] = &args[0];
   args_map[SYSCALL_FIELD_TYPE] = &args[1];
   args_map[SYSCALL_FIELD_PROTOCOL] = &args[2];

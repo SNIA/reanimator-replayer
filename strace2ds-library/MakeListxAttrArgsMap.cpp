@@ -18,12 +18,11 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeListxattrArgsMap(void **args_map,
-						  long *args,
-						  void **v_args) {
+void DataSeriesOutputModule::makeListxattrArgsMap(void **args_map, long *args,
+                                                  void **v_args) {
   if (v_args[0] != NULL) {
     args_map[SYSCALL_FIELD_GIVEN_PATHNAME] = &v_args[0];
-  } 
+  }
 
   if (v_args[1] != NULL) {
     args_map[SYSCALL_FIELD_XATTR_LIST] = &v_args[1];

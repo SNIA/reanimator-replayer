@@ -18,9 +18,8 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeSetpgidArgsMap(void **args_map,
-						long *args,
-						void **v_args) {
+void DataSeriesOutputModule::makeSetpgidArgsMap(void **args_map, long *args,
+                                                void **v_args) {
   args_map[SYSCALL_FIELD_PID] = &args[0];
   args_map[SYSCALL_FIELD_PGID] = &args[1];
 }

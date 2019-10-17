@@ -18,9 +18,8 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeLSeekArgsMap(void **args_map,
-					      long *args,
-					      void **v_args) {
+void DataSeriesOutputModule::makeLSeekArgsMap(void **args_map, long *args,
+                                              void **v_args) {
   args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
   args_map[SYSCALL_FIELD_OFFSET] = &args[1];
   args_map[SYSCALL_FIELD_WHENCE] = &args[2];

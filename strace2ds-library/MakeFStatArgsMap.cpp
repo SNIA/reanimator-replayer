@@ -18,13 +18,12 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeFStatArgsMap(void **args_map,
-					      long *args,
-					      void **v_args) {
+void DataSeriesOutputModule::makeFStatArgsMap(void **args_map, long *args,
+                                              void **v_args) {
   args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
 
   if (v_args[0] != NULL) {
-    struct stat *statbuf = (struct stat *) v_args[0];
+    struct stat *statbuf = (struct stat *)v_args[0];
 
     args_map[SYSCALL_FIELD_STAT_RESULT_DEV] = &statbuf->st_dev;
     args_map[SYSCALL_FIELD_STAT_RESULT_INO] = &statbuf->st_ino;

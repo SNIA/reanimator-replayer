@@ -18,9 +18,8 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeExitArgsMap(void **args_map,
-					     long *args,
-					     void **v_args) {
+void DataSeriesOutputModule::makeExitArgsMap(void **args_map, long *args,
+                                             void **v_args) {
   args_map[SYSCALL_FIELD_EXIT_STATUS] = &args[0];
   args_map[SYSCALL_FIELD_GENERATED] = v_args[0];
 }

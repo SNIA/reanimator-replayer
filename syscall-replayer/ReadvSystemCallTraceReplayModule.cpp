@@ -18,18 +18,16 @@
 
 #include "ReadvSystemCallTraceReplayModule.hpp"
 
-ReadvSystemCallTraceReplayModule::
-ReadvSystemCallTraceReplayModule(DataSeriesModule &source,
-				 bool verbose_flag,
-				 bool verify_flag,
-				 int warn_level_flag):
-  SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-  verify_(verify_flag),
-  descriptor_(series, "descriptor", Field::flag_nullable),
-  count_(series, "count", Field::flag_nullable),
-  iov_number_(series, "iov_number"),
-  data_read_(series, "iov_data_read", Field::flag_nullable),
-  bytes_requested_(series, "bytes_requested") {
+ReadvSystemCallTraceReplayModule::ReadvSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, bool verify_flag,
+    int warn_level_flag)
+    : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+      verify_(verify_flag),
+      descriptor_(series, "descriptor", Field::flag_nullable),
+      count_(series, "count", Field::flag_nullable),
+      iov_number_(series, "iov_number"),
+      data_read_(series, "iov_data_read", Field::flag_nullable),
+      bytes_requested_(series, "bytes_requested") {
   sys_call_name_ = "readv";
 }
 
@@ -44,9 +42,9 @@ void ReadvSystemCallTraceReplayModule::print_specific_fields() {
   pid_t pid = executing_pid();
   int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
   syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
-    "replayed fd(", replayed_fd, "), ",
-    "count:(", count_.val(), "), ", \
-    "bytes requested:(", bytes_requested_.val(), ")");
+                            "replayed fd(", replayed_fd, "), ", "count:(",
+                            count_.val(), "), ", "bytes requested:(",
+                            bytes_requested_.val(), ")");
 
   int count = count_.val();
 
@@ -56,8 +54,8 @@ void ReadvSystemCallTraceReplayModule::print_specific_fields() {
    */
   while (count > 0 && series.morerecords()) {
     ++series;
-    syscall_logger_->log_info("iov_number:(", iov_number_.val(), "), ", \
-      "data_read:(", data_read_.val(), ")");
+    syscall_logger_->log_info("iov_number:(", iov_number_.val(), "), ",
+                              "data_read:(", data_read_.val(), ")");
     count--;
   }
 
@@ -71,8 +69,8 @@ void ReadvSystemCallTraceReplayModule::processRow() {
   int fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
   int count = count_.val(); /* Number of read io vectors */
   int iov_number = iov_number_.val();
-  char *traced_buffer[count];
-  char *replayed_buffer[count];
+  auto traced_buffer = new char *[count];
+  auto replayed_buffer = new char *[count];
 
   /*
    * The total number of rows processed by single readv system
@@ -140,29 +138,29 @@ void ReadvSystemCallTraceReplayModule::processRow() {
   replayed_ret_val_ = readv(fd, iov, count);
 
   // If replayer runs in verify mode.
-  if (verify_ == true) {
+  if (verify_) {
     // Verify each iovec read data and data in the trace file
     for (int iovcnt_ = 0; iovcnt_ < count; iovcnt_++) {
-      if (memcmp(traced_buffer[iovcnt_],
-        replayed_buffer[iovcnt_],
-        iov[iovcnt_].iov_len) != 0) {
+      if (memcmp(traced_buffer[iovcnt_], replayed_buffer[iovcnt_],
+                 iov[iovcnt_].iov_len) != 0) {
         // Data aren't same
-        syscall_logger_->log_err("Verification of data for iov number: ", \
-          iovcnt_, " in readv failed.");
+        syscall_logger_->log_err("Verification of data for iov number: ",
+                                 iovcnt_, " in readv failed.");
         if (!default_mode()) {
-          syscall_logger_->log_warn("time called:", \
-            boost::format(DEC_PRECISION) % Tfrac_to_sec(time_called()), \
-            ", Captured readv data is different from", \
-            " replayed read data");
-          syscall_logger_->log_warn("Captured readv data: ", traced_buffer[iovcnt_],
-            ", Replayed readv data: ", replayed_buffer[iovcnt_]);
+          syscall_logger_->log_warn(
+              "time called:",
+              boost::format(DEC_PRECISION) % Tfrac_to_sec(time_called()),
+              ", Captured readv data is different from", " replayed read data");
+          syscall_logger_->log_warn(
+              "Captured readv data: ", traced_buffer[iovcnt_],
+              ", Replayed readv data: ", replayed_buffer[iovcnt_]);
           if (abort_mode()) {
             abort();
           }
         }
       } else if (verbose_mode()) {
-        syscall_logger_->log_info("Verification of data for iov number: ", \
-          iovcnt_, " in readv succeeded.");
+        syscall_logger_->log_info("Verification of data for iov number: ",
+                                  iovcnt_, " in readv succeeded.");
       }
     }
   }
@@ -178,4 +176,7 @@ void ReadvSystemCallTraceReplayModule::processRow() {
    * pointer in the Extent Series to the first record.
    */
   series.setCurPos(first_record_pos);
+
+  delete[] traced_buffer;
+  delete[] replayed_buffer;
 }

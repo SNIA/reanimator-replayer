@@ -18,9 +18,8 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeSymlinkatArgsMap(void **args_map,
-						  long *args,
-						  void **v_args) {
+void DataSeriesOutputModule::makeSymlinkatArgsMap(void **args_map, long *args,
+                                                  void **v_args) {
   static bool true_ = true;
 
   initArgsMap(args_map, "symlinkat");

@@ -5,8 +5,11 @@ libstrace2ds_la_SOURCES = DataSeriesOutputModule.cpp 	\
 			  MakeOpenArgsMap.cpp        	\
 			  MakeOpenAtArgsMap.cpp      	\
 			  MakeReadArgsMap.cpp        	\
+			  MakeMmapPreadArgsMap.cpp     	\
+			  MakeMmapPwriteArgsMap.cpp    	\
 			  MakeWriteArgsMap.cpp       	\
 			  MakeChdirArgsMap.cpp       	\
+			  MakeChrootArgsMap.cpp       	\
 			  MakeRmdirArgsMap.cpp       	\
 			  MakeUnlinkArgsMap.cpp      	\
 			  MakeUnlinkAtArgsMap.cpp    	\
@@ -30,6 +33,7 @@ libstrace2ds_la_SOURCES = DataSeriesOutputModule.cpp 	\
 			  MakeFRemovexAttrArgsMap.cpp   \
 			  MakeFChmodArgsMap.cpp         \
 			  MakeFChmodAtArgsMap.cpp       \
+			  MakeFChdirArgsMap.cpp         \
 			  MakeLinkArgsMap.cpp           \
 			  MakeLinkAtArgsMap.cpp         \
 			  MakeSymLinkArgsMap.cpp        \
@@ -59,11 +63,15 @@ libstrace2ds_la_SOURCES = DataSeriesOutputModule.cpp 	\
 			  MakeUtimesatArgsMap.cpp	\
 			  MakeRenameArgsMap.cpp		\
 			  MakeFsyncArgsMap.cpp		\
+			  MakeFdatasyncArgsMap.cpp	\
+			  MakeFallocateArgsMap.cpp	\
+			  MakeReadaheadArgsMap.cpp	\
 			  MakeMknodArgsMap.cpp		\
 			  MakeMknodatArgsMap.cpp	\
 			  MakePipeArgsMap.cpp		\
 			  MakeDupArgsMap.cpp		\
 			  MakeDup2ArgsMap.cpp		\
+			  MakeDup3ArgsMap.cpp		\
 			  MakeFcntlArgsMap.cpp		\
 			  MakeExitArgsMap.cpp		\
 			  MakeExecveArgsMap.cpp		\
@@ -75,9 +83,12 @@ libstrace2ds_la_SOURCES = DataSeriesOutputModule.cpp 	\
 			  MakeCloneArgsMap.cpp		\
 			  MakeVForkArgsMap.cpp		\
 			  MakeSocketArgsMap.cpp		\
+			  MakeEpollCreateArgsMap.cpp	\
+			  MakeEpollCreate1ArgsMap.cpp	\
 			  MakeConnectArgsMap.cpp	\
 			  MakeBindArgsMap.cpp		\
 			  MakeAcceptArgsMap.cpp		\
+			  MakeAccept4ArgsMap.cpp	\
 			  MakeGetpeernameArgsMap.cpp    \
 			  MakeGetsocknameArgsMap.cpp    \
 			  MakeListenArgsMap.cpp		\
@@ -100,17 +111,22 @@ SNIA_SYSCALL_FIELDS_TABLE_FILE=tables/snia_syscall_fields.table
 XML_FILES=			\
 	xml/access.xml		\
 	xml/chdir.xml		\
+	xml/chroot.xml		\
 	xml/chmod.xml		\
 	xml/chown.xml		\
 	xml/close.xml		\
 	xml/creat.xml		\
 	xml/dup.xml		\
 	xml/dup2.xml		\
+	xml/dup3.xml		\
 	xml/execve.xml		\
 	xml/fcntl.xml		\
 	xml/fork.xml		\
 	xml/fstat.xml		\
 	xml/fsync.xml		\
+	xml/fdatasync.xml	\
+	xml/fallocate.xml	\
+	xml/readahead.xml	\
 	xml/ioctl.xml		\
 	xml/link.xml		\
 	xml/lseek.xml		\
@@ -124,6 +140,8 @@ XML_FILES=			\
 	xml/pread.xml		\
 	xml/pwrite.xml		\
 	xml/read.xml		\
+	xml/mmappread.xml	\
+	xml/mmappwrite.xml	\
 	xml/readlink.xml	\
 	xml/readv.xml		\
 	xml/rename.xml		\
@@ -140,6 +158,7 @@ XML_FILES=			\
 	xml/exit.xml		\
 	xml/fchmod.xml		\
 	xml/fchmodat.xml	\
+	xml/fchdir.xml		\
 	xml/flock.xml		\
 	xml/fstatfs.xml		\
 	xml/getdents.xml	\
@@ -173,10 +192,13 @@ XML_FILES=			\
 	xml/symlinkat.xml	\
 	xml/umask.xml		\
 	xml/socket.xml		\
+	xml/epoll_create.xml	\
+	xml/epoll_create1.xml	\
 	xml/connect.xml		\
 	xml/bind.xml		\
 	xml/listen.xml		\
 	xml/accept.xml		\
+	xml/accept4.xml		\
 	xml/getsockname.xml     \
 	xml/getpeername.xml	\
 	xml/shutdown.xml	\

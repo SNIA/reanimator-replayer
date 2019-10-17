@@ -16,12 +16,11 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeRecvmsgArgsMap(void **args_map,
-						long *args,
-						void **v_args) {
+void DataSeriesOutputModule::makeRecvmsgArgsMap(void **args_map, long *args,
+                                                void **v_args) {
   int iov_number = -1;
   if (v_args[0] != NULL) {
-    iov_number = *(int *) v_args[0];
+    iov_number = *(int *)v_args[0];
   }
 
   /*
@@ -44,8 +43,8 @@ void DataSeriesOutputModule::makeRecvmsgArgsMap(void **args_map,
       args_map[SYSCALL_FIELD_IOV_NUMBER] = v_args[0];
       args_map[SYSCALL_FIELD_BYTES_REQUESTED] = v_args[1];
     } else {
-      std::cerr << "Recvmsg: struct msghdr buffer is set as NULL!!" <<
-      std::endl;
+      std::cerr << "Recvmsg: struct msghdr buffer is set as NULL!!"
+                << std::endl;
     }
   } else {
     /*

@@ -24,40 +24,51 @@
 #ifndef FCHMOD_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define FCHMOD_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include "SystemCallTraceReplayModule.hpp"
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-
 class FChmodSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-protected:
+ protected:
   // FChmod System Call Trace Fields in Dataseries file
   Int32Field descriptor_;
   Int32Field mode_value_;
+  int32_t traced_fd, mode_value;
 
   /**
    * Print fchmod sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay an fchmod  system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
-public:
-  FChmodSystemCallTraceReplayModule(DataSeriesModule &source,
-                                   bool verbose_flag,
-                                   int warn_level_flag);
-
+ public:
+  FChmodSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                    int warn_level_flag);
+  SystemCallTraceReplayModule *move() override {
+    auto movePtr =
+        new FChmodSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    movePtr->setMove(traced_fd, mode_value);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
+    return movePtr;
+  }
+  void setMove(int fd, int mode) {
+    traced_fd = fd;
+    mode_value = mode;
+  }
+  void prepareRow() override;
 };
 
-class FChmodatSystemCallTraceReplayModule :
-public FChmodSystemCallTraceReplayModule {
-
-private:
+class FChmodatSystemCallTraceReplayModule
+    : public FChmodSystemCallTraceReplayModule {
+ private:
   // FChmodat System Call Trace Fields in Dataseries file
   Variable32Field given_pathname_;
   Int32Field flag_value_;
@@ -65,18 +76,16 @@ private:
   /**
    * Print fchmod sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay an fchmod  system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
-public:
+ public:
   FChmodatSystemCallTraceReplayModule(DataSeriesModule &source,
-				      bool verbose_flag,
-				      int warn_level_flag);
-
+                                      bool verbose_flag, int warn_level_flag);
 };
 #endif /* FCHMOD_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

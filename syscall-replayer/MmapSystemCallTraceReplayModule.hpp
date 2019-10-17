@@ -25,7 +25,7 @@
 #include "SystemCallTraceReplayModule.hpp"
 
 class MmapSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-private:
+ private:
   // DataSeries Mmap System Call Trace Fields
   Int64Field start_address_;
   Int64Field length_;
@@ -34,21 +34,49 @@ private:
   Int32Field descriptor_;
   Int64Field offset_;
 
+  int64_t startAddress;
+  int64_t sizeOfMap;
+  int32_t protectionVal;
+  int32_t flagsVal;
+  int32_t descriptorVal;
+  int64_t offsetVal;
+
   /**
    * Print mmap sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will simply return without replaying
    * mmap system call.
    */
-  void processRow();
+  void processRow() override;
 
-public:
-  MmapSystemCallTraceReplayModule(DataSeriesModule &source,
-				  bool verbose_flag,
-				  int warn_level_flag);
+ public:
+  MmapSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                  int warn_level_flag);
+  SystemCallTraceReplayModule *move() override {
+    auto movePtr =
+        new MmapSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    movePtr->setMove(startAddress, sizeOfMap, protectionVal, flagsVal,
+                     descriptorVal, offsetVal);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
+    return movePtr;
+  }
+
+  void setMove(int64_t startAddr, int64_t lengthOfMap, int32_t protection,
+               int32_t flag, int32_t desc, int64_t offset) {
+    startAddress = startAddr;
+    sizeOfMap = lengthOfMap;
+    protectionVal = protection;
+    flagsVal = flag;
+    descriptorVal = desc;
+    offsetVal = offset;
+  }
+
+  void prepareRow() override;
 };
 
 #endif /* MMAP_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

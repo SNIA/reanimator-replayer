@@ -25,55 +25,93 @@
 #include "SystemCallTraceReplayModule.hpp"
 
 class WriteSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-protected:
+ protected:
   bool verify_;
   std::string pattern_data_;
   // Write System Call Trace Fields in Dataseries file
   Int32Field descriptor_;
   Variable32Field data_written_;
   Int64Field bytes_requested_;
+  char *data_buffer;
+  size_t nbytes;
+  int traced_fd;
 
   /**
    * Print write sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * or create our own arguments (for example, pattern),
    * then replay an write system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
-public:
-  WriteSystemCallTraceReplayModule(DataSeriesModule &source,
-				   bool verbose_flag,
-				   bool verify_flag,
-				   int warn_level_flag,
-				   std::string pattern_data);
+ public:
+  WriteSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                   bool verify_flag, int warn_level_flag,
+                                   std::string pattern_data);
+  SystemCallTraceReplayModule *move() override {
+    auto movePtr = new WriteSystemCallTraceReplayModule(
+        source, verbose_, verify_, warn_level_, pattern_data_);
+    movePtr->setMove(data_buffer, nbytes, traced_fd);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
+    return movePtr;
+  }
+  void setMove(char *buf, int byte, int fd) {
+    data_buffer = buf;
+    nbytes = byte;
+    traced_fd = fd;
+  }
+  void prepareRow() override;
 };
 
-class PWriteSystemCallTraceReplayModule : public WriteSystemCallTraceReplayModule {
-private:
+class PWriteSystemCallTraceReplayModule
+    : public WriteSystemCallTraceReplayModule {
+ protected:
   // PWrite System Call Trace Fields in Dataseries file
   Int64Field offset_;
-
+  off_t off;
   /**
    * Print pwrite sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and then replay an pwrite system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
-public:
-  PWriteSystemCallTraceReplayModule(DataSeriesModule &source,
-				    bool verbose_flag,
-				    bool verify_flag,
-				    int warn_level_flag,
-				    std::string pattern_data);
+ public:
+  PWriteSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                    bool verify_flag, int warn_level_flag,
+                                    std::string pattern_data);
+  SystemCallTraceReplayModule *move() override {
+    auto movePtr = new PWriteSystemCallTraceReplayModule(
+        source, verbose_, verify_, warn_level_, pattern_data_);
+    movePtr->setMove(data_buffer, nbytes, traced_fd, off);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
+    return movePtr;
+  }
+  inline void setMove(char *buf, int byte, int fd, off_t offset) {
+    WriteSystemCallTraceReplayModule::setMove(buf, byte, fd);
+    off = offset;
+  }
+  void prepareRow() override;
+};
+
+class MmapPWriteSystemCallTraceReplayModule
+    : public PWriteSystemCallTraceReplayModule {
+ public:
+  MmapPWriteSystemCallTraceReplayModule(DataSeriesModule &source,
+                                        bool verbose_flag, bool verify_flag,
+                                        int warn_level_flag,
+                                        std::string pattern_data);
 };
 #endif /* WRITE_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

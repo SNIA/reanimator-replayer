@@ -19,8 +19,8 @@
 #include "DataSeriesOutputModule.hpp"
 
 void DataSeriesOutputModule::makeLRemovexattrArgsMap(void **args_map,
-						     long *args,
-						     void **v_args) {
+                                                     long *args,
+                                                     void **v_args) {
   if (v_args[0] != NULL) {
     args_map[SYSCALL_FIELD_GIVEN_PATHNAME] = &v_args[0];
   } else {

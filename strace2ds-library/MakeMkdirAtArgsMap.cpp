@@ -18,9 +18,8 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeMkdiratArgsMap(void **args_map,
-						long *args,
-						void **v_args) {
+void DataSeriesOutputModule::makeMkdiratArgsMap(void **args_map, long *args,
+                                                void **v_args) {
   int mode_offset = 2;
 
   // Initialize all non-nullable boolean fields

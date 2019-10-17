@@ -23,57 +23,71 @@
 #ifndef UTIME_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define UTIME_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 
-#include <unistd.h>
-#include <utime.h>
 #include <sys/stat.h>
 #include <sys/syscall.h>
+#include <unistd.h>
+#include <utime.h>
 #include "SystemCallTraceReplayModule.hpp"
 
 class UtimeSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-protected:
+ protected:
   bool verify_;
   // utime System Call Trace Fields in Dataseries file
   Variable32Field given_pathname_;
   Int64Field access_time_;
   Int64Field mod_time_;
+  char *pathname;
+  int64_t access_t;
+  int64_t mod_t;
 
   /**
    * Print utime sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and then replay utime system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
-public:
-  UtimeSystemCallTraceReplayModule(DataSeriesModule &source,
-				   bool verbose_flag,
-				   bool verify_flag,
-				   int warn_level_flag);
+ public:
+  UtimeSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                   bool verify_flag, int warn_level_flag);
+  SystemCallTraceReplayModule *move() override {
+    auto movePtr = new UtimeSystemCallTraceReplayModule(source, verbose_,
+                                                        verify_, warn_level_);
+    movePtr->setMove(pathname, access_t, mod_t);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
+    return movePtr;
+  }
+  void setMove(char *path, int64_t access, int64_t mod) {
+    pathname = path;
+    access_t = access;
+    mod_t = mod;
+  }
+  void prepareRow() override;
 };
 
-class UtimesSystemCallTraceReplayModule :
-  public UtimeSystemCallTraceReplayModule {
-private:
+class UtimesSystemCallTraceReplayModule
+    : public UtimeSystemCallTraceReplayModule {
+ private:
   /**
    * This function will gather arguments in the trace file
    * and then replay utimes system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
-public:
-  UtimesSystemCallTraceReplayModule(DataSeriesModule &source,
-				    bool verbose_flag,
-				    bool verify_flag,
-				    int warn_level_flag);
+ public:
+  UtimesSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                    bool verify_flag, int warn_level_flag);
 };
 
-class UtimensatSystemCallTraceReplayModule :
-  public UtimeSystemCallTraceReplayModule {
-private:
+class UtimensatSystemCallTraceReplayModule
+    : public UtimeSystemCallTraceReplayModule {
+ private:
   // Utimensat System Call Trace Fields in Dataseries file
   Int32Field descriptor_;
   Int32Field flag_value_;
@@ -81,18 +95,17 @@ private:
   /**
    * Print utimensat sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and then replay utimensats system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
-public:
+ public:
   UtimensatSystemCallTraceReplayModule(DataSeriesModule &source,
-				       bool verbose_flag,
-				       bool verify_flag,
-				       int warn_level_flag);
+                                       bool verbose_flag, bool verify_flag,
+                                       int warn_level_flag);
 };
 #endif /* UTIME_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

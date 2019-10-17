@@ -24,18 +24,19 @@
 #ifndef REPLAYER_RESOURCES_MANAGER_HPP
 #define REPLAYER_RESOURCES_MANAGER_HPP
 
-#include <utility>
-#include <map>
-#include <string>
-#include <vector>
-#include <unordered_set>
-#include <iterator>
 #include <assert.h>
-#include <iostream>
-#include <sys/time.h>
 #include <sys/resource.h>
+#include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <iostream>
+#include <iterator>
+#include <map>
+#include <mutex>
+#include <string>
+#include <unordered_set>
+#include <utility>
+#include <vector>
 #include "SystemCallTraceReplayLogger.hpp"
 
 /*
@@ -46,10 +47,10 @@
 #define MAX_FD_TO_SCAN 100
 
 class BasicEntry {
-protected:
+ protected:
   unsigned int rc_;
 
-public:
+ public:
   /**
    * Constructor
    */
@@ -67,15 +68,15 @@ public:
   unsigned int decrement_rc();
 };
 
-class UmaskEntry : public BasicEntry{
-private:
+class UmaskEntry : public BasicEntry {
+ private:
   mode_t umask_;
 
-public:
+ public:
   /**
    * Constructor
    */
-  UmaskEntry(mode_t m);
+  explicit UmaskEntry(mode_t m);
 
   /**
    * Return mask
@@ -89,11 +90,11 @@ public:
 };
 
 class FileDescriptorEntry {
-private:
+ private:
   int fd_;
   int flags_;
 
-public:
+ public:
   /**
    * Constructor
    */
@@ -130,12 +131,14 @@ public:
   std::string to_string();
 };
 
-class FileDescriptorTableEntry : public BasicEntry{
-private:
+class FileDescriptorTableEntry : public BasicEntry {
+ private:
   // <traced fd, replayed FileDescriptorEntry>
   std::map<int, FileDescriptorEntry*> fd_table_;
+  // TODO(Umit) might be removed I will take a look at
+  std::mutex fd_table_entry_mutex;
 
-public:
+ public:
   /**
    * Basic Constructor
    */
@@ -223,14 +226,15 @@ class ReplayerResourcesManager {
    * 2. flags are also int because flags in open man page is int.
    */
 
-private:
+ private:
+  std::mutex fd_table_map_lock;
   PerPidFileDescriptorTableMap fd_table_map_;
   UmaskTable umask_table_;
-  SystemCallTraceReplayLogger *logger_;
+  SystemCallTraceReplayLogger* logger_;
   // Cached currently in-used fds in replayer
   std::unordered_set<int> replayer_used_fds_;
 
-public:
+ public:
   /**
    * Constructor
    */
@@ -243,7 +247,8 @@ public:
    * for any process. We need to create the fd table for
    * the first process before replaying.
    */
-  void initialize(SystemCallTraceReplayLogger *logger, pid_t pid, std::map<int, int>& fd_map);
+  void initialize(SystemCallTraceReplayLogger* logger, pid_t pid,
+                  std::map<int, int>& fd_map);
 
   /**
    * This function will create a file descriptor entry for
@@ -366,7 +371,8 @@ public:
    * Scan all fds in the replayer and see if there is any fd that
    * is not known to this manager. Print a warning message to indicate
    * this situation.
-   * Note: we can periodically call this function to validate the state of our replayer,
+   * Note: we can periodically call this function to validate the state of our
+   * replayer,
    * so we know that every fd that is open is known to this resource manager.
    */
   void validate_consistency();
@@ -375,6 +381,6 @@ public:
    * Check to see whether the given fd is currently used in the replayer.
    * Return true if it is currently in-used, false otherwise.
    */
-   bool is_fd_in_use(int fd);
+  bool is_fd_in_use(int fd);
 };
 #endif /* REPLAYER_RESOURCES_MANAGER_HPP */

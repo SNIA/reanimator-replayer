@@ -18,9 +18,8 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeFSetxattrArgsMap(void **args_map,
-						  long *args,
-						  void **v_args) {
+void DataSeriesOutputModule::makeFSetxattrArgsMap(void **args_map, long *args,
+                                                  void **v_args) {
   // Initialize all non-nullable boolean fields to False.
   initArgsMap(args_map, "fsetxattr");
   args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
@@ -36,8 +35,10 @@ void DataSeriesOutputModule::makeFSetxattrArgsMap(void **args_map,
   /* Setting flag values */
   args_map[SYSCALL_FIELD_FLAG_VALUE] = &args[4];
   u_int flag = args[4];
-  process_Flag_and_Mode_Args(args_map, flag, XATTR_CREATE, SYSCALL_FIELD_FLAG_XATTR_CREATE);
-  process_Flag_and_Mode_Args(args_map, flag, XATTR_REPLACE, SYSCALL_FIELD_FLAG_XATTR_REPLACE);
+  process_Flag_and_Mode_Args(args_map, flag, XATTR_CREATE,
+                             SYSCALL_FIELD_FLAG_XATTR_CREATE);
+  process_Flag_and_Mode_Args(args_map, flag, XATTR_REPLACE,
+                             SYSCALL_FIELD_FLAG_XATTR_REPLACE);
   if (flag != 0) {
     std::cerr << "FSetxattr: These flag are not processed/unknown->0x";
     std::cerr << std::hex << flag << std::dec << std::endl;

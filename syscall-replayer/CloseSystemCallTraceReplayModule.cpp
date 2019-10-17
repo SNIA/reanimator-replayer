@@ -18,26 +18,23 @@
 
 #include "CloseSystemCallTraceReplayModule.hpp"
 
-CloseSystemCallTraceReplayModule::
-CloseSystemCallTraceReplayModule(DataSeriesModule &source,
-				 bool verbose_flag,
-				 int warn_level_flag):
-  SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-  descriptor_(series, "descriptor") {
+CloseSystemCallTraceReplayModule::CloseSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
+    : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+      descriptor_(series, "descriptor") {
   sys_call_name_ = "close";
 }
 
 void CloseSystemCallTraceReplayModule::print_specific_fields() {
   pid_t pid = executing_pid();
-  int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
-  syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
-    "replayed fd(", replayed_fd, ")");
+  int replayed_fd = replayer_resources_manager_.get_fd(pid, descVal);
+  syscall_logger_->log_info("traced fd(", descVal, "), ", "replayed fd(",
+                            replayed_fd, ")");
 }
 
 void CloseSystemCallTraceReplayModule::processRow() {
   // Get actual file descriptor
-  pid_t pid = executing_pid();
-  int fd = replayer_resources_manager_.remove_fd(pid, descriptor_.val());
+  int fd = replayer_resources_manager_.remove_fd(executingPidVal, descVal);
 
   if (fd == SYSCALL_SIMULATED) {
     /*
@@ -45,9 +42,14 @@ void CloseSystemCallTraceReplayModule::processRow() {
      * The system call will not be replayed.
      * Traced return value will be returned.
      */
-    replayed_ret_val_ = return_value_.val();
     return;
   }
 
   replayed_ret_val_ = close(fd);
+}
+
+void CloseSystemCallTraceReplayModule::prepareRow() {
+  replayed_ret_val_ = return_value_.val();
+  descVal = descriptor_.val();
+  SystemCallTraceReplayModule::prepareRow();
 }

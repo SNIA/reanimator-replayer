@@ -18,24 +18,26 @@
 
 #include "UmaskSystemCallTraceReplayModule.hpp"
 
-UmaskSystemCallTraceReplayModule::
-UmaskSystemCallTraceReplayModule(DataSeriesModule &source,
-				 bool verbose_flag,
-				 int warn_level_flag):
-  SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-  mode_value_(series, "mode_value", Field::flag_nullable) {
+UmaskSystemCallTraceReplayModule::UmaskSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
+    : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+      mode_value_(series, "mode_value", Field::flag_nullable) {
   sys_call_name_ = "umask";
 }
 
 void UmaskSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("mode(", mode_value_.val(), ")");
+  syscall_logger_->log_info("mode(", mode, ")");
 }
 
 void UmaskSystemCallTraceReplayModule::processRow() {
-  mode_t mode = mode_value_.val();
-  pid_t pid = executing_pid();
   // Replay umask by updating umask table.
-  SystemCallTraceReplayModule::replayer_resources_manager_.set_umask(pid, mode);
+  SystemCallTraceReplayModule::replayer_resources_manager_.set_umask(
+      executingPidVal, mode);
   // Always succeed since umask always succeeds.
   replayed_ret_val_ = 0;
+}
+
+void UmaskSystemCallTraceReplayModule::prepareRow() {
+  mode = mode_value_.val();
+  SystemCallTraceReplayModule::prepareRow();
 }

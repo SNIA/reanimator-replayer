@@ -18,14 +18,14 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeFLockArgsMap(void **args_map,
-                                              long *args,
+void DataSeriesOutputModule::makeFLockArgsMap(void **args_map, long *args,
                                               void **v_args) {
   args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
 
   args_map[SYSCALL_FIELD_OPERATION_VALUE] = &args[1];
   /*
-   * TODO: The correct value of args_map["operation"] should be 0 if operation is
+   * TODO: The correct value of args_map["operation"] should be 0 if operation
+   * is
    * LOCK_SH, 1 if it is LOCK_EX, 2 if it is LOCK_UN, so and so forth.
    * Currently, we don't do this. We simply assume that resource is same
    * across different platforms.

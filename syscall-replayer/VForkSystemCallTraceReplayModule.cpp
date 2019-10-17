@@ -18,17 +18,22 @@
  */
 
 #include "VForkSystemCallTraceReplayModule.hpp"
+#include <thread>
+#include "tbb/atomic.h"
+#include "tbb/concurrent_vector.h"
 
-VForkSystemCallTraceReplayModule::
-VForkSystemCallTraceReplayModule(DataSeriesModule &source,
-                                 bool verbose_flag,
-                                 int warn_level_flag):
-  SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag) {
+extern tbb::concurrent_vector<std::thread> threads;
+extern void executionThread(int64_t threadID);
+extern tbb::atomic<uint64_t> nThreads;
+extern std::function<void(int64_t, SystemCallTraceReplayModule *)> setRunning;
+
+VForkSystemCallTraceReplayModule::VForkSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
+    : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag) {
   sys_call_name_ = "vfork";
 }
 
-void VForkSystemCallTraceReplayModule::print_specific_fields() {
-}
+void VForkSystemCallTraceReplayModule::print_specific_fields() {}
 
 void VForkSystemCallTraceReplayModule::processRow() {
   /*
@@ -43,6 +48,16 @@ void VForkSystemCallTraceReplayModule::processRow() {
   pid_t ppid = executing_pid();
   pid_t pid = return_value();
   // Clone resources tables
-  SystemCallTraceReplayModule::replayer_resources_manager_.clone_umask(ppid, pid, shared_umask);
-  SystemCallTraceReplayModule::replayer_resources_manager_.clone_fd_table(ppid, pid, shared_files);
+  SystemCallTraceReplayModule::replayer_resources_manager_.clone_umask(
+      ppid, pid, shared_umask);
+  SystemCallTraceReplayModule::replayer_resources_manager_.clone_fd_table(
+      ppid, pid, shared_files);
+
+  nThreads++;
+  setRunning(pid, nullptr);
+  threads.emplace_back(executionThread, pid);
+}
+
+void VForkSystemCallTraceReplayModule::prepareRow() {
+  SystemCallTraceReplayModule::prepareRow();
 }

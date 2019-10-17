@@ -18,9 +18,8 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeIoctlArgsMap(void **args_map,
-                                             long *args,
-                                             void **v_args) {
+void DataSeriesOutputModule::makeIoctlArgsMap(void **args_map, long *args,
+                                              void **v_args) {
   args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
   args_map[SYSCALL_FIELD_REQUEST] = &args[1];
   args_map[SYSCALL_FIELD_PARAMETER] = &args[2];

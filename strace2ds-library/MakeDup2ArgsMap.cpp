@@ -18,9 +18,8 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeDup2ArgsMap(void **args_map,
-					     long *args,
-					     void **v_args) {
+void DataSeriesOutputModule::makeDup2ArgsMap(void **args_map, long *args,
+                                             void **v_args) {
   args_map[SYSCALL_FIELD_OLD_DESCRIPTOR] = &args[0];
   args_map[SYSCALL_FIELD_NEW_DESCRIPTOR] = &args[1];
 }

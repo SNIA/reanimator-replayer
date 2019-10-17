@@ -28,31 +28,46 @@
 #include <unistd.h>
 
 class LinkSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-protected:
+ protected:
   // Link System Call Trace Fields in Dataseries file
   Variable32Field given_oldpathname_;
   Variable32Field given_newpathname_;
+  char *old_pathname;
+  char *new_pathname;
 
   /**
    * Print link sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay a link system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
-public:
-  LinkSystemCallTraceReplayModule(DataSeriesModule &source,
-				  bool verbose_flag,
-				  int warn_level_flag);
+ public:
+  LinkSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                  int warn_level_flag);
+  SystemCallTraceReplayModule *move() override {
+    auto movePtr =
+        new LinkSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    movePtr->setMove(old_pathname, new_pathname);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
+    return movePtr;
+  }
+  void setMove(char *old_path, char *new_path) {
+    old_pathname = old_path;
+    new_pathname = new_path;
+  }
+  void prepareRow() override;
 };
 
-class LinkatSystemCallTraceReplayModule :
-  public LinkSystemCallTraceReplayModule {
-protected:
+class LinkatSystemCallTraceReplayModule
+    : public LinkSystemCallTraceReplayModule {
+ protected:
   // Linkat System Call Trace Fields in Dataseries file
   Int32Field old_descriptor_;
   Int32Field new_descriptor_;
@@ -61,17 +76,16 @@ protected:
   /**
    * Print linkat sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay a linkat system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
-public:
-  LinkatSystemCallTraceReplayModule(DataSeriesModule &source,
-				    bool verbose_flag,
-				    int warn_level_flag);
+ public:
+  LinkatSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                    int warn_level_flag);
 };
 #endif /* LINK_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

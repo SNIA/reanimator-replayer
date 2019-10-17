@@ -24,18 +24,20 @@
 
 #include <sys/socket.h>
 
-
 class SocketSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-protected:
+ protected:
   // Socket System Call Trace Fields in Dataseries file
   Int32Field domain_value_;
   Int32Field type_value_;
   Int32Field protocol_value_;
 
+  uint32_t domain;
+  uint32_t type;
+  uint32_t protocol;
   /**
    * Print socket sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
@@ -45,12 +47,26 @@ protected:
    * - if traced socket() call succeeded we add a special FD
    *   (SYSCALL_SIMULATED) to the fd-map.
    */
-  void processRow();
+  void processRow() override;
 
-public:
-  SocketSystemCallTraceReplayModule(DataSeriesModule &source,
-				    bool verbose_flag,
-				    int warn_level_flag);
-
+ public:
+  SocketSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                    int warn_level_flag);
+  SystemCallTraceReplayModule *move() override {
+    auto movePtr =
+        new SocketSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    movePtr->setMove(domain, type, protocol);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
+    return movePtr;
+  }
+  inline void setMove(uint32_t domain_val, uint32_t type_val,
+                      uint32_t protocol_val) {
+    domain = domain_val;
+    type = type_val;
+    protocol = protocol_val;
+  }
+  void prepareRow() override;
 };
 #endif /* SOCKET_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

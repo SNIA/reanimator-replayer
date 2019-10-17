@@ -18,20 +18,17 @@
 
 #include "MunmapSystemCallTraceReplayModule.hpp"
 
-MunmapSystemCallTraceReplayModule::
-MunmapSystemCallTraceReplayModule(DataSeriesModule &source,
-				  bool verbose_flag,
-				  int warn_level_flag):
-  SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-  start_address_(series, "start_address"),
-  length_(series, "length") {
+MunmapSystemCallTraceReplayModule::MunmapSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
+    : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+      start_address_(series, "start_address"),
+      length_(series, "length") {
   sys_call_name_ = "munmap";
 }
 
 void MunmapSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("start_address(", \
-    boost::format("0x%02x") % start_address_.val(), "), ", \
-    "length(", length_.val(), ")");
+  syscall_logger_->log_info("start_address(", startAddress, "), ", "length(",
+                            sizeOfMap, ")");
 }
 
 void MunmapSystemCallTraceReplayModule::processRow() {
@@ -40,4 +37,12 @@ void MunmapSystemCallTraceReplayModule::processRow() {
    * Hence we do not replay munmap system call.
    */
   return;
+}
+
+void MunmapSystemCallTraceReplayModule::prepareRow() {
+  if (verbose_) {
+    startAddress = start_address_.val();
+    sizeOfMap = length_.val();
+  }
+  SystemCallTraceReplayModule::prepareRow();
 }

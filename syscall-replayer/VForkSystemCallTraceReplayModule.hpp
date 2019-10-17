@@ -23,28 +23,39 @@
 #ifndef VFORK_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define VFORK_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 
-#include "SystemCallTraceReplayModule.hpp"
 #include <sched.h>
+#include "SystemCallTraceReplayModule.hpp"
 
 class VForkSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-private:
+ private:
   // DataSeries VFork System Call Trace Fields (VFork takes no arguments)
 
   /**
    * Print vfork sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will simply return without replaying
    * vfork system call.
    */
-  void processRow();
+  void processRow() override;
 
-public:
-  VForkSystemCallTraceReplayModule(DataSeriesModule &source,
-                                   bool verbose_flag,
+ public:
+  VForkSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
                                    int warn_level_flag);
+  SystemCallTraceReplayModule *move() override {
+    auto movePtr =
+        new VForkSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    movePtr->setMove();
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
+    return movePtr;
+  }
+
+  inline void setMove() {}
+  void prepareRow() override;
 };
 
 #endif /* VFORK_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

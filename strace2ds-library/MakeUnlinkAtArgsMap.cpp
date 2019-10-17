@@ -18,9 +18,8 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeUnlinkatArgsMap(void **args_map,
-						 long *args,
-						 void **v_args) {
+void DataSeriesOutputModule::makeUnlinkatArgsMap(void **args_map, long *args,
+                                                 void **v_args) {
   initArgsMap(args_map, "unlinkat");
 
   args_map[SYSCALL_FIELD_DESCRIPTOR] = &args[0];
@@ -36,9 +35,9 @@ void DataSeriesOutputModule::makeUnlinkatArgsMap(void **args_map,
   args_map[SYSCALL_FIELD_FLAG_VALUE] = &args[2];
   u_int flag = args[2];
   process_Flag_and_Mode_Args(args_map, flag, AT_REMOVEDIR,
-			     SYSCALL_FIELD_FLAG_REMOVE_DIRECTORY);
+                             SYSCALL_FIELD_FLAG_REMOVE_DIRECTORY);
   if (flag != 0) {
-    std::cerr << "Unlinkat: These flags are not processed/unknown->"
-	      << std::hex << flag << std::dec << std::endl;
+    std::cerr << "Unlinkat: These flags are not processed/unknown->" << std::hex
+              << flag << std::dec << std::endl;
   }
 }

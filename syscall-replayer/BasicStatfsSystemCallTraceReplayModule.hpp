@@ -22,13 +22,14 @@
 #ifndef BASIC_STATFS_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define BASIC_STATFS_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 
+#include <sys/statfs.h>
 #include "SystemCallTraceReplayModule.hpp"
 
-#include <sys/statfs.h>
-
-class BasicStatfsSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-protected:
-  // System Call Trace Fields in Dataseries file common to statfs and fstatfs system call.
+class BasicStatfsSystemCallTraceReplayModule
+    : public SystemCallTraceReplayModule {
+ protected:
+  // System Call Trace Fields in Dataseries file common to statfs and fstatfs
+  // system call.
   bool verify_;
   Int32Field statfs_result_type_;
   Int32Field statfs_result_bsize_;
@@ -41,17 +42,28 @@ protected:
   Int64Field statfs_result_frsize_;
   Int64Field statfs_result_flags_;
 
+  uint32_t statfsType;
+  uint32_t statfsBsize;
+  uint64_t statfsBlocks;
+  uint64_t statfsBfree;
+  uint64_t statfsBavail;
+  uint64_t statfsFiles;
+  uint64_t statfsFFree;
+  uint64_t statfsNamelen;
+  uint64_t statfsFrsize;
+  uint64_t statfsFlags;
+
   /**
    * Print statfs and fstatfs common fields in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay a statfs/fstatfs system call with those arguments.
    * This function will be defined in the derived classes.
    */
-  virtual void processRow() = 0;
+  void processRow() override = 0;
 
   /**
    * This function will verify that the data contained in the statfs buffer
@@ -59,60 +71,77 @@ protected:
    * the trace.
    */
   void verifyResult(struct statfs replayed_statfs_buf);
+  void copyStatfsStruct(uint32_t type, uint32_t bsize, uint64_t blocks,
+                        uint64_t bfree, uint64_t bavail, uint64_t files,
+                        uint64_t ffree, uint64_t namelen, uint64_t frsize,
+                        uint64_t flags);
 
-public:
+ public:
   BasicStatfsSystemCallTraceReplayModule(DataSeriesModule &source,
-					 bool verbose_flag,
-					 bool verify_flag,
-					 int warn_level_flag);
-
+                                         bool verbose_flag, bool verify_flag,
+                                         int warn_level_flag);
+  void prepareRow() override;
 };
 
-class StatfsSystemCallTraceReplayModule :
-  public BasicStatfsSystemCallTraceReplayModule {
-private:
+class StatfsSystemCallTraceReplayModule
+    : public BasicStatfsSystemCallTraceReplayModule {
+ private:
   // System Call Field pathname stored in DataSeries file
   Variable32Field given_pathname_;
-
+  char *pathname;
   /**
    * Print statfs sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and call replay a statfs system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
-public:
-  StatfsSystemCallTraceReplayModule(DataSeriesModule &source,
-				    bool verbose_flag,
-				    bool verify_flag,
-				    int warn_level_flag);
+ public:
+  StatfsSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                    bool verify_flag, int warn_level_flag);
+
+  SystemCallTraceReplayModule *move() override {
+    auto movePtr = new StatfsSystemCallTraceReplayModule(source, verbose_,
+                                                         verify_, warn_level_);
+    movePtr->setMove(pathname);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
+    if (verify_) {
+      movePtr->copyStatfsStruct(
+          statfsType, statfsBsize, statfsBlocks, statfsBfree, statfsBavail,
+          statfsFiles, statfsFFree, statfsNamelen, statfsFrsize, statfsFlags);
+    }
+    return movePtr;
+  }
+  void setMove(char *path) { pathname = path; }
+  void prepareRow() override;
 };
 
-class FStatfsSystemCallTraceReplayModule :
-  public BasicStatfsSystemCallTraceReplayModule {
-private:
+class FStatfsSystemCallTraceReplayModule
+    : public BasicStatfsSystemCallTraceReplayModule {
+ private:
   // System Call Field descriptor stored in DataSeries file
   Int32Field descriptor_;
 
   /**
    * Print fstatfs sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and call replay a fstatfs system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
-public:
+ public:
   FStatfsSystemCallTraceReplayModule(DataSeriesModule &source,
-				     bool verbose_flag,
-				     bool verify_flag,
-				     int warn_level_flag);
+                                     bool verbose_flag, bool verify_flag,
+                                     int warn_level_flag);
 };
 #endif /* BASIC_STATFS_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

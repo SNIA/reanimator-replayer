@@ -28,24 +28,36 @@
 #include <unistd.h>
 
 class ChdirSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-protected:
+ protected:
   // Chdir System Call Trace Fields in Dataseries file
   Variable32Field given_pathname_;
-
+  char *pathname;
   /**
    * Print chdir sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and replay a chdir system call with those arguments.
    */
-  void processRow();
+  void processRow() override;
 
-public:
-  ChdirSystemCallTraceReplayModule(DataSeriesModule &source,
-				   bool verbose_flag,
-				   int warn_level_flag);
+ public:
+  ChdirSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                   int warn_level_flag);
+  SystemCallTraceReplayModule *move() override {
+    auto movePtr =
+        new ChdirSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    movePtr->setMove(pathname);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
+    return movePtr;
+  }
+  void setMove(char *path) {
+    pathname = path;
+  }
+  void prepareRow() override;
 };
 #endif /* CHDIR_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

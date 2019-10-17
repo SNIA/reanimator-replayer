@@ -18,79 +18,92 @@
  */
 
 #include "OpenSystemCallTraceReplayModule.hpp"
+#include <cstring>
+#include <memory>
 
-OpenSystemCallTraceReplayModule::
-OpenSystemCallTraceReplayModule(DataSeriesModule &source,
-  bool verbose_flag,
-  int warn_level_flag):
-  SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-  given_pathname_(series, "given_pathname"),
-  open_value_(series, "open_value", Field::flag_nullable),
-  mode_value_(series, "mode_value", Field::flag_nullable) {
+static char path_print[256];
+// #define WEBSERVER_TESTING
+
+OpenSystemCallTraceReplayModule::OpenSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
+    : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+      given_pathname_(series, "given_pathname", Field::flag_nullable),
+      open_value_(series, "open_value", Field::flag_nullable),
+      mode_value_(series, "mode_value", Field::flag_nullable) {
   sys_call_name_ = "open";
 }
 
 void OpenSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("pathname(", given_pathname_.val(), "), flags(", \
-    open_value_.val(), "),",
-    "traced mode(", mode_value_.val(), "), ",
-    "replayed mode(", get_mode(mode_value_.val()), ")");
+  syscall_logger_->log_info("pathname(", path_print, "), flags(", flags, "),",
+                            "traced mode(", modeVal, "), ", "replayed mode(",
+                            get_mode(modeVal), ")");
 }
 
 void OpenSystemCallTraceReplayModule::processRow() {
-  const char *pathname = (char *)given_pathname_.val();
-  int flags = open_value_.val();
-  mode_t mode = get_mode(mode_value_.val());
-  int traced_fd = (int)return_value_.val();
-
   // replay the open system call
-  replayed_ret_val_ = open(pathname, flags, mode);
-  if (traced_fd == -1 && replayed_ret_val_ != -1) {
+  replayed_ret_val_ = open(pathname, flags, get_mode(modeVal));
+  if (traced_fd <= -1 && replayed_ret_val_ != -1) {
     /*
      * Original system open failed, but replay system succeeds.
      * Therefore, we will close the replayed fd.
      */
     close(replayed_ret_val_);
   } else {
+#ifdef WEBSERVER_TESTING
+    if (replayer_resources_manager_.has_fd(executingPidVal, traced_fd)) {
+      replayer_resources_manager_.remove_fd(executingPidVal, traced_fd);
+    }
+#endif
     /*
      * Even if traced fd is valid, but replayed fd is -1,
      * we will still add the entry and replay it.
      * Add a mapping from fd in trace file to actual replayed fd
      */
-    pid_t pid = executing_pid();
-    replayer_resources_manager_.add_fd(pid, traced_fd, replayed_ret_val_, flags);
+    replayer_resources_manager_.add_fd(executingPidVal, traced_fd,
+                                       replayed_ret_val_, flags);
   }
+  if (verbose_mode()) {
+    strcpy(path_print, pathname);
+  }
+  delete[] pathname;
 }
 
-OpenatSystemCallTraceReplayModule::
-OpenatSystemCallTraceReplayModule(DataSeriesModule &source,
-  bool verbose_flag,
-  int warn_level_flag):
-  OpenSystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
-  descriptor_(series, "descriptor") {
+void OpenSystemCallTraceReplayModule::prepareRow() {
+  auto pathBuf = reinterpret_cast<const char *>(given_pathname_.val());
+  pathname = new char[std::strlen(pathBuf) + 1];
+  std::strncpy(pathname, pathBuf, std::strlen(pathBuf) + 1);
+  flags = open_value_.val();
+  modeVal = mode_value_.val();
+  traced_fd = reinterpret_cast<int64_t>(return_value_.val());
+  SystemCallTraceReplayModule::prepareRow();
+}
+
+OpenatSystemCallTraceReplayModule::OpenatSystemCallTraceReplayModule(
+    DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
+    : OpenSystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
+      descriptor_(series, "descriptor") {
   sys_call_name_ = "openat";
 }
 
 void OpenatSystemCallTraceReplayModule::print_specific_fields() {
   pid_t pid = executing_pid();
   int replayed_fd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
-  syscall_logger_->log_info("traced fd(", descriptor_.val(), "), ",
-    "replayed fd(", replayed_fd, "), ",
-    "pathname(", given_pathname_.val(), "), flags(", \
-    open_value_.val(), "), ",
-    "traced mode(", mode_value_.val(), "), ",
-    "replayed mode(", get_mode(mode_value_.val()), ")");
+  syscall_logger_->log_info(
+      "traced fd(", descriptor_.val(), "), ", "replayed fd(", replayed_fd,
+      "), ", "pathname(", given_pathname_.val(), "), flags(", open_value_.val(),
+      "), ", "traced mode(", mode_value_.val(), "), ", "replayed mode(",
+      get_mode(mode_value_.val()), ")");
 }
 
 void OpenatSystemCallTraceReplayModule::processRow() {
   pid_t pid = executing_pid();
   int dirfd = replayer_resources_manager_.get_fd(pid, descriptor_.val());
-  const char *pathname = (char *)given_pathname_.val();
+  const char *pathname = reinterpret_cast<const char *>(given_pathname_.val());
   int flags = open_value_.val();
   mode_t mode = get_mode(mode_value_.val());
-  int traced_fd = (int)return_value_.val();
+  int64_t traced_fd = reinterpret_cast<int64_t>(return_value_.val());
 
-  if (dirfd == SYSCALL_SIMULATED && pathname != NULL && pathname[0] != '/') {
+  if (dirfd == SYSCALL_SIMULATED && pathname != nullptr && pathname[0] != '/') {
     /*
      * dirfd originated from a socket, hence openat cannot be replayed.
      * Traced system call would have failed with ENOTDIR.
@@ -115,6 +128,7 @@ void OpenatSystemCallTraceReplayModule::processRow() {
      * we will still add the entry and replay it.
      * Add a mapping from fd in trace file to actual replayed fd
      */
-    replayer_resources_manager_.add_fd(pid, traced_fd, replayed_ret_val_, flags);
+    replayer_resources_manager_.add_fd(pid, traced_fd, replayed_ret_val_,
+                                       flags);
   }
 }

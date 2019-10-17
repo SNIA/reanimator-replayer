@@ -24,11 +24,11 @@
 #ifndef CLONE_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define CLONE_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 
-#include "SystemCallTraceReplayModule.hpp"
 #include <sched.h>
+#include "SystemCallTraceReplayModule.hpp"
 
 class CloneSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-private:
+ private:
   // DataSeries Execve System Call Trace Fields
   Int64Field flag_value_;
   Int64Field child_stack_address_;
@@ -36,21 +36,46 @@ private:
   Int64Field child_thread_id_;
   Int64Field new_tls_;
 
+  int64_t flagVal;
+  int64_t childStackAddrVal;
+  int64_t parentTIDVal;
+  int64_t childTIDVal;
+  int64_t newTLSVal;
+
   /**
    * Print clone sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will simply return without replaying
    * clone system call.
    */
-  void processRow();
+  void processRow() override;
 
-public:
-  CloneSystemCallTraceReplayModule(DataSeriesModule &source,
-				   bool verbose_flag,
-				   int warn_level_flag);
+ public:
+  CloneSystemCallTraceReplayModule(DataSeriesModule &source, bool verbose_flag,
+                                   int warn_level_flag);
+  SystemCallTraceReplayModule *move() override {
+    auto movePtr =
+        new CloneSystemCallTraceReplayModule(source, verbose_, warn_level_);
+    movePtr->setMove(flagVal, childStackAddrVal, parentTIDVal, childTIDVal,
+                     newTLSVal);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
+    return movePtr;
+  }
+
+  inline void setMove(int64_t flag, int64_t childStack, int64_t parentID,
+                      int64_t childID, int64_t newTLS) {
+    flagVal = flag;
+    childStackAddrVal = childStack;
+    parentTIDVal = parentID;
+    childTIDVal = childID;
+    newTLSVal = newTLS;
+  }
+  void prepareRow() override;
 };
 
 #endif /* CLONE_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

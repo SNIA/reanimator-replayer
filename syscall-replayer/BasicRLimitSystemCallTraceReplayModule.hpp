@@ -7,7 +7,8 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
- * This header file provides basic members and functions for implementing resource related
+ * This header file provides basic members and functions for implementing
+ * resource related
  * system call.
  *
  * BasicRLimitSystemCallTraceReplayerModule is a class/module that
@@ -20,13 +21,14 @@
 #ifndef BASICRLIMIT_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 #define BASICRLIMIT_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP
 
-#include <sys/time.h>
 #include <sys/resource.h>
- 
+#include <sys/time.h>
+
 #include "SystemCallTraceReplayModule.hpp"
 
-class BasicRLimitSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
-protected:
+class BasicRLimitSystemCallTraceReplayModule
+    : public SystemCallTraceReplayModule {
+ protected:
   // rlimit System Call Trace Fields in Dataseries file
   Int32Field resource_value_;
   Int64Field resource_soft_limit_;
@@ -56,17 +58,17 @@ protected:
   /**
    * Print getrlimit sys call field values in a nice format
    */
-  void print_specific_fields();
+  void print_specific_fields() override;
 
   /**
    * This function will gather arguments in the trace file
    * and then replay resource related system call with those arguments.
    */
-  virtual void processRow() = 0;
+  void processRow() override = 0;
 
-public:
+ public:
   BasicRLimitSystemCallTraceReplayModule(DataSeriesModule &source,
-           bool verbose_flag,
-           int warn_level_flag);
+                                         bool verbose_flag,
+                                         int warn_level_flag);
 };
 #endif /* BASICRLIMIT_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

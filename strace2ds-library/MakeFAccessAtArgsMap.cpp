@@ -18,9 +18,8 @@
 
 #include "DataSeriesOutputModule.hpp"
 
-void DataSeriesOutputModule::makeFAccessatArgsMap(void **args_map,
-						  long *args,
-						  void **v_args) {
+void DataSeriesOutputModule::makeFAccessatArgsMap(void **args_map, long *args,
+                                                  void **v_args) {
   // Initialize all non-nullable boolean fields to False.
   initArgsMap(args_map, "faccessat");
   u_int mode_offset = 2;
@@ -45,22 +44,22 @@ void DataSeriesOutputModule::makeFAccessatArgsMap(void **args_map,
   u_int flag = processFAccessatFlags(args_map, args[3]);
   if (flag != 0) {
     std::cerr << "FAccessat: These flags are not processed/unknown->"
-	      << std::hex << flag << std::dec << std::endl;
+              << std::hex << flag << std::dec << std::endl;
   }
 }
 
 u_int DataSeriesOutputModule::processFAccessatFlags(void **args_map,
-						    u_int faccessat_flags) {
+                                                    u_int faccessat_flags) {
   /*
    * Process each individual faccessat flag bit that has been set
    * in the argument faccessat_flags.
    */
   // set eaccess flag
   process_Flag_and_Mode_Args(args_map, faccessat_flags, AT_EACCESS,
-			     SYSCALL_FIELD_FLAGS_AT_EACCESS);
+                             SYSCALL_FIELD_FLAGS_AT_EACCESS);
   // set symlink nofollow flag
   process_Flag_and_Mode_Args(args_map, faccessat_flags, AT_SYMLINK_NOFOLLOW,
-			     SYSCALL_FIELD_FLAGS_AT_SYMLINK_NOFOLLOW);
+                             SYSCALL_FIELD_FLAGS_AT_SYMLINK_NOFOLLOW);
 
   /*
    * Return remaining faccessat flags so that caller can
@@ -81,9 +80,8 @@ u_int DataSeriesOutputModule::processFAccessatFlags(void **args_map,
  * @param mode_offset: represents index of mode value in the actual
  *		       system call.
  */
-mode_t DataSeriesOutputModule::processAccessMode(void **args_map,
-						 long *args,
-						 u_int mode_offset) {
+mode_t DataSeriesOutputModule::processAccessMode(void **args_map, long *args,
+                                                 u_int mode_offset) {
   // Save the mode argument with mode_value field in the map
   args_map[SYSCALL_FIELD_MODE_VALUE] = &args[mode_offset];
   mode_t mode = args[mode_offset];
