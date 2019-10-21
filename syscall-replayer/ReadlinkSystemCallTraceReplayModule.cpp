@@ -69,9 +69,7 @@ void ReadlinkSystemCallTraceReplayModule::processRow() {
 
 void ReadlinkSystemCallTraceReplayModule::prepareRow() {
   auto pathBuf = reinterpret_cast<const char *>(given_pathname_.val());
-  auto buffer_size = std::strlen(pathBuf) + 1;
-  pathname = new char[buffer_size];
-  std::strncpy(pathname, pathBuf, buffer_size);
+  pathname = copyPath(pathBuf);
   nbytes = buffer_size_.val();
   replayed_ret_val_ = return_value_.val();
   buffer = new char[nbytes];

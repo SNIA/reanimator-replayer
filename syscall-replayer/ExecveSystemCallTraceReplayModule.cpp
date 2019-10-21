@@ -97,15 +97,11 @@ void ExecveSystemCallTraceReplayModule::prepareRow() {
       if (continuation_num > 0) {
         if (!environment_.isNull()) {
           auto envBuf = reinterpret_cast<const char *>(environment_.val());
-          auto env_buffer_size = std::strlen(envBuf) + 1;
-          environmentVal = new char[env_buffer_size];
-          std::strncpy(environmentVal, envBuf, env_buffer_size);
+          environmentVal = copyPath(envBuf);
         }
         if (!argument_.isNull()) {
           auto argBuf = reinterpret_cast<const char *>(environment_.val());
-          auto arg_buffer_size = std::strlen(argBuf) + 1;
-          argumentVal = new char[arg_buffer_size];
-          std::strncpy(argumentVal, argBuf, arg_buffer_size);
+          argumentVal = copyPath(argBuf);
         }
         environmentVariables.emplace_back(environmentVal, argumentVal);
       }

@@ -41,9 +41,7 @@ void ChmodSystemCallTraceReplayModule::processRow() {
 
 void ChmodSystemCallTraceReplayModule::prepareRow() {
   auto pathBuf = reinterpret_cast<const char *>(given_pathname_.val());
-  auto buffer_size = std::strlen(pathBuf) + 1;
-  pathname = new char[buffer_size];
-  std::strncpy(pathname, pathBuf, buffer_size);
+  pathname = copyPath(pathBuf);
   modeVal = mode_value_.val();
   SystemCallTraceReplayModule::prepareRow();
 }
