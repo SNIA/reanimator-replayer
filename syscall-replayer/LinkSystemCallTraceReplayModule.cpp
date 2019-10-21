@@ -45,11 +45,14 @@ void LinkSystemCallTraceReplayModule::processRow() {
 
 void LinkSystemCallTraceReplayModule::prepareRow() {
   auto old_pathBuf = reinterpret_cast<const char *>(given_oldpathname_.val());
-  old_pathname = new char[std::strlen(old_pathBuf) + 1];
-  std::strncpy(old_pathname, old_pathBuf, std::strlen(old_pathBuf) + 1);
+  auto buffer_size_old = std::strlen(old_pathBuf) + 1;
+  old_pathname = new char[buffer_size_old];
+  std::strncpy(old_pathname, old_pathBuf, buffer_size_old);
+
   auto new_pathBuf = reinterpret_cast<const char *>(given_newpathname_.val());
-  new_pathname = new char[std::strlen(new_pathBuf) + 1];
-  std::strncpy(new_pathname, new_pathBuf, std::strlen(new_pathBuf) + 1);
+  auto buffer_size_new = std::strlen(new_pathBuf) + 1;
+  new_pathname = new char[buffer_size_new];
+  std::strncpy(new_pathname, new_pathBuf, buffer_size_new);
   SystemCallTraceReplayModule::prepareRow();
 }
 

@@ -38,8 +38,9 @@ void UnlinkSystemCallTraceReplayModule::processRow() {
 
 void UnlinkSystemCallTraceReplayModule::prepareRow() {
   auto pathBuf = reinterpret_cast<const char *>(given_pathname_.val());
-  pathname = new char[std::strlen(pathBuf) + 1];
-  std::strncpy(pathname, pathBuf, std::strlen(pathBuf) + 1);
+  auto buffer_size = std::strlen(pathBuf) + 1;
+  pathname = new char[buffer_size];
+  std::strncpy(pathname, pathBuf, buffer_size);
   SystemCallTraceReplayModule::prepareRow();
 }
 

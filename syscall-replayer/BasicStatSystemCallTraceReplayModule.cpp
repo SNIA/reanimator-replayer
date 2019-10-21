@@ -226,8 +226,9 @@ void StatSystemCallTraceReplayModule::processRow() {
 
 void StatSystemCallTraceReplayModule::prepareRow() {
   auto pathBuf = reinterpret_cast<const char *>(given_pathname_.val());
-  pathname = new char[std::strlen(pathBuf) + 1];
-  std::strncpy(pathname, pathBuf, (std::strlen(pathBuf) + 1));
+  auto buffer_size = std::strlen(pathBuf) + 1;
+  pathname = new char[buffer_size];
+  std::strncpy(pathname, pathBuf, buffer_size);
   BasicStatSystemCallTraceReplayModule::prepareRow();
 }
 
@@ -257,8 +258,9 @@ void LStatSystemCallTraceReplayModule::processRow() {
 
 void LStatSystemCallTraceReplayModule::prepareRow() {
   auto pathBuf = reinterpret_cast<const char *>(given_pathname_.val());
-  pathname = new char[std::strlen(pathBuf) + 1];
-  std::strncpy(pathname, pathBuf, (std::strlen(pathBuf) + 1));
+  auto buffer_size = std::strlen(pathBuf) + 1;
+  pathname = new char[buffer_size];
+  std::strncpy(pathname, pathBuf, buffer_size);
   BasicStatSystemCallTraceReplayModule::prepareRow();
 }
 
@@ -352,7 +354,8 @@ void FStatatSystemCallTraceReplayModule::prepareRow() {
   traced_fd = descriptor_.val();
   flag_value = flags_value_.val();
   auto pathBuf = reinterpret_cast<const char *>(given_pathname_.val());
-  pathname = new char[std::strlen(pathBuf) + 1];
-  std::strncpy(pathname, pathBuf, std::strlen(pathBuf) + 1);
+  auto buffer_size = std::strlen(pathBuf) + 1;
+  pathname = new char[buffer_size];
+  std::strncpy(pathname, pathBuf, buffer_size);
   BasicStatSystemCallTraceReplayModule::prepareRow();
 }
