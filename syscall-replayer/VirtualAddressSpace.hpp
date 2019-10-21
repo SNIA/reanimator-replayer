@@ -5,7 +5,8 @@
 
 #include <sys/types.h>
 #include <cstdint>
-#include <queue>
+#include <mutex>
+#include <vector>
 
 class VM_node {
  public:
@@ -26,7 +27,8 @@ class VM_node {
 
 class VM_area {
  private:
-  std::priority_queue<VM_node> vma;
+  std::mutex vma_lock;
+  std::vector<VM_node *> vma;
 
  public:
   VM_area() {}
@@ -34,7 +36,7 @@ class VM_area {
    * find method is responsible for finding
    * VM_node which contains the addr
    */
-  VM_node *find_VM_node(void *addr);
+  std::vector<VM_node *> *find_VM_node(void *addr);
 
   /*
     delete
