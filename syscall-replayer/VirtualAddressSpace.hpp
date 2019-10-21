@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <mutex>
 #include <vector>
+#include <stdint.h>
 
 class VM_node {
  public:
@@ -39,9 +40,18 @@ class VM_area {
   std::vector<VM_node *> *find_VM_node(void *addr);
 
   /*
+   * find the target to delete
+   */
+  std::vector<VM_node *> *find_enclosed_target(void *addr, size_t size);
+
+  std::vector<VM_node *> *find_enclosing_target(void *addr, size_t size);
+
+  std::vector<VM_node *> *find_right_overlapping_target(void *addr, size_t size);
+
+  /*
     delete
   */
-  bool delete_VM_node(VM_node *node);
+  bool delete_VM_node(void *addr, size_t size);
 
   /*
     inserts vm node to vma in sorted manner
