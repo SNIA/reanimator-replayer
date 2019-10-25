@@ -3,11 +3,11 @@
 #ifndef VIRTUAL_ADDRESS_SPACE
 #define VIRTUAL_ADDRESS_SPACE
 
+#include <stdint.h>
 #include <sys/types.h>
 #include <cstdint>
 #include <mutex>
 #include <vector>
-#include <stdint.h>
 
 class VM_node {
  public:
@@ -48,7 +48,8 @@ class VM_area {
 
   std::vector<VM_node *> *find_left_overlapping_target(void *addr, size_t size);
 
-  std::vector<VM_node *> *find_right_overlapping_target(void *addr, size_t size);
+  std::vector<VM_node *> *find_right_overlapping_target(void *addr,
+                                                        size_t size);
 
   /*
     delete
