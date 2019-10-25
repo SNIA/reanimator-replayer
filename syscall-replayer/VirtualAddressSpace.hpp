@@ -46,6 +46,8 @@ class VM_area {
 
   std::vector<VM_node *> *find_enclosing_target(void *addr, size_t size);
 
+  std::vector<VM_node *> *find_left_overlapping_target(void *addr, size_t size);
+
   std::vector<VM_node *> *find_right_overlapping_target(void *addr, size_t size);
 
   /*
