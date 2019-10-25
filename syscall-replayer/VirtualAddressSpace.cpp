@@ -151,6 +151,16 @@ bool VM_area::delete_VM_node(void* addr, size_t size) {
     overlapped++;
   }
 
+  left_overlap->clear();
+  right_overlap->clear();
+  enclosing->clear();
+  enclosed->clear();
+
+  delete left_overlap;
+  delete right_overlap;
+  delete enclosing;
+  delete enclosed;
+
   if (overlapped == 0)
     return false;
   else
