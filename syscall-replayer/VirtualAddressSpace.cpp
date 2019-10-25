@@ -73,7 +73,7 @@ std::vector<VM_node*>* VM_area::find_enclosed_target(void* addr, size_t size) {
                      reinterpret_cast<uint64_t>(vnode->traced_start_address);
                  auto end_addr = start_addr + vnode->map_size;
                  // Comment(UMIT) what about equality?
-                 return addr_int < start_addr && (addr_int + size) > end_addr;
+                 return addr_int <= start_addr && (addr_int + size) >= end_addr;
                });
   return result;
 }
@@ -114,16 +114,14 @@ bool VM_area::delete_VM_node(void* addr, size_t size) {
 
   if (right_overlap->size() > 0) {
     for (VM_node* node : *right_overlap) {
-      // Comment(UMIT) isnt it this should be addr + size
-      node->traced_start_address = addr;
       node->map_size =
           node->map_size -
-          (addr_int - reinterpret_cast<uint64_t>(node->traced_start_address));
+          (addr_int + size - reinterpret_cast<uint64_t>(node->traced_start_address));
+      node->traced_start_address = (void *)(addr_int + size);
     }
     overlapped++;
   }
 
-  // how do I delete from the actual vector??
   if (enclosing->size() > 0) {
     for (VM_node* node : *enclosing) {
       vma.erase(std::find(vma.begin(), vma.end(), node));
@@ -141,7 +139,6 @@ bool VM_area::delete_VM_node(void* addr, size_t size) {
            node->map_size) -
           (reinterpret_cast<uint64_t>(addr) + size);
 
-      // my assumption is fd should be the same, need checking
       VM_node* new_node =
           new VM_node((void*)(reinterpret_cast<uint64_t>(addr) + size), NULL,
                       new_size, node->traced_fd, node->replayed_fd);
