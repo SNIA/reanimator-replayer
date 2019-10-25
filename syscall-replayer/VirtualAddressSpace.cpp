@@ -72,6 +72,7 @@ std::vector<VM_node*>* VM_area::find_enclosed_target(void* addr, size_t size) {
                  auto start_addr =
                      reinterpret_cast<uint64_t>(vnode->traced_start_address);
                  auto end_addr = start_addr + vnode->map_size;
+                 // Comment(UMIT) what about equality?
                  return addr_int < start_addr && (addr_int + size) > end_addr;
                });
   return result;
@@ -113,6 +114,7 @@ bool VM_area::delete_VM_node(void* addr, size_t size) {
 
   if (right_overlap->size() > 0) {
     for (VM_node* node : *right_overlap) {
+      // Comment(UMIT) isnt it this should be addr + size
       node->traced_start_address = addr;
       node->map_size =
           node->map_size -
@@ -124,7 +126,8 @@ bool VM_area::delete_VM_node(void* addr, size_t size) {
   // how do I delete from the actual vector??
   if (enclosing->size() > 0) {
     for (VM_node* node : *enclosing) {
-      delete node;
+      vma.erase(std::find(vma.begin(), vma.end(), node));
+      // Comment UMIT call this later delete node;
     }
     enclosing->clear();
     overlapped++;
