@@ -11,10 +11,11 @@ VM_manager* VM_manager::getInstance() {
   return instance;
 }
 
-VM_area *VM_manager::get_VM_area(pid_t pid){
-  //if there isn't an existing mapping
-  std::unordered_map<pid_t, VM_area *>::const_iterator got = process_map.find(pid);
-  if( got == process_map.end()){
+VM_area* VM_manager::get_VM_area(pid_t pid) {
+  // if there isn't an existing mapping
+  std::unordered_map<pid_t, VM_area*>::const_iterator got =
+      process_map.find(pid);
+  if (got == process_map.end()) {
     VM_area* area = new VM_area();
     // process_map.insert(pid, area);
     process_map[pid] = area;
