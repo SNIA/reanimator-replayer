@@ -17,9 +17,11 @@
  */
 
 #include "MmapSystemCallTraceReplayModule.hpp"
+#include "VirtualAddressSpace.hpp"
+#include <sys/mman.h>
 
 MmapSystemCallTraceReplayModule::MmapSystemCallTraceReplayModule(
-    DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
+    DataSeriesModule& source, bool verbose_flag, int warn_level_flag)
     : SystemCallTraceReplayModule(source, verbose_flag, warn_level_flag),
       start_address_(series, "start_address"),
       length_(series, "length"),
@@ -43,21 +45,34 @@ void MmapSystemCallTraceReplayModule::print_specific_fields() {
 }
 
 void MmapSystemCallTraceReplayModule::processRow() {
-  /*
-   * NOTE: It is inappropriate to replay mmap system call.
-   * Hence we do not replay mmap system call.
-   */
-  return;
+  pid_t pid = executing_pid();
+  int fd = replayer_resources_manager_.get_fd(pid, descriptorVal);
+  void * replayed_addr;
+  int64_t traced_addr = return_value();
+  
+  if(startAddress == 0)
+      replayed_addr = mmap(NULL, sizeOfMap, protectionVal, flagsVal, fd, offsetVal);
+  else replayed_addr = mmap((void *)startAddress, sizeOfMap, protectionVal, flagsVal, fd, offsetVal);
+
+  int64_t replayed_addr_int = reinterpret_cast<int64_t>(replayed_addr);
+  if(startAddress != 0 && replayed_addr_int != traced_addr)
+    return;
+
+  // add the traced mmap to vm manager
+  VM_manager* vm_manager = VM_manager::getInstance();
+  VM_area* area = vm_manager->get_VM_area(pid);
+  VM_node* node = new VM_node((void *)traced_addr, replayed_addr, sizeOfMap, descriptorVal, fd);
+
+  area->insert_VM_node(node);
 }
 
 void MmapSystemCallTraceReplayModule::prepareRow() {
-  if (verbose_) {
-    startAddress = start_address_.val();
-    sizeOfMap = length_.val();
-    protectionVal = protection_value_.val();
-    flagsVal = flags_value_.val();
-    descriptorVal = descriptor_.val();
-    offsetVal = offset_.val();
-  }
+  startAddress = start_address_.val();
+  sizeOfMap = length_.val();
+  protectionVal = protection_value_.val();
+  flagsVal = flags_value_.val();
+  descriptorVal = descriptor_.val();
+  offsetVal = offset_.val();
+
   SystemCallTraceReplayModule::prepareRow();
 }

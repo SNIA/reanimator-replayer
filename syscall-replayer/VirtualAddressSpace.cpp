@@ -3,12 +3,24 @@
 #include "VirtualAddressSpace.hpp"
 #include <algorithm>
 
-VM_mamager* VM_mamager::instance = NULL;
-VM_mamager* VM_mamager::getInstance() {
+VM_manager* VM_manager::instance = NULL;
+VM_manager* VM_manager::getInstance() {
   if (!instance) {
-    instance = new VM_mamager();
+    instance = new VM_manager();
   }
   return instance;
+}
+
+VM_area *VM_manager::get_VM_area(pid_t pid){
+  //if there isn't an existing mapping
+  std::unordered_map<pid_t, VM_area *>::const_iterator got = process_map.find(pid);
+  if( got == process_map.end()){
+    VM_area* area = new VM_area();
+    // process_map.insert(pid, area);
+    process_map[pid] = area;
+    return area;
+  }
+  return process_map.at(pid);
 }
 
 // insert new VM_node to existing vm area
@@ -114,10 +126,10 @@ bool VM_area::delete_VM_node(void* addr, size_t size) {
 
   if (right_overlap->size() > 0) {
     for (VM_node* node : *right_overlap) {
-      node->map_size =
-          node->map_size -
-          (addr_int + size - reinterpret_cast<uint64_t>(node->traced_start_address));
-      node->traced_start_address = (void *)(addr_int + size);
+      node->map_size = node->map_size -
+                       (addr_int + size -
+                        reinterpret_cast<uint64_t>(node->traced_start_address));
+      node->traced_start_address = (void*)(addr_int + size);
     }
     overlapped++;
   }

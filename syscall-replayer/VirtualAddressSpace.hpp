@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <cstdint>
 #include <mutex>
+#include <unordered_map>
 #include <vector>
 
 class VM_node {
@@ -50,32 +51,25 @@ class VM_area {
 
   std::vector<VM_node *> *find_right_overlapping_target(void *addr,
                                                         size_t size);
-
-  /*
-    delete
-  */
   bool delete_VM_node(void *addr, size_t size);
-
-  /*
-    inserts vm node to vma in sorted manner
-  */
 
   void insert_VM_node(VM_node *node);
 };
 
-class VM_mamager {
+class VM_manager {
  private:
-  static VM_mamager *instance;
-  VM_mamager() {}
+  static VM_manager *instance;
+  std::unordered_map<pid_t, VM_area *> process_map;
+  VM_manager() {}
 
  public:
-  static VM_mamager *getInstance();
+  static VM_manager *getInstance();
 
   /*
    * gets the virtual address space for
    * particular process
    */
-  VM_area get_VM_area(pid_t pid);
+  VM_area *get_VM_area(pid_t pid);
 };
 
 #endif
