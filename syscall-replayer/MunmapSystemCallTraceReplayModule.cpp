@@ -17,6 +17,8 @@
  */
 
 #include "MunmapSystemCallTraceReplayModule.hpp"
+#include "VirtualAddressSpace.hpp"
+#include <sys/mman.h>
 
 MunmapSystemCallTraceReplayModule::MunmapSystemCallTraceReplayModule(
     DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
@@ -32,17 +34,27 @@ void MunmapSystemCallTraceReplayModule::print_specific_fields() {
 }
 
 void MunmapSystemCallTraceReplayModule::processRow() {
-  /*
-   * NOTE: It is inappropriate to replay munmap system call.
-   * Hence we do not replay munmap system call.
-   */
+  //find the target to unmap
+  pid_t pid = executing_pid();
+  VM_manager* vm_manager = VM_manager::getInstance();
+  VM_area* area = vm_manager->get_VM_area(pid);
+
+  std::vector<VM_node *> *nodes = area->find_VM_node((void *)startAddress);
+  for(VM_node * node: *nodes){
+    int64_t offset = startAddress - reinterpret_cast<int64_t>(node->traced_start_address);
+    int64_t munmap_start = reinterpret_cast<int64_t>(node->replayed_start_address) + offset;
+    int ret_val = munmap((void *)munmap_start, sizeOfMap);
+    if(ret_val != 0)  //unsuccessful unmapping
+      return;
+  }
+
+  bool update_vm = area->delete_VM_node((void *)startAddress, sizeOfMap);
+
   return;
 }
 
 void MunmapSystemCallTraceReplayModule::prepareRow() {
-  if (verbose_) {
-    startAddress = start_address_.val();
-    sizeOfMap = length_.val();
-  }
+  startAddress = start_address_.val();
+  sizeOfMap = length_.val();
   SystemCallTraceReplayModule::prepareRow();
 }
