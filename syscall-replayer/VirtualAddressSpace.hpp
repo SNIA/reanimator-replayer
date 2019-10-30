@@ -30,10 +30,10 @@ class VM_node {
 class VM_area {
  private:
   std::mutex vma_lock;
-  std::vector<VM_node *> vma;
-
+ 
  public:
   VM_area() {}
+  std::vector<VM_node *> vma;
   /*
    * find method is responsible for finding
    * VM_node which contains the addr

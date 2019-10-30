@@ -67,6 +67,28 @@ void MmapSystemCallTraceReplayModule::processRow() {
                               descriptorVal, fd);
 
   area->insert_VM_node(node);
+  syscall_logger_->log_info(
+      "pid(", boost::format("0x%02x") % pid,
+      "), "
+      "traced_address(",
+      boost::format("0x%02x") % traced_addr, "), ", "replayed_address(",
+      boost::format("0x%02x") % replayed_addr, "), ", "length(", std::dec,
+      sizeOfMap, "), ", "protection_value(", protectionVal, "), ",
+      "flags_value(", flagsVal, "), ", "traced fd(", descriptorVal, "), ",
+      "replayed_fd fd(", fd, "), ", "offset(",
+      boost::format("0x%02x") % offsetVal, ")");
+
+  // snapshot of VM_area
+  for (VM_node* node : area->vma) {
+    syscall_logger_->log_info(
+        "Current node in VM_area: traced_addr(",
+        boost::format("0x%02x") % (node->traced_start_address), "), ",
+        "replayed_addr(",
+        boost::format("0x%02x") % (node->replayed_start_address), "), ",
+        "size(", boost::format("0x%02x") % (node->map_size), "), ",
+        "traced_fd(", boost::format("0x%02x") % (node->traced_fd), "), ",
+        "replayed_fd(", boost::format("0x%02x") % (node->replayed_fd), ")");
+  }
 }
 
 void MmapSystemCallTraceReplayModule::prepareRow() {

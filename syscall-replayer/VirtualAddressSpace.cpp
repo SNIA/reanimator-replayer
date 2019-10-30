@@ -26,7 +26,9 @@ VM_area* VM_manager::get_VM_area(pid_t pid) {
 
 // insert new VM_node to existing vm area
 void VM_area::insert_VM_node(VM_node* node) {
+  vma_lock.lock();
   vma.push_back(node);
+  vma_lock.unlock();
   return;
 }
 
@@ -117,6 +119,7 @@ bool VM_area::delete_VM_node(void* addr, size_t size) {
 
   int overlapped = 0;
 
+  vma_lock.lock();
   // update accordingly
   if (left_overlap->size() > 0) {
     for (VM_node* node : *left_overlap)
@@ -163,6 +166,7 @@ bool VM_area::delete_VM_node(void* addr, size_t size) {
     }
     overlapped++;
   }
+  vma_lock.unlock();
 
   left_overlap->clear();
   right_overlap->clear();
