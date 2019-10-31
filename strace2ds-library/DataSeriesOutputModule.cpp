@@ -446,8 +446,8 @@ bool DataSeriesOutputModule::writeRecord(
           *((uint64_t *)common_fields[DS_COMMON_FIELD_TIME_CALLED]);
     } else {
       // Convert tv_time_called to Tfracs
-      time_called_Tfrac = timeval_to_Tfrac(
-          *(struct timeval *)common_fields[DS_COMMON_FIELD_TIME_CALLED]);
+      time_called_Tfrac = timespec_to_Tfrac(
+          *(struct timespec *)common_fields[DS_COMMON_FIELD_TIME_CALLED]);
     }
     sys_call_args_map[SYSCALL_FIELD_TIME_CALLED] = &time_called_Tfrac;
   }
@@ -459,8 +459,8 @@ bool DataSeriesOutputModule::writeRecord(
           *((uint64_t *)common_fields[DS_COMMON_FIELD_TIME_RETURNED]);
     } else {
       // Convert tv_time_returned to Tfracs
-      time_returned_Tfrac = timeval_to_Tfrac(
-          *(struct timeval *)common_fields[DS_COMMON_FIELD_TIME_RETURNED]);
+      time_returned_Tfrac = timespec_to_Tfrac(
+          *(struct timespec *)common_fields[DS_COMMON_FIELD_TIME_RETURNED]);
     }
     sys_call_args_map[SYSCALL_FIELD_TIME_RETURNED] = &time_returned_Tfrac;
   }
