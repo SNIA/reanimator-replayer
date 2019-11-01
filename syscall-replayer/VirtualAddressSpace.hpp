@@ -38,7 +38,7 @@ class VM_area {
    * find method is responsible for finding
    * VM_node which contains the addr
    */
-  std::vector<VM_node *> *find_VM_node(void *addr);
+  std::vector<VM_node *> *find_VM_node(void *addr, size_t size);
 
   /*
    * find the target to delete

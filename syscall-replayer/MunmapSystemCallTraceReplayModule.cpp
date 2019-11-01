@@ -35,39 +35,41 @@ void MunmapSystemCallTraceReplayModule::print_specific_fields() {
 
 void MunmapSystemCallTraceReplayModule::processRow() {
   // find the target to unmap
-  pid_t pid = executing_pid();
-  VM_manager *vm_manager = VM_manager::getInstance();
-  VM_area *area = vm_manager->get_VM_area(pid);
+  // pid_t pid = executing_pid();
+  // VM_manager *vm_manager = VM_manager::getInstance();
+  // VM_area *area = vm_manager->get_VM_area(pid);
 
-  std::vector<VM_node *> *nodes = area->find_VM_node((void *)startAddress);
-  for (VM_node *node : *nodes) {
-    int64_t offset =
-        startAddress - reinterpret_cast<int64_t>(node->traced_start_address);
-    int64_t munmap_start =
-        reinterpret_cast<int64_t>(node->replayed_start_address) + offset;
-    int ret_val = munmap((void *)munmap_start, sizeOfMap);
-    if (ret_val != 0)  // unsuccessful unmapping
-      return;
-    else {
-      syscall_logger_->log_info(
-          "munmap_start_addr(", boost::format("0x%02x") % munmap_start, "), ",
-          "size(", boost::format("0x%02x") % sizeOfMap, ")");
-    }
-  }
+  // std::vector<VM_node *> *nodes =
+  //     area->find_VM_node(reinterpret_cast<void *>(startAddress), sizeOfMap);
+  // for (VM_node *node : *nodes) {
+  //   int64_t offset =
+  //       startAddress - reinterpret_cast<int64_t>(node->traced_start_address);
+  //   int64_t munmap_start =
+  //       reinterpret_cast<int64_t>(node->replayed_start_address) + offset;
+  //   int ret_val = munmap(reinterpret_cast<void *>(munmap_start), sizeOfMap);
+  //   if (ret_val != 0) {
+  //     // TODO(UMIT) handle errors
+  //     return;
+  //   } else {
+  //     syscall_logger_->log_info(
+  //         "munmap_start_addr(", boost::format("0x%02x") % munmap_start, "), ",
+  //         "size(", boost::format("0x%02x") % sizeOfMap, ")");
+  //   }
+  // }
 
-  bool update_vm = area->delete_VM_node((void *)startAddress, sizeOfMap);
+  // area->delete_VM_node(reinterpret_cast<void *>(startAddress), sizeOfMap);
 
-  // snapshot of VM_area
-  for (VM_node *node : area->vma) {
-    syscall_logger_->log_info(
-        "Current node in VM_area: traced_addr(",
-        boost::format("0x%02x") % (node->traced_start_address), "), ",
-        "replayed_addr(",
-        boost::format("0x%02x") % (node->replayed_start_address), "), ",
-        "size(", boost::format("0x%02x") % (node->map_size), "), ",
-        "traced_fd(", boost::format("0x%02x") % (node->traced_fd), "), ",
-        "replayed_fd(", boost::format("0x%02x") % (node->replayed_fd), ")");
-  }
+  // // snapshot of VM_area
+  // for (VM_node *node : area->vma) {
+  //   syscall_logger_->log_info(
+  //       "Current node in VM_area: traced_addr(",
+  //       boost::format("0x%02x") % (node->traced_start_address), "), ",
+  //       "replayed_addr(",
+  //       boost::format("0x%02x") % (node->replayed_start_address), "), ",
+  //       "size(", boost::format("0x%02x") % (node->map_size), "), ",
+  //       "traced_fd(", boost::format("0x%02x") % (node->traced_fd), "), ",
+  //       "replayed_fd(", boost::format("0x%02x") % (node->replayed_fd), ")");
+  // }
 }
 
 void MunmapSystemCallTraceReplayModule::prepareRow() {
