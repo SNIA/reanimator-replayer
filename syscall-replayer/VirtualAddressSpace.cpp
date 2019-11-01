@@ -1,9 +1,9 @@
 // Copyright FSL Stony Brook
 
 #include "VirtualAddressSpace.hpp"
-#include "SystemCallTraceReplayModule.hpp"
 #include <algorithm>
 #include <iostream>
+#include "SystemCallTraceReplayModule.hpp"
 
 VM_manager* VM_manager::instance = NULL;
 VM_manager* VM_manager::getInstance() {
@@ -42,7 +42,7 @@ std::vector<VM_node*>* VM_area::find_VM_node(void* addr) {
                  auto start_addr =
                      reinterpret_cast<uint64_t>(vnode->traced_start_address);
                  auto end_addr = start_addr + vnode->map_size;
-                 return addr_int > start_addr && addr_int < end_addr;
+                 return (addr_int > start_addr) && (addr_int < end_addr);
                });
   return result;
 }
@@ -57,8 +57,8 @@ std::vector<VM_node*>* VM_area::find_left_overlapping_target(void* addr,
                  auto start_addr =
                      reinterpret_cast<uint64_t>(vnode->traced_start_address);
                  auto end_addr = start_addr + vnode->map_size;
-                 return (addr_int + size) > end_addr && addr_int > start_addr &&
-                        addr_int < end_addr;
+                 return ((addr_int + size) > end_addr) &&
+                        (addr_int > start_addr) && (addr_int < end_addr);
                });
   return result;
 }
@@ -68,14 +68,14 @@ std::vector<VM_node*>* VM_area::find_right_overlapping_target(void* addr,
                                                               size_t size) {
   auto addr_int = reinterpret_cast<uint64_t>(addr);
   auto result = new std::vector<VM_node*>();
-  std::copy_if(vma.begin(), vma.end(), result->begin(),
-               [&](VM_node* vnode) -> bool {
-                 auto start_addr =
-                     reinterpret_cast<uint64_t>(vnode->traced_start_address);
-                 auto end_addr = start_addr + vnode->map_size;
-                 return (addr_int + size) > start_addr &&
-                        (addr_int + size) < end_addr && addr_int < start_addr;
-               });
+  std::copy_if(
+      vma.begin(), vma.end(), result->begin(), [&](VM_node* vnode) -> bool {
+        auto start_addr =
+            reinterpret_cast<uint64_t>(vnode->traced_start_address);
+        auto end_addr = start_addr + vnode->map_size;
+        return ((addr_int + size) > start_addr) &&
+               ((addr_int + size) < end_addr) && (addr_int < start_addr);
+      });
   return result;
 }
 
@@ -84,14 +84,13 @@ std::vector<VM_node*>* VM_area::find_right_overlapping_target(void* addr,
 std::vector<VM_node*>* VM_area::find_enclosed_target(void* addr, size_t size) {
   auto addr_int = reinterpret_cast<uint64_t>(addr);
   auto result = new std::vector<VM_node*>();
-  std::copy_if(vma.begin(), vma.end(), result->begin(),
-               [&](VM_node* vnode) -> bool {
-                 auto start_addr =
-                     reinterpret_cast<uint64_t>(vnode->traced_start_address);
-                 auto end_addr = start_addr + vnode->map_size;
-                 // Comment(UMIT) what about equality?
-                 return addr_int <= start_addr && (addr_int + size) >= end_addr;
-               });
+  std::copy_if(
+      vma.begin(), vma.end(), result->begin(), [&](VM_node* vnode) -> bool {
+        auto start_addr =
+            reinterpret_cast<uint64_t>(vnode->traced_start_address);
+        auto end_addr = start_addr + vnode->map_size;
+        return (addr_int <= start_addr) && ((addr_int + size) >= end_addr);
+      });
   return result;
 }
 

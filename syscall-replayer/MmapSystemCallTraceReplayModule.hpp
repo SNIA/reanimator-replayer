@@ -40,6 +40,7 @@ class MmapSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
   int32_t flagsVal;
   int32_t descriptorVal;
   int64_t offsetVal;
+  uint64_t mmapReturnVal;
 
   /**
    * Print mmap sys call field values in a nice format
@@ -59,7 +60,7 @@ class MmapSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
     auto movePtr =
         new MmapSystemCallTraceReplayModule(source, verbose_, warn_level_);
     movePtr->setMove(startAddress, sizeOfMap, protectionVal, flagsVal,
-                     descriptorVal, offsetVal);
+                     descriptorVal, offsetVal, mmapReturnVal);
     movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
                        timeRecordedVal, executingPidVal, errorNoVal, returnVal,
                        replayerIndex);
@@ -67,13 +68,14 @@ class MmapSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
   }
 
   void setMove(int64_t startAddr, int64_t lengthOfMap, int32_t protection,
-               int32_t flag, int32_t desc, int64_t offset) {
+               int32_t flag, int32_t desc, int64_t offset, uint64_t mretval) {
     startAddress = startAddr;
     sizeOfMap = lengthOfMap;
     protectionVal = protection;
     flagsVal = flag;
     descriptorVal = desc;
     offsetVal = offset;
+    mmapReturnVal = mretval;
   }
 
   void prepareRow() override;
