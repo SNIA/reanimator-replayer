@@ -1,7 +1,9 @@
 // Copyright FSL Stony Brook
 
 #include "VirtualAddressSpace.hpp"
+#include "SystemCallTraceReplayModule.hpp"
 #include <algorithm>
+#include <iostream>
 
 VM_manager* VM_manager::instance = NULL;
 VM_manager* VM_manager::getInstance() {
@@ -126,6 +128,7 @@ bool VM_area::delete_VM_node(void* addr, size_t size) {
       node->map_size =
           addr_int - reinterpret_cast<uint64_t>(node->traced_start_address);
     overlapped++;
+    SystemCallTraceReplayModule::syscall_logger_->log_info("left overlapped");
   }
 
   if (right_overlap->size() > 0) {
@@ -136,6 +139,7 @@ bool VM_area::delete_VM_node(void* addr, size_t size) {
       node->traced_start_address = (void*)(addr_int + size);
     }
     overlapped++;
+    SystemCallTraceReplayModule::syscall_logger_->log_info("right overlapped");
   }
 
   if (enclosing->size() > 0) {
@@ -145,6 +149,8 @@ bool VM_area::delete_VM_node(void* addr, size_t size) {
     }
     enclosing->clear();
     overlapped++;
+    SystemCallTraceReplayModule::syscall_logger_->log_info(
+        "enclosing overlapped");
   }
 
   if (enclosed->size() > 0) {
@@ -165,6 +171,8 @@ bool VM_area::delete_VM_node(void* addr, size_t size) {
                        reinterpret_cast<uint64_t>(node->traced_start_address);
     }
     overlapped++;
+    SystemCallTraceReplayModule::syscall_logger_->log_info(
+        "enclosed overlapped");
   }
   vma_lock.unlock();
 
