@@ -30,7 +30,7 @@ class VM_node {
 class VM_area {
  private:
   std::mutex vma_lock;
- 
+
  public:
   VM_area() {}
   std::vector<VM_node *> vma;
@@ -43,17 +43,11 @@ class VM_area {
   /*
    * find the target to delete
    */
-  std::vector<VM_node *> *find_enclosed_target(void *addr, size_t size);
-
-  std::vector<VM_node *> *find_enclosing_target(void *addr, size_t size);
-
-  std::vector<VM_node *> *find_left_overlapping_target(void *addr, size_t size);
-
-  std::vector<VM_node *> *find_right_overlapping_target(void *addr,
-                                                        size_t size);
   bool delete_VM_node(void *addr, size_t size);
 
   void insert_VM_node(VM_node *node);
+
+  void list();
 };
 
 class VM_manager {

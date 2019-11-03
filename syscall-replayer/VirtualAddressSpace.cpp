@@ -34,35 +34,31 @@ void VM_area::insert_VM_node(VM_node* node) {
   return;
 }
 
-auto check_left_overlapping = [](uint64_t addr_int, size_t size,
-                                 uint64_t start_addr,
-                                 uint64_t end_addr) -> bool {
+bool check_left_overlapping(uint64_t addr_int, size_t size, uint64_t start_addr,
+                            uint64_t end_addr) {
   return ((addr_int + size) > end_addr) && (addr_int > start_addr) &&
          (addr_int < end_addr);
-};
+}
 
-auto check_right_overlapping = [](uint64_t addr_int, size_t size,
-                                  uint64_t start_addr,
-                                  uint64_t end_addr) -> bool {
+bool check_right_overlapping(uint64_t addr_int, size_t size,
+                             uint64_t start_addr, uint64_t end_addr) {
   return ((addr_int + size) > start_addr) && ((addr_int + size) < end_addr) &&
          (addr_int < start_addr);
-};
+}
 
-auto check_enclosed_overlapping = [](uint64_t addr_int, size_t size,
-                                     uint64_t start_addr,
-                                     uint64_t end_addr) -> bool {
+bool check_enclosed_overlapping(uint64_t addr_int, size_t size,
+                                uint64_t start_addr, uint64_t end_addr) {
   return (addr_int <= start_addr) && ((addr_int + size) >= end_addr);
-};
+}
 
-auto check_enclosing_overlapping = [](uint64_t addr_int, size_t size,
-                                      uint64_t start_addr,
-                                      uint64_t end_addr) -> bool {
-  return (addr_int > start_addr) && ((addr_int + size) < end_addr);
-};
+bool check_enclosing_overlapping(uint64_t addr_int, size_t size,
+                                 uint64_t start_addr, uint64_t end_addr) {
+  return (addr_int >= start_addr) && ((addr_int + size) <= end_addr);
+}
 
 std::vector<VM_node*>* VM_area::find_VM_node(void* addr, size_t size) {
   auto addr_int = reinterpret_cast<uint64_t>(addr);
-  auto result = new std::vector<VM_node*>();
+  auto result = new std::vector<VM_node*>(vma.size());
   std::copy_if(vma.begin(), vma.end(), result->begin(), [&](VM_node* vnode)
                                                             -> bool {
     auto start_addr = reinterpret_cast<uint64_t>(vnode->traced_start_address);
@@ -76,84 +72,33 @@ std::vector<VM_node*>* VM_area::find_VM_node(void* addr, size_t size) {
 }
 
 bool VM_area::delete_VM_node(void* addr, size_t size) {
-  // // find vm regions that need to be modifieda
-  // auto addr_int = reinterpret_cast<uint64_t>(addr);
-  // std::vector<VM_node*>* left_overlap =
-  //     find_left_overlapping_target(addr, size);
-  // std::vector<VM_node*>* right_overlap =
-  //     find_right_overlapping_target(addr, size);
-  // std::vector<VM_node*>* enclosing = find_enclosing_target(addr, size);
-  // std::vector<VM_node*>* enclosed = find_enclosed_target(addr, size);
+  vma_lock.lock();
 
-  // int overlapped = 0;
+  list();
+  auto result = find_VM_node(addr, size);
 
-  // vma_lock.lock();
-  // // update accordingly
-  // if (left_overlap->size() > 0) {
-  //   for (VM_node* node : *left_overlap)
-  //     node->map_size =
-  //         addr_int - reinterpret_cast<uint64_t>(node->traced_start_address);
-  //   overlapped++;
-  //   SystemCallTraceReplayModule::syscall_logger_->log_info("left overlapped");
-  // }
+  for (auto r : *result) {
+    if (r != NULL) {
+      SystemCallTraceReplayModule::syscall_logger_->log_info(
+          "addr ",
+          boost::format("%02x") %
+              reinterpret_cast<uint64_t>(r->traced_start_address));
+    }
+  }
 
-  // if (right_overlap->size() > 0) {
-  //   for (VM_node* node : *right_overlap) {
-  //     node->map_size = node->map_size -
-  //                      (addr_int + size -
-  //                       reinterpret_cast<uint64_t>(node->traced_start_address));
-  //     node->traced_start_address = (void*)(addr_int + size);
-  //   }
-  //   overlapped++;
-  //   SystemCallTraceReplayModule::syscall_logger_->log_info("right overlapped");
-  // }
+  vma_lock.unlock();
+  return false;
+}
 
-  // if (enclosing->size() > 0) {
-  //   for (VM_node* node : *enclosing) {
-  //     vma.erase(std::find(vma.begin(), vma.end(), node));
-  //     // Comment UMIT call this later delete node;
-  //   }
-  //   enclosing->clear();
-  //   overlapped++;
-  //   SystemCallTraceReplayModule::syscall_logger_->log_info(
-  //       "enclosing overlapped");
-  // }
-
-  // if (enclosed->size() > 0) {
-  //   for (VM_node* node : *enclosed) {
-  //     // need to insert a new node
-  //     size_t new_size =
-  //         (reinterpret_cast<uint64_t>(node->traced_start_address) +
-  //          node->map_size) -
-  //         (reinterpret_cast<uint64_t>(addr) + size);
-
-  //     VM_node* new_node =
-  //         new VM_node((void*)(reinterpret_cast<uint64_t>(addr) + size), NULL,
-  //                     new_size, node->traced_fd, node->replayed_fd);
-  //     insert_VM_node(new_node);
-
-  //     // update the existing node
-  //     node->map_size = reinterpret_cast<uint64_t>(addr) -
-  //                      reinterpret_cast<uint64_t>(node->traced_start_address);
-  //   }
-  //   overlapped++;
-  //   SystemCallTraceReplayModule::syscall_logger_->log_info(
-  //       "enclosed overlapped");
-  // }
-  // vma_lock.unlock();
-
-  // left_overlap->clear();
-  // right_overlap->clear();
-  // enclosing->clear();
-  // enclosed->clear();
-
-  // delete left_overlap;
-  // delete right_overlap;
-  // delete enclosing;
-  // delete enclosed;
-
-  // if (overlapped == 0)
-  //   return false;
-  // else
-  //   return true;
+void VM_area::list() {
+  for (VM_node* node : vma) {
+    SystemCallTraceReplayModule::syscall_logger_->log_info(
+        "Current node in VM_area: traced_addr(",
+        boost::format("0x%02x") % (node->traced_start_address), "), ",
+        "replayed_addr(",
+        boost::format("0x%02x") % (node->replayed_start_address), "), ",
+        "size(", boost::format("0x%02x") % (node->map_size), "), ",
+        "traced_fd(", boost::format("0x%02x") % (node->traced_fd), "), ",
+        "replayed_fd(", boost::format("0x%02x") % (node->replayed_fd), ")");
+  }
 }

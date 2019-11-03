@@ -74,17 +74,7 @@ void MmapSystemCallTraceReplayModule::processRow() {
       "replayed_fd fd(", fd, "), ", "offset(",
       boost::format("%02x") % offsetVal, ")");
 
-  // snapshot of VM_area
-  for (VM_node* node : area->vma) {
-    syscall_logger_->log_info(
-        "Current node in VM_area: traced_addr(",
-        boost::format("0x%02x") % (node->traced_start_address), "), ",
-        "replayed_addr(",
-        boost::format("0x%02x") % (node->replayed_start_address), "), ",
-        "size(", boost::format("0x%02x") % (node->map_size), "), ",
-        "traced_fd(", boost::format("0x%02x") % (node->traced_fd), "), ",
-        "replayed_fd(", boost::format("0x%02x") % (node->replayed_fd), ")");
-  }
+  area->list();
 }
 
 void MmapSystemCallTraceReplayModule::prepareRow() {
