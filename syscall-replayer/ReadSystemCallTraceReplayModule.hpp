@@ -115,6 +115,11 @@ class MmapPReadSystemCallTraceReplayModule
   Int64Field address_;
   uint64_t ptr;
 
+  /**
+  * Print pread sys call field values in a nice format
+  */
+  void print_specific_fields() override;
+
  public:
   MmapPReadSystemCallTraceReplayModule(DataSeriesModule &source,
                                        bool verbose_flag, bool verify_flag,

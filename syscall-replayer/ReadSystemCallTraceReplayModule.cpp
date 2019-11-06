@@ -167,3 +167,13 @@ void MmapPReadSystemCallTraceReplayModule::prepareRow() {
   ptr = address_.val();
   PReadSystemCallTraceReplayModule::prepareRow();
 }
+
+void MmapPReadSystemCallTraceReplayModule::print_specific_fields() {
+  pid_t pid = executing_pid();
+  int replayed_fd = replayer_resources_manager_.get_fd(pid, traced_fd);
+  syscall_logger_->log_info(
+      "address(", boost::format("%02x") % ptr, ") ", "traced fd(", traced_fd,
+      "), ", "replayed fd(", replayed_fd, "), ",
+      // "data read(", data_read_.val(),
+      "), ", "bytes requested(", nbytes, "), ", "offset(", off, ")");
+}
