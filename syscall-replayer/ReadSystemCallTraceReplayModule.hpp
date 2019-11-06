@@ -111,10 +111,29 @@ class PReadSystemCallTraceReplayModule
 
 class MmapPReadSystemCallTraceReplayModule
     : public PReadSystemCallTraceReplayModule {
+ protected:
+  Int64Field address_;
+  uint64_t ptr;
+
  public:
   MmapPReadSystemCallTraceReplayModule(DataSeriesModule &source,
                                        bool verbose_flag, bool verify_flag,
                                        int warn_level_flag);
+  SystemCallTraceReplayModule *move() override {
+    auto movePtr = new MmapPReadSystemCallTraceReplayModule(
+        source, verbose_, verify_, warn_level_);
+    movePtr->setMove(buffer, nbytes, traced_fd, off, dataReadBuf, ptr);
+    movePtr->setCommon(uniqueIdVal, timeCalledVal, timeReturnedVal,
+                       timeRecordedVal, executingPidVal, errorNoVal, returnVal,
+                       replayerIndex);
+    return movePtr;
+  }
+  inline void setMove(char *buf, int byte, int fd, off_t offset,
+                      char *verifyBuf, uint64_t pointer) {
+    PReadSystemCallTraceReplayModule::setMove(buf, byte, fd, offset, verifyBuf);
+    ptr = pointer;
+  }
+  void prepareRow() override;
 };
 
 #endif /* READ_SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

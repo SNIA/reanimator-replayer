@@ -158,6 +158,12 @@ MmapPReadSystemCallTraceReplayModule::MmapPReadSystemCallTraceReplayModule(
     DataSeriesModule &source, bool verbose_flag, bool verify_flag,
     int warn_level_flag)
     : PReadSystemCallTraceReplayModule(source, verbose_flag, verify_flag,
-                                      warn_level_flag) {
+                                       warn_level_flag),
+      address_(series, "address") {
   sys_call_name_ = "mmappread";
+}
+
+void MmapPReadSystemCallTraceReplayModule::prepareRow() {
+  ptr = address_.val();
+  PReadSystemCallTraceReplayModule::prepareRow();
 }
