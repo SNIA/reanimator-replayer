@@ -57,8 +57,7 @@ void MmapSystemCallTraceReplayModule::processRow() {
   if (startAddress != 0 && replayed_addr_int != traced_addr) return;
 
   // add the traced mmap to vm manager
-  VM_manager* vm_manager = VM_manager::getInstance();
-  VM_area* area = vm_manager->get_VM_area(pid);
+  VM_area* area = VM_manager::getInstance()->get_VM_area(pid);
   VM_node* node = new VM_node(reinterpret_cast<void*>(traced_addr),
                               replayed_addr, sizeOfMap, descriptorVal, fd);
 

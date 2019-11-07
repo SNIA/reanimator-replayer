@@ -14,19 +14,16 @@ VM_manager* VM_manager::getInstance() {
 }
 
 VM_area* VM_manager::get_VM_area(pid_t pid) {
-  // if there isn't an existing mapping
-  std::unordered_map<pid_t, VM_area*>::const_iterator got =
+  std::unordered_map<pid_t, VM_area*>::const_iterator process_vm_area =
       process_map.find(pid);
-  if (got == process_map.end()) {
+  if (process_vm_area == process_map.end()) {
     VM_area* area = new VM_area();
-    // process_map.insert(pid, area);
     process_map[pid] = area;
     return area;
   }
-  return process_map.at(pid);
+  return process_map[pid];
 }
 
-// insert new VM_node to existing vm area
 void VM_area::insert_VM_node(VM_node* node) {
   vma_lock.lock();
   vma.push_back(node);
