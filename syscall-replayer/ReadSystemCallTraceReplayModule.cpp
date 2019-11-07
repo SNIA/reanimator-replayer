@@ -17,6 +17,7 @@
  */
 
 #include "ReadSystemCallTraceReplayModule.hpp"
+#include "VirtualAddressSpace.hpp"
 
 ReadSystemCallTraceReplayModule::ReadSystemCallTraceReplayModule(
     DataSeriesModule &source, bool verbose_flag, bool verify_flag,
@@ -172,8 +173,46 @@ void MmapPReadSystemCallTraceReplayModule::print_specific_fields() {
   pid_t pid = executing_pid();
   int replayed_fd = replayer_resources_manager_.get_fd(pid, traced_fd);
   syscall_logger_->log_info(
-      "address(", boost::format("%02x") % ptr, ") ", "traced fd(", traced_fd,
+      "address(", boost::format("0x%02x") % ptr, ") ", "traced fd(", traced_fd,
       "), ", "replayed fd(", replayed_fd, "), ",
       // "data read(", data_read_.val(),
       "), ", "bytes requested(", nbytes, "), ", "offset(", off, ")");
+}
+
+void MmapPReadSystemCallTraceReplayModule::processRow() {
+  // Get replaying file descriptor.
+  pid_t pid = executing_pid();
+  int fd = replayer_resources_manager_.get_fd(pid, traced_fd);
+
+  if (fd == SYSCALL_SIMULATED) {
+    /*
+     * FD for the PRead system call originated from a socket().
+     * The system call will not be replayed.
+     * Traced return value will be returned.
+     */
+    replayed_ret_val_ = return_value();
+    return;
+  }
+
+  auto areas = VM_manager::getInstance()->get_VM_area(pid)->find_VM_node(
+      reinterpret_cast<void *>(ptr), 8);
+
+  for (auto vnode : *areas) {
+    if (vnode == NULL) continue;
+    auto offset_ptr =
+        ptr - reinterpret_cast<uint64_t>(vnode->traced_start_address);
+    syscall_logger_->log_info(
+        "trace start addr (",
+        boost::format("0x%02x") % vnode->traced_start_address, ") ptr (",
+        boost::format("0x%02x") % ptr, ") offset_ptr(", offset_ptr, ")");
+    auto replayed_ptr =
+        reinterpret_cast<uint64_t>(vnode->replayed_start_address) + offset_ptr;
+    auto read_ptr = reinterpret_cast<uint64_t *>(replayed_ptr);
+    __attribute__((unused)) auto test = *read_ptr;
+    auto verify_ptr =
+        reinterpret_cast<uint64_t>(vnode->replayed_start_address) + off;
+    std::memcpy(buffer, reinterpret_cast<void *>(verify_ptr),
+                replayed_ret_val_);
+    verifyRow();
+  }
 }
