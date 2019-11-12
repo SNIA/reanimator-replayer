@@ -352,6 +352,13 @@ class SystemCallTraceReplayModule : public RowAnalysisModule {
   }
   virtual SystemCallTraceReplayModule *move() { return nullptr; }
 
+  inline char *copyPath(const char *source) {
+    auto path_size = std::strlen(source) + 1;
+    auto new_path = new char[path_size];
+    std::strncpy(new_path, source, path_size);
+    return new_path;
+  }
+
   int64_t getReplayerIndex() { return replayerIndex; }
 
   void setReplayerIndex(int64_t idx) { replayerIndex = idx; }

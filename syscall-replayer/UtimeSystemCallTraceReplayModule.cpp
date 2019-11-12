@@ -71,8 +71,7 @@ void UtimeSystemCallTraceReplayModule::processRow() {
 
 void UtimeSystemCallTraceReplayModule::prepareRow() {
   auto pathBuf = reinterpret_cast<const char *>(given_pathname_.val());
-  pathname = new char[std::strlen(pathBuf) + 1];
-  std::strncpy(pathname, pathBuf, std::strlen(pathBuf) + 1);
+  pathname = copyPath(pathBuf);
 
   if (access_time_.isNull()) {
     access_t = -1;
