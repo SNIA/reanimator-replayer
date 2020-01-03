@@ -17,6 +17,8 @@
  */
 
 #include "MunmapSystemCallTraceReplayModule.hpp"
+#include <sys/mman.h>
+#include "VirtualAddressSpace.hpp"
 
 MunmapSystemCallTraceReplayModule::MunmapSystemCallTraceReplayModule(
     DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
@@ -27,22 +29,19 @@ MunmapSystemCallTraceReplayModule::MunmapSystemCallTraceReplayModule(
 }
 
 void MunmapSystemCallTraceReplayModule::print_specific_fields() {
-  syscall_logger_->log_info("start_address(", startAddress, "), ", "length(",
-                            sizeOfMap, ")");
+  syscall_logger_->log_info(
+      "start_address(", boost::format("0x%02x") % startAddress, "), ",
+      "length(", boost::format("0x%02x") % sizeOfMap, ")");
 }
 
 void MunmapSystemCallTraceReplayModule::processRow() {
-  /*
-   * NOTE: It is inappropriate to replay munmap system call.
-   * Hence we do not replay munmap system call.
-   */
-  return;
+  VM_manager::getInstance()
+      ->get_VM_area(executing_pid())
+      ->delete_VM_node(reinterpret_cast<void *>(startAddress), sizeOfMap);
 }
 
 void MunmapSystemCallTraceReplayModule::prepareRow() {
-  if (verbose_) {
-    startAddress = start_address_.val();
-    sizeOfMap = length_.val();
-  }
+  startAddress = start_address_.val();
+  sizeOfMap = length_.val();
   SystemCallTraceReplayModule::prepareRow();
 }

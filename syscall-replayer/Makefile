@@ -36,7 +36,9 @@ TARGETS = system-call-replayer
 SYSTEM_CALL_REPLAY_RESOURCES_MANAGER = ReplayerResourcesManager
 
 SYSTEM_CALL_REPLAY_MODULE_OBJECTS = SystemCallTraceReplayer.o \
-				    SystemCallTraceReplayLogger.o SystemCallTraceReplayModule.o \
+				    SystemCallTraceReplayLogger.o \
+				    SystemCallTraceReplayModule.o \
+				    VirtualAddressSpace.o \
 				    OpenSystemCallTraceReplayModule.o \
 				    CloseSystemCallTraceReplayModule.o \
 				    ReadSystemCallTraceReplayModule.o \

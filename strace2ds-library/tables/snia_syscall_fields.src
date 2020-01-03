@@ -820,6 +820,7 @@ mmappread	descriptor	0	int32
 mmappread	bytes_requested	0	int64
 mmappread	data_read	1	variable32
 mmappread	offset	0	int64
+mmappread	address	0	int64
 mmappwrite	descriptor	0	int32
 mmappwrite	bytes_requested	0	int64
 mmappwrite	data_written	1	variable32

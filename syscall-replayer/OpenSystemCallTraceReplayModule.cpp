@@ -70,8 +70,7 @@ void OpenSystemCallTraceReplayModule::processRow() {
 
 void OpenSystemCallTraceReplayModule::prepareRow() {
   auto pathBuf = reinterpret_cast<const char *>(given_pathname_.val());
-  pathname = new char[std::strlen(pathBuf) + 1];
-  std::strncpy(pathname, pathBuf, std::strlen(pathBuf) + 1);
+  pathname = copyPath(pathBuf);
   flags = open_value_.val();
   modeVal = mode_value_.val();
   traced_fd = reinterpret_cast<int64_t>(return_value_.val());
