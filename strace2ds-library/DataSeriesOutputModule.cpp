@@ -342,8 +342,13 @@ void DataSeriesOutputModule::initArgsMapFuncPtr() {
 * number
 */
 void DataSeriesOutputModule::initSyscallNameNumberMap() {
-  const char *env_path = getenv("STRACE2DS");
-  if (!env_path) env_path = "/usr/local/strace2ds";
+  // TODO: Find a way to find the libraries relative to the executable.
+  // The current way searches a path relative to the user's current directory.
+  const char *env_path = "../lib/strace2ds";
+  struct stat relative_lib_info;
+  int lib_search_return = stat(env_path, &relative_lib_info);
+  if (lib_search_return != 0 || !(S_ISDIR(relative_lib_info.st_mode)))
+    env_path = "/usr/local/strace2ds";
   std::string file_path =
       std::string(env_path) + "/" + "tables/syscalls_name_number.table";
 
