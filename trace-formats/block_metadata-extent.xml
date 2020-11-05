@@ -1,5 +1,0 @@
-<ExtentType name="IOTTAFSL:Trace:Block:block_metadata" namespace="iotta.snia.org.fsl.cs.sunysb.edu" version="1.00">
-  <field name="type" type="variable32" comment="one of system, device, process, or other"/>
-  <field name="identifier" type="int32"/>
-  <field name="description" type="variable32"/>
-</ExtentType>
