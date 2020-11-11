@@ -1,5 +1,0 @@
-Replaying the trace...
-Running since: 217 (s), Current delay: 217 (s), Last record timestamp : 187742650627996 (Tfracs).
-Total: 5334987 records, 5334949 submitted, 5334947 succeeded, 0 pending, 2 failed, 1 on-time, 5334948 delayed, 595076772784813762 (ns) total late, 0 (ns) total early.
-Reads: 1235633 records, 1235596 submitted, 1235596 succeeded, 0 pending, 0 failed, 0 on-time, 1235596 delayed, 142892485200359968 (ns) total late, 0 (ns) total early.
-Writes: 4099354 records, 4099353 submitted, 4099351 succeeded, 0 pending, 2 failed, 1 on-time, 4099352 delayed, 452184287584453794 (ns) total late, 0 (ns) total early.
