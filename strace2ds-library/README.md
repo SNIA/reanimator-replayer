@@ -3,7 +3,7 @@ strace2ds-library - a bridge between strace and DataSeries trace format
 
 This library connects the [strace] code (written in C) to the [DataSeries] API
 (written in C++). It acts as a glue so that C++ functions are made callable from
-C code. Our fork of strace, [fsl-strace], takes advantage of this library to
+C code. Our fork of strace, [reanimator-strace], takes advantage of this library to
 output traces in the DataSeries format.
 
 Dependencies
@@ -74,6 +74,6 @@ Build Instructions
 
 [strace]: https://strace.io
 [DataSeries]: https://github.com/dataseries/dataseries
-[fsl-strace]: https://github.com/sbu-fsl/fsl-strace
+[reanimator-strace]: https://github.com/SNIA/reanimator-strace
 [Lintel]: https://github.com/dataseries/lintel
 [tcmalloc]: https://github.com/gperftools/gperftools
