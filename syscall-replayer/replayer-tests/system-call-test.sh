@@ -4,8 +4,8 @@
 # This script is usually invoked by makefile: make
 # Modify following variables if the path of your converter or replayer is different.
 # Following variables are going to be used by the test scripts
-SYS_CALL_CONVERTER_DIR=$HOME/trace2model/syscall-converter
-SYS_CALL_REPLAYER_DIR=$HOME/trace2model/syscall-replayer
+SYS_CALL_CONVERTER_DIR=$HOME/reanimator-library/syscall-converter
+SYS_CALL_REPLAYER_DIR=$HOME/reanimator-library/syscall-replayer
 SYS_CALL_REPLAYER_TEST_DIR=$SYS_CALL_REPLAYER_DIR/replayer-tests
 SYS_CALL_REPLAYER=system-call-replayer
 STRACE_STRSIZE=4096

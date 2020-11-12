@@ -94,7 +94,7 @@ SYSTEM_CALL_REPLAY_MODULE_OBJECTS = SystemCallTraceReplayer.o \
 				    EPollCreateSystemCallTraceReplayModule.o
 
 # Modify following variables if the path of your replayer is different.
-SYS_CALL_REPLAYER_DIR=$(HOME)/lib/trace2model/syscall-replayer
+SYS_CALL_REPLAYER_DIR=$(HOME)/lib/reanimator-library/syscall-replayer
 SYS_CALL_REPLAYER_TEST_DIR=$(SYS_CALL_REPLAYER_DIR)/replayer-tests
 
 all: $(TARGETS)

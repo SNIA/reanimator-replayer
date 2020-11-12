@@ -22,11 +22,11 @@ for security purposes, etc.
 
 The trace replayer is divided into three parts:
 
-1. fsl-strace
+1. reanimator-strace
 2. strace2ds library
 3. syscall-replayer
 
-1. fsl-strace:
+1. reanimator-strace:
 
 This program is used to capture system calls traces using the Linux utility
 strace.  It calls Dataseries APIs which allows it to create a Dataseries
@@ -625,7 +625,7 @@ time_returned, return values, or errno numbers in the syscall-replayer.
 
 The underlying system call employed by the glibc fstatat() wrapper function
 is actually called fstatat64() or, on some architectures, newfstatat().  In
-fsl-strace, we intercept this system call using the 'SEN_newfstatat' switch
+reanimator-strace, we intercept this system call using the 'SEN_newfstatat' switch
 block.  While recording we create a new record for the fstatat system call
 in the DataSeries file.  Finally, while replaying, instead of calling
 newfstatat(), we call the fstatat() system call.
@@ -652,15 +652,15 @@ long time.
 
 * WHERE IS THE CODE?
 
-Our code for both strace and trace2model is on git.
+Our code for both strace and reanimator-library is on git.
 
 1. strace:
 
-git clone ssh://fslgit.fsl.cs.sunysb.edu/scm/fslgit/fsl-strace.git
+git clone https://github.com/SNIA/reanimator-strace.git 
 
-2. trace2model:
+2. reanimator-library:
 
-git clone ssh://fslgit.fsl.cs.sunysb.edu:/scm/fslgit/trace2model.git
+git clone https://github.com/SNIA/reanimator-library.git 
 
 * WHERE TO WORK?
 
@@ -682,10 +682,10 @@ the project, to see how it works:
 
 a. Change your working directory to strace2ds-library:
 
-$ cd trace2model/strace2ds-library
+$ cd reanimator-library/strace2ds-library
 
 b. Run "./buildall".  This should make a strace2ds directory in your HOME
-folder and setup the fsl strace2ds library in your account:
+folder and setup the reanimator strace2ds library in your account:
 
 $ ./buildall
 
@@ -693,7 +693,7 @@ $ ./buildall
 
 a. Change your working directory to strace2ds-replayer
 
-$ cd trace2model/syscall-replayer
+$ cd reanimator-library/syscall-replayer
 
 b. Run "make".  This should allow you to build the whole replayer project
 
@@ -701,9 +701,9 @@ $ make
 
 3. To build the trace module:
 
-a. Change your working directory to fsl-strace
+a. Change your working directory to reanimator-strace
 
-$ cd fsl-strace
+$ cd reanimator-strace
 
 b. Change your active branch to 'ds'.  'ds' is the main working branch of
 FSL for the tracer module
@@ -712,7 +712,7 @@ $ git checkout ds
 
 c. Run configure script with all DataSeries options enabled
 
-$ ./build-fsl-strace
+$ ./build-reanimator-strace
 
 d. Check the updated man page for a new -X option.  You should be able to
 find the -X option nested inside of -o option.
@@ -725,7 +725,7 @@ e. Verify that "Optional features" section has following entry in usage:
 
 $ ./configure -h | grep dataseries
 
-Note: We use --enable-dataseries in our build-fsl-strace, configure adds
+Note: We use --enable-dataseries in our build-reanimator-strace, configure adds
 a "#define ENABLE_DATASERIES" to the code.  You can use it to ifdef stuff as
 needed.   All the code we are adding/changing, should be #ifdef'ed
 ENABLE_DATASERIES so it'll be easy for us to tell where our changes are.
@@ -742,7 +742,7 @@ Now you should see foo.ds in your current directory.
 
 Here's an example how to run syscall replayer with a trace file (foo.ds)
 
-$ cd trace2model/syscall-replayer
+$ cd reanimator-library/syscall-replayer
 
 Make sure your foo.ds is in replayer directory.
 
@@ -759,7 +759,7 @@ makes this assumption.
 
 Here's an example how to run a replayer test
 
-$ cd trace2model/syscall-replayer/replayer-tests
+$ cd reanimator-library/syscall-replayer/replayer-tests
 
 Choose a system call that you want to test and build its corresponding program
 
@@ -771,7 +771,7 @@ $ cd ../
 
 Capture test program traces
 
-$ STRACE2DS=~/strace2ds ~/fsl-strace/BUILD/strace -f -X foo.ds ./rmdir-test
+$ STRACE2DS=~/strace2ds ~/reanimator-strace/BUILD/strace -f -X foo.ds ./rmdir-test
 
 Replay the test program
 
