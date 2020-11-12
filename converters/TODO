@@ -1,9 +1,0 @@
-- exit system call is not traced, because it is a different type of probe
-  in SystemTap, so it requires special handling.
-- blktrace2ds.sh and spc2ds.sh are slow because they do preprocessing using
-  shell. Redo it using C.
-- RM,RW,R,W operation fields are not converted to 1 or 0 as supposed
-- time is relative, not absolute
-- offset is in blocks, not in bytes
-- enter_time, leave_time and exit_time - are not converted right now.
-  
