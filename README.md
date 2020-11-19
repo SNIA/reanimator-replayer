@@ -1,2 +1,3 @@
-# reanimator-library 
-Converting system call traces to dataseries
+# Re-Animator Replayer
+
+Re-Animate traced programs
