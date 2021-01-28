@@ -5,3 +5,4 @@
 *.xml
 autom4te.cache
 build/
+reanimator_replayer_release/
