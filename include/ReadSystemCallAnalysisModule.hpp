@@ -56,8 +56,12 @@ class ReadSystemCallAnalysisModule : public RowAnalysisModule {
     void printResult() override;
   private:
     uint64_t rows_;
+    uint64_t min_time_elapsed_;
+    uint64_t max_time_elapsed_;
+    double average_time_elapsed_;
     Int64Field time_called_;
     Int64Field time_returned_;
+    std::string syscall_name_;
 };
 
 #endif /* READ_SYSTEM_CALL_ANALYSIS_MODULE_HPP */
