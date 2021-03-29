@@ -4,8 +4,8 @@ ReadSystemCallAnalysisModule::ReadSystemCallAnalysisModule(
     DataSeriesModule &source)
     : RowAnalysisModule(source),
       rows_(0),
-      time_called_(series, "time_called"),
-      time_returned_(series, "time_returned")
+      time_called_(series, "time_called", Field::flag_nullable),
+      time_returned_(series, "time_returned", Field::flag_nullable)
     {
         // nothing to do
     }
