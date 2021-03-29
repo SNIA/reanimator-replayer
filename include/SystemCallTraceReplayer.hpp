@@ -83,6 +83,8 @@
 #include "WriteSystemCallTraceReplayModule.hpp"
 #include "WritevSystemCallTraceReplayModule.hpp"
 
+#include "ReadSystemCallAnalysisModule.hpp"
+
 // Define the static replayer resources manager in SystemCallTraceReplayModule
 ReplayerResourcesManager
     SystemCallTraceReplayModule::replayer_resources_manager_;
