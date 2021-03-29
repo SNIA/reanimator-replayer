@@ -32,6 +32,7 @@
  *
  * USAGE
  * ./system-call-replayer <-vwp> <input files>
+ * ./system-call-replayer --analysis <input files>
  */
 
 #include "SystemCallTraceReplayer.hpp"
@@ -167,7 +168,8 @@ boost::program_options::variables_map get_options(int argc, char *argv[]) {
       "pattern,p", po::value<std::string>(),
       "write repeated pattern data in write system call")(
       "logger,l", po::value<std::string>(),
-      "write the replayer logs in specified filename");
+      "write the replayer logs in specified filename")(
+      "analysis,a", "perform simple analysis on trace file");
 
   /*
    * Hidden options, will be allowed both on command line and
@@ -221,8 +223,8 @@ boost::program_options::variables_map get_options(int argc, char *argv[]) {
  * @param input_files: DataSeries files that contain system call
  *                     traces
  */
-void process_options(int argc, char *argv[], bool &verbose, bool &verify,
-                     int &warn_level, std::string &pattern_data,
+void process_options(int argc, char *argv[], bool &analysis, bool &verbose,
+                     bool &verify, int &warn_level, std::string &pattern_data,
                      std::string &log_filename,
                      std::vector<std::string> &input_files) {
   boost::program_options::variables_map options_vm = get_options(argc, argv);
@@ -238,6 +240,10 @@ void process_options(int argc, char *argv[], bool &verbose, bool &verify,
       std::cerr << "Wrong value for warn option" << std::endl;
       exit(EXIT_FAILURE);
     }
+  }
+
+  if (options_vm.count("analysis") != 0u) {
+    analysis = true;
   }
 
   if (options_vm.count("verify") != 0u) {
@@ -839,6 +845,23 @@ auto checkExecutionValidation = [](SystemCallTraceReplayModule *check) -> bool {
   return true;
 };
 
+void perform_analysis(std::vector<std::string> input_files) {
+  TypeIndexModule source{"IOTTAFSL::Trace::Syscall::read"};
+  // *** How do we get all the extents?
+  std::cout << "Processing!" << std::endl;
+
+  for (auto &input_file : input_files) {
+    source.addSource(input_file);
+  }
+
+  //SequenceModule seq(&source);
+  ReadSystemCallAnalysisModule readAnalysis(source);
+
+  //seq.addModule()
+  readAnalysis.getAndDeleteShared();
+  readAnalysis.printResult();
+}
+
 void readerThread() {
   while (!checkModulesFinished()) {
     PROFILE_START(3)
@@ -922,6 +945,7 @@ void executionThread(int64_t threadID) {
 
 int main(int argc, char *argv[]) {
   int ret = EXIT_SUCCESS;
+  bool analysis = false;
   bool verbose = false;
   bool verify = false;
   int warn_level = DEFAULT_MODE;
@@ -934,8 +958,8 @@ int main(int argc, char *argv[]) {
   PROFILE_START(5)
 
   // Process options found on the command line.
-  process_options(argc, argv, verbose, verify, warn_level, pattern_data,
-                  log_filename, input_files);
+  process_options(argc, argv, analysis, verbose, verify, warn_level,
+                  pattern_data, log_filename, input_files);
   // Create an instance of logger class and open log file to write replayer logs
   SystemCallTraceReplayModule::syscall_logger_ =
       new SystemCallTraceReplayLogger(log_filename);
@@ -948,6 +972,11 @@ int main(int argc, char *argv[]) {
       delete SystemCallTraceReplayModule::syscall_logger_;
       exit(EXIT_FAILURE);
     }
+  }
+
+  if (analysis) {
+    perform_analysis(input_files);
+    exit(EXIT_SUCCESS);
   }
 
   std::vector<PrefetchBufferModule *> prefetch_buffer_modules =
