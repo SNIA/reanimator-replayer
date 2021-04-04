@@ -142,6 +142,26 @@ void SystemCallTraceReplayModule::execute() {
   completeProcessing();
 }
 
+void SystemCallTraceReplayModule::analyze() {
+  analyzeRow();
+  // *** maybe do data collection in some completeProcessing() function?
+}
+
+AnalysisModule analysisModule;
+
+void SystemCallTraceReplayModule::analyzeRow() {
+  analysisModule.examineFriend(*this);
+
+  // uint64_t time_elapsed = timeReturnedVal - timeCalledVal;
+  // if (isTimeable()) {
+  //   std::cout << boost::format("Untracked syscall %s took %u nsec\n")
+  //               % sys_call_name_ % time_elapsed;
+  // } else {
+  //   std::cout << boost::format("Untracked syscall %s is not timeable\n")
+  //               % sys_call_name_;
+  // }
+}
+
 void SystemCallTraceReplayModule::completeProcessing() { after_sys_call(); }
 
 void SystemCallTraceReplayModule::after_sys_call() {
@@ -167,10 +187,10 @@ void SystemCallTraceReplayModule::print_sys_call_fields() {
 }
 
 void SystemCallTraceReplayModule::print_common_fields() {
-  // Convert the time values from Tfracs to seconds
-  double time_called_val = Tfrac_to_sec(time_called());
-  double time_returned_val = Tfrac_to_sec(time_returned());
-  double time_recorded_val = Tfrac_to_sec(time_recorded());
+  // Convert the time values from nanoseconds to seconds
+  double time_called_val = nsec_to_sec(time_called());
+  double time_returned_val = nsec_to_sec(time_returned());
+  double time_recorded_val = nsec_to_sec(time_recorded());
 
   // Print the common fields and their values
   syscall_logger_->log_info(
@@ -206,6 +226,11 @@ void SystemCallTraceReplayModule::compare_retval_and_errno() {
       }
     }
   }
+}
+
+double SystemCallTraceReplayModule::nsec_to_sec(uint64_t time) {
+  double time_in_secs = static_cast<double>(time / pow(10.0, 9));
+  return time_in_secs;
 }
 
 double SystemCallTraceReplayModule::Tfrac_to_sec(uint64_t time) {
@@ -267,9 +292,30 @@ char *SystemCallTraceReplayModule::random_fill_buffer(char *buffer,
  * appropriate to replay. So we do not replay in our replayer.
  *
  * @return: returns true if the system call is replayable, else it
- *	      returns false.
+ *          returns false.
  */
 bool SystemCallTraceReplayModule::isReplayable() {
   return !(sys_call_name_ == "exit" || sys_call_name_ == "execve" ||
            sys_call_name_ == "mmap" || sys_call_name_ == "munmap");
 }
+
+/**
+ * Some system calls such as _exit, execve, mmap and munmap have garbage
+ * time_returned values, so we do not want to analyze their durations.
+ *
+ * @return: returns true if the system call is timeable, else it returns
+ *        false.
+ */
+bool SystemCallTraceReplayModule::isTimeable() {
+  return !(sys_call_name_ == "exit" || sys_call_name_ == "execve");
+}
+
+void AnalysisModule::considerTimeElapsed(uint64_t time_elapsed, std::string syscall_name) {
+    // todo
+}
+
+void AnalysisModule::examineFriend(SystemCallTraceReplayModule& module) {
+    std::cout << boost::format("Syscall %s has timeReturned %u\n")
+        % module.sys_call_name_ % module.timeReturnedVal;
+}
+

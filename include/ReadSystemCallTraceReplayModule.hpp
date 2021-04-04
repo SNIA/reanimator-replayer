@@ -64,6 +64,11 @@ class ReadSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
    */
   void processRow() override;
 
+  /**
+   * This function will analyze arguments in the trace file.
+   */
+  void analyzeRow() override;
+
   void verifyRow();
 
  public:

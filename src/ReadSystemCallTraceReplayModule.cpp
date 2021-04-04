@@ -110,6 +110,12 @@ void ReadSystemCallTraceReplayModule::processRow() {
   verifyRow();
 }
 
+void ReadSystemCallTraceReplayModule::analyzeRow() {
+  std::cout << boost::format("nbytes is %d\n"
+                             "time elapsed: %d\n") % nbytes
+                                                 % (timeReturnedVal - timeCalledVal);
+}
+
 void ReadSystemCallTraceReplayModule::prepareRow() {
   traced_fd = descriptor_.val();
   nbytes = bytes_requested_.val();

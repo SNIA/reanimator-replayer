@@ -51,6 +51,8 @@
 #include <map>
 #include <sstream>
 #include <string>
+#include <unordered_map>
+//#include "AnalysisModule.hpp"
 #include "ReplayerResourcesManager.hpp"
 #include "SystemCallTraceReplayLogger.hpp"
 #include "strace2ds.h"
@@ -66,7 +68,10 @@
  */
 #define DEC_PRECISION "%.25f"
 
+class AnalysisModule;
+
 class SystemCallTraceReplayModule : public RowAnalysisModule {
+ friend class AnalysisModule;
  protected:
   std::string sys_call_name_;
   bool verbose_;
@@ -312,6 +317,29 @@ class SystemCallTraceReplayModule : public RowAnalysisModule {
   void execute();
 
   /**
+   * This function will be called by a replayer to analyze
+   * one record of corresponding(based on class name) system call
+   * Note: Replayer should call this function until
+   * there are no more trace record
+   */
+  void analyze();
+
+  /**
+   * Perform analysis on the Dataseries extent for this system call.
+   * 
+   * Called instead of processRow() when analyzing a trace.
+   */
+  virtual void analyzeRow();
+
+  /**
+   * Convert a time value stored in nanosecond units (10^9 nsec = 1 sec)
+   * (as a uint64_t) to seconds (as a double)
+   * 
+   * @return: the corresponding time value in seconds
+   */
+  double nsec_to_sec(uint64_t time);
+
+  /**
    * Convert a time value stored in Tfrac units (2^32 Tfracs = 1 sec)
    * (as a uint64_t) to seconds (as a double)
    *
@@ -353,6 +381,15 @@ class SystemCallTraceReplayModule : public RowAnalysisModule {
    */
   bool isReplayable();
 
+  /**
+   * Some system calls such as _exit, execve, mmap and munmap have garbage
+   * time_returned values, so we do not want to analyze their durations.
+   *
+   * @return: returns true if the system call is timeable, else it returns
+   *        false.
+   */
+  bool isTimeable();
+
   virtual void prepareRow();
   void setCommon(int64_t id, int64_t called, int64_t returned, int64_t recorded,
                  int64_t pid, int error, int ret, int64_t index) {
@@ -378,5 +415,38 @@ class SystemCallTraceReplayModule : public RowAnalysisModule {
 
   void setReplayerIndex(int64_t idx) { replayerIndex = idx; }
 };
+
+struct AnalysisStruct {};
+
+class AnalysisModule {
+ protected:
+  std::unordered_map<std::string, AnalysisStruct> analysisMap;
+  uint64_t min_time_elapsed;
+  uint64_t max_time_elapsed;
+
+  /*
+
+    {
+        ...
+        "read": <analysis struct>
+        "write": <analysis struct>
+        ...
+    }
+
+
+  */
+
+ public:
+  AnalysisModule() = default;
+
+  /**
+   * Update the min and max time_elapsed values by considering a new value
+   * from a syscall.
+   */
+  void considerTimeElapsed(uint64_t time_elapsed, std::string syscall_name);
+
+  void examineFriend(SystemCallTraceReplayModule& module);
+};
+
 
 #endif /* SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

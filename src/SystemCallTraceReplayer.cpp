@@ -116,6 +116,7 @@ int64_t fileReading_Batch_push = 0;
 int64_t fileReading_Batch_map = 0;
 int64_t fileReading_Batch_move = 0;
 bool isFirstBatch = true;
+bool analysis = false;
 
 int64_t replayerIdx = 0;
 tbb::atomic<uint64_t> nThreads = 1;
@@ -223,7 +224,7 @@ boost::program_options::variables_map get_options(int argc, char *argv[]) {
  * @param input_files: DataSeries files that contain system call
  *                     traces
  */
-void process_options(int argc, char *argv[], bool &analysis, bool &verbose,
+void process_options(int argc, char *argv[], bool &verbose,
                      bool &verify, int &warn_level, std::string &pattern_data,
                      std::string &log_filename,
                      std::vector<std::string> &input_files) {
@@ -865,7 +866,7 @@ void perform_analysis(std::vector<std::string> input_files) {
 void readerThread() {
   while (!checkModulesFinished()) {
     PROFILE_START(3)
-    while (getMinSyscall() > (100 * nThreads)) {
+    while (getMinSyscall() > (100 * nThreads)) {  // TODO: move magic number to constant
       SystemCallTraceReplayModule *execute_replayer = nullptr;
       while (allocationQueue.try_pop(execute_replayer)) {
         delete execute_replayer;
@@ -909,7 +910,12 @@ void executionThread(int64_t threadID) {
       }
     }
 
-    execute_replayer->execute();
+    if (analysis) {
+      execute_replayer->analyze();
+    } else {
+      execute_replayer->execute();
+    }
+
     lastExecutedSyscallID =
         std::max((int64_t)lastExecutedSyscallID, execute_replayer->unique_id());
     PROFILE_END(1, 2, duration)
@@ -945,7 +951,6 @@ void executionThread(int64_t threadID) {
 
 int main(int argc, char *argv[]) {
   int ret = EXIT_SUCCESS;
-  bool analysis = false;
   bool verbose = false;
   bool verify = false;
   int warn_level = DEFAULT_MODE;
@@ -958,7 +963,7 @@ int main(int argc, char *argv[]) {
   PROFILE_START(5)
 
   // Process options found on the command line.
-  process_options(argc, argv, analysis, verbose, verify, warn_level,
+  process_options(argc, argv, verbose, verify, warn_level,
                   pattern_data, log_filename, input_files);
   // Create an instance of logger class and open log file to write replayer logs
   SystemCallTraceReplayModule::syscall_logger_ =
@@ -974,10 +979,10 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  if (analysis) {
-    perform_analysis(input_files);
-    exit(EXIT_SUCCESS);
-  }
+  // if (analysis) {
+  //   perform_analysis(input_files);
+  //   exit(EXIT_SUCCESS);
+  // }
 
   std::vector<PrefetchBufferModule *> prefetch_buffer_modules =
       create_prefetch_buffer_modules(input_files);
