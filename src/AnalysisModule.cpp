@@ -4,7 +4,7 @@
 
 
 AnalysisStruct::AnalysisStruct() 
-    : min_time_elapsed(0), max_time_elapsed(0), average_time_elapsed(0),
+    : min_time_elapsed(-1), max_time_elapsed(0), average_time_elapsed(0),
       rows(0) {
     // nothing to do
 }
