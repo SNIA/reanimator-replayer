@@ -111,9 +111,9 @@ void ReadSystemCallTraceReplayModule::processRow() {
 }
 
 void ReadSystemCallTraceReplayModule::analyzeRow() {
-  std::cout << boost::format("nbytes is %d\n"
-                             "time elapsed: %d\n") % nbytes
-                                                 % (timeReturnedVal - timeCalledVal);
+  // std::cout << boost::format("nbytes is %d\n"
+  //                            "time elapsed: %d\n") % nbytes
+  //                                                % (timeReturnedVal - timeCalledVal);
 }
 
 void ReadSystemCallTraceReplayModule::prepareRow() {

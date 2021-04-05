@@ -49,6 +49,7 @@
 #include "tbb/concurrent_queue.h"
 #include "tbb/concurrent_vector.h"
 #include "tbb/task_group.h"
+#include "AnalysisModule.hpp"
 
 // #define PROFILE_ENABLE
 
@@ -856,11 +857,11 @@ void perform_analysis(std::vector<std::string> input_files) {
   }
 
   //SequenceModule seq(&source);
-  ReadSystemCallAnalysisModule readAnalysis(source);
+  // ReadSystemCallAnalysisModule readAnalysis(source);
 
-  //seq.addModule()
-  readAnalysis.getAndDeleteShared();
-  readAnalysis.printResult();
+  // //seq.addModule()
+  // readAnalysis.getAndDeleteShared();
+  // readAnalysis.printResult();
 }
 
 void readerThread() {
@@ -947,6 +948,10 @@ void executionThread(int64_t threadID) {
     PROFILE_SAMPLE(10)
   }
   currentExecutions.erase(threadID);
+
+  if (analysis) {
+      execute_replayer->displayAnalysisResults();
+  }
 }
 
 int main(int argc, char *argv[]) {

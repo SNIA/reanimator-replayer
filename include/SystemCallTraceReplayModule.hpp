@@ -323,6 +323,11 @@ class SystemCallTraceReplayModule : public RowAnalysisModule {
   void analyze();
 
   /**
+   * Displays fun facts about system calls
+   */
+  void displayAnalysisResults();
+
+  /**
    * Perform analysis on the Dataseries extent for this system call.
    * 
    * Called instead of processRow() when analyzing a trace.

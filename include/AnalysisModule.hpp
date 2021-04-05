@@ -63,6 +63,8 @@ class AnalysisModule {
    * from a syscall.
    */
   void considerTimeElapsed(uint64_t time_elapsed, std::string syscall_name);
+  void printGlobalMetrics();
+  void printPerSyscallMetrics();
   // void examineFriend(SystemCallTraceReplayModule& module);
 };
 

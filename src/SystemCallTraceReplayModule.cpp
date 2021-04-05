@@ -34,6 +34,8 @@
 #include "SystemCallTraceReplayModule.hpp"
 #include "AnalysisModule.hpp"
 
+AnalysisModule analysisModule;
+
 SystemCallTraceReplayModule::SystemCallTraceReplayModule(
     DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
     : RowAnalysisModule(source),
@@ -148,14 +150,18 @@ void SystemCallTraceReplayModule::analyze() {
   // *** maybe do data collection in some completeProcessing() function?
 }
 
-AnalysisModule analysisModule;
+void SystemCallTraceReplayModule::displayAnalysisResults() {
+  analysisModule.printPerSyscallMetrics();
+  analysisModule.printGlobalMetrics();
+  // *** maybe do data collection in some completeProcessing() function?
+}
 
 void SystemCallTraceReplayModule::analyzeRow() {
   uint64_t time_elapsed = timeReturnedVal - timeCalledVal;
   if (isTimeable()) {
     analysisModule.considerTimeElapsed(time_elapsed, sys_call_name_);
-    std::cout << boost::format("%s took %u nsec\n")
-                % sys_call_name_ % time_elapsed;
+    // std::cout << boost::format("%s took %u nsec\n")
+    //             % sys_call_name_ % time_elapsed;
   } else {
     std::cout << boost::format("Untracked syscall %s is not timeable\n")
                 % sys_call_name_;
