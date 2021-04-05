@@ -76,6 +76,7 @@ add_executable(system-call-replayer
 	src/AcceptSystemCallTraceReplayModule.cpp
 	src/Accept4SystemCallTraceReplayModule.cpp
 	src/EPollCreateSystemCallTraceReplayModule.cpp
+	src/AnalysisModule.cpp
 	src/ReadSystemCallAnalysisModule)
 
 target_link_libraries(system-call-replayer

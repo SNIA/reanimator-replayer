@@ -52,7 +52,7 @@
 #include <sstream>
 #include <string>
 #include <unordered_map>
-//#include "AnalysisModule.hpp"
+#include "AnalysisModule.hpp"
 #include "ReplayerResourcesManager.hpp"
 #include "SystemCallTraceReplayLogger.hpp"
 #include "strace2ds.h"

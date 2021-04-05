@@ -32,6 +32,7 @@
  */
 
 #include "SystemCallTraceReplayModule.hpp"
+#include "AnalysisModule.hpp"
 
 SystemCallTraceReplayModule::SystemCallTraceReplayModule(
     DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
@@ -150,12 +151,10 @@ void SystemCallTraceReplayModule::analyze() {
 AnalysisModule analysisModule;
 
 void SystemCallTraceReplayModule::analyzeRow() {
-  // analysisModule.examineFriend(*this);
-
   uint64_t time_elapsed = timeReturnedVal - timeCalledVal;
   if (isTimeable()) {
-    analysisModule
-    std::cout << boost::format("Untracked syscall %s took %u nsec\n")
+    analysisModule.considerTimeElapsed(time_elapsed, sys_call_name_);
+    std::cout << boost::format("%s took %u nsec\n")
                 % sys_call_name_ % time_elapsed;
   } else {
     std::cout << boost::format("Untracked syscall %s is not timeable\n")
