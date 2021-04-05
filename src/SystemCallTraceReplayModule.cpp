@@ -150,16 +150,17 @@ void SystemCallTraceReplayModule::analyze() {
 AnalysisModule analysisModule;
 
 void SystemCallTraceReplayModule::analyzeRow() {
-  analysisModule.examineFriend(*this);
+  // analysisModule.examineFriend(*this);
 
-  // uint64_t time_elapsed = timeReturnedVal - timeCalledVal;
-  // if (isTimeable()) {
-  //   std::cout << boost::format("Untracked syscall %s took %u nsec\n")
-  //               % sys_call_name_ % time_elapsed;
-  // } else {
-  //   std::cout << boost::format("Untracked syscall %s is not timeable\n")
-  //               % sys_call_name_;
-  // }
+  uint64_t time_elapsed = timeReturnedVal - timeCalledVal;
+  if (isTimeable()) {
+    analysisModule
+    std::cout << boost::format("Untracked syscall %s took %u nsec\n")
+                % sys_call_name_ % time_elapsed;
+  } else {
+    std::cout << boost::format("Untracked syscall %s is not timeable\n")
+                % sys_call_name_;
+  }
 }
 
 void SystemCallTraceReplayModule::completeProcessing() { after_sys_call(); }
@@ -309,13 +310,3 @@ bool SystemCallTraceReplayModule::isReplayable() {
 bool SystemCallTraceReplayModule::isTimeable() {
   return !(sys_call_name_ == "exit" || sys_call_name_ == "execve");
 }
-
-void AnalysisModule::considerTimeElapsed(uint64_t time_elapsed, std::string syscall_name) {
-    // todo
-}
-
-void AnalysisModule::examineFriend(SystemCallTraceReplayModule& module) {
-    std::cout << boost::format("Syscall %s has timeReturned %u\n")
-        % module.sys_call_name_ % module.timeReturnedVal;
-}
-

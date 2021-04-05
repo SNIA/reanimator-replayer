@@ -68,10 +68,8 @@
  */
 #define DEC_PRECISION "%.25f"
 
-class AnalysisModule;
-
 class SystemCallTraceReplayModule : public RowAnalysisModule {
- friend class AnalysisModule;
+ // friend class AnalysisModule;
  protected:
   std::string sys_call_name_;
   bool verbose_;
@@ -415,38 +413,5 @@ class SystemCallTraceReplayModule : public RowAnalysisModule {
 
   void setReplayerIndex(int64_t idx) { replayerIndex = idx; }
 };
-
-struct AnalysisStruct {};
-
-class AnalysisModule {
- protected:
-  std::unordered_map<std::string, AnalysisStruct> analysisMap;
-  uint64_t min_time_elapsed;
-  uint64_t max_time_elapsed;
-
-  /*
-
-    {
-        ...
-        "read": <analysis struct>
-        "write": <analysis struct>
-        ...
-    }
-
-
-  */
-
- public:
-  AnalysisModule() = default;
-
-  /**
-   * Update the min and max time_elapsed values by considering a new value
-   * from a syscall.
-   */
-  void considerTimeElapsed(uint64_t time_elapsed, std::string syscall_name);
-
-  void examineFriend(SystemCallTraceReplayModule& module);
-};
-
 
 #endif /* SYSTEM_CALL_TRACE_REPLAY_MODULE_HPP */

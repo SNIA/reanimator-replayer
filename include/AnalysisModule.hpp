@@ -40,25 +40,19 @@
 #include <string>
 #include "SystemCallTraceReplayModule.hpp"
 
-struct AnalysisStruct {};
+struct AnalysisStruct {
+  AnalysisStruct();
+
+  uint64_t min_time_elapsed;
+  uint64_t max_time_elapsed;
+  uint64_t average_time_elapsed;
+  uint64_t rows;
+};
 
 class AnalysisModule {
  protected:
-  std::unordered_map<std::string, AnalysisStruct> analysisMap;
-  uint64_t min_time_elapsed;
-  uint64_t max_time_elapsed;
-
-  /*
-
-    {
-        ...
-        "read": <analysis struct>
-        "write": <analysis struct>
-        ...
-    }
-
-
-  */
+  std::unordered_map<std::string, AnalysisStruct> analysisMap_;
+  AnalysisStruct global_metrics_;
 
  public:
   AnalysisModule();
@@ -69,7 +63,7 @@ class AnalysisModule {
    */
   void considerTimeElapsed(uint64_t time_elapsed, std::string syscall_name);
 
-  void examineFriend(SystemCallTraceReplayModule& module);
+  // void examineFriend(SystemCallTraceReplayModule& module);
 };
 
 #endif /* ANALYSIS_MODULE_HPP */
