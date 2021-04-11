@@ -847,23 +847,6 @@ auto checkExecutionValidation = [](SystemCallTraceReplayModule *check) -> bool {
   return true;
 };
 
-void perform_analysis(std::vector<std::string> input_files) {
-  TypeIndexModule source{"IOTTAFSL::Trace::Syscall::read"};
-  // *** How do we get all the extents?
-  std::cout << "Processing!" << std::endl;
-
-  for (auto &input_file : input_files) {
-    source.addSource(input_file);
-  }
-
-  //SequenceModule seq(&source);
-  // ReadSystemCallAnalysisModule readAnalysis(source);
-
-  // //seq.addModule()
-  // readAnalysis.getAndDeleteShared();
-  // readAnalysis.printResult();
-}
-
 void readerThread() {
   while (!checkModulesFinished()) {
     PROFILE_START(3)
@@ -983,11 +966,6 @@ int main(int argc, char *argv[]) {
       exit(EXIT_FAILURE);
     }
   }
-
-  // if (analysis) {
-  //   perform_analysis(input_files);
-  //   exit(EXIT_SUCCESS);
-  // }
 
   std::vector<PrefetchBufferModule *> prefetch_buffer_modules =
       create_prefetch_buffer_modules(input_files);

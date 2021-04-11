@@ -38,8 +38,11 @@
 #include <sys/types.h>
 #include <unordered_map>
 #include <string>
-// #include "SystemCallTraceReplayModule.hpp"
 
+/**
+ * Stores information about the elapsed times for a given syscall (or set of
+ * syscalls) at a certain point in the analysis.
+ */
 struct AnalysisStruct {
   AnalysisStruct();
 
@@ -65,7 +68,6 @@ class AnalysisModule {
   void considerTimeElapsed(uint64_t time_elapsed, std::string syscall_name);
   void printGlobalMetrics();
   void printPerSyscallMetrics();
-  // void examineFriend(SystemCallTraceReplayModule& module);
 };
 
 #endif /* ANALYSIS_MODULE_HPP */

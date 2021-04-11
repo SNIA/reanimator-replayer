@@ -3,7 +3,7 @@
 #include <boost/format.hpp>
 
 
-AnalysisStruct::AnalysisStruct() 
+AnalysisStruct::AnalysisStruct()
     : min_time_elapsed(-1), max_time_elapsed(0), average_time_elapsed(0),
       rows(0) {
     // nothing to do
@@ -44,11 +44,3 @@ void AnalysisModule::printPerSyscallMetrics() {
         std::cout << boost::format("Average Syscall Time Elapsed (ns): %u\n\n") % a.average_time_elapsed;
     }
 }
-
-
-/*
-AnalysisModule::examineFriend(SystemCallTraceReplayModule& module) {
-    std::cout << boost::format("Syscall %s has timeReturned %u\n")
-        % module.sys_call_name_ % module.timeReturnedVal;
-}
-*/

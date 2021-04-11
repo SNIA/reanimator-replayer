@@ -69,7 +69,6 @@
 #define DEC_PRECISION "%.25f"
 
 class SystemCallTraceReplayModule : public RowAnalysisModule {
- // friend class AnalysisModule;
  protected:
   std::string sys_call_name_;
   bool verbose_;
@@ -329,7 +328,7 @@ class SystemCallTraceReplayModule : public RowAnalysisModule {
 
   /**
    * Perform analysis on the Dataseries extent for this system call.
-   * 
+   *
    * Called instead of processRow() when analyzing a trace.
    */
   virtual void analyzeRow();
@@ -337,7 +336,7 @@ class SystemCallTraceReplayModule : public RowAnalysisModule {
   /**
    * Convert a time value stored in nanosecond units (10^9 nsec = 1 sec)
    * (as a uint64_t) to seconds (as a double)
-   * 
+   *
    * @return: the corresponding time value in seconds
    */
   double nsec_to_sec(uint64_t time);
