@@ -70,8 +70,8 @@ uint64_t DurationAnalysisModule::rollingAverage(uint64_t value, uint64_t old_ave
 std::ostream& DurationAnalysisModule::printMetrics(std::ostream& out) const {
     out << boost::format("=== Duration Analysis ===\n");
     printPerSyscallMetrics(out);
+    out << boost::format("\n");
     printGlobalMetrics(out);
-
     return out;
 }
 
@@ -84,12 +84,10 @@ std::ostream& DurationAnalysisModule::printGlobalMetrics(std::ostream& out) cons
 }
 
 std::ostream& DurationAnalysisModule::printPerSyscallMetrics(std::ostream& out) const {
+    out << boost::format("%s\t%s\t%s\t%s\n") % "System Call" % "Min Time (ns)" % "Max Time (ns)" % "Average Time (ns)";
     for (const auto &am : analysisMap_) {
         auto& a = am.second;
-        out << boost::format("Metrics For %s:\n") % am.first;
-        out << boost::format("Min Syscall Time Elapsed (ns): %u\n") % a.min_time_elapsed;
-        out << boost::format("Max Syscall Time Elapsed (ns): %u\n") % a.max_time_elapsed;
-        out << boost::format("Average Syscall Time Elapsed (ns): %u\n\n") % a.average_time_elapsed;
+        out << boost::format("%-10s\t%u\t%u\t%u\n") % am.first % a.min_time_elapsed % a.max_time_elapsed % a.average_time_elapsed;
     }
     return out;
 }

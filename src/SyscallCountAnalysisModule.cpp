@@ -48,6 +48,7 @@ std::ostream& SyscallCountAnalysisModule::printMetrics(std::ostream& out) const 
 }
 
 std::ostream& SyscallCountAnalysisModule::printGlobalMetrics(std::ostream& out) const {
+    out << boost::format("%-10s\t%s\t%s\n") % "System Call" % "Count" % "Proportion";
     for (const auto &am : analysisMap_) {
         double proportion = ((double) am.second / (double) totalCount_) * 100;
         out << boost::format("%-10s\t%d\t%f %%\n") % am.first % am.second % proportion;
