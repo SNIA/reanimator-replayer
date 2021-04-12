@@ -33,8 +33,6 @@
 
 #include "SystemCallTraceReplayModule.hpp"
 
-DurationAnalysisModule analysisModule;
-
 SystemCallTraceReplayModule::SystemCallTraceReplayModule(
     DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
     : RowAnalysisModule(source),
@@ -144,16 +142,16 @@ void SystemCallTraceReplayModule::execute() {
   completeProcessing();
 }
 
-void SystemCallTraceReplayModule::analyze() {
-  analyzeRow();
+void SystemCallTraceReplayModule::analyze(AnalysisModule &am) {
+  analyzeRow(am);
 }
 
-void SystemCallTraceReplayModule::displayAnalysisResults() {
-  analysisModule.printMetrics(std::cout);
+void SystemCallTraceReplayModule::displayAnalysisResults(AnalysisModule &am) {
+  am.printMetrics(std::cout);
 }
 
-void SystemCallTraceReplayModule::analyzeRow() {
-  analysisModule.considerSyscall(*this);
+void SystemCallTraceReplayModule::analyzeRow(AnalysisModule &am) {
+  am.considerSyscall(*this);
 }
 
 void SystemCallTraceReplayModule::completeProcessing() { after_sys_call(); }

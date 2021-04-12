@@ -52,7 +52,7 @@
 #include <sstream>
 #include <string>
 #include <unordered_map>
-#include "DurationAnalysisModule.hpp"
+#include "AnalysisModule.hpp"
 #include "ReplayerResourcesManager.hpp"
 #include "SystemCallTraceReplayLogger.hpp"
 #include "strace2ds.h"
@@ -314,24 +314,24 @@ class SystemCallTraceReplayModule : public RowAnalysisModule {
   void execute();
 
   /**
-   * This function will be called by a replayer to analyze
-   * one record of corresponding(based on class name) system call
-   * Note: Replayer should call this function until
-   * there are no more trace record
+   * This function will be called by a replayer to analyze one record of
+   * corresponding (based on class name) system call
+   * Note: Replayer should call this function until there are no more trace
+   * record
    */
-  void analyze();
+  void analyze(AnalysisModule &module);
 
   /**
    * Displays fun facts about system calls
    */
-  void displayAnalysisResults();
+  void displayAnalysisResults(AnalysisModule &module);
 
   /**
    * Perform analysis on the Dataseries extent for this system call.
    *
    * Called instead of processRow() when analyzing a trace.
    */
-  virtual void analyzeRow();
+  virtual void analyzeRow(AnalysisModule &module);
 
   /**
    * Convert a time value stored in nanosecond units (10^9 nsec = 1 sec)

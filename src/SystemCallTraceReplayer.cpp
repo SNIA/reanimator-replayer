@@ -49,7 +49,6 @@
 #include "tbb/concurrent_queue.h"
 #include "tbb/concurrent_vector.h"
 #include "tbb/task_group.h"
-#include "AnalysisModule.hpp"
 
 // #define PROFILE_ENABLE
 
@@ -111,6 +110,11 @@ int64_t mainThreadID = 0;
 
 std::unordered_map<std::string, SystemCallTraceReplayModule *> syscallMapLast;
 tbb::concurrent_queue<SystemCallTraceReplayModule *> allocationQueue;
+
+/**
+ * Stores all analysis modules that should run on the given input files.
+ */
+tbb::concurrent_vector<AnalysisModule *> analysisModules;
 
 int64_t fileReading_Batch_file = 0;
 int64_t fileReading_Batch_push = 0;
@@ -739,6 +743,16 @@ void prepare_replay() {
   }
 }
 
+/**
+ * Before we perform analysis, we have to register all the analysis modules
+ * in the vector `analysisModules`.
+ */
+void prepare_analysis() {
+  // *** TODO: allow modules to be specified at the command line somehow
+  analysisModules.push_back(new DurationAnalysisModule);
+  analysisModules.push_back(new SyscallCountAnalysisModule);
+}
+
 inline void batch_syscall_modules(SystemCallTraceReplayModule *module = nullptr,
                                   bool isFirstTime = false,
                                   unsigned int batch_size = 50) {
@@ -895,7 +909,9 @@ void executionThread(int64_t threadID) {
     }
 
     if (analysis) {
-      execute_replayer->analyze();
+      for (auto am : analysisModules) {
+        execute_replayer->analyze(*am);
+      }
     } else {
       execute_replayer->execute();
     }
@@ -933,7 +949,9 @@ void executionThread(int64_t threadID) {
   currentExecutions.erase(threadID);
 
   if (analysis) {
-      execute_replayer->displayAnalysisResults();
+    for (auto am : analysisModules) {
+      execute_replayer->displayAnalysisResults(*am);
+    }
   }
 }
 
@@ -986,6 +1004,7 @@ int main(int argc, char *argv[]) {
 
   load_syscall_modules(system_call_trace_replay_modules);
   prepare_replay();
+  prepare_analysis();
   batch_for_all_syscalls(1000);
 
   PROFILE_END(5, 6, warmup)

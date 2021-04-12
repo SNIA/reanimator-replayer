@@ -25,36 +25,33 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
- * This header file describes the state of the current trace analysis.
+ * This file implements all functions in the SyscallCountAnalysisModule header
+ * file.
  *
- * USAGE
- * A main program can calculate various metrics per system call in a trace
- * file, then update the global metrics in this class.
+ * Read SyscallCountAnalysisModule.hpp for more information about this class.
  */
-#ifndef ANALYSIS_MODULE_HPP
-#define ANALYSIS_MODULE_HPP
 
-#include <unistd.h>
-#include <sys/types.h>
+#include "SyscallCountAnalysisModule.hpp"
+#include <iostream>
+#include <boost/format.hpp>
 
-// Forward declaration of replay module
-class SystemCallTraceReplayModule;
+void SyscallCountAnalysisModule::considerSyscall(const SystemCallTraceReplayModule& module) {
+    std::string sys_call_name = module.sys_call_name();
 
-class AnalysisModule {
- public:
-  AnalysisModule() = default;
+    analysisMap_[sys_call_name] += 1;
+}
 
-  /**
-   * Takes the current trace replay module operating on a given system call and
-   * analyzes the common fields using public getter functions. Must be
-   * implemented by each subclass to perform specific analysis behavior.
-   */
-  virtual void considerSyscall(const SystemCallTraceReplayModule& module) = 0;
+std::ostream& SyscallCountAnalysisModule::printMetrics(std::ostream& out) const {
+    out << boost::format("=== Syscall Counts ===\n");
+    printGlobalMetrics(out);
 
-  /**
-   * Output the metrics collected by the analysis module to a given stream.
-   */
-  virtual std::ostream& printMetrics(std::ostream& out) const = 0;
-};
+    return out;
+}
 
-#endif /* ANALYSIS_MODULE_HPP */
+std::ostream& SyscallCountAnalysisModule::printGlobalMetrics(std::ostream& out) const {
+    for (const auto &am : analysisMap_) {
+        out << boost::format("%s: %d\n") % am.first % am.second;
+    }
+
+    return out;
+}

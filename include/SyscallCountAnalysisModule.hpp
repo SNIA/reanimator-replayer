@@ -25,52 +25,33 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
- * This header represents an analysis module for system call durations.
+ * This header represents an analysis module for counting system calls.
  *
  * USAGE
- * A main program can register this analysis module, which will then calculate
- * minimum, maximum, and average elapsed time values for each system call.
+ * A main program can register this analysis module, which will then count the
+ * occurrences of each system call.
  */
-#ifndef DURATION_ANALYSIS_MODULE_HPP
-#define DURATION_ANALYSIS_MODULE_HPP
+#ifndef SYSCALL_COUNT_ANALYSIS_MODULE_HPP
+#define SYSCALL_COUNT_ANALYSIS_MODULE_HPP
 
 #include <map>
 #include "AnalysisModule.hpp"
 #include "SystemCallTraceReplayModule.hpp"
 
-/**
- * Stores information about the elapsed times for a given syscall (or set of
- * syscalls) at a certain point in the analysis.
- */
-struct DurationAnalysisStruct {
-  DurationAnalysisStruct();
-
-  uint64_t min_time_elapsed;
-  uint64_t max_time_elapsed;
-  uint64_t average_time_elapsed;
-  uint64_t rows;
-};
-
-class DurationAnalysisModule : public AnalysisModule {
+class SyscallCountAnalysisModule : public AnalysisModule {
  protected:
-  uint64_t rollingAverage(uint64_t value, uint64_t old_average, uint64_t rows) const;
   std::ostream& printGlobalMetrics(std::ostream& out) const;
-  std::ostream& printPerSyscallMetrics(std::ostream& out) const;
 
   /**
-   * Update the min and max time_elapsed values by considering a new value
-   * from a syscall.
+   * Stores counts of each syscall.
    */
-  void considerTimeElapsed(uint64_t time_elapsed, DurationAnalysisStruct& analysis);
-
-  std::map<std::string, DurationAnalysisStruct> analysisMap_;
-  DurationAnalysisStruct global_metrics_;
+  std::map<std::string, uint64_t> analysisMap_;
  
  public:
-  DurationAnalysisModule() = default;
+  SyscallCountAnalysisModule() = default;
 
   void considerSyscall(const SystemCallTraceReplayModule& module) override;
   std::ostream& printMetrics(std::ostream& out) const override;
 };
 
-#endif /* DURATION_ANALYSIS_MODULE_HPP */
+#endif /* SYSCALL_COUNT_ANALYSIS_MODULE_HPP */
