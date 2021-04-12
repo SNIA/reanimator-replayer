@@ -32,9 +32,8 @@
  */
 
 #include "SystemCallTraceReplayModule.hpp"
-#include "AnalysisModule.hpp"
 
-AnalysisModule analysisModule;
+DurationAnalysisModule analysisModule;
 
 SystemCallTraceReplayModule::SystemCallTraceReplayModule(
     DataSeriesModule &source, bool verbose_flag, int warn_level_flag)
@@ -150,18 +149,11 @@ void SystemCallTraceReplayModule::analyze() {
 }
 
 void SystemCallTraceReplayModule::displayAnalysisResults() {
-  analysisModule.printPerSyscallMetrics();
-  analysisModule.printGlobalMetrics();
+  analysisModule.printMetrics(std::cout);
 }
 
 void SystemCallTraceReplayModule::analyzeRow() {
-  uint64_t time_elapsed = timeReturnedVal - timeCalledVal;
-  if (isTimeable()) {
-    analysisModule.considerTimeElapsed(time_elapsed, sys_call_name_);
-  } else {
-    std::cerr << boost::format("Untracked syscall %s is not timeable\n")
-                % sys_call_name_;
-  }
+  analysisModule.considerSyscall(*this);
 }
 
 void SystemCallTraceReplayModule::completeProcessing() { after_sys_call(); }
@@ -308,6 +300,6 @@ bool SystemCallTraceReplayModule::isReplayable() {
  * @return: returns true if the system call is timeable, else it returns
  *        false.
  */
-bool SystemCallTraceReplayModule::isTimeable() {
+bool SystemCallTraceReplayModule::isTimeable() const {
   return !(sys_call_name_ == "exit" || sys_call_name_ == "execve");
 }

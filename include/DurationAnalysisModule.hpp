@@ -25,29 +25,24 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
- * This header file describes the state of the current trace analysis.
+ * This header represents an analysis module for system call durations.
  *
  * USAGE
- * A main program can calculate various metrics per system call in a trace
- * file, then update the global metrics in this class.
+ * A main program can register this analysis module, which will then calculate
+ * minimum, maximum, and average elapsed time values for each system call.
  */
-#ifndef ANALYSIS_MODULE_HPP
-#define ANALYSIS_MODULE_HPP
+#ifndef DURATION_ANALYSIS_MODULE_HPP
+#define DURATION_ANALYSIS_MODULE_HPP
 
-#include <unistd.h>
-#include <sys/types.h>
-#include <unordered_map>
-#include <string>
-
-// Forward declaration of replay module
-class SystemCallTraceReplayModule;
+#include "AnalysisModule.hpp"
+#include "SystemCallTraceReplayModule.hpp"
 
 /**
  * Stores information about the elapsed times for a given syscall (or set of
  * syscalls) at a certain point in the analysis.
  */
-struct AnalysisStruct {
-  AnalysisStruct();
+struct DurationAnalysisStruct {
+  DurationAnalysisStruct();
 
   uint64_t min_time_elapsed;
   uint64_t max_time_elapsed;
@@ -55,30 +50,26 @@ struct AnalysisStruct {
   uint64_t rows;
 };
 
-class AnalysisModule {
+class DurationAnalysisModule : public AnalysisModule {
  protected:
-  std::unordered_map<std::string, AnalysisStruct> analysisMap_;
-  AnalysisStruct global_metrics_;
-  void considerTimeElapsedInternal(uint64_t time_elapsed, AnalysisStruct& analysis);
+  uint64_t rollingAverage(uint64_t value, uint64_t old_average, uint64_t rows) const;
 
+  std::unordered_map<std::string, DurationAnalysisStruct> analysisMap_;
+  DurationAnalysisStruct global_metrics_;
+ 
  public:
-  AnalysisModule() = default;
+  DurationAnalysisModule() = default;
 
   /**
    * Update the min and max time_elapsed values by considering a new value
    * from a syscall.
    */
-  void considerTimeElapsed(uint64_t time_elapsed, std::string syscall_name);
+  void considerTimeElapsed(uint64_t time_elapsed, DurationAnalysisStruct& analysis);
 
-  /**
-   * Takes the current trace replay module operating on a given system call and
-   * analyzes the common fields using public getter functions. Must be
-   * implemented by each subclass to perform specific analysis behavior.
-   */
-  virtual void considerSyscall(const SystemCallTraceReplayModule& module) = 0;
-  virtual std::ostream& printMetrics(std::ostream& out) const = 0;
-  virtual std::ostream& printGlobalMetrics(std::ostream& out);
-  virtual std::ostream& printPerSyscallMetrics(std::ostream& out);
+  void considerSyscall(const SystemCallTraceReplayModule& module) override;
+  std::ostream& printMetrics(std::ostream& out) const override;
+  std::ostream& printGlobalMetrics(std::ostream& out) const;
+  std::ostream& printPerSyscallMetrics(std::ostream& out) const;
 };
 
-#endif /* ANALYSIS_MODULE_HPP */
+#endif /* DURATION_ANALYSIS_MODULE_HPP */

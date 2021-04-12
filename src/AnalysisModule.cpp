@@ -28,14 +28,16 @@ void AnalysisModule::considerTimeElapsedInternal(uint64_t time_elapsed, Analysis
     ++analysis.rows;
 }
 
-void AnalysisModule::printGlobalMetrics() {
+std::ostream& AnalysisModule::printGlobalMetrics(std::ostream& out) {
     std::cout << boost::format("Global Metrics:\n");
     std::cout << boost::format("Min Syscall Time Elapsed (ns): %u\n") % global_metrics_.min_time_elapsed;
     std::cout << boost::format("Max Syscall Time Elapsed (ns): %u\n") % global_metrics_.max_time_elapsed;
     std::cout << boost::format("Average Syscall Time Elapsed (ns): %u\n\n") % global_metrics_.average_time_elapsed;
+
+    return out;
 }
 
-void AnalysisModule::printPerSyscallMetrics() {
+std::ostream& AnalysisModule::printPerSyscallMetrics(std::ostream& out) {
     for (const auto &am : analysisMap_) {
         AnalysisStruct a = am.second;
         std::cout << boost::format("Metrics For %s:\n") % am.first;
@@ -43,4 +45,6 @@ void AnalysisModule::printPerSyscallMetrics() {
         std::cout << boost::format("Max Syscall Time Elapsed (ns): %u\n") % a.max_time_elapsed;
         std::cout << boost::format("Average Syscall Time Elapsed (ns): %u\n\n") % a.average_time_elapsed;
     }
+
+    return out;
 }

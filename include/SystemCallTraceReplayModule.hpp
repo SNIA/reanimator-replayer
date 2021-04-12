@@ -52,7 +52,7 @@
 #include <sstream>
 #include <string>
 #include <unordered_map>
-#include "AnalysisModule.hpp"
+#include "DurationAnalysisModule.hpp"
 #include "ReplayerResourcesManager.hpp"
 #include "SystemCallTraceReplayLogger.hpp"
 #include "strace2ds.h"
@@ -390,7 +390,7 @@ class SystemCallTraceReplayModule : public RowAnalysisModule {
    * @return: returns true if the system call is timeable, else it returns
    *        false.
    */
-  bool isTimeable();
+  bool isTimeable() const;
 
   virtual void prepareRow();
   void setCommon(int64_t id, int64_t called, int64_t returned, int64_t recorded,
