@@ -37,20 +37,20 @@
 
 void SyscallCountAnalysisModule::considerSyscall(const SystemCallTraceReplayModule& module) {
     std::string sys_call_name = module.sys_call_name();
-
     analysisMap_[sys_call_name] += 1;
+    totalCount_ += 1;
 }
 
 std::ostream& SyscallCountAnalysisModule::printMetrics(std::ostream& out) const {
     out << boost::format("=== Syscall Counts ===\n");
     printGlobalMetrics(out);
-
     return out;
 }
 
 std::ostream& SyscallCountAnalysisModule::printGlobalMetrics(std::ostream& out) const {
     for (const auto &am : analysisMap_) {
-        out << boost::format("%s: %d\n") % am.first % am.second;
+        double proportion = ((double) am.second / (double) totalCount_) * 100;
+        out << boost::format("%-10s\t%d\t%f %%\n") % am.first % am.second % proportion;
     }
 
     return out;

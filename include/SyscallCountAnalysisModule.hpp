@@ -46,6 +46,7 @@ class SyscallCountAnalysisModule : public AnalysisModule {
    * Stores counts of each syscall.
    */
   std::map<std::string, uint64_t> analysisMap_;
+  uint64_t totalCount_ = 0;
  
  public:
   SyscallCountAnalysisModule() = default;
