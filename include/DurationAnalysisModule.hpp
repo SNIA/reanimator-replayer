@@ -69,7 +69,16 @@ class DurationAnalysisModule : public AnalysisModule {
  public:
   DurationAnalysisModule() = default;
 
+  /**
+   * Calculate the elapsed time for the system call and update the minimum,
+   * maximum, and average times globally and for the specific system call.
+   */
   void considerSyscall(const SystemCallTraceReplayModule& module) override;
+
+  /**
+   * Print the minimum, maximum, and average elapsed times for each syscall
+   * and for all syscalls together.
+   */
   std::ostream& printMetrics(std::ostream& out) const override;
 };
 

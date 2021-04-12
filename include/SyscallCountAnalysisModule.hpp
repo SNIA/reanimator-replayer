@@ -50,7 +50,14 @@ class SyscallCountAnalysisModule : public AnalysisModule {
  public:
   SyscallCountAnalysisModule() = default;
 
+  /**
+   * Add one to the count of the given syscall.
+   */
   void considerSyscall(const SystemCallTraceReplayModule& module) override;
+
+  /**
+   * Print the counts for all syscalls seen.
+   */
   std::ostream& printMetrics(std::ostream& out) const override;
 };
 
