@@ -84,10 +84,10 @@ std::ostream& DurationAnalysisModule::printGlobalMetrics(std::ostream& out) cons
 }
 
 std::ostream& DurationAnalysisModule::printPerSyscallMetrics(std::ostream& out) const {
-    out << boost::format("%s\t%s\t%s\t%s\n") % "System Call" % "Min Time (ns)" % "Max Time (ns)" % "Average Time (ns)";
+    out << boost::format("%-10s\t%s\t%s\t%s\n") % "System Call" % "Min (ns)" % "Max (ns)" % "Average (ns)";
     for (const auto &am : analysisMap_) {
         auto& a = am.second;
-        out << boost::format("%-10s\t%u\t%u\t%u\n") % am.first % a.min_time_elapsed % a.max_time_elapsed % a.average_time_elapsed;
+        out << boost::format("%-10s\t%-10u\t%-10u\t%u\n") % am.first % a.min_time_elapsed % a.max_time_elapsed % a.average_time_elapsed;
     }
     return out;
 }
