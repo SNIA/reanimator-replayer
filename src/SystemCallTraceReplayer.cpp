@@ -751,6 +751,7 @@ void prepare_analysis() {
   // *** TODO: allow modules to be specified at the command line somehow
   analysisModules.push_back(new DurationAnalysisModule);
   analysisModules.push_back(new SyscallCountAnalysisModule);
+  analysisModules.push_back(new NumericalAnalysisModule);
 }
 
 inline void batch_syscall_modules(SystemCallTraceReplayModule *module = nullptr,
@@ -908,8 +909,15 @@ void executionThread(int64_t threadID) {
       }
     }
 
+    // *** If we analyze while executing, we could compare the traced metrics
+    // to the replayed metrics.
     if (analysis) {
       for (auto am : analysisModules) {
+        // ***
+        // If the current replay module (execute_replayer) is subscribed to the
+        // given analysis module, run analysis.
+        // am.analyze(execute_replayer)
+        // Do it the other way around.
         execute_replayer->analyze(*am);
       }
     } else {

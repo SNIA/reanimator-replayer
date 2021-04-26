@@ -86,6 +86,7 @@
 #include "AnalysisModule.hpp"
 #include "DurationAnalysisModule.hpp"
 #include "SyscallCountAnalysisModule.hpp"
+#include "NumericalAnalysisModule.hpp"
 
 // Define the static replayer resources manager in SystemCallTraceReplayModule
 ReplayerResourcesManager
