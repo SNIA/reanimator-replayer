@@ -35,8 +35,10 @@
 #include <unordered_map>
 #include <boost/format.hpp>
 
-FieldStruct::FieldStruct()
-    : values{} {
+// *** allow user to specify cache_size
+FieldStruct::FieldStruct() 
+    : acc{tag::tail<left>::cache_size = 100000,
+          tag::tail<right>::cache_size = 100000} {
     // nothing to do
 }
 
@@ -45,28 +47,62 @@ void NumericalAnalysisModule::considerSyscall(const SystemCallTraceReplayModule&
 
     auto& syscallStruct = syscalls_[sys_call_name];
 
-    syscallStruct.fields["time_called"].values.push_back(module.time_called());
-    syscallStruct.fields["time_returned"].values.push_back(module.time_returned());
-    syscallStruct.fields["time_recorded"].values.push_back(module.time_recorded());
-    syscallStruct.fields["executing_pid"].values.push_back(module.executing_pid());
-    syscallStruct.fields["errno_number"].values.push_back(module.errno_number());
-    syscallStruct.fields["return_value"].values.push_back(module.return_value());
+    // make the "keys" constant enums and change syscallStruct.fields into an array
+    // can use strace2ds-enums.h from the reanimator-library
+
+    // do statistics on durations (elapsed time per syscall, deltas between
+    // syscalls of the same type, deltas between immediate successive calls
+
+    // ^ could make static variables (assuming the analysis is single-threaded)
+    // to represent the previous call's time_called and time_returned
+
+    // this could be new-people-work TODO-NEWPEOPLE
+    syscallStruct.fields["time_called"].acc(module.time_called());
+    syscallStruct.fields["time_returned"].acc(module.time_returned());
+    syscallStruct.fields["time_recorded"].acc(module.time_recorded());
+    syscallStruct.fields["executing_pid"].acc(module.executing_pid());
+    syscallStruct.fields["errno_number"].acc(module.errno_number());
+    syscallStruct.fields["return_value"].acc(module.return_value());
+
+    ++syscallStruct.count;
 }
 
 std::ostream& NumericalAnalysisModule::printMetrics(std::ostream& out) const {
     out << boost::format("=== Numerical Analysis ===\n");
 
     for (auto& syscall : syscalls_) {
-        out << boost::format("%s:\n") % syscall.first;
-        for (auto& field : syscall.second.fields) {
-            out << boost::format("\t%s: ") % field.first;
-            for (auto& val : field.second.values) {
-                out << val << " ";
-            }
-            out << std::endl;
-        }
-        out << std::endl;
+        printSyscallMetrics(out, syscall);
     }
 
+    return out;
+}
+
+std::ostream& NumericalAnalysisModule::printSyscallMetrics(
+    std::ostream& out,
+    const std::pair<std::string, SyscallStruct>& syscall) const {
+
+    std::string syscallName = syscall.first;
+    auto& syscallStruct = syscall.second;
+    out << boost::format("%s: (%d)\n") % syscallName % syscallStruct.count;
+    // *** It would be nice to have the user specify which quantile they want
+    // Good defaults are 0.95, 0.99, 0.999
+    out << "Name,Mean,Median,Variance,Max,0.95 Quantile" << std::endl;
+    for (auto& field : syscallStruct.fields) {
+        std::string fieldName = field.first;
+        auto& acc = field.second.acc;
+
+        out << fieldName;
+
+        // Print out statistics
+        out << "," << mean(acc);
+        out << "," << median(acc);
+        out << "," << variance(acc);
+        out << "," << max(acc);
+        //if (syscall.second.count > 1)
+            out << "," << quantile(acc, quantile_probability = 0.25);
+        out << std::endl;
+
+    }
+    out << std::endl;
     return out;
 }

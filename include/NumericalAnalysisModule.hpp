@@ -37,8 +37,12 @@
 
 #include <map>
 #include <vector>
+#include <boost/accumulators/accumulators.hpp>
+#include <boost/accumulators/statistics.hpp>
 #include "AnalysisModule.hpp"
 #include "SystemCallTraceReplayModule.hpp"
+
+using namespace boost::accumulators;
 
 /**
  * Stores information about metrics for a given field.
@@ -46,23 +50,27 @@
 struct FieldStruct {
   FieldStruct();
 
-  std::vector<uint64_t> values;
-  /*
-  uint64_t min;
-  uint64_t max;
-  uint64_t mean;
-  uint64_t stddev;
-  uint64_t median;*/
+  accumulator_set<uint64_t,
+    stats<tag::mean,
+          tag::variance,
+          tag::median,
+          tag::max,
+          tag::tail_quantile<left>,
+          tag::tail_quantile<right> >> acc;
 };
 
 struct SyscallStruct {
     SyscallStruct() = default;
 
+    uint64_t count;
     std::map<std::string, FieldStruct> fields;
 };
 
 class NumericalAnalysisModule : public AnalysisModule {
  protected:
+
+  std::ostream& printSyscallMetrics(std::ostream& out,
+    const std::pair<std::string, SyscallStruct>&) const;
 
   std::map<std::string, SyscallStruct> syscalls_;
  
