@@ -35,7 +35,9 @@
 #include <unordered_map>
 #include <boost/format.hpp>
 
-// *** allow user to specify cache_size
+// TODO-NEWPEOPLE: When finding the tail quantiles, we need to keep a cache of
+// some of the elements. We should allow the user to somehow specify the cache
+// size.
 FieldStruct::FieldStruct() 
     : acc{tag::tail<left>::cache_size = 100000,
           tag::tail<right>::cache_size = 100000} {
@@ -47,22 +49,30 @@ void NumericalAnalysisModule::considerSyscall(const SystemCallTraceReplayModule&
 
     auto& syscallStruct = syscalls_[sys_call_name];
 
-    // make the "keys" constant enums and change syscallStruct.fields into an array
-    // can use strace2ds-enums.h from the reanimator-library
-
-    // do statistics on durations (elapsed time per syscall, deltas between
-    // syscalls of the same type, deltas between immediate successive calls
-
-    // ^ could make static variables (assuming the analysis is single-threaded)
-    // to represent the previous call's time_called and time_returned
-
-    // this could be new-people-work TODO-NEWPEOPLE
+    // TODO-NEWPEOPLE: This is an inefficient approach. Currently,
+    // syscallStruct.fields is a map whose keys are strings and whose values are
+    // FieldStructs. However, this means that whenever we want to access one of
+    // those field structs, we must perform a map lookup. A better solution
+    // would be to make syscallStruct.fields an array of FieldStructs. We can
+    // index into the array using enums (which are just named constants). For
+    // example, TIME_CALLED might be 0, so we could access that field using
+    // syscallStruct.fields[TIME_CALLED]. We already have a numbered list of
+    // fields in enum form. Look in the file strace2ds-enums.h in
+    // reanimator-library.
     syscallStruct.fields["time_called"].acc(module.time_called());
     syscallStruct.fields["time_returned"].acc(module.time_returned());
     syscallStruct.fields["time_recorded"].acc(module.time_recorded());
     syscallStruct.fields["executing_pid"].acc(module.executing_pid());
     syscallStruct.fields["errno_number"].acc(module.errno_number());
     syscallStruct.fields["return_value"].acc(module.return_value());
+
+    // TODO-NEWPEOPLE: It's not particularly useful to record time_called and
+    // time_returned. We'd much rather record elapsed time (which would be their
+    // difference). It would also be nice to record the deltas between syscalls
+    // of the same type (time between writes, say) and deltas between immediate
+    // successive calls (time between syscall 1 and 2). Assuming the analysis is
+    // single-threaded, you could keep static variables for the previously seen
+    // system calls' time_called.
 
     ++syscallStruct.count;
 }
@@ -84,8 +94,8 @@ std::ostream& NumericalAnalysisModule::printSyscallMetrics(
     std::string syscallName = syscall.first;
     auto& syscallStruct = syscall.second;
     out << boost::format("%s: (%d)\n") % syscallName % syscallStruct.count;
-    // *** It would be nice to have the user specify which quantile they want
-    // Good defaults are 0.95, 0.99, 0.999
+    // TODO-NEWPEOPLE: The user should be able to specify which quantile they
+    // care about. Good defaults are 0.95, 0.99, and 0.999
     out << "Name,Mean,Median,Variance,Max,0.95 Quantile" << std::endl;
     for (auto& field : syscallStruct.fields) {
         std::string fieldName = field.first;
@@ -98,7 +108,9 @@ std::ostream& NumericalAnalysisModule::printSyscallMetrics(
         out << "," << median(acc);
         out << "," << variance(acc);
         out << "," << max(acc);
-        //if (syscall.second.count > 1)
+        // TODO-NEWPEOPLE: There is an unfortunate bug here where boost crashes
+        // if the accumulator `acc` only contains 1 element.
+        if (syscall.second.count > 1)
             out << "," << quantile(acc, quantile_probability = 0.25);
         out << std::endl;
 

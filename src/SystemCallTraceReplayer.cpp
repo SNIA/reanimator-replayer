@@ -175,7 +175,8 @@ boost::program_options::variables_map get_options(int argc, char *argv[]) {
       "write repeated pattern data in write system call")(
       "logger,l", po::value<std::string>(),
       "write the replayer logs in specified filename")(
-      "analysis,a", "perform simple analysis on trace file");
+      "analysis,a",
+      "perform simple analysis on trace file");
 
   /*
    * Hidden options, will be allowed both on command line and
@@ -748,7 +749,14 @@ void prepare_replay() {
  * in the vector `analysisModules`.
  */
 void prepare_analysis() {
-  // *** TODO: allow modules to be specified at the command line somehow
+  // TODO-NEWPEOPLE: We want analysisModules to contain all the analysis modules
+  // we plan on running. We'd also like to use the command line to specify which
+  // modules to run. Not sure how to do this. Ideally you could specify them
+  // like
+  // ./reanimator-replayer --analysis "NumericalAnalysisModule,FooAnalysisModule"
+  // where FooAnalysisModule was written by the user, not us. But for
+  // sufficiently complex analysis, passing a config file might be the best
+  // solution.
   analysisModules.push_back(new DurationAnalysisModule);
   analysisModules.push_back(new SyscallCountAnalysisModule);
   analysisModules.push_back(new NumericalAnalysisModule);
@@ -865,7 +873,9 @@ auto checkExecutionValidation = [](SystemCallTraceReplayModule *check) -> bool {
 void readerThread() {
   while (!checkModulesFinished()) {
     PROFILE_START(3)
-    while (getMinSyscall() > (100 * nThreads)) {  // TODO: move magic number to constant
+    // TODO-NEWPEOPLE: Ask Umit what this magic number 100 means. If possible,
+    // move it to a named constant.
+    while (getMinSyscall() > (100 * nThreads)) {
       SystemCallTraceReplayModule *execute_replayer = nullptr;
       while (allocationQueue.try_pop(execute_replayer)) {
         delete execute_replayer;
@@ -909,15 +919,21 @@ void executionThread(int64_t threadID) {
       }
     }
 
-    // *** If we analyze while executing, we could compare the traced metrics
-    // to the replayed metrics.
+    // TODO-NEWPEOPLE: There might be a usecase where we want to execute the
+    // trace file while performing analysis at the same time. It might be nice
+    // to record metrics of the actual execution so you could later compare
+    // to an analysis of the static file. For example, when the trace was
+    // recorded, writes were taking 100 ms. But when replayed, writes are only
+    // taking 1 ms.
     if (analysis) {
       for (auto am : analysisModules) {
-        // ***
-        // If the current replay module (execute_replayer) is subscribed to the
-        // given analysis module, run analysis.
-        // am.analyze(execute_replayer)
-        // Do it the other way around.
+        // NOTE-NEWPEOPLE: `execute_replayer` is the current
+        // SystemCallTraceReplayModule that we have reached in the trace. We
+        // call its analyze function and pass in a reference to each analysis
+        // module. The TraceReplayModule can implement its own version of the
+        // `analyze` function to change how the system call wants to be
+        // analyzed. Typically, the system call will pass all its information to
+        // the analysis module.
         execute_replayer->analyze(*am);
       }
     } else {
