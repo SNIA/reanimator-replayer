@@ -3,20 +3,25 @@ add_subdirectory(analysis)
 
 add_executable(system-call-replayer
     ReplayerResourcesManager.cpp
-    SystemCallTraceReplayer.cpp
     SystemCallTraceReplayLogger.cpp
     SystemCallTraceReplayModule.cpp
+    SystemCallTraceReplayer.cpp
     VirtualAddressSpace.cpp    
 )
 
+# Replayer Subdirectories
 target_link_libraries(system-call-replayer
-    syscalls
     analysis
-	tbb
-	pthread
-	boost_program_options
-	aio DataSeries
+    syscalls
+)
+
+# External Libraries
+target_link_libraries(system-call-replayer
 	Lintel
+	aio DataSeries
+	boost_program_options
 	profiler
+	pthread
+	tbb
 	tcmalloc
 )

@@ -1,54 +1,55 @@
 add_library(syscalls
-	OpenSystemCallTraceReplayModule.cpp
-	CloseSystemCallTraceReplayModule.cpp
-	ReadSystemCallTraceReplayModule.cpp
-	WriteSystemCallTraceReplayModule.cpp
-	LSeekSystemCallTraceReplayModule.cpp
-	TruncateSystemCallTraceReplayModule.cpp
+	Accept4SystemCallTraceReplayModule.cpp
+	AcceptSystemCallTraceReplayModule.cpp
 	AccessSystemCallTraceReplayModule.cpp
-	UnlinkSystemCallTraceReplayModule.cpp
-	RmdirSystemCallTraceReplayModule.cpp
-	LinkSystemCallTraceReplayModule.cpp
-	CreatSystemCallTraceReplayModule.cpp
-	ChdirSystemCallTraceReplayModule.cpp
-	FChdirSystemCallTraceReplayModule.cpp
-	ChrootSystemCallTraceReplayModule.cpp
-	SymlinkSystemCallTraceReplayModule.cpp
-	MkdirSystemCallTraceReplayModule.cpp
 	BasicStatSystemCallTraceReplayModule.cpp
 	BasicStatfsSystemCallTraceReplayModule.cpp
-	ReadlinkSystemCallTraceReplayModule.cpp
-	UtimeSystemCallTraceReplayModule.cpp
+	ChdirSystemCallTraceReplayModule.cpp
 	ChmodSystemCallTraceReplayModule.cpp
 	ChownSystemCallTraceReplayModule.cpp
-	ReadvSystemCallTraceReplayModule.cpp
-	WritevSystemCallTraceReplayModule.cpp
-	RenameSystemCallTraceReplayModule.cpp
-	FsyncSystemCallTraceReplayModule.cpp
-	FdatasyncSystemCallTraceReplayModule.cpp
-	FallocateSystemCallTraceReplayModule.cpp
-	ReadaheadSystemCallTraceReplayModule.cpp
-	MknodSystemCallTraceReplayModule.cpp
-	PipeSystemCallTraceReplayModule.cpp
-	DupSystemCallTraceReplayModule.cpp
+	ChrootSystemCallTraceReplayModule.cpp
+	CloneSystemCallTraceReplayModule.cpp
+	CloseSystemCallTraceReplayModule.cpp
+	CreatSystemCallTraceReplayModule.cpp
 	Dup2SystemCallTraceReplayModule.cpp
 	Dup3SystemCallTraceReplayModule.cpp
-	ExitSystemCallTraceReplayModule.cpp
+	DupSystemCallTraceReplayModule.cpp
+	EPollCreateSystemCallTraceReplayModule.cpp
 	ExecveSystemCallTraceReplayModule.cpp
-	MmapSystemCallTraceReplayModule.cpp
-	MunmapSystemCallTraceReplayModule.cpp
-	FcntlSystemCallTraceReplayModule.cpp
 	ExitSystemCallTraceReplayModule.cpp
+	ExitSystemCallTraceReplayModule.cpp
+	FChdirSystemCallTraceReplayModule.cpp
+	FChmodSystemCallTraceReplayModule.cpp
+	FTruncateSystemCallTraceReplayModule.cpp
+	FallocateSystemCallTraceReplayModule.cpp
+	FcntlSystemCallTraceReplayModule.cpp
+	FdatasyncSystemCallTraceReplayModule.cpp
+	FsyncSystemCallTraceReplayModule.cpp
 	GetdentsSystemCallTraceReplayModule.cpp
 	IoctlSystemCallTraceReplayModule.cpp
-	FChmodSystemCallTraceReplayModule.cpp
-	CloneSystemCallTraceReplayModule.cpp
-	VForkSystemCallTraceReplayModule.cpp
-	UmaskSystemCallTraceReplayModule.cpp
-	FTruncateSystemCallTraceReplayModule.cpp
+	LSeekSystemCallTraceReplayModule.cpp
+	LinkSystemCallTraceReplayModule.cpp
+	MkdirSystemCallTraceReplayModule.cpp
+	MknodSystemCallTraceReplayModule.cpp
+	MmapSystemCallTraceReplayModule.cpp
+	MunmapSystemCallTraceReplayModule.cpp
+	OpenSystemCallTraceReplayModule.cpp
+	PipeSystemCallTraceReplayModule.cpp
+	ReadSystemCallTraceReplayModule.cpp
+	ReadaheadSystemCallTraceReplayModule.cpp
+	ReadlinkSystemCallTraceReplayModule.cpp
+	ReadvSystemCallTraceReplayModule.cpp
+	RenameSystemCallTraceReplayModule.cpp
+	RmdirSystemCallTraceReplayModule.cpp
 	SetxattrSystemCallTraceReplayModule.cpp
-	SocketSystemCallTraceReplayModule.cpp
 	SocketPairSystemCallTraceReplayModule.cpp
-	AcceptSystemCallTraceReplayModule.cpp
-	Accept4SystemCallTraceReplayModule.cpp
-	EPollCreateSystemCallTraceReplayModule.cpp)
+	SocketSystemCallTraceReplayModule.cpp
+	SymlinkSystemCallTraceReplayModule.cpp
+	TruncateSystemCallTraceReplayModule.cpp
+	UmaskSystemCallTraceReplayModule.cpp
+	UnlinkSystemCallTraceReplayModule.cpp
+	UtimeSystemCallTraceReplayModule.cpp
+	VForkSystemCallTraceReplayModule.cpp
+	WriteSystemCallTraceReplayModule.cpp
+	WritevSystemCallTraceReplayModule.cpp
+)
