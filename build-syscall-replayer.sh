@@ -9,6 +9,7 @@
 readonly numberOfCores="$(nproc --all)"
 install=false
 installPackages=false
+release=false
 configArgs=""
 replayerDir="$(pwd)"
 installDir="${replayerDir}/reanimator_replayer_release"
@@ -43,6 +44,7 @@ Options:
      --install              Install libraries and binaries under /usr/local
      --install-dir DIR      Install libraries and binaries under DIR
      --install-packages     Automatically use apt-get to install missing packages
+     --release              Build an optimized release version of reanimator replayer
      -h, --help             Print this help message
 EOF
     ) >&2
