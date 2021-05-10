@@ -24,8 +24,16 @@ Requires bash.
 
 1. Clone this repository and run [`build-reanimator-replayer.sh`](build-reanimator-replayer.sh). This will place build files in the current directory under `build/` and install the `system-call-replayer` and other completed binaries and libraries under `reanimator_replayer_release/`.
 
-    - If invoked with `build-reanimator-replayer.sh --install`, the script will install include files and libraries under `/usr/local/`
-    - You may specify custom build and install directories with the command line options `--build-dir DIR` and `--install-dir DIR`. Run `./build-reanimator-replayer.sh --help` for a full list of options.
+| Option                | Description                                               |
+| --------------------- | --------------------------------------------------------- |
+| `--build-dir DIR`     | Download repositories and place build files in DIR        |
+| `--config-args ARGS`  | Append ARGS to every ./configure command                  |
+| `--install`           | Install libraries and binaries under /usr/local           |
+| `--install-dir DIR`   | Install libraries and binaries under DIR                  |
+| `--install-packages`  | Automatically use apt-get to install missing packages     |
+| `--release`           | Build an optimized release version of reanimator replayer |
+| `-h`, `--help`        | Print this help message                                   |
+
 
 ## Usage
 
