@@ -9,6 +9,7 @@
 readonly numberOfCores="$(nproc --all)"
 install=false
 installPackages=false
+buildType="Debug"
 configArgs=""
 replayerDir="$(pwd)"
 installDir="${replayerDir}/reanimator_replayer_release"
@@ -43,6 +44,7 @@ Options:
      --install              Install libraries and binaries under /usr/local
      --install-dir DIR      Install libraries and binaries under DIR
      --install-packages     Automatically use apt-get to install missing packages
+     --release              Build an optimized release version of reanimator replayer
      -h, --help             Print this help message
 EOF
     ) >&2
@@ -77,6 +79,10 @@ while [[ $# -gt 0 ]]; do
             shift # past argument
             installDir="$(realpath "$1" || exit $?)"
             shift # past value
+            ;;
+        --release)
+            buildType="Release"
+            shift # past argument
             ;;
         --install-packages)
             if command -v apt-get >/dev/null; then
@@ -177,6 +183,6 @@ runcmd cd "${repositoryDir}"
 # -------------------------
 runcmd cd "${replayerDir}"
 runcmd cd build
-runcmd cmake -DCMAKE_INSTALL_PREFIX="${installDir}" ..
+runcmd cmake -DCMAKE_INSTALL_PREFIX="${installDir}" -DCMAKE_BUILD_TYPE="${buildType}" ..
 runcmd make -j"${numberOfCores}"
 runcmd make -j"${numberOfCores}" install
