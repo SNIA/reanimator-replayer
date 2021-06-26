@@ -84,6 +84,7 @@
 #include "WritevSystemCallTraceReplayModule.hpp"
 
 #include "AnalysisModule.hpp"
+#include "CorrelationAnalysisModule.hpp"
 #include "DurationAnalysisModule.hpp"
 #include "SyscallCountAnalysisModule.hpp"
 #include "NumericalAnalysisModule.hpp"

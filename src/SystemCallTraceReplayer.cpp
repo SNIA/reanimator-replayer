@@ -760,6 +760,7 @@ void prepare_analysis() {
   analysisModules.push_back(new DurationAnalysisModule);
   analysisModules.push_back(new SyscallCountAnalysisModule);
   analysisModules.push_back(new NumericalAnalysisModule);
+  analysisModules.push_back(new CorrelationAnalysisModule);
 }
 
 inline void batch_syscall_modules(SystemCallTraceReplayModule *module = nullptr,
