@@ -37,6 +37,7 @@
 #include <map>
 #include "AnalysisModule.hpp"
 #include "SystemCallTraceReplayModule.hpp"
+#include <unordered_map>
 
 /**
  * Stores information about the elapsed times for a given syscall (or set of
@@ -64,7 +65,9 @@ class ThreadWiseDurationAnalysisModule : public AnalysisModule {
   void considerTimeElapsed(uint64_t time_elapsed, ThreadWiseDurationAnalysisStruct& analysis);
 
   std::map<std::string, ThreadWiseDurationAnalysisStruct> analysisMap_;
+  std::unordered_map<uint32_t, std::map<std::string, ThreadWiseDurationAnalysisStruct>> threadMap_;
   ThreadWiseDurationAnalysisStruct global_metrics_;
+  std::unordered_map<uint32_t, ThreadWiseDurationAnalysisStruct> globalThreadMap_;
 
  public:
   ThreadWiseDurationAnalysisModule() = default;

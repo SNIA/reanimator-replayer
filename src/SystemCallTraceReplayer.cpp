@@ -757,7 +757,8 @@ void prepare_analysis() {
   // where FooAnalysisModule was written by the user, not us. But for
   // sufficiently complex analysis, passing a config file might be the best
   // solution.
-  analysisModules.push_back(new DurationAnalysisModule);
+  //analysisModules.push_back(new DurationAnalysisModule);
+  analysisModules.push_back(new ThreadWiseDurationAnalysisModule);
   analysisModules.push_back(new SyscallCountAnalysisModule);
   analysisModules.push_back(new NumericalAnalysisModule);
 }

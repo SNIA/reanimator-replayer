@@ -42,12 +42,16 @@ ThreadWiseDurationAnalysisStruct::ThreadWiseDurationAnalysisStruct()
 
 void ThreadWiseDurationAnalysisModule::considerSyscall(const SystemCallTraceReplayModule& module) {
     std::string sys_call_name = module.sys_call_name();
-
+    uint32_t tid = module.executing_pid();
     if (module.isTimeable()) {
         uint64_t time_elapsed = module.time_returned() - module.time_called();
         auto& syscallAnalysisStruct = analysisMap_[sys_call_name];
+        auto& threadWiseAnalysisStruct = threadMap_[tid];
+        auto& globalThreadWiseAnalysisStruct = globalThreadMap_[tid];
         considerTimeElapsed(time_elapsed, syscallAnalysisStruct);
         considerTimeElapsed(time_elapsed, global_metrics_);
+        considerTimeElapsed(time_elapsed, globalThreadWiseAnalysisStruct);
+	threadWiseAnalysisStruct[sys_call_name] = syscallAnalysisStruct;
     } else {
         std::cerr << boost::format("<Duration Analysis> Untracked syscall %s is not timeable\n")
                      % sys_call_name;
@@ -71,7 +75,7 @@ std::ostream& ThreadWiseDurationAnalysisModule::printMetrics(std::ostream& out) 
     out << boost::format("=== Duration Analysis ===\n");
     printPerSyscallMetrics(out);
     out << boost::format("\n");
-    printGlobalMetrics(out);
+    //printGlobalMetrics(out);
     return out;
 }
 
@@ -84,10 +88,14 @@ std::ostream& ThreadWiseDurationAnalysisModule::printGlobalMetrics(std::ostream&
 }
 
 std::ostream& ThreadWiseDurationAnalysisModule::printPerSyscallMetrics(std::ostream& out) const {
-    out << boost::format("%-10s\t%s\t%s\t%s\n") % "System Call" % "Min (ns)" % "Max (ns)" % "Average (ns)";
-    for (const auto &am : analysisMap_) {
-        auto& a = am.second;
-        out << boost::format("%-10s\t%-10u\t%-10u\t%u\n") % am.first % a.min_time_elapsed % a.max_time_elapsed % a.average_time_elapsed;
+    for (const auto &tm : threadMap_) {
+        out << boost::format("Thread with tId: %1%\n") % tm.first;
+
+        out << boost::format("%-10s\t%s\t%s\t%s\n") % "System Call" % "Min (ns)" % "Max (ns)" % "Average (ns)";
+        for (const auto &am : tm.second) {
+            auto& a = am.second;
+            out << boost::format("%-10s\t%-10u\t%-10u\t%u\n") % am.first % a.min_time_elapsed % a.max_time_elapsed % a.average_time_elapsed;
+        }
     }
     return out;
 }
