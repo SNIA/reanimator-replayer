@@ -2,4 +2,5 @@ add_library(analysis
     DurationAnalysisModule.cpp
     NumericalAnalysisModule.cpp
     SyscallCountAnalysisModule.cpp
+    ThreadWiseDurationAnalysisModule.cpp
 )

@@ -43,15 +43,25 @@ ThreadWiseDurationAnalysisStruct::ThreadWiseDurationAnalysisStruct()
 void ThreadWiseDurationAnalysisModule::considerSyscall(const SystemCallTraceReplayModule& module) {
     std::string sys_call_name = module.sys_call_name();
     uint32_t tid = module.executing_pid();
+    std::cout << boost::format("Current Id: %1%\n") % tid;
     if (module.isTimeable()) {
         uint64_t time_elapsed = module.time_returned() - module.time_called();
         auto& syscallAnalysisStruct = analysisMap_[sys_call_name];
-        auto& threadWiseAnalysisStruct = threadMap_[tid];
         auto& globalThreadWiseAnalysisStruct = globalThreadMap_[tid];
-        considerTimeElapsed(time_elapsed, syscallAnalysisStruct);
-        considerTimeElapsed(time_elapsed, global_metrics_);
-        considerTimeElapsed(time_elapsed, globalThreadWiseAnalysisStruct);
-	threadWiseAnalysisStruct[sys_call_name] = syscallAnalysisStruct;
+	if(threadMap_.find(tid) == threadMap_.end()) {
+		ThreadWiseDurationAnalysisStruct durationAnalysis;
+		threadMap_[tid] = std::map<std::string, ThreadWiseDurationAnalysisStruct>();
+		threadMap_[tid][sys_call_name] = durationAnalysis;
+	}
+	else {
+		if(threadMap_[tid].find(sys_call_name) == threadMap_[tid].end()) {
+		ThreadWiseDurationAnalysisStruct durationAnalysis;
+		threadMap_[tid][sys_call_name] = durationAnalysis;
+	}
+	}
+        considerTimeElapsed(time_elapsed, threadMap_[tid][sys_call_name]);
+        //considerTimeElapsed(time_elapsed, global_metrics_;
+        //considerTimeElapsed(time_elapsed, globalThreadWiseAnalysisStruct);
     } else {
         std::cerr << boost::format("<Duration Analysis> Untracked syscall %s is not timeable\n")
                      % sys_call_name;

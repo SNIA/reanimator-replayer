@@ -85,6 +85,7 @@
 
 #include "AnalysisModule.hpp"
 #include "DurationAnalysisModule.hpp"
+#include "ThreadWiseDurationAnalysisModule.hpp"
 #include "SyscallCountAnalysisModule.hpp"
 #include "NumericalAnalysisModule.hpp"
 
