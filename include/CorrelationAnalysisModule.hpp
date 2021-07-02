@@ -39,6 +39,7 @@
 #include <vector>
 #include "AnalysisModule.hpp"
 #include "SystemCallTraceReplayModule.hpp"
+#include "ReadSystemCallTraceReplayModule.hpp"
 
 // using namespace boost::accumulators;
 
@@ -56,6 +57,7 @@ class CorrelationAnalysisModule : public AnalysisModule {
       const std::pair<std::string, SyscallData>&) const;        
 
     std::map<std::string, SyscallData> syscalls_;
+	std::vector<std::array<uint64_t, 2>> reads;
 
  public:
     CorrelationAnalysisModule() = default;

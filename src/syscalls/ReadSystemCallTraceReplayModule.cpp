@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2021      Andrew Burford
  * Copyright (c) 2017      Darshan Godhia
  * Copyright (c) 2016-2019 Erez Zadok
  * Copyright (c) 2011      Jack Ma
@@ -126,6 +127,10 @@ void ReadSystemCallTraceReplayModule::prepareRow() {
     }
   }
   SystemCallTraceReplayModule::prepareRow();
+}
+
+uint64_t ReadSystemCallTraceReplayModule::bytes_requested() const {
+	return nbytes;
 }
 
 PReadSystemCallTraceReplayModule::PReadSystemCallTraceReplayModule(

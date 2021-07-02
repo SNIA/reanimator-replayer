@@ -38,21 +38,29 @@
 void CorrelationAnalysisModule::considerSyscall(
         const SystemCallTraceReplayModule& module) {
     std::string sys_call_name = module.sys_call_name();
+	if (!sys_call_name.compare("read")) {
+		const ReadSystemCallTraceReplayModule *read_module = (ReadSystemCallTraceReplayModule *)&module;
+		std::array<uint64_t, 2> data = {read_module->bytes_requested(), module.time_returned() - module.time_called()};
+		reads.push_back(data);
+	}
     
-    auto& syscallData = syscalls_[sys_call_name];
-    syscallData.fields["time_elapsed"] = 
-        module.time_returned() - module.time_called();
-    syscallData.fields["return_value"] = module.return_value();
+    //auto& syscallData = syscalls_[sys_call_name];
+    //syscallData.fields["time_elapsed"] = 
+    //    module.time_returned() - module.time_called();
+    //syscallData.fields["return_value"] = module.return_value();
 
-    ++syscallData.count;
+    //++syscallData.count;
 }
 
 std::ostream& CorrelationAnalysisModule::printMetrics(std::ostream& out) const {
     out << boost::format("=== Correlation Analysis ===\n");
 
-    for (auto& syscall : syscalls_) {
-        printSyscallMetrics(out, syscall);
-    }
+    //for (auto& syscall : syscalls_) {
+    //    printSyscallMetrics(out, syscall);
+    //}
+	for (auto row : reads) {
+		out << boost::format("%d,%d\n") % row[0] % row[1];
+	}
 
     return out;
 }

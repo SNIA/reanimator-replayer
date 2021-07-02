@@ -85,6 +85,15 @@ class ReadSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
     dataReadBuf = verifyBuf;
   }
   void prepareRow() override;
+
+  /**
+   * Get the bytes_requested argument of the read syscall
+   *
+   * @return corresponding bytes_requested field
+   *
+   */
+  uint64_t bytes_requested() const;
+
 };
 
 class PReadSystemCallTraceReplayModule
