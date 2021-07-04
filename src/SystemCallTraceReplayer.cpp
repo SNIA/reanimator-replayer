@@ -114,8 +114,7 @@ tbb::concurrent_queue<SystemCallTraceReplayModule *> allocationQueue;
 /**
  * Stores all analysis modules that should run on the given input files.
  */
-// tbb::concurrent_vector<AnalysisModule *> analysisModules;
-std::vector<AnalysisModule *> analysisModules;
+tbb::concurrent_vector<AnalysisModule *> analysisModules;
 
 int64_t fileReading_Batch_file = 0;
 int64_t fileReading_Batch_push = 0;
