@@ -59,9 +59,15 @@ void ThreadWiseDurationAnalysisModule::considerSyscall(const SystemCallTraceRepl
 		threadMap_[tid][sys_call_name] = durationAnalysis;
 	}
 	}
+
+	if(globalThreadMap_.find(tid) == globalThreadMap_.end()) {
+		ThreadWiseDurationAnalysisStruct globalDurationAnalysis;
+		globalThreadMap_[tid] = globalDurationAnalysis;
+	}
+
         considerTimeElapsed(time_elapsed, threadMap_[tid][sys_call_name]);
-        //considerTimeElapsed(time_elapsed, global_metrics_;
-        //considerTimeElapsed(time_elapsed, globalThreadWiseAnalysisStruct);
+        considerTimeElapsed(time_elapsed, globalThreadMap_[tid]);
+
     } else {
         std::cerr << boost::format("<Duration Analysis> Untracked syscall %s is not timeable\n")
                      % sys_call_name;
@@ -99,6 +105,7 @@ std::ostream& ThreadWiseDurationAnalysisModule::printGlobalMetrics(std::ostream&
 
 std::ostream& ThreadWiseDurationAnalysisModule::printPerSyscallMetrics(std::ostream& out) const {
     for (const auto &tm : threadMap_) {
+	const auto &current_tid = tm.first;
         out << boost::format("Thread with tId: %1%\n") % tm.first;
 
         out << boost::format("%-10s\t%s\t%s\t%s\n") % "System Call" % "Min (ns)" % "Max (ns)" % "Average (ns)";
@@ -106,6 +113,12 @@ std::ostream& ThreadWiseDurationAnalysisModule::printPerSyscallMetrics(std::ostr
             auto& a = am.second;
             out << boost::format("%-10s\t%-10u\t%-10u\t%u\n") % am.first % a.min_time_elapsed % a.max_time_elapsed % a.average_time_elapsed;
         }
-    }
+
+	const auto &gm = globalThreadMap_.at(current_tid);
+        out << boost::format("Global Metrics:\n");
+        out << boost::format("Min Syscall Time Elapsed (ns): %u\n") % gm.min_time_elapsed;
+        out << boost::format("Max Syscall Time Elapsed (ns): %u\n") % gm.max_time_elapsed;
+        out << boost::format("Average Syscall Time Elapsed (ns): %u\n\n") % gm.average_time_elapsed;
+}
     return out;
 }
