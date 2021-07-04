@@ -937,9 +937,8 @@ void executionThread(int64_t threadID) {
         // the analysis module.
         execute_replayer->analyze(*am);
       }
-    } else {
-      execute_replayer->execute();
     }
+    execute_replayer->execute();
 
     lastExecutedSyscallID =
         std::max((int64_t)lastExecutedSyscallID, execute_replayer->unique_id());
