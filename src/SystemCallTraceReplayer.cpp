@@ -114,7 +114,8 @@ tbb::concurrent_queue<SystemCallTraceReplayModule *> allocationQueue;
 /**
  * Stores all analysis modules that should run on the given input files.
  */
-tbb::concurrent_vector<AnalysisModule *> analysisModules;
+// tbb::concurrent_vector<AnalysisModule *> analysisModules;
+std::vector<AnalysisModule *> analysisModules;
 
 int64_t fileReading_Batch_file = 0;
 int64_t fileReading_Batch_push = 0;
@@ -970,13 +971,8 @@ void executionThread(int64_t threadID) {
     prev_replayer = execute_replayer;
     PROFILE_SAMPLE(10)
   }
-  currentExecutions.erase(threadID);
 
-  if (analysis) {
-    for (auto am : analysisModules) {
-      execute_replayer->displayAnalysisResults(*am);
-    }
-  }
+  currentExecutions.erase(threadID);
 }
 
 int main(int argc, char *argv[]) {
@@ -987,6 +983,7 @@ int main(int argc, char *argv[]) {
   std::string pattern_data = "";
   std::string log_filename = "";
   std::vector<std::string> input_files;
+  std::ofstream outputfile("output.txt");
 #ifdef PROFILE_ENABLE
   int64_t warmup = 0;
 #endif
@@ -1041,6 +1038,12 @@ int main(int argc, char *argv[]) {
 
   for (auto &thread : threads) {
     thread.join();
+  }
+
+  if (analysis) {
+    for (auto am : analysisModules) {
+      am->printMetrics(outputfile);
+    }
   }
 
   // Close /dev/urandom file
