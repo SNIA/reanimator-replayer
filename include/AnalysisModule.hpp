@@ -43,6 +43,7 @@ class SystemCallTraceReplayModule;
 class AnalysisModule {
  public:
   AnalysisModule() = default;
+  virtual ~AnalysisModule() = default;
 
   /**
    * Takes the current trace replay module operating on a given system call and

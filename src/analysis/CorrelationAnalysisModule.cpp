@@ -35,45 +35,65 @@
 #include "CorrelationAnalysisModule.hpp"
 #include <iostream>
 
+SyscallCsv::SyscallCsv(const SystemCallTraceReplayModule& module) {
+    const std::string& name = module.sys_call_name();
+    add_field(name);
+    add_field(module.return_value());
+    if (module.isTimeable()) {
+        add_field(module.time_returned() - module.time_called());
+    } else {
+        add_field("");
+    }
+    add_field(module.time_called());
+    add_field(module.executing_pid());
+    if (name == "read") {
+        const ReadSystemCallTraceReplayModule &read_module =
+            (ReadSystemCallTraceReplayModule&)module;
+        add_field(read_module.bytes_requested());
+    }
+    while (fields < MAX_FIELDS) {
+        add_field("");
+    }
+    row_ += "\n";
+}
+
+void SyscallCsv::add_field(uint64_t field) {
+    add_field(std::to_string(field));
+}
+
+void SyscallCsv::add_field(uint32_t field) {
+    add_field(std::to_string(field));
+}
+
+void SyscallCsv::add_field(int64_t field) {
+    add_field(std::to_string(field));
+}
+
+void SyscallCsv::add_field(const std::string& field) {
+    fields++;
+    if (row_.empty()) {
+        row_ = field;
+    } else {
+        row_ += ',' + field;
+    }
+}
+
+CorrelationAnalysisModule::CorrelationAnalysisModule() {
+    csvfile = std::ofstream(CSVFILENAME);
+}
+
 void CorrelationAnalysisModule::considerSyscall(
         const SystemCallTraceReplayModule& module) {
-    std::string sys_call_name = module.sys_call_name();
-	if (!sys_call_name.compare("read")) {
-		const ReadSystemCallTraceReplayModule *read_module = (ReadSystemCallTraceReplayModule *)&module;
-		std::array<uint64_t, 2> data = {read_module->bytes_requested(), module.time_returned() - module.time_called()};
-		reads.push_back(data);
-	}
-    
-    //auto& syscallData = syscalls_[sys_call_name];
-    //syscallData.fields["time_elapsed"] = 
-    //    module.time_returned() - module.time_called();
-    //syscallData.fields["return_value"] = module.return_value();
+    SyscallCsv row(module);
+    csvfile << row.to_string();
+}
 
-    //++syscallData.count;
+CorrelationAnalysisModule::~CorrelationAnalysisModule() {
+    csvfile.close();
 }
 
 std::ostream& CorrelationAnalysisModule::printMetrics(std::ostream& out) const {
-    out << boost::format("=== Correlation Analysis ===\n");
-
-    //for (auto& syscall : syscalls_) {
-    //    printSyscallMetrics(out, syscall);
-    //}
-	for (auto row : reads) {
-		out << boost::format("%d,%d\n") % row[0] % row[1];
-	}
-
-    return out;
-}
-
-std::ostream& CorrelationAnalysisModule::printSyscallMetrics(
-        std::ostream& out,
-        const std::pair<std::string, SyscallData>& syscall) const {
-
-    std::string syscallName = syscall.first;
-    auto& syscallData = syscall.second;
-
-    out << boost::format("%s: (%d)\n") % syscallName % syscallData.count;
-
-    out << std::endl;
+    out << "=== Duration Analysis ===\n";
+    out << "Wrote to " << CSVFILENAME << " for further analysis\n";
     return out;
 }

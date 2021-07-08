@@ -43,24 +43,29 @@
 
 // using namespace boost::accumulators;
 
-struct SyscallData {
-    SyscallData() = default;
 
-    uint64_t count;
-    std::map<std::string, uint64_t> fields;
-    // char *argv[]; 
+class SyscallCsv {
+    const int MAX_FIELDS = 8;
+public:
+    SyscallCsv(const SystemCallTraceReplayModule& module);
+    std::string to_string() {return row_;}
+protected:
+    void add_field(uint64_t field);
+    void add_field(uint32_t field);
+    void add_field(int64_t field);
+    void add_field(const std::string& field);
+    std::string row_;
+    int fields = 0;
 };
 
 class CorrelationAnalysisModule : public AnalysisModule {
  protected:
-    std::ostream& printSyscallMetrics(std::ostream& out,
-      const std::pair<std::string, SyscallData>&) const;        
-
-    std::map<std::string, SyscallData> syscalls_;
-	std::vector<std::array<uint64_t, 2>> reads;
+    std::ofstream csvfile;
+    const std::string CSVFILENAME = "syscalls.csv";
 
  public:
-    CorrelationAnalysisModule() = default;
+    CorrelationAnalysisModule();
+    ~CorrelationAnalysisModule();
 
     void considerSyscall(const SystemCallTraceReplayModule& module);
 

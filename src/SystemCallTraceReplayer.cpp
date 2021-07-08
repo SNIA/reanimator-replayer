@@ -1044,6 +1044,11 @@ int main(int argc, char *argv[]) {
     thread.join();
   }
 
+  // destruct analysis modules
+  for (auto am : analysisModules) {
+    delete am;
+  }
+
   // Close /dev/urandom file
   if (pattern_data == "urandom") {
     SystemCallTraceReplayModule::random_file_.close();

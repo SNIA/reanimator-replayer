@@ -130,7 +130,7 @@ void ReadSystemCallTraceReplayModule::prepareRow() {
 }
 
 uint64_t ReadSystemCallTraceReplayModule::bytes_requested() const {
-	return nbytes;
+    return nbytes;
 }
 
 PReadSystemCallTraceReplayModule::PReadSystemCallTraceReplayModule(
