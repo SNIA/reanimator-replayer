@@ -16,7 +16,7 @@ installDir="${replayerDir}/reanimator_replayer_release"
 buildDir="${replayerDir}/build"
 repositoryDir="${buildDir}/repositories"
 
-readonly programDependencies=("autoconf" "automake" "cmake" "gcc" "g++" "perl" "git" "libaio-dev")
+readonly programDependencies=("autoconf" "automake" "cmake" "gcc" "g++" "perl" "git")
 missingPrograms=()
 
 ####################
