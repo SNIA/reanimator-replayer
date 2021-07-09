@@ -17,7 +17,7 @@ Requires bash.
 1. Install the following required programs and libraries:
 
     ```plaintext
-    git cmake perl autoconf automake gcc g++ libtool libboost-dev libboost-thread-dev libboost-program-options-dev build-essential libxml2-dev zlib1g-dev
+    git cmake perl autoconf automake gcc g++ libtool libboost-dev libboost-thread-dev libboost-program-options-dev build-essential libxml2-dev zlib1g-dev libaio-dev
     ```
 
     On Ubuntu 16 and 18, all the above requirements are available through the APT package manager.
