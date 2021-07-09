@@ -113,6 +113,10 @@ void WriteSystemCallTraceReplayModule::prepareRow() {
   SystemCallTraceReplayModule::prepareRow();
 }
 
+uint64_t WriteSystemCallTraceReplayModule::count_arg() const {
+    return nbytes;
+}
+
 PWriteSystemCallTraceReplayModule::PWriteSystemCallTraceReplayModule(
     DataSeriesModule &source, bool verbose_flag, bool verify_flag,
     int warn_level_flag, std::string pattern_data)

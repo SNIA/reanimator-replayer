@@ -50,6 +50,10 @@ SyscallCsv::SyscallCsv(const SystemCallTraceReplayModule& module) {
         const ReadSystemCallTraceReplayModule &read_module =
             (ReadSystemCallTraceReplayModule&)module;
         add_field(read_module.bytes_requested());
+    } else if (name == "write") {
+        const WriteSystemCallTraceReplayModule &write_module =
+            (WriteSystemCallTraceReplayModule&)module;
+        add_field(write_module.count_arg());
     }
     while (fields < MAX_FIELDS) {
         add_field("");
@@ -80,6 +84,8 @@ void SyscallCsv::add_field(const std::string& field) {
 
 CorrelationAnalysisModule::CorrelationAnalysisModule() {
     csvfile = std::ofstream(CSVFILENAME);
+    csvfile << "Name,Return Value,Time Elapsed,Time Called,Thread ID,1st arg,2";
+    csvfile << "nd arg,3rd arg\n";
 }
 
 void CorrelationAnalysisModule::considerSyscall(

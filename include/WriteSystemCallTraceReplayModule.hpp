@@ -83,6 +83,7 @@ class WriteSystemCallTraceReplayModule : public SystemCallTraceReplayModule {
     traced_fd = fd;
   }
   void prepareRow() override;
+  uint64_t count_arg() const;
 };
 
 class PWriteSystemCallTraceReplayModule

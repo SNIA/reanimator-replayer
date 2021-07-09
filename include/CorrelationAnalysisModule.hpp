@@ -40,6 +40,7 @@
 #include "AnalysisModule.hpp"
 #include "SystemCallTraceReplayModule.hpp"
 #include "ReadSystemCallTraceReplayModule.hpp"
+#include "WriteSystemCallTraceReplayModule.hpp"
 
 // using namespace boost::accumulators;
 
