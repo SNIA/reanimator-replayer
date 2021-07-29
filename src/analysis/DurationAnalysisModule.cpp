@@ -64,7 +64,7 @@ void DurationAnalysisModule::considerTimeElapsed(uint64_t time_elapsed, Duration
 }
 
 uint64_t DurationAnalysisModule::rollingAverage(uint64_t value, uint64_t old_average, uint64_t rows) const {
-    return rows * (old_average / (rows + 1)) + (value / (rows + 1));
+    return ((rows * old_average) + value) / (rows + 1);
 }
 
 std::ostream& DurationAnalysisModule::printMetrics(std::ostream& out) const {
