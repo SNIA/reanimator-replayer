@@ -50,6 +50,7 @@ struct ThreadWiseDurationAnalysisStruct {
   uint64_t max_time_elapsed;
   uint64_t average_time_elapsed;
   uint64_t rows;
+  uint64_t cumulative_time_elapsed;
 };
 
 class ThreadWiseDurationAnalysisModule : public AnalysisModule {

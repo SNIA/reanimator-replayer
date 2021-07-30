@@ -36,7 +36,7 @@
 
 DurationAnalysisStruct::DurationAnalysisStruct()
     : min_time_elapsed(-1), max_time_elapsed(0), average_time_elapsed(0),
-      rows(0) {
+      rows(0), cumulative_time_elapsed(0) {
     // nothing to do
 }
 
@@ -57,10 +57,9 @@ void DurationAnalysisModule::considerSyscall(const SystemCallTraceReplayModule& 
 void DurationAnalysisModule::considerTimeElapsed(uint64_t time_elapsed, DurationAnalysisStruct& analysis) {
     analysis.min_time_elapsed = std::min(analysis.min_time_elapsed, time_elapsed);
     analysis.max_time_elapsed = std::max(analysis.max_time_elapsed, time_elapsed);
-    analysis.average_time_elapsed =
-        rollingAverage(time_elapsed, analysis.average_time_elapsed,
-                      analysis.rows);
+    analysis.cumulative_time_elapsed += time_elapsed;
     ++analysis.rows;
+    analysis.average_time_elapsed = analysis.cumulative_time_elapsed / analysis.rows;
 }
 
 uint64_t DurationAnalysisModule::rollingAverage(uint64_t value, uint64_t old_average, uint64_t rows) const {
