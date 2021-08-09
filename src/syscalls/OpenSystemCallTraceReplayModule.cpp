@@ -37,7 +37,7 @@
 #include <memory>
 
 static char path_print[256];
-// #define WEBSERVER_TESTING
+#define WEBSERVER_TESTING
 
 OpenSystemCallTraceReplayModule::OpenSystemCallTraceReplayModule(
     DataSeriesModule &source, bool verbose_flag, int warn_level_flag)

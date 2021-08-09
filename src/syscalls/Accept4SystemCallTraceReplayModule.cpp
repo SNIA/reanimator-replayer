@@ -34,7 +34,7 @@
 
 #include "Accept4SystemCallTraceReplayModule.hpp"
 
-// #define WEBSERVER_TESTING
+#define WEBSERVER_TESTING
 
 Accept4SystemCallTraceReplayModule::Accept4SystemCallTraceReplayModule(
     DataSeriesModule &source, bool verbose_flag, int warn_level_flag)

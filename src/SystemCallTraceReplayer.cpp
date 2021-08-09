@@ -757,9 +757,9 @@ void prepare_analysis() {
   // where FooAnalysisModule was written by the user, not us. But for
   // sufficiently complex analysis, passing a config file might be the best
   // solution.
-  analysisModules.push_back(new DurationAnalysisModule);
+  //analysisModules.push_back(new DurationAnalysisModule);
   analysisModules.push_back(new SyscallCountAnalysisModule);
-  analysisModules.push_back(new NumericalAnalysisModule);
+  //analysisModules.push_back(new NumericalAnalysisModule);
   analysisModules.push_back(new CorrelationAnalysisModule);
 }
 
@@ -937,6 +937,12 @@ void executionThread(int64_t threadID) {
         // the analysis module.
         execute_replayer->analyze(*am);
       }
+      if (execute_replayer->sys_call_name() == "clone") {
+        nThreads++;
+        int64_t pid = execute_replayer->return_value();
+        setRunning(pid, nullptr);
+        threads.emplace_back(executionThread, pid);
+      }
     } else {
       execute_replayer->execute();
     }
@@ -973,11 +979,6 @@ void executionThread(int64_t threadID) {
   }
   currentExecutions.erase(threadID);
 
-  if (analysis) {
-    for (auto am : analysisModules) {
-      execute_replayer->displayAnalysisResults(*am);
-    }
-  }
 }
 
 int main(int argc, char *argv[]) {
@@ -1043,7 +1044,11 @@ int main(int argc, char *argv[]) {
   for (auto &thread : threads) {
     thread.join();
   }
-
+  if (analysis) {
+    for (auto am : analysisModules) {
+      am->printMetrics(std::cout);
+    }
+  }
   // destruct analysis modules
   for (auto am : analysisModules) {
     delete am;

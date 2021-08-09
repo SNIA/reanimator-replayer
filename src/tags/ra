@@ -1,0 +1,485 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_OUTPUT_EXCMD	mixed	/number, pattern, mixed, or combineV2/
+!_TAG_OUTPUT_FILESEP	slash	/slash or backslash/
+!_TAG_OUTPUT_MODE	u-ctags	/u-ctags or e-ctags/
+!_TAG_PATTERN_LENGTH_LIMIT	96	/0 for no limit/
+!_TAG_PROC_CWD	/home/aburford/reanimator-replayer/src/tags/	//
+!_TAG_PROGRAM_AUTHOR	Universal Ctags Team	//
+!_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
+!_TAG_PROGRAM_URL	https://ctags.io/	/official site/
+!_TAG_PROGRAM_VERSION	5.9.0	/b5cd9f4/
+Accept4SystemCallTraceReplayModule	../syscalls/Accept4SystemCallTraceReplayModule.cpp	/^Accept4SystemCallTraceReplayModule::Accept4SystemCallTraceReplayModule($/;"	f	class:Accept4SystemCallTraceReplayModule
+AcceptSystemCallTraceReplayModule	../syscalls/AcceptSystemCallTraceReplayModule.cpp	/^AcceptSystemCallTraceReplayModule::AcceptSystemCallTraceReplayModule($/;"	f	class:AcceptSystemCallTraceReplayModule
+AccessSystemCallTraceReplayModule	../syscalls/AccessSystemCallTraceReplayModule.cpp	/^AccessSystemCallTraceReplayModule::AccessSystemCallTraceReplayModule($/;"	f	class:AccessSystemCallTraceReplayModule
+BasicEntry	../ReplayerResourcesManager.cpp	/^BasicEntry::BasicEntry() : rc_(1) {}$/;"	f	class:BasicEntry
+BasicRLimitSystemCallTraceReplayModule	../syscalls/BasicRLimitSystemCallTraceReplayModule.cpp	/^BasicRLimitSystemCallTraceReplayModule::BasicRLimitSystemCallTraceReplayModule($/;"	f	class:BasicRLimitSystemCallTraceReplayModule
+BasicStatSystemCallTraceReplayModule	../syscalls/BasicStatSystemCallTraceReplayModule.cpp	/^BasicStatSystemCallTraceReplayModule::BasicStatSystemCallTraceReplayModule($/;"	f	class:BasicStatSystemCallTraceReplayModule
+BasicStatfsSystemCallTraceReplayModule	../syscalls/BasicStatfsSystemCallTraceReplayModule.cpp	/^BasicStatfsSystemCallTraceReplayModule::BasicStatfsSystemCallTraceReplayModule($/;"	f	class:BasicStatfsSystemCallTraceReplayModule
+ChdirSystemCallTraceReplayModule	../syscalls/ChdirSystemCallTraceReplayModule.cpp	/^ChdirSystemCallTraceReplayModule::ChdirSystemCallTraceReplayModule($/;"	f	class:ChdirSystemCallTraceReplayModule
+ChmodSystemCallTraceReplayModule	../syscalls/ChmodSystemCallTraceReplayModule.cpp	/^ChmodSystemCallTraceReplayModule::ChmodSystemCallTraceReplayModule($/;"	f	class:ChmodSystemCallTraceReplayModule
+ChownSystemCallTraceReplayModule	../syscalls/ChownSystemCallTraceReplayModule.cpp	/^ChownSystemCallTraceReplayModule::ChownSystemCallTraceReplayModule($/;"	f	class:ChownSystemCallTraceReplayModule
+ChrootSystemCallTraceReplayModule	../syscalls/ChrootSystemCallTraceReplayModule.cpp	/^ChrootSystemCallTraceReplayModule::ChrootSystemCallTraceReplayModule($/;"	f	class:ChrootSystemCallTraceReplayModule
+CloneSystemCallTraceReplayModule	../syscalls/CloneSystemCallTraceReplayModule.cpp	/^CloneSystemCallTraceReplayModule::CloneSystemCallTraceReplayModule($/;"	f	class:CloneSystemCallTraceReplayModule
+CloseSystemCallTraceReplayModule	../syscalls/CloseSystemCallTraceReplayModule.cpp	/^CloseSystemCallTraceReplayModule::CloseSystemCallTraceReplayModule($/;"	f	class:CloseSystemCallTraceReplayModule
+CompareByUniqueID	../SystemCallTraceReplayer.cpp	/^struct CompareByUniqueID {$/;"	s	file:
+CorrelationAnalysisModule	../analysis/CorrelationAnalysisModule.cpp	/^CorrelationAnalysisModule::CorrelationAnalysisModule() {$/;"	f	class:CorrelationAnalysisModule
+CreatSystemCallTraceReplayModule	../syscalls/CreatSystemCallTraceReplayModule.cpp	/^CreatSystemCallTraceReplayModule::CreatSystemCallTraceReplayModule($/;"	f	class:CreatSystemCallTraceReplayModule
+Dup2SystemCallTraceReplayModule	../syscalls/Dup2SystemCallTraceReplayModule.cpp	/^Dup2SystemCallTraceReplayModule::Dup2SystemCallTraceReplayModule($/;"	f	class:Dup2SystemCallTraceReplayModule
+Dup3SystemCallTraceReplayModule	../syscalls/Dup3SystemCallTraceReplayModule.cpp	/^Dup3SystemCallTraceReplayModule::Dup3SystemCallTraceReplayModule($/;"	f	class:Dup3SystemCallTraceReplayModule
+DupSystemCallTraceReplayModule	../syscalls/DupSystemCallTraceReplayModule.cpp	/^DupSystemCallTraceReplayModule::DupSystemCallTraceReplayModule($/;"	f	class:DupSystemCallTraceReplayModule
+DurationAnalysisStruct	../analysis/DurationAnalysisModule.cpp	/^DurationAnalysisStruct::DurationAnalysisStruct()$/;"	f	class:DurationAnalysisStruct
+EPollCreateSystemCallTraceReplayModule	../syscalls/EPollCreateSystemCallTraceReplayModule.cpp	/^EPollCreateSystemCallTraceReplayModule::EPollCreateSystemCallTraceReplayModule($/;"	f	class:EPollCreateSystemCallTraceReplayModule
+ExecutionHeap	../SystemCallTraceReplayer.cpp	/^    ExecutionHeap;$/;"	t	typeref:typename:tbb::concurrent_priority_queue<SystemCallTraceReplayModule *,CompareByUniqueID>	file:
+ExecveSystemCallTraceReplayModule	../syscalls/ExecveSystemCallTraceReplayModule.cpp	/^ExecveSystemCallTraceReplayModule::ExecveSystemCallTraceReplayModule($/;"	f	class:ExecveSystemCallTraceReplayModule
+ExitSystemCallTraceReplayModule	../syscalls/ExitSystemCallTraceReplayModule.cpp	/^ExitSystemCallTraceReplayModule::ExitSystemCallTraceReplayModule($/;"	f	class:ExitSystemCallTraceReplayModule
+FAccessatSystemCallTraceReplayModule	../syscalls/AccessSystemCallTraceReplayModule.cpp	/^FAccessatSystemCallTraceReplayModule::FAccessatSystemCallTraceReplayModule($/;"	f	class:FAccessatSystemCallTraceReplayModule
+FChdirSystemCallTraceReplayModule	../syscalls/FChdirSystemCallTraceReplayModule.cpp	/^FChdirSystemCallTraceReplayModule::FChdirSystemCallTraceReplayModule($/;"	f	class:FChdirSystemCallTraceReplayModule
+FChmodSystemCallTraceReplayModule	../syscalls/FChmodSystemCallTraceReplayModule.cpp	/^FChmodSystemCallTraceReplayModule::FChmodSystemCallTraceReplayModule($/;"	f	class:FChmodSystemCallTraceReplayModule
+FChmodatSystemCallTraceReplayModule	../syscalls/FChmodSystemCallTraceReplayModule.cpp	/^FChmodatSystemCallTraceReplayModule::FChmodatSystemCallTraceReplayModule($/;"	f	class:FChmodatSystemCallTraceReplayModule
+FSetxattrSystemCallTraceReplayModule	../syscalls/SetxattrSystemCallTraceReplayModule.cpp	/^FSetxattrSystemCallTraceReplayModule::FSetxattrSystemCallTraceReplayModule($/;"	f	class:FSetxattrSystemCallTraceReplayModule
+FStatSystemCallTraceReplayModule	../syscalls/BasicStatSystemCallTraceReplayModule.cpp	/^FStatSystemCallTraceReplayModule::FStatSystemCallTraceReplayModule($/;"	f	class:FStatSystemCallTraceReplayModule
+FStatatSystemCallTraceReplayModule	../syscalls/BasicStatSystemCallTraceReplayModule.cpp	/^FStatatSystemCallTraceReplayModule::FStatatSystemCallTraceReplayModule($/;"	f	class:FStatatSystemCallTraceReplayModule
+FStatfsSystemCallTraceReplayModule	../syscalls/BasicStatfsSystemCallTraceReplayModule.cpp	/^FStatfsSystemCallTraceReplayModule::FStatfsSystemCallTraceReplayModule($/;"	f	class:FStatfsSystemCallTraceReplayModule
+FTruncateSystemCallTraceReplayModule	../syscalls/FTruncateSystemCallTraceReplayModule.cpp	/^FTruncateSystemCallTraceReplayModule::FTruncateSystemCallTraceReplayModule($/;"	f	class:FTruncateSystemCallTraceReplayModule
+FallocateSystemCallTraceReplayModule	../syscalls/FallocateSystemCallTraceReplayModule.cpp	/^FallocateSystemCallTraceReplayModule::FallocateSystemCallTraceReplayModule($/;"	f	class:FallocateSystemCallTraceReplayModule
+FcntlSystemCallTraceReplayModule	../syscalls/FcntlSystemCallTraceReplayModule.cpp	/^FcntlSystemCallTraceReplayModule::FcntlSystemCallTraceReplayModule($/;"	f	class:FcntlSystemCallTraceReplayModule
+FdatasyncSystemCallTraceReplayModule	../syscalls/FdatasyncSystemCallTraceReplayModule.cpp	/^FdatasyncSystemCallTraceReplayModule::FdatasyncSystemCallTraceReplayModule($/;"	f	class:FdatasyncSystemCallTraceReplayModule
+FieldStruct	../analysis/NumericalAnalysisModule.cpp	/^FieldStruct::FieldStruct() $/;"	f	class:FieldStruct
+FileDescriptorEntry	../ReplayerResourcesManager.cpp	/^FileDescriptorEntry::FileDescriptorEntry(FileDescriptorEntry &fd_entry) {$/;"	f	class:FileDescriptorEntry
+FileDescriptorEntry	../ReplayerResourcesManager.cpp	/^FileDescriptorEntry::FileDescriptorEntry(int fd, int flags)$/;"	f	class:FileDescriptorEntry
+FileDescriptorTableEntry	../ReplayerResourcesManager.cpp	/^FileDescriptorTableEntry::FileDescriptorTableEntry($/;"	f	class:FileDescriptorTableEntry
+FileDescriptorTableEntry	../ReplayerResourcesManager.cpp	/^FileDescriptorTableEntry::FileDescriptorTableEntry() : BasicEntry() {}$/;"	f	class:FileDescriptorTableEntry
+FsyncSystemCallTraceReplayModule	../syscalls/FsyncSystemCallTraceReplayModule.cpp	/^FsyncSystemCallTraceReplayModule::FsyncSystemCallTraceReplayModule($/;"	f	class:FsyncSystemCallTraceReplayModule
+GetRLimitSystemCallTraceReplayModule	../syscalls/GetRLimitSystemCallTraceReplayModule.cpp	/^GetRLimitSystemCallTraceReplayModule::GetRLimitSystemCallTraceReplayModule($/;"	f	class:GetRLimitSystemCallTraceReplayModule
+GetdentsSystemCallTraceReplayModule	../syscalls/GetdentsSystemCallTraceReplayModule.cpp	/^GetdentsSystemCallTraceReplayModule::GetdentsSystemCallTraceReplayModule($/;"	f	class:GetdentsSystemCallTraceReplayModule
+IoctlSystemCallTraceReplayModule	../syscalls/IoctlSystemCallTraceReplayModule.cpp	/^IoctlSystemCallTraceReplayModule::IoctlSystemCallTraceReplayModule($/;"	f	class:IoctlSystemCallTraceReplayModule
+LSeekSystemCallTraceReplayModule	../syscalls/LSeekSystemCallTraceReplayModule.cpp	/^LSeekSystemCallTraceReplayModule::LSeekSystemCallTraceReplayModule($/;"	f	class:LSeekSystemCallTraceReplayModule
+LSetxattrSystemCallTraceReplayModule	../syscalls/SetxattrSystemCallTraceReplayModule.cpp	/^LSetxattrSystemCallTraceReplayModule::LSetxattrSystemCallTraceReplayModule($/;"	f	class:LSetxattrSystemCallTraceReplayModule
+LStatSystemCallTraceReplayModule	../syscalls/BasicStatSystemCallTraceReplayModule.cpp	/^LStatSystemCallTraceReplayModule::LStatSystemCallTraceReplayModule($/;"	f	class:LStatSystemCallTraceReplayModule
+LinkSystemCallTraceReplayModule	../syscalls/LinkSystemCallTraceReplayModule.cpp	/^LinkSystemCallTraceReplayModule::LinkSystemCallTraceReplayModule($/;"	f	class:LinkSystemCallTraceReplayModule
+LinkatSystemCallTraceReplayModule	../syscalls/LinkSystemCallTraceReplayModule.cpp	/^LinkatSystemCallTraceReplayModule::LinkatSystemCallTraceReplayModule($/;"	f	class:LinkatSystemCallTraceReplayModule
+MkdirSystemCallTraceReplayModule	../syscalls/MkdirSystemCallTraceReplayModule.cpp	/^MkdirSystemCallTraceReplayModule::MkdirSystemCallTraceReplayModule($/;"	f	class:MkdirSystemCallTraceReplayModule
+MkdiratSystemCallTraceReplayModule	../syscalls/MkdirSystemCallTraceReplayModule.cpp	/^MkdiratSystemCallTraceReplayModule::MkdiratSystemCallTraceReplayModule($/;"	f	class:MkdiratSystemCallTraceReplayModule
+MknodSystemCallTraceReplayModule	../syscalls/MknodSystemCallTraceReplayModule.cpp	/^MknodSystemCallTraceReplayModule::MknodSystemCallTraceReplayModule($/;"	f	class:MknodSystemCallTraceReplayModule
+MmapPReadSystemCallTraceReplayModule	../syscalls/ReadSystemCallTraceReplayModule.cpp	/^MmapPReadSystemCallTraceReplayModule::MmapPReadSystemCallTraceReplayModule($/;"	f	class:MmapPReadSystemCallTraceReplayModule
+MmapPWriteSystemCallTraceReplayModule	../syscalls/WriteSystemCallTraceReplayModule.cpp	/^MmapPWriteSystemCallTraceReplayModule::MmapPWriteSystemCallTraceReplayModule($/;"	f	class:MmapPWriteSystemCallTraceReplayModule
+MmapSystemCallTraceReplayModule	../syscalls/MmapSystemCallTraceReplayModule.cpp	/^MmapSystemCallTraceReplayModule::MmapSystemCallTraceReplayModule($/;"	f	class:MmapSystemCallTraceReplayModule
+MunmapSystemCallTraceReplayModule	../syscalls/MunmapSystemCallTraceReplayModule.cpp	/^MunmapSystemCallTraceReplayModule::MunmapSystemCallTraceReplayModule($/;"	f	class:MunmapSystemCallTraceReplayModule
+OpenSystemCallTraceReplayModule	../syscalls/OpenSystemCallTraceReplayModule.cpp	/^OpenSystemCallTraceReplayModule::OpenSystemCallTraceReplayModule($/;"	f	class:OpenSystemCallTraceReplayModule
+OpenatSystemCallTraceReplayModule	../syscalls/OpenSystemCallTraceReplayModule.cpp	/^OpenatSystemCallTraceReplayModule::OpenatSystemCallTraceReplayModule($/;"	f	class:OpenatSystemCallTraceReplayModule
+PROFILE_END	../SystemCallTraceReplayer.cpp	/^#define PROFILE_END(/;"	d	file:
+PROFILE_PRINT	../SystemCallTraceReplayer.cpp	/^#define PROFILE_PRINT(/;"	d	file:
+PROFILE_SAMPLE	../SystemCallTraceReplayer.cpp	/^#define PROFILE_SAMPLE(/;"	d	file:
+PROFILE_START	../SystemCallTraceReplayer.cpp	/^#define PROFILE_START(/;"	d	file:
+PReadSystemCallTraceReplayModule	../syscalls/ReadSystemCallTraceReplayModule.cpp	/^PReadSystemCallTraceReplayModule::PReadSystemCallTraceReplayModule($/;"	f	class:PReadSystemCallTraceReplayModule
+PWriteSystemCallTraceReplayModule	../syscalls/WriteSystemCallTraceReplayModule.cpp	/^PWriteSystemCallTraceReplayModule::PWriteSystemCallTraceReplayModule($/;"	f	class:PWriteSystemCallTraceReplayModule
+PipeSystemCallTraceReplayModule	../syscalls/PipeSystemCallTraceReplayModule.cpp	/^PipeSystemCallTraceReplayModule::PipeSystemCallTraceReplayModule($/;"	f	class:PipeSystemCallTraceReplayModule
+ReadSystemCallTraceReplayModule	../syscalls/ReadSystemCallTraceReplayModule.cpp	/^ReadSystemCallTraceReplayModule::ReadSystemCallTraceReplayModule($/;"	f	class:ReadSystemCallTraceReplayModule
+ReadaheadSystemCallTraceReplayModule	../syscalls/ReadaheadSystemCallTraceReplayModule.cpp	/^ReadaheadSystemCallTraceReplayModule::ReadaheadSystemCallTraceReplayModule($/;"	f	class:ReadaheadSystemCallTraceReplayModule
+ReadlinkSystemCallTraceReplayModule	../syscalls/ReadlinkSystemCallTraceReplayModule.cpp	/^ReadlinkSystemCallTraceReplayModule::ReadlinkSystemCallTraceReplayModule($/;"	f	class:ReadlinkSystemCallTraceReplayModule
+ReadvSystemCallTraceReplayModule	../syscalls/ReadvSystemCallTraceReplayModule.cpp	/^ReadvSystemCallTraceReplayModule::ReadvSystemCallTraceReplayModule($/;"	f	class:ReadvSystemCallTraceReplayModule
+RenameSystemCallTraceReplayModule	../syscalls/RenameSystemCallTraceReplayModule.cpp	/^RenameSystemCallTraceReplayModule::RenameSystemCallTraceReplayModule($/;"	f	class:RenameSystemCallTraceReplayModule
+ReplayerResourcesManager	../ReplayerResourcesManager.cpp	/^ReplayerResourcesManager::ReplayerResourcesManager() {}$/;"	f	class:ReplayerResourcesManager
+RmdirSystemCallTraceReplayModule	../syscalls/RmdirSystemCallTraceReplayModule.cpp	/^RmdirSystemCallTraceReplayModule::RmdirSystemCallTraceReplayModule($/;"	f	class:RmdirSystemCallTraceReplayModule
+RunningSyscallTable	../SystemCallTraceReplayer.cpp	/^    RunningSyscallTable;$/;"	t	typeref:typename:tbb::concurrent_hash_map<int64_t,SystemCallTraceReplayModule * >	file:
+SetRLimitSystemCallTraceReplayModule	../syscalls/SetRLimitSystemCallTraceReplayModule.cpp	/^SetRLimitSystemCallTraceReplayModule::SetRLimitSystemCallTraceReplayModule($/;"	f	class:SetRLimitSystemCallTraceReplayModule
+SetxattrSystemCallTraceReplayModule	../syscalls/SetxattrSystemCallTraceReplayModule.cpp	/^SetxattrSystemCallTraceReplayModule::SetxattrSystemCallTraceReplayModule($/;"	f	class:SetxattrSystemCallTraceReplayModule
+SocketPairSystemCallTraceReplayModule	../syscalls/SocketPairSystemCallTraceReplayModule.cpp	/^SocketPairSystemCallTraceReplayModule::SocketPairSystemCallTraceReplayModule($/;"	f	class:SocketPairSystemCallTraceReplayModule
+SocketSystemCallTraceReplayModule	../syscalls/SocketSystemCallTraceReplayModule.cpp	/^SocketSystemCallTraceReplayModule::SocketSystemCallTraceReplayModule($/;"	f	class:SocketSystemCallTraceReplayModule
+StatSystemCallTraceReplayModule	../syscalls/BasicStatSystemCallTraceReplayModule.cpp	/^StatSystemCallTraceReplayModule::StatSystemCallTraceReplayModule($/;"	f	class:StatSystemCallTraceReplayModule
+StatfsSystemCallTraceReplayModule	../syscalls/BasicStatfsSystemCallTraceReplayModule.cpp	/^StatfsSystemCallTraceReplayModule::StatfsSystemCallTraceReplayModule($/;"	f	class:StatfsSystemCallTraceReplayModule
+SymlinkSystemCallTraceReplayModule	../syscalls/SymlinkSystemCallTraceReplayModule.cpp	/^SymlinkSystemCallTraceReplayModule::SymlinkSystemCallTraceReplayModule($/;"	f	class:SymlinkSystemCallTraceReplayModule
+SyscallCsv	../analysis/CorrelationAnalysisModule.cpp	/^SyscallCsv::SyscallCsv(const SystemCallTraceReplayModule& module) {$/;"	f	class:SyscallCsv
+SystemCallTraceReplayLogger	../SystemCallTraceReplayLogger.cpp	/^SystemCallTraceReplayLogger::SystemCallTraceReplayLogger($/;"	f	class:SystemCallTraceReplayLogger
+SystemCallTraceReplayModule	../SystemCallTraceReplayModule.cpp	/^SystemCallTraceReplayModule::SystemCallTraceReplayModule($/;"	f	class:SystemCallTraceReplayModule
+Tfrac_to_sec	../SystemCallTraceReplayModule.cpp	/^double SystemCallTraceReplayModule::Tfrac_to_sec(uint64_t time) {$/;"	f	class:SystemCallTraceReplayModule	typeref:typename:double
+Tfrac_to_timespec	../SystemCallTraceReplayModule.cpp	/^struct timespec SystemCallTraceReplayModule::Tfrac_to_timespec(uint64_t time) {$/;"	f	class:SystemCallTraceReplayModule	typeref:struct:timespec
+Tfrac_to_timeval	../SystemCallTraceReplayModule.cpp	/^struct timeval SystemCallTraceReplayModule::Tfrac_to_timeval(uint64_t time) {$/;"	f	class:SystemCallTraceReplayModule	typeref:struct:timeval
+TruncateSystemCallTraceReplayModule	../syscalls/TruncateSystemCallTraceReplayModule.cpp	/^TruncateSystemCallTraceReplayModule::TruncateSystemCallTraceReplayModule($/;"	f	class:TruncateSystemCallTraceReplayModule
+UmaskEntry	../ReplayerResourcesManager.cpp	/^UmaskEntry::UmaskEntry(mode_t m) : BasicEntry(), umask_(m) {}$/;"	f	class:UmaskEntry
+UmaskSystemCallTraceReplayModule	../syscalls/UmaskSystemCallTraceReplayModule.cpp	/^UmaskSystemCallTraceReplayModule::UmaskSystemCallTraceReplayModule($/;"	f	class:UmaskSystemCallTraceReplayModule
+UnlinkSystemCallTraceReplayModule	../syscalls/UnlinkSystemCallTraceReplayModule.cpp	/^UnlinkSystemCallTraceReplayModule::UnlinkSystemCallTraceReplayModule($/;"	f	class:UnlinkSystemCallTraceReplayModule
+UnlinkatSystemCallTraceReplayModule	../syscalls/UnlinkSystemCallTraceReplayModule.cpp	/^UnlinkatSystemCallTraceReplayModule::UnlinkatSystemCallTraceReplayModule($/;"	f	class:UnlinkatSystemCallTraceReplayModule
+UtimeSystemCallTraceReplayModule	../syscalls/UtimeSystemCallTraceReplayModule.cpp	/^UtimeSystemCallTraceReplayModule::UtimeSystemCallTraceReplayModule($/;"	f	class:UtimeSystemCallTraceReplayModule
+UtimensatSystemCallTraceReplayModule	../syscalls/UtimeSystemCallTraceReplayModule.cpp	/^UtimensatSystemCallTraceReplayModule::UtimensatSystemCallTraceReplayModule($/;"	f	class:UtimensatSystemCallTraceReplayModule
+UtimesSystemCallTraceReplayModule	../syscalls/UtimeSystemCallTraceReplayModule.cpp	/^UtimesSystemCallTraceReplayModule::UtimesSystemCallTraceReplayModule($/;"	f	class:UtimesSystemCallTraceReplayModule
+VForkSystemCallTraceReplayModule	../syscalls/VForkSystemCallTraceReplayModule.cpp	/^VForkSystemCallTraceReplayModule::VForkSystemCallTraceReplayModule($/;"	f	class:VForkSystemCallTraceReplayModule
+WriteSystemCallTraceReplayModule	../syscalls/WriteSystemCallTraceReplayModule.cpp	/^WriteSystemCallTraceReplayModule::WriteSystemCallTraceReplayModule($/;"	f	class:WriteSystemCallTraceReplayModule
+WritevSystemCallTraceReplayModule	../syscalls/WritevSystemCallTraceReplayModule.cpp	/^WritevSystemCallTraceReplayModule::WritevSystemCallTraceReplayModule($/;"	f	class:WritevSystemCallTraceReplayModule
+__anon10e57a950102	../SystemCallTraceReplayer.cpp	/^auto initExecutionHeap = [](int64_t tid) {$/;"	f	file:
+__anon10e57a950202	../SystemCallTraceReplayer.cpp	/^    int64_t tid, SystemCallTraceReplayModule *syscall) {$/;"	f	file:
+__anon10e57a950302	../SystemCallTraceReplayer.cpp	/^auto checkModulesFinished = []() -> bool {$/;"	f	typeref:typename:bool	file:
+__anon10e57a950402	../SystemCallTraceReplayer.cpp	/^auto getMinSyscall = []() -> uint64_t {$/;"	f	typeref:typename:uint64_t	file:
+__anon10e57a950502	../SystemCallTraceReplayer.cpp	/^auto checkSequential = [](SystemCallTraceReplayModule *check) -> bool {$/;"	f	typeref:typename:bool	file:
+__anon10e57a950602	../SystemCallTraceReplayer.cpp	/^auto checkExecutionValidation = [](SystemCallTraceReplayModule *check) -> bool {$/;"	f	typeref:typename:bool	file:
+__anon366e063a0102	../VirtualAddressSpace.cpp	/^                                                            -> bool {$/;"	f	function:VM_area::find_VM_node	typeref:typename:bool	file:
+abort_mode	../SystemCallTraceReplayModule.cpp	/^bool SystemCallTraceReplayModule::abort_mode() const {$/;"	f	class:SystemCallTraceReplayModule	typeref:typename:bool
+add_fd	../ReplayerResourcesManager.cpp	/^void ReplayerResourcesManager::add_fd(pid_t pid, int traced_fd, int replayed_fd,$/;"	f	class:ReplayerResourcesManager	typeref:typename:void
+add_fd_entry	../ReplayerResourcesManager.cpp	/^void FileDescriptorTableEntry::add_fd_entry(int traced_fd, int replayed_fd,$/;"	f	class:FileDescriptorTableEntry	typeref:typename:void
+add_field	../analysis/CorrelationAnalysisModule.cpp	/^void SyscallCsv::add_field(const std::string& field) {$/;"	f	class:SyscallCsv	typeref:typename:void
+add_field	../analysis/CorrelationAnalysisModule.cpp	/^void SyscallCsv::add_field(int64_t field) {$/;"	f	class:SyscallCsv	typeref:typename:void
+add_field	../analysis/CorrelationAnalysisModule.cpp	/^void SyscallCsv::add_field(uint32_t field) {$/;"	f	class:SyscallCsv	typeref:typename:void
+add_field	../analysis/CorrelationAnalysisModule.cpp	/^void SyscallCsv::add_field(uint64_t field) {$/;"	f	class:SyscallCsv	typeref:typename:void
+add_flags	../ReplayerResourcesManager.cpp	/^void ReplayerResourcesManager::add_flags(pid_t pid, int traced_fd, int flags) {$/;"	f	class:ReplayerResourcesManager	typeref:typename:void
+after_sys_call	../SystemCallTraceReplayModule.cpp	/^void SystemCallTraceReplayModule::after_sys_call() {$/;"	f	class:SystemCallTraceReplayModule	typeref:typename:void
+allocationQueue	../SystemCallTraceReplayer.cpp	/^tbb::concurrent_queue<SystemCallTraceReplayModule *> allocationQueue;$/;"	v	typeref:typename:tbb::concurrent_queue<SystemCallTraceReplayModule * >
+analysis	../SystemCallTraceReplayer.cpp	/^bool analysis = false;$/;"	v	typeref:typename:bool
+analysis	../analysis/CMakeLists.txt	/^add_library(analysis$/;"	t
+analysisModules	../SystemCallTraceReplayer.cpp	/^tbb::concurrent_vector<AnalysisModule *> analysisModules;$/;"	v	typeref:typename:tbb::concurrent_vector<AnalysisModule * >
+analyze	../SystemCallTraceReplayModule.cpp	/^void SystemCallTraceReplayModule::analyze(AnalysisModule &am) {$/;"	f	class:SystemCallTraceReplayModule	typeref:typename:void
+analyzeRow	../SystemCallTraceReplayModule.cpp	/^void SystemCallTraceReplayModule::analyzeRow(AnalysisModule &am) {$/;"	f	class:SystemCallTraceReplayModule	typeref:typename:void
+batch_for_all_syscalls	../SystemCallTraceReplayer.cpp	/^void batch_for_all_syscalls(int batch_size = 50) {$/;"	f	typeref:typename:void
+batch_syscall_modules	../SystemCallTraceReplayer.cpp	/^inline void batch_syscall_modules(SystemCallTraceReplayModule *module = nullptr,$/;"	f	typeref:typename:void
+bytes_requested	../syscalls/ReadSystemCallTraceReplayModule.cpp	/^uint64_t ReadSystemCallTraceReplayModule::bytes_requested() const {$/;"	f	class:ReadSystemCallTraceReplayModule	typeref:typename:uint64_t
+checkExecutionValidation	../SystemCallTraceReplayer.cpp	/^auto checkExecutionValidation = [](SystemCallTraceReplayModule *check) -> bool {$/;"	v	typeref:typename:auto
+checkModulesFinished	../SystemCallTraceReplayer.cpp	/^auto checkModulesFinished = []() -> bool {$/;"	v	typeref:typename:auto
+checkSequential	../SystemCallTraceReplayer.cpp	/^auto checkSequential = [](SystemCallTraceReplayModule *check) -> bool {$/;"	v	typeref:typename:auto
+check_enclosed_overlapping	../VirtualAddressSpace.cpp	/^bool check_enclosed_overlapping(uint64_t addr_int, size_t size,$/;"	f	typeref:typename:bool
+check_enclosing_overlapping	../VirtualAddressSpace.cpp	/^bool check_enclosing_overlapping(uint64_t addr_int, size_t size,$/;"	f	typeref:typename:bool
+check_left_overlapping	../VirtualAddressSpace.cpp	/^bool check_left_overlapping(uint64_t addr_int, size_t size, uint64_t start_addr,$/;"	f	typeref:typename:bool
+check_right_overlapping	../VirtualAddressSpace.cpp	/^bool check_right_overlapping(uint64_t addr_int, size_t size,$/;"	f	typeref:typename:bool
+clone_fd_table	../ReplayerResourcesManager.cpp	/^void ReplayerResourcesManager::clone_fd_table(pid_t ppid, pid_t pid,$/;"	f	class:ReplayerResourcesManager	typeref:typename:void
+clone_umask	../ReplayerResourcesManager.cpp	/^void ReplayerResourcesManager::clone_umask(pid_t ppid, pid_t pid, bool shared) {$/;"	f	class:ReplayerResourcesManager	typeref:typename:void
+compareResults	../syscalls/GetdentsSystemCallTraceReplayModule.cpp	/^bool GetdentsSystemCallTraceReplayModule::compareResults($/;"	f	class:GetdentsSystemCallTraceReplayModule	typeref:typename:bool
+compare_retval_and_errno	../SystemCallTraceReplayModule.cpp	/^void SystemCallTraceReplayModule::compare_retval_and_errno() {$/;"	f	class:SystemCallTraceReplayModule	typeref:typename:void
+completeProcessing	../SystemCallTraceReplayModule.cpp	/^void SystemCallTraceReplayModule::completeProcessing() { after_sys_call(); }$/;"	f	class:SystemCallTraceReplayModule	typeref:typename:void
+considerSyscall	../analysis/CorrelationAnalysisModule.cpp	/^void CorrelationAnalysisModule::considerSyscall($/;"	f	class:CorrelationAnalysisModule	typeref:typename:void
+considerSyscall	../analysis/DurationAnalysisModule.cpp	/^void DurationAnalysisModule::considerSyscall(const SystemCallTraceReplayModule& module) {$/;"	f	class:DurationAnalysisModule	typeref:typename:void
+considerSyscall	../analysis/NumericalAnalysisModule.cpp	/^void NumericalAnalysisModule::considerSyscall(const SystemCallTraceReplayModule& module) {$/;"	f	class:NumericalAnalysisModule	typeref:typename:void
+considerSyscall	../analysis/SyscallCountAnalysisModule.cpp	/^void SyscallCountAnalysisModule::considerSyscall(const SystemCallTraceReplayModule& module) {$/;"	f	class:SyscallCountAnalysisModule	typeref:typename:void
+considerTimeElapsed	../analysis/DurationAnalysisModule.cpp	/^void DurationAnalysisModule::considerTimeElapsed(uint64_t time_elapsed, DurationAnalysisStruct& /;"	f	class:DurationAnalysisModule	typeref:typename:void
+copyStatStruct	../syscalls/BasicStatSystemCallTraceReplayModule.cpp	/^void BasicStatSystemCallTraceReplayModule::copyStatStruct($/;"	f	class:BasicStatSystemCallTraceReplayModule	typeref:typename:void
+copyStatfsStruct	../syscalls/BasicStatfsSystemCallTraceReplayModule.cpp	/^void BasicStatfsSystemCallTraceReplayModule::copyStatfsStruct($/;"	f	class:BasicStatfsSystemCallTraceReplayModule	typeref:typename:void
+count_arg	../syscalls/WriteSystemCallTraceReplayModule.cpp	/^uint64_t WriteSystemCallTraceReplayModule::count_arg() const {$/;"	f	class:WriteSystemCallTraceReplayModule	typeref:typename:uint64_t
+create_prefetch_buffer_modules	../SystemCallTraceReplayer.cpp	/^std::vector<PrefetchBufferModule *> create_prefetch_buffer_modules($/;"	f	typeref:typename:std::vector<PrefetchBufferModule * >
+create_system_call_trace_replay_modules	../SystemCallTraceReplayer.cpp	/^create_system_call_trace_replay_modules($/;"	f	typeref:typename:std::vector<SystemCallTraceReplayModule * >
+cur_extent_has_more_record	../SystemCallTraceReplayModule.cpp	/^bool SystemCallTraceReplayModule::cur_extent_has_more_record() {$/;"	f	class:SystemCallTraceReplayModule	typeref:typename:bool
+currentExecutions	../SystemCallTraceReplayer.cpp	/^RunningSyscallTable currentExecutions;$/;"	v	typeref:typename:RunningSyscallTable
+decrement_rc	../ReplayerResourcesManager.cpp	/^unsigned int BasicEntry::decrement_rc() {$/;"	f	class:BasicEntry	typeref:typename:unsigned int
+default_mode	../SystemCallTraceReplayModule.cpp	/^bool SystemCallTraceReplayModule::default_mode() const {$/;"	f	class:SystemCallTraceReplayModule	typeref:typename:bool
+delete_VM_node	../VirtualAddressSpace.cpp	/^bool VM_area::delete_VM_node(void* addr, size_t size) {$/;"	f	class:VM_area	typeref:typename:bool
+destroy	../SystemCallTraceReplayer.cpp	/^int64_t destroy = 0;$/;"	v	typeref:typename:int64_t
+displayAnalysisResults	../SystemCallTraceReplayModule.cpp	/^void SystemCallTraceReplayModule::displayAnalysisResults(AnalysisModule &am) {$/;"	f	class:SystemCallTraceReplayModule	typeref:typename:void
+duration	../SystemCallTraceReplayer.cpp	/^int64_t duration = 0;$/;"	v	typeref:typename:int64_t
+enclosed	../VirtualAddressSpace.cpp	/^enum overlaps { left = 4, right = 2, enclosed = 8, enclosing = 1, invalid = 0 };$/;"	e	enum:overlaps	file:
+enclosing	../VirtualAddressSpace.cpp	/^enum overlaps { left = 4, right = 2, enclosed = 8, enclosing = 1, invalid = 0 };$/;"	e	enum:overlaps	file:
+errno_number	../SystemCallTraceReplayModule.cpp	/^int SystemCallTraceReplayModule::errno_number() const { return errorNoVal; }$/;"	f	class:SystemCallTraceReplayModule	typeref:typename:int
+execute	../SystemCallTraceReplayModule.cpp	/^void SystemCallTraceReplayModule::execute() {$/;"	f	class:SystemCallTraceReplayModule	typeref:typename:void
+executing_pid	../SystemCallTraceReplayModule.cpp	/^uint32_t SystemCallTraceReplayModule::executing_pid() const {$/;"	f	class:SystemCallTraceReplayModule	typeref:typename:uint32_t
+executionHeaps	../SystemCallTraceReplayer.cpp	/^std::unordered_map<int64_t, ExecutionHeap> executionHeaps;$/;"	v	typeref:typename:std::unordered_map<int64_t,ExecutionHeap>
+executionSpinning	../SystemCallTraceReplayer.cpp	/^int64_t executionSpinning = 0;$/;"	v	typeref:typename:int64_t
+executionThread	../SystemCallTraceReplayer.cpp	/^void executionThread(int64_t threadID) {$/;"	f	typeref:typename:void
+fileReading	../SystemCallTraceReplayer.cpp	/^int64_t fileReading = 0;$/;"	v	typeref:typename:int64_t
+fileReading_Batch_file	../SystemCallTraceReplayer.cpp	/^int64_t fileReading_Batch_file = 0;$/;"	v	typeref:typename:int64_t
+fileReading_Batch_map	../SystemCallTraceReplayer.cpp	/^int64_t fileReading_Batch_map = 0;$/;"	v	typeref:typename:int64_t
+fileReading_Batch_move	../SystemCallTraceReplayer.cpp	/^int64_t fileReading_Batch_move = 0;$/;"	v	typeref:typename:int64_t
+fileReading_Batch_push	../SystemCallTraceReplayer.cpp	/^int64_t fileReading_Batch_push = 0;$/;"	v	typeref:typename:int64_t
+find_VM_node	../VirtualAddressSpace.cpp	/^std::vector<VM_node*>* VM_area::find_VM_node(void* addr, size_t size) {$/;"	f	class:VM_area	typeref:typename:std::vector<VM_node * > *
+finishedModules	../SystemCallTraceReplayer.cpp	/^tbb::atomic<bool> *finishedModules;$/;"	v	typeref:typename:tbb::atomic<bool> *
+format_time	../SystemCallTraceReplayLogger.cpp	/^std::string SystemCallTraceReplayLogger::format_time() {$/;"	f	class:SystemCallTraceReplayLogger	typeref:typename:std::string
+generate_unused_fd	../ReplayerResourcesManager.cpp	/^int ReplayerResourcesManager::generate_unused_fd(pid_t pid) {$/;"	f	class:ReplayerResourcesManager	typeref:typename:int
+getHardLimit	../syscalls/BasicRLimitSystemCallTraceReplayModule.cpp	/^rlim_t BasicRLimitSystemCallTraceReplayModule::getHardLimit() {$/;"	f	class:BasicRLimitSystemCallTraceReplayModule	typeref:typename:rlim_t
+getInstance	../VirtualAddressSpace.cpp	/^VM_manager* VM_manager::getInstance() {$/;"	f	class:VM_manager	typeref:typename:VM_manager *
+getMinSyscall	../SystemCallTraceReplayer.cpp	/^auto getMinSyscall = []() -> uint64_t {$/;"	v	typeref:typename:auto
+getReplayedFD	../syscalls/FTruncateSystemCallTraceReplayModule.cpp	/^int FTruncateSystemCallTraceReplayModule::getReplayedFD() {$/;"	f	class:FTruncateSystemCallTraceReplayModule	typeref:typename:int
+getResource	../syscalls/BasicRLimitSystemCallTraceReplayModule.cpp	/^int BasicRLimitSystemCallTraceReplayModule::getResource() {$/;"	f	class:BasicRLimitSystemCallTraceReplayModule	typeref:typename:int
+getSharedExtent	../SystemCallTraceReplayModule.cpp	/^Extent::Ptr SystemCallTraceReplayModule::getSharedExtent() {$/;"	f	class:SystemCallTraceReplayModule	typeref:typename:Extent::Ptr
+getSoftLimit	../syscalls/BasicRLimitSystemCallTraceReplayModule.cpp	/^rlim_t BasicRLimitSystemCallTraceReplayModule::getSoftLimit() {$/;"	f	class:BasicRLimitSystemCallTraceReplayModule	typeref:typename:rlim_t
+get_VM_area	../VirtualAddressSpace.cpp	/^VM_area* VM_manager::get_VM_area(pid_t pid) {$/;"	f	class:VM_manager	typeref:typename:VM_area *
+get_all_replayed_fds	../ReplayerResourcesManager.cpp	/^std::unordered_set<int> FileDescriptorTableEntry::get_all_replayed_fds() {$/;"	f	class:FileDescriptorTableEntry	typeref:typename:std::unordered_set<int>
+get_all_traced_fds	../ReplayerResourcesManager.cpp	/^std::unordered_set<int> FileDescriptorTableEntry::get_all_traced_fds() {$/;"	f	class:FileDescriptorTableEntry	typeref:typename:std::unordered_set<int>
+get_all_traced_fds	../ReplayerResourcesManager.cpp	/^std::unordered_set<int> ReplayerResourcesManager::get_all_traced_fds($/;"	f	class:ReplayerResourcesManager	typeref:typename:std::unordered_set<int>
+get_fd	../ReplayerResourcesManager.cpp	/^int FileDescriptorEntry::get_fd() { return fd_; }$/;"	f	class:FileDescriptorEntry	typeref:typename:int
+get_fd	../ReplayerResourcesManager.cpp	/^int FileDescriptorTableEntry::get_fd(int traced_fd) {$/;"	f	class:FileDescriptorTableEntry	typeref:typename:int
+get_fd	../ReplayerResourcesManager.cpp	/^int ReplayerResourcesManager::get_fd(pid_t pid, int traced_fd) {$/;"	f	class:ReplayerResourcesManager	typeref:typename:int
+get_fd_table	../ReplayerResourcesManager.cpp	/^std::map<int, FileDescriptorEntry *> &FileDescriptorTableEntry::get_fd_table() {$/;"	f	class:FileDescriptorTableEntry	typeref:typename:std::map<int,FileDescriptorEntry * > &
+get_flags	../ReplayerResourcesManager.cpp	/^int FileDescriptorEntry::get_flags() { return flags_; }$/;"	f	class:FileDescriptorEntry	typeref:typename:int
+get_flags	../ReplayerResourcesManager.cpp	/^int FileDescriptorTableEntry::get_flags(int traced_fd) {$/;"	f	class:FileDescriptorTableEntry	typeref:typename:int
+get_flags	../ReplayerResourcesManager.cpp	/^int ReplayerResourcesManager::get_flags(pid_t pid, int traced_fd) {$/;"	f	class:ReplayerResourcesManager	typeref:typename:int
+get_mode	../SystemCallTraceReplayModule.cpp	/^mode_t SystemCallTraceReplayModule::get_mode(mode_t mode) {$/;"	f	class:SystemCallTraceReplayModule	typeref:typename:mode_t
+get_options	../SystemCallTraceReplayer.cpp	/^boost::program_options::variables_map get_options(int argc, char *argv[]) {$/;"	f	typeref:typename:boost::program_options::variables_map
+get_umask	../ReplayerResourcesManager.cpp	/^mode_t ReplayerResourcesManager::get_umask(pid_t pid) {$/;"	f	class:ReplayerResourcesManager	typeref:typename:mode_t
+get_umask	../ReplayerResourcesManager.cpp	/^mode_t UmaskEntry::get_umask() { return umask_; }$/;"	f	class:UmaskEntry	typeref:typename:mode_t
+getdents	../syscalls/GetdentsSystemCallTraceReplayModule.cpp	/^#define getdents(/;"	d	file:
+gettingRecord	../SystemCallTraceReplayer.cpp	/^int64_t gettingRecord = 0;$/;"	v	typeref:typename:int64_t
+has_fd	../ReplayerResourcesManager.cpp	/^bool FileDescriptorTableEntry::has_fd(int traced_fd) {$/;"	f	class:FileDescriptorTableEntry	typeref:typename:bool
+has_fd	../ReplayerResourcesManager.cpp	/^bool ReplayerResourcesManager::has_fd(pid_t pid, int traced_fd) {$/;"	f	class:ReplayerResourcesManager	typeref:typename:bool
+increment_rc	../ReplayerResourcesManager.cpp	/^void BasicEntry::increment_rc() { rc_++; }$/;"	f	class:BasicEntry	typeref:typename:void
+initExecutionHeap	../SystemCallTraceReplayer.cpp	/^auto initExecutionHeap = [](int64_t tid) {$/;"	v	typeref:typename:auto
+initialize	../ReplayerResourcesManager.cpp	/^void ReplayerResourcesManager::initialize(SystemCallTraceReplayLogger *logger,$/;"	f	class:ReplayerResourcesManager	typeref:typename:void
+insert_VM_node	../VirtualAddressSpace.cpp	/^void VM_area::insert_VM_node(VM_node* node) {$/;"	f	class:VM_area	typeref:typename:void
+instance	../VirtualAddressSpace.cpp	/^VM_manager* VM_manager::instance = NULL;$/;"	m	class:VM_manager	typeref:typename:VM_manager *
+invalid	../VirtualAddressSpace.cpp	/^enum overlaps { left = 4, right = 2, enclosed = 8, enclosing = 1, invalid = 0 };$/;"	e	enum:overlaps	file:
+isFirstBatch	../SystemCallTraceReplayer.cpp	/^bool isFirstBatch = true;$/;"	v	typeref:typename:bool
+isReplayable	../SystemCallTraceReplayModule.cpp	/^bool SystemCallTraceReplayModule::isReplayable() {$/;"	f	class:SystemCallTraceReplayModule	typeref:typename:bool
+isTimeable	../SystemCallTraceReplayModule.cpp	/^bool SystemCallTraceReplayModule::isTimeable() const {$/;"	f	class:SystemCallTraceReplayModule	typeref:typename:bool
+is_fd_in_use	../ReplayerResourcesManager.cpp	/^bool ReplayerResourcesManager::is_fd_in_use(int fd) {$/;"	f	class:ReplayerResourcesManager	typeref:typename:bool
+is_version_compatible	../SystemCallTraceReplayModule.cpp	/^bool SystemCallTraceReplayModule::is_version_compatible(unsigned int major_v,$/;"	f	class:SystemCallTraceReplayModule	typeref:typename:bool
+lastExecutedSyscallID	../SystemCallTraceReplayer.cpp	/^tbb::atomic<uint64_t> lastExecutedSyscallID = 1;$/;"	v	typeref:typename:tbb::atomic<uint64_t>
+left	../VirtualAddressSpace.cpp	/^enum overlaps { left = 4, right = 2, enclosed = 8, enclosing = 1, invalid = 0 };$/;"	e	enum:overlaps	file:
+list	../VirtualAddressSpace.cpp	/^void VM_area::list() {$/;"	f	class:VM_area	typeref:typename:void
+load_syscall_modules	../SystemCallTraceReplayer.cpp	/^void load_syscall_modules(std::vector<SystemCallTraceReplayModule *>$/;"	f	typeref:typename:void
+loop	../SystemCallTraceReplayer.cpp	/^int64_t loop = 0;$/;"	v	typeref:typename:int64_t
+main	../SystemCallTraceReplayer.cpp	/^int main(int argc, char *argv[]) {$/;"	f	typeref:typename:int
+mainThreadID	../SystemCallTraceReplayer.cpp	/^int64_t mainThreadID = 0;$/;"	v	typeref:typename:int64_t
+nThreads	../SystemCallTraceReplayer.cpp	/^tbb::atomic<uint64_t> nThreads = 1;$/;"	v	typeref:typename:tbb::atomic<uint64_t>
+nsec_to_sec	../SystemCallTraceReplayModule.cpp	/^double SystemCallTraceReplayModule::nsec_to_sec(uint64_t time) {$/;"	f	class:SystemCallTraceReplayModule	typeref:typename:double
+numberOfSyscalls	../SystemCallTraceReplayer.cpp	/^tbb::atomic<uint64_t> *numberOfSyscalls;$/;"	v	typeref:typename:tbb::atomic<uint64_t> *
+operator ()	../SystemCallTraceReplayer.cpp	/^  bool operator()(SystemCallTraceReplayModule *m1,$/;"	f	struct:CompareByUniqueID	typeref:typename:bool	file:
+overlaps	../VirtualAddressSpace.cpp	/^enum overlaps { left = 4, right = 2, enclosed = 8, enclosing = 1, invalid = 0 };$/;"	g	file:
+path_print	../syscalls/OpenSystemCallTraceReplayModule.cpp	/^static char path_print[256];$/;"	v	typeref:typename:char[256]	file:
+prepareRow	../SystemCallTraceReplayModule.cpp	/^void SystemCallTraceReplayModule::prepareRow() {$/;"	f	class:SystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/Accept4SystemCallTraceReplayModule.cpp	/^void Accept4SystemCallTraceReplayModule::prepareRow() {$/;"	f	class:Accept4SystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/AcceptSystemCallTraceReplayModule.cpp	/^void AcceptSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:AcceptSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/AccessSystemCallTraceReplayModule.cpp	/^void AccessSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:AccessSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/BasicStatSystemCallTraceReplayModule.cpp	/^void BasicStatSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:BasicStatSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/BasicStatSystemCallTraceReplayModule.cpp	/^void FStatSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:FStatSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/BasicStatSystemCallTraceReplayModule.cpp	/^void FStatatSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:FStatatSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/BasicStatSystemCallTraceReplayModule.cpp	/^void LStatSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:LStatSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/BasicStatSystemCallTraceReplayModule.cpp	/^void StatSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:StatSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/BasicStatfsSystemCallTraceReplayModule.cpp	/^void BasicStatfsSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:BasicStatfsSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/BasicStatfsSystemCallTraceReplayModule.cpp	/^void StatfsSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:StatfsSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/ChdirSystemCallTraceReplayModule.cpp	/^void ChdirSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:ChdirSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/ChmodSystemCallTraceReplayModule.cpp	/^void ChmodSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:ChmodSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/ChownSystemCallTraceReplayModule.cpp	/^void ChownSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:ChownSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/ChrootSystemCallTraceReplayModule.cpp	/^void ChrootSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:ChrootSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/CloneSystemCallTraceReplayModule.cpp	/^void CloneSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:CloneSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/CloseSystemCallTraceReplayModule.cpp	/^void CloseSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:CloseSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/Dup2SystemCallTraceReplayModule.cpp	/^void Dup2SystemCallTraceReplayModule::prepareRow() {$/;"	f	class:Dup2SystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/Dup3SystemCallTraceReplayModule.cpp	/^void Dup3SystemCallTraceReplayModule::prepareRow() {$/;"	f	class:Dup3SystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/DupSystemCallTraceReplayModule.cpp	/^void DupSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:DupSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/EPollCreateSystemCallTraceReplayModule.cpp	/^void EPollCreateSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:EPollCreateSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/ExecveSystemCallTraceReplayModule.cpp	/^void ExecveSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:ExecveSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/ExitSystemCallTraceReplayModule.cpp	/^void ExitSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:ExitSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/FChdirSystemCallTraceReplayModule.cpp	/^void FChdirSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:FChdirSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/FChmodSystemCallTraceReplayModule.cpp	/^void FChmodSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:FChmodSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/FTruncateSystemCallTraceReplayModule.cpp	/^void FTruncateSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:FTruncateSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/FallocateSystemCallTraceReplayModule.cpp	/^void FallocateSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:FallocateSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/FcntlSystemCallTraceReplayModule.cpp	/^void FcntlSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:FcntlSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/FdatasyncSystemCallTraceReplayModule.cpp	/^void FdatasyncSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:FdatasyncSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/FsyncSystemCallTraceReplayModule.cpp	/^void FsyncSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:FsyncSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/GetdentsSystemCallTraceReplayModule.cpp	/^void GetdentsSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:GetdentsSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/IoctlSystemCallTraceReplayModule.cpp	/^void IoctlSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:IoctlSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/LSeekSystemCallTraceReplayModule.cpp	/^void LSeekSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:LSeekSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/LinkSystemCallTraceReplayModule.cpp	/^void LinkSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:LinkSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/MkdirSystemCallTraceReplayModule.cpp	/^void MkdirSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:MkdirSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/MmapSystemCallTraceReplayModule.cpp	/^void MmapSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:MmapSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/MunmapSystemCallTraceReplayModule.cpp	/^void MunmapSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:MunmapSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/OpenSystemCallTraceReplayModule.cpp	/^void OpenSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:OpenSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/PipeSystemCallTraceReplayModule.cpp	/^void PipeSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:PipeSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/ReadSystemCallTraceReplayModule.cpp	/^void MmapPReadSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:MmapPReadSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/ReadSystemCallTraceReplayModule.cpp	/^void PReadSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:PReadSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/ReadSystemCallTraceReplayModule.cpp	/^void ReadSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:ReadSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/ReadaheadSystemCallTraceReplayModule.cpp	/^void ReadaheadSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:ReadaheadSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/ReadlinkSystemCallTraceReplayModule.cpp	/^void ReadlinkSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:ReadlinkSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/RenameSystemCallTraceReplayModule.cpp	/^void RenameSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:RenameSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/RmdirSystemCallTraceReplayModule.cpp	/^void RmdirSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:RmdirSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/SocketPairSystemCallTraceReplayModule.cpp	/^void SocketPairSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:SocketPairSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/SocketSystemCallTraceReplayModule.cpp	/^void SocketSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:SocketSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/UmaskSystemCallTraceReplayModule.cpp	/^void UmaskSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:UmaskSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/UnlinkSystemCallTraceReplayModule.cpp	/^void UnlinkSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:UnlinkSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/UtimeSystemCallTraceReplayModule.cpp	/^void UtimeSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:UtimeSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/VForkSystemCallTraceReplayModule.cpp	/^void VForkSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:VForkSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/WriteSystemCallTraceReplayModule.cpp	/^void PWriteSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:PWriteSystemCallTraceReplayModule	typeref:typename:void
+prepareRow	../syscalls/WriteSystemCallTraceReplayModule.cpp	/^void WriteSystemCallTraceReplayModule::prepareRow() {$/;"	f	class:WriteSystemCallTraceReplayModule	typeref:typename:void
+prepare_analysis	../SystemCallTraceReplayer.cpp	/^void prepare_analysis() {$/;"	f	typeref:typename:void
+prepare_replay	../SystemCallTraceReplayer.cpp	/^void prepare_replay() {$/;"	f	typeref:typename:void
+printGlobalMetrics	../analysis/DurationAnalysisModule.cpp	/^std::ostream& DurationAnalysisModule::printGlobalMetrics(std::ostream& out) const {$/;"	f	class:DurationAnalysisModule	typeref:typename:std::ostream &
+printGlobalMetrics	../analysis/SyscallCountAnalysisModule.cpp	/^std::ostream& SyscallCountAnalysisModule::printGlobalMetrics(std::ostream& out) const {$/;"	f	class:SyscallCountAnalysisModule	typeref:typename:std::ostream &
+printMetrics	../analysis/CorrelationAnalysisModule.cpp	/^std::ostream& CorrelationAnalysisModule::printMetrics(std::ostream& out) const {$/;"	f	class:CorrelationAnalysisModule	typeref:typename:std::ostream &
+printMetrics	../analysis/DurationAnalysisModule.cpp	/^std::ostream& DurationAnalysisModule::printMetrics(std::ostream& out) const {$/;"	f	class:DurationAnalysisModule	typeref:typename:std::ostream &
+printMetrics	../analysis/NumericalAnalysisModule.cpp	/^std::ostream& NumericalAnalysisModule::printMetrics(std::ostream& out) const {$/;"	f	class:NumericalAnalysisModule	typeref:typename:std::ostream &
+printMetrics	../analysis/SyscallCountAnalysisModule.cpp	/^std::ostream& SyscallCountAnalysisModule::printMetrics(std::ostream& out) const {$/;"	f	class:SyscallCountAnalysisModule	typeref:typename:std::ostream &
+printPerSyscallMetrics	../analysis/DurationAnalysisModule.cpp	/^std::ostream& DurationAnalysisModule::printPerSyscallMetrics(std::ostream& out) const {$/;"	f	class:DurationAnalysisModule	typeref:typename:std::ostream &
+printSyscallMetrics	../analysis/NumericalAnalysisModule.cpp	/^std::ostream& NumericalAnalysisModule::printSyscallMetrics($/;"	f	class:NumericalAnalysisModule	typeref:typename:std::ostream &
+print_common_fields	../SystemCallTraceReplayModule.cpp	/^void SystemCallTraceReplayModule::print_common_fields() {$/;"	f	class:SystemCallTraceReplayModule	typeref:typename:void
+print_fd_manager	../ReplayerResourcesManager.cpp	/^void ReplayerResourcesManager::print_fd_manager() {$/;"	f	class:ReplayerResourcesManager	typeref:typename:void
+print_logs	../SystemCallTraceReplayLogger.cpp	/^void SystemCallTraceReplayLogger::print_logs(std::stringstream &&log_stream) {$/;"	f	class:SystemCallTraceReplayLogger	typeref:typename:void
+print_mode_value	../syscalls/BasicStatSystemCallTraceReplayModule.cpp	/^int BasicStatSystemCallTraceReplayModule::print_mode_value(u_int st_mode) {$/;"	f	class:BasicStatSystemCallTraceReplayModule	typeref:typename:int
+print_specific_fields	../syscalls/Accept4SystemCallTraceReplayModule.cpp	/^void Accept4SystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:Accept4SystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/AcceptSystemCallTraceReplayModule.cpp	/^void AcceptSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:AcceptSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/AccessSystemCallTraceReplayModule.cpp	/^void AccessSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:AccessSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/AccessSystemCallTraceReplayModule.cpp	/^void FAccessatSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:FAccessatSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/BasicRLimitSystemCallTraceReplayModule.cpp	/^void BasicRLimitSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:BasicRLimitSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/BasicStatSystemCallTraceReplayModule.cpp	/^void BasicStatSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:BasicStatSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/BasicStatSystemCallTraceReplayModule.cpp	/^void FStatSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:FStatSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/BasicStatSystemCallTraceReplayModule.cpp	/^void FStatatSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:FStatatSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/BasicStatSystemCallTraceReplayModule.cpp	/^void LStatSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:LStatSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/BasicStatSystemCallTraceReplayModule.cpp	/^void StatSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:StatSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/BasicStatfsSystemCallTraceReplayModule.cpp	/^void BasicStatfsSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:BasicStatfsSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/BasicStatfsSystemCallTraceReplayModule.cpp	/^void FStatfsSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:FStatfsSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/BasicStatfsSystemCallTraceReplayModule.cpp	/^void StatfsSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:StatfsSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/ChdirSystemCallTraceReplayModule.cpp	/^void ChdirSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:ChdirSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/ChmodSystemCallTraceReplayModule.cpp	/^void ChmodSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:ChmodSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/ChownSystemCallTraceReplayModule.cpp	/^void ChownSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:ChownSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/ChrootSystemCallTraceReplayModule.cpp	/^void ChrootSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:ChrootSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/CloneSystemCallTraceReplayModule.cpp	/^void CloneSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:CloneSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/CloseSystemCallTraceReplayModule.cpp	/^void CloseSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:CloseSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/CreatSystemCallTraceReplayModule.cpp	/^void CreatSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:CreatSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/Dup2SystemCallTraceReplayModule.cpp	/^void Dup2SystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:Dup2SystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/Dup3SystemCallTraceReplayModule.cpp	/^void Dup3SystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:Dup3SystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/DupSystemCallTraceReplayModule.cpp	/^void DupSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:DupSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/EPollCreateSystemCallTraceReplayModule.cpp	/^void EPollCreateSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:EPollCreateSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/ExecveSystemCallTraceReplayModule.cpp	/^void ExecveSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:ExecveSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/ExitSystemCallTraceReplayModule.cpp	/^void ExitSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:ExitSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/FChdirSystemCallTraceReplayModule.cpp	/^void FChdirSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:FChdirSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/FChmodSystemCallTraceReplayModule.cpp	/^void FChmodSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:FChmodSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/FChmodSystemCallTraceReplayModule.cpp	/^void FChmodatSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:FChmodatSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/FTruncateSystemCallTraceReplayModule.cpp	/^void FTruncateSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:FTruncateSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/FallocateSystemCallTraceReplayModule.cpp	/^void FallocateSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:FallocateSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/FcntlSystemCallTraceReplayModule.cpp	/^void FcntlSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:FcntlSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/FdatasyncSystemCallTraceReplayModule.cpp	/^void FdatasyncSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:FdatasyncSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/FsyncSystemCallTraceReplayModule.cpp	/^void FsyncSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:FsyncSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/GetdentsSystemCallTraceReplayModule.cpp	/^void GetdentsSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:GetdentsSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/IoctlSystemCallTraceReplayModule.cpp	/^void IoctlSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:IoctlSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/LSeekSystemCallTraceReplayModule.cpp	/^void LSeekSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:LSeekSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/LinkSystemCallTraceReplayModule.cpp	/^void LinkSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:LinkSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/LinkSystemCallTraceReplayModule.cpp	/^void LinkatSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:LinkatSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/MkdirSystemCallTraceReplayModule.cpp	/^void MkdirSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:MkdirSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/MkdirSystemCallTraceReplayModule.cpp	/^void MkdiratSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:MkdiratSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/MknodSystemCallTraceReplayModule.cpp	/^void MknodSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:MknodSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/MmapSystemCallTraceReplayModule.cpp	/^void MmapSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:MmapSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/MunmapSystemCallTraceReplayModule.cpp	/^void MunmapSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:MunmapSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/OpenSystemCallTraceReplayModule.cpp	/^void OpenSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:OpenSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/OpenSystemCallTraceReplayModule.cpp	/^void OpenatSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:OpenatSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/PipeSystemCallTraceReplayModule.cpp	/^void PipeSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:PipeSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/ReadSystemCallTraceReplayModule.cpp	/^void MmapPReadSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:MmapPReadSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/ReadSystemCallTraceReplayModule.cpp	/^void PReadSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:PReadSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/ReadSystemCallTraceReplayModule.cpp	/^void ReadSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:ReadSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/ReadaheadSystemCallTraceReplayModule.cpp	/^void ReadaheadSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:ReadaheadSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/ReadlinkSystemCallTraceReplayModule.cpp	/^void ReadlinkSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:ReadlinkSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/ReadvSystemCallTraceReplayModule.cpp	/^void ReadvSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:ReadvSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/RenameSystemCallTraceReplayModule.cpp	/^void RenameSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:RenameSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/RmdirSystemCallTraceReplayModule.cpp	/^void RmdirSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:RmdirSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/SetxattrSystemCallTraceReplayModule.cpp	/^void FSetxattrSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:FSetxattrSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/SetxattrSystemCallTraceReplayModule.cpp	/^void LSetxattrSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:LSetxattrSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/SetxattrSystemCallTraceReplayModule.cpp	/^void SetxattrSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:SetxattrSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/SocketPairSystemCallTraceReplayModule.cpp	/^void SocketPairSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:SocketPairSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/SocketSystemCallTraceReplayModule.cpp	/^void SocketSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:SocketSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/SymlinkSystemCallTraceReplayModule.cpp	/^void SymlinkSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:SymlinkSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/TruncateSystemCallTraceReplayModule.cpp	/^void TruncateSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:TruncateSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/UmaskSystemCallTraceReplayModule.cpp	/^void UmaskSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:UmaskSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/UnlinkSystemCallTraceReplayModule.cpp	/^void UnlinkSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:UnlinkSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/UnlinkSystemCallTraceReplayModule.cpp	/^void UnlinkatSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:UnlinkatSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/UtimeSystemCallTraceReplayModule.cpp	/^void UtimeSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:UtimeSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/UtimeSystemCallTraceReplayModule.cpp	/^void UtimensatSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:UtimensatSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/VForkSystemCallTraceReplayModule.cpp	/^void VForkSystemCallTraceReplayModule::print_specific_fields() {}$/;"	f	class:VForkSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/WriteSystemCallTraceReplayModule.cpp	/^void PWriteSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:PWriteSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/WriteSystemCallTraceReplayModule.cpp	/^void WriteSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:WriteSystemCallTraceReplayModule	typeref:typename:void
+print_specific_fields	../syscalls/WritevSystemCallTraceReplayModule.cpp	/^void WritevSystemCallTraceReplayModule::print_specific_fields() {$/;"	f	class:WritevSystemCallTraceReplayModule	typeref:typename:void
+print_sys_call_fields	../SystemCallTraceReplayModule.cpp	/^void SystemCallTraceReplayModule::print_sys_call_fields() {$/;"	f	class:SystemCallTraceReplayModule	typeref:typename:void
+print_sys_call_fields	../syscalls/ExecveSystemCallTraceReplayModule.cpp	/^void ExecveSystemCallTraceReplayModule::print_sys_call_fields() {$/;"	f	class:ExecveSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/Accept4SystemCallTraceReplayModule.cpp	/^void Accept4SystemCallTraceReplayModule::processRow() {$/;"	f	class:Accept4SystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/AcceptSystemCallTraceReplayModule.cpp	/^void AcceptSystemCallTraceReplayModule::processRow() {$/;"	f	class:AcceptSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/AccessSystemCallTraceReplayModule.cpp	/^void AccessSystemCallTraceReplayModule::processRow() {$/;"	f	class:AccessSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/AccessSystemCallTraceReplayModule.cpp	/^void FAccessatSystemCallTraceReplayModule::processRow() {$/;"	f	class:FAccessatSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/BasicStatSystemCallTraceReplayModule.cpp	/^void FStatSystemCallTraceReplayModule::processRow() {$/;"	f	class:FStatSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/BasicStatSystemCallTraceReplayModule.cpp	/^void FStatatSystemCallTraceReplayModule::processRow() {$/;"	f	class:FStatatSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/BasicStatSystemCallTraceReplayModule.cpp	/^void LStatSystemCallTraceReplayModule::processRow() {$/;"	f	class:LStatSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/BasicStatSystemCallTraceReplayModule.cpp	/^void StatSystemCallTraceReplayModule::processRow() {$/;"	f	class:StatSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/BasicStatfsSystemCallTraceReplayModule.cpp	/^void FStatfsSystemCallTraceReplayModule::processRow() {$/;"	f	class:FStatfsSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/BasicStatfsSystemCallTraceReplayModule.cpp	/^void StatfsSystemCallTraceReplayModule::processRow() {$/;"	f	class:StatfsSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/ChdirSystemCallTraceReplayModule.cpp	/^void ChdirSystemCallTraceReplayModule::processRow() {$/;"	f	class:ChdirSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/ChmodSystemCallTraceReplayModule.cpp	/^void ChmodSystemCallTraceReplayModule::processRow() {$/;"	f	class:ChmodSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/ChownSystemCallTraceReplayModule.cpp	/^void ChownSystemCallTraceReplayModule::processRow() {$/;"	f	class:ChownSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/ChrootSystemCallTraceReplayModule.cpp	/^void ChrootSystemCallTraceReplayModule::processRow() {$/;"	f	class:ChrootSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/CloneSystemCallTraceReplayModule.cpp	/^void CloneSystemCallTraceReplayModule::processRow() {$/;"	f	class:CloneSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/CloseSystemCallTraceReplayModule.cpp	/^void CloseSystemCallTraceReplayModule::processRow() {$/;"	f	class:CloseSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/CreatSystemCallTraceReplayModule.cpp	/^void CreatSystemCallTraceReplayModule::processRow() {$/;"	f	class:CreatSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/Dup2SystemCallTraceReplayModule.cpp	/^void Dup2SystemCallTraceReplayModule::processRow() {$/;"	f	class:Dup2SystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/Dup3SystemCallTraceReplayModule.cpp	/^void Dup3SystemCallTraceReplayModule::processRow() {$/;"	f	class:Dup3SystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/DupSystemCallTraceReplayModule.cpp	/^void DupSystemCallTraceReplayModule::processRow() {$/;"	f	class:DupSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/EPollCreateSystemCallTraceReplayModule.cpp	/^void EPollCreateSystemCallTraceReplayModule::processRow() {$/;"	f	class:EPollCreateSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/ExecveSystemCallTraceReplayModule.cpp	/^void ExecveSystemCallTraceReplayModule::processRow() {$/;"	f	class:ExecveSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/ExitSystemCallTraceReplayModule.cpp	/^void ExitSystemCallTraceReplayModule::processRow() {$/;"	f	class:ExitSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/FChdirSystemCallTraceReplayModule.cpp	/^void FChdirSystemCallTraceReplayModule::processRow() {$/;"	f	class:FChdirSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/FChmodSystemCallTraceReplayModule.cpp	/^void FChmodSystemCallTraceReplayModule::processRow() {$/;"	f	class:FChmodSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/FChmodSystemCallTraceReplayModule.cpp	/^void FChmodatSystemCallTraceReplayModule::processRow() {$/;"	f	class:FChmodatSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/FTruncateSystemCallTraceReplayModule.cpp	/^void FTruncateSystemCallTraceReplayModule::processRow() {$/;"	f	class:FTruncateSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/FallocateSystemCallTraceReplayModule.cpp	/^void FallocateSystemCallTraceReplayModule::processRow() {$/;"	f	class:FallocateSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/FcntlSystemCallTraceReplayModule.cpp	/^void FcntlSystemCallTraceReplayModule::processRow() {$/;"	f	class:FcntlSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/FdatasyncSystemCallTraceReplayModule.cpp	/^void FdatasyncSystemCallTraceReplayModule::processRow() {$/;"	f	class:FdatasyncSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/FsyncSystemCallTraceReplayModule.cpp	/^void FsyncSystemCallTraceReplayModule::processRow() {$/;"	f	class:FsyncSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/GetRLimitSystemCallTraceReplayModule.cpp	/^void GetRLimitSystemCallTraceReplayModule::processRow() {$/;"	f	class:GetRLimitSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/GetdentsSystemCallTraceReplayModule.cpp	/^void GetdentsSystemCallTraceReplayModule::processRow() {$/;"	f	class:GetdentsSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/IoctlSystemCallTraceReplayModule.cpp	/^void IoctlSystemCallTraceReplayModule::processRow() {$/;"	f	class:IoctlSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/LSeekSystemCallTraceReplayModule.cpp	/^void LSeekSystemCallTraceReplayModule::processRow() {$/;"	f	class:LSeekSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/LinkSystemCallTraceReplayModule.cpp	/^void LinkSystemCallTraceReplayModule::processRow() {$/;"	f	class:LinkSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/LinkSystemCallTraceReplayModule.cpp	/^void LinkatSystemCallTraceReplayModule::processRow() {$/;"	f	class:LinkatSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/MkdirSystemCallTraceReplayModule.cpp	/^void MkdirSystemCallTraceReplayModule::processRow() {$/;"	f	class:MkdirSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/MkdirSystemCallTraceReplayModule.cpp	/^void MkdiratSystemCallTraceReplayModule::processRow() {$/;"	f	class:MkdiratSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/MknodSystemCallTraceReplayModule.cpp	/^void MknodSystemCallTraceReplayModule::processRow() {$/;"	f	class:MknodSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/MmapSystemCallTraceReplayModule.cpp	/^void MmapSystemCallTraceReplayModule::processRow() {$/;"	f	class:MmapSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/MunmapSystemCallTraceReplayModule.cpp	/^void MunmapSystemCallTraceReplayModule::processRow() {$/;"	f	class:MunmapSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/OpenSystemCallTraceReplayModule.cpp	/^void OpenSystemCallTraceReplayModule::processRow() {$/;"	f	class:OpenSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/OpenSystemCallTraceReplayModule.cpp	/^void OpenatSystemCallTraceReplayModule::processRow() {$/;"	f	class:OpenatSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/PipeSystemCallTraceReplayModule.cpp	/^void PipeSystemCallTraceReplayModule::processRow() {$/;"	f	class:PipeSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/ReadSystemCallTraceReplayModule.cpp	/^void MmapPReadSystemCallTraceReplayModule::processRow() {$/;"	f	class:MmapPReadSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/ReadSystemCallTraceReplayModule.cpp	/^void PReadSystemCallTraceReplayModule::processRow() {$/;"	f	class:PReadSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/ReadSystemCallTraceReplayModule.cpp	/^void ReadSystemCallTraceReplayModule::processRow() {$/;"	f	class:ReadSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/ReadaheadSystemCallTraceReplayModule.cpp	/^void ReadaheadSystemCallTraceReplayModule::processRow() {$/;"	f	class:ReadaheadSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/ReadlinkSystemCallTraceReplayModule.cpp	/^void ReadlinkSystemCallTraceReplayModule::processRow() {$/;"	f	class:ReadlinkSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/ReadvSystemCallTraceReplayModule.cpp	/^void ReadvSystemCallTraceReplayModule::processRow() {$/;"	f	class:ReadvSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/RenameSystemCallTraceReplayModule.cpp	/^void RenameSystemCallTraceReplayModule::processRow() {$/;"	f	class:RenameSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/RmdirSystemCallTraceReplayModule.cpp	/^void RmdirSystemCallTraceReplayModule::processRow() {$/;"	f	class:RmdirSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/SetRLimitSystemCallTraceReplayModule.cpp	/^void SetRLimitSystemCallTraceReplayModule::processRow() {$/;"	f	class:SetRLimitSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/SetxattrSystemCallTraceReplayModule.cpp	/^void FSetxattrSystemCallTraceReplayModule::processRow() {$/;"	f	class:FSetxattrSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/SetxattrSystemCallTraceReplayModule.cpp	/^void LSetxattrSystemCallTraceReplayModule::processRow() {$/;"	f	class:LSetxattrSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/SetxattrSystemCallTraceReplayModule.cpp	/^void SetxattrSystemCallTraceReplayModule::processRow() {$/;"	f	class:SetxattrSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/SocketPairSystemCallTraceReplayModule.cpp	/^void SocketPairSystemCallTraceReplayModule::processRow() {$/;"	f	class:SocketPairSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/SocketSystemCallTraceReplayModule.cpp	/^void SocketSystemCallTraceReplayModule::processRow() {$/;"	f	class:SocketSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/SymlinkSystemCallTraceReplayModule.cpp	/^void SymlinkSystemCallTraceReplayModule::processRow() {$/;"	f	class:SymlinkSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/TruncateSystemCallTraceReplayModule.cpp	/^void TruncateSystemCallTraceReplayModule::processRow() {$/;"	f	class:TruncateSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/UmaskSystemCallTraceReplayModule.cpp	/^void UmaskSystemCallTraceReplayModule::processRow() {$/;"	f	class:UmaskSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/UnlinkSystemCallTraceReplayModule.cpp	/^void UnlinkSystemCallTraceReplayModule::processRow() {$/;"	f	class:UnlinkSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/UnlinkSystemCallTraceReplayModule.cpp	/^void UnlinkatSystemCallTraceReplayModule::processRow() {$/;"	f	class:UnlinkatSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/UtimeSystemCallTraceReplayModule.cpp	/^void UtimeSystemCallTraceReplayModule::processRow() {$/;"	f	class:UtimeSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/UtimeSystemCallTraceReplayModule.cpp	/^void UtimensatSystemCallTraceReplayModule::processRow() {$/;"	f	class:UtimensatSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/UtimeSystemCallTraceReplayModule.cpp	/^void UtimesSystemCallTraceReplayModule::processRow() {$/;"	f	class:UtimesSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/VForkSystemCallTraceReplayModule.cpp	/^void VForkSystemCallTraceReplayModule::processRow() {$/;"	f	class:VForkSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/WriteSystemCallTraceReplayModule.cpp	/^void PWriteSystemCallTraceReplayModule::processRow() {$/;"	f	class:PWriteSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/WriteSystemCallTraceReplayModule.cpp	/^void WriteSystemCallTraceReplayModule::processRow() {$/;"	f	class:WriteSystemCallTraceReplayModule	typeref:typename:void
+processRow	../syscalls/WritevSystemCallTraceReplayModule.cpp	/^void WritevSystemCallTraceReplayModule::processRow() {$/;"	f	class:WritevSystemCallTraceReplayModule	typeref:typename:void
+process_options	../SystemCallTraceReplayer.cpp	/^void process_options(int argc, char *argv[], bool &verbose,$/;"	f	typeref:typename:void
+random_fill_buffer	../SystemCallTraceReplayModule.cpp	/^char *SystemCallTraceReplayModule::random_fill_buffer(char *buffer,$/;"	f	class:SystemCallTraceReplayModule	typeref:typename:char *
+readerThread	../SystemCallTraceReplayer.cpp	/^void readerThread() {$/;"	f	typeref:typename:void
+remove_fd	../ReplayerResourcesManager.cpp	/^int ReplayerResourcesManager::remove_fd(pid_t pid, int traced_fd) {$/;"	f	class:ReplayerResourcesManager	typeref:typename:int
+remove_fd_entry	../ReplayerResourcesManager.cpp	/^int FileDescriptorTableEntry::remove_fd_entry(int traced_fd) {$/;"	f	class:FileDescriptorTableEntry	typeref:typename:int
+remove_fd_table	../ReplayerResourcesManager.cpp	/^std::unordered_set<int> ReplayerResourcesManager::remove_fd_table(pid_t pid) {$/;"	f	class:ReplayerResourcesManager	typeref:typename:std::unordered_set<int>
+remove_umask	../ReplayerResourcesManager.cpp	/^void ReplayerResourcesManager::remove_umask(pid_t pid) {$/;"	f	class:ReplayerResourcesManager	typeref:typename:void
+replayerIdx	../SystemCallTraceReplayer.cpp	/^int64_t replayerIdx = 0;$/;"	v	typeref:typename:int64_t
+return_value	../SystemCallTraceReplayModule.cpp	/^int64_t SystemCallTraceReplayModule::return_value() const { return returnVal; }$/;"	f	class:SystemCallTraceReplayModule	typeref:typename:int64_t
+right	../VirtualAddressSpace.cpp	/^enum overlaps { left = 4, right = 2, enclosed = 8, enclosing = 1, invalid = 0 };$/;"	e	enum:overlaps	file:
+rollingAverage	../analysis/DurationAnalysisModule.cpp	/^uint64_t DurationAnalysisModule::rollingAverage(uint64_t value, uint64_t old_average, uint64_t r/;"	f	class:DurationAnalysisModule	typeref:typename:uint64_t
+setRunning	../SystemCallTraceReplayer.cpp	/^std::function<void(int64_t, SystemCallTraceReplayModule *)> setRunning = []($/;"	v	typeref:typename:std::function<void (int64_t,SystemCallTraceReplayModule *)>
+set_fd	../ReplayerResourcesManager.cpp	/^void FileDescriptorEntry::set_fd(int fd) { fd_ = fd; }$/;"	f	class:FileDescriptorEntry	typeref:typename:void
+set_flags	../ReplayerResourcesManager.cpp	/^void FileDescriptorEntry::set_flags(int flags) { flags_ = flags; }$/;"	f	class:FileDescriptorEntry	typeref:typename:void
+set_flags	../ReplayerResourcesManager.cpp	/^void FileDescriptorTableEntry::set_flags(int traced_fd, int flags) {$/;"	f	class:FileDescriptorTableEntry	typeref:typename:void
+set_flags	../ReplayerResourcesManager.cpp	/^void ReplayerResourcesManager::set_flags(pid_t pid, int traced_fd, int flags) {$/;"	f	class:ReplayerResourcesManager	typeref:typename:void
+set_umask	../ReplayerResourcesManager.cpp	/^void ReplayerResourcesManager::set_umask(pid_t pid, mode_t mode) {$/;"	f	class:ReplayerResourcesManager	typeref:typename:void
+set_umask	../ReplayerResourcesManager.cpp	/^void UmaskEntry::set_umask(mode_t m) { umask_ = m; }$/;"	f	class:UmaskEntry	typeref:typename:void
+sys_call_name	../SystemCallTraceReplayModule.cpp	/^std::string SystemCallTraceReplayModule::sys_call_name() const {$/;"	f	class:SystemCallTraceReplayModule	typeref:typename:std::string
+syscallMapLast	../SystemCallTraceReplayer.cpp	/^std::unordered_map<std::string, SystemCallTraceReplayModule *> syscallMapLast;$/;"	v	typeref:typename:std::unordered_map<std::string,SystemCallTraceReplayModule * >
+syscalls	../syscalls/CMakeLists.txt	/^add_library(syscalls$/;"	t
+system-call-replayer	../CMakeLists.txt	/^add_executable(system-call-replayer$/;"	t
+threads	../SystemCallTraceReplayer.cpp	/^tbb::concurrent_vector<std::thread> threads;$/;"	v	typeref:typename:tbb::concurrent_vector<std::thread>
+time_called	../SystemCallTraceReplayModule.cpp	/^uint64_t SystemCallTraceReplayModule::time_called() const {$/;"	f	class:SystemCallTraceReplayModule	typeref:typename:uint64_t
+time_recorded	../SystemCallTraceReplayModule.cpp	/^uint64_t SystemCallTraceReplayModule::time_recorded() const {$/;"	f	class:SystemCallTraceReplayModule	typeref:typename:uint64_t
+time_returned	../SystemCallTraceReplayModule.cpp	/^uint64_t SystemCallTraceReplayModule::time_returned() const {$/;"	f	class:SystemCallTraceReplayModule	typeref:typename:uint64_t
+to_string	../ReplayerResourcesManager.cpp	/^std::string FileDescriptorEntry::to_string() {$/;"	f	class:FileDescriptorEntry	typeref:typename:std::string
+to_string	../ReplayerResourcesManager.cpp	/^std::string FileDescriptorTableEntry::to_string() {$/;"	f	class:FileDescriptorTableEntry	typeref:typename:std::string
+u_long	../syscalls/BasicStatfsSystemCallTraceReplayModule.cpp	/^typedef unsigned long u_long;$/;"	t	typeref:typename:unsigned long	file:
+unique_id	../SystemCallTraceReplayModule.cpp	/^int64_t SystemCallTraceReplayModule::unique_id() const { return uniqueIdVal; }$/;"	f	class:SystemCallTraceReplayModule	typeref:typename:int64_t
+update_fd	../ReplayerResourcesManager.cpp	/^void FileDescriptorTableEntry::update_fd(int traced_fd, int replayed_fd) {$/;"	f	class:FileDescriptorTableEntry	typeref:typename:void
+update_fd	../ReplayerResourcesManager.cpp	/^void ReplayerResourcesManager::update_fd(pid_t pid, int traced_fd,$/;"	f	class:ReplayerResourcesManager	typeref:typename:void
+validate_consistency	../ReplayerResourcesManager.cpp	/^void ReplayerResourcesManager::validate_consistency() {$/;"	f	class:ReplayerResourcesManager	typeref:typename:void
+verbose_mode	../SystemCallTraceReplayModule.cpp	/^bool SystemCallTraceReplayModule::verbose_mode() const { return verbose_; }$/;"	f	class:SystemCallTraceReplayModule	typeref:typename:bool
+verifyResult	../syscalls/BasicStatSystemCallTraceReplayModule.cpp	/^void BasicStatSystemCallTraceReplayModule::verifyResult($/;"	f	class:BasicStatSystemCallTraceReplayModule	typeref:typename:void
+verifyResult	../syscalls/BasicStatfsSystemCallTraceReplayModule.cpp	/^void BasicStatfsSystemCallTraceReplayModule::verifyResult($/;"	f	class:BasicStatfsSystemCallTraceReplayModule	typeref:typename:void
+verifyResult	../syscalls/GetRLimitSystemCallTraceReplayModule.cpp	/^void GetRLimitSystemCallTraceReplayModule::verifyResult(struct rlimit *rlim) {$/;"	f	class:GetRLimitSystemCallTraceReplayModule	typeref:typename:void
+verifyRow	../syscalls/ReadSystemCallTraceReplayModule.cpp	/^void ReadSystemCallTraceReplayModule::verifyRow() {$/;"	f	class:ReadSystemCallTraceReplayModule	typeref:typename:void
+warn_mode	../SystemCallTraceReplayModule.cpp	/^bool SystemCallTraceReplayModule::warn_mode() const {$/;"	f	class:SystemCallTraceReplayModule	typeref:typename:bool
+~CorrelationAnalysisModule	../analysis/CorrelationAnalysisModule.cpp	/^CorrelationAnalysisModule::~CorrelationAnalysisModule() {$/;"	f	class:CorrelationAnalysisModule
+~FileDescriptorTableEntry	../ReplayerResourcesManager.cpp	/^FileDescriptorTableEntry::~FileDescriptorTableEntry() {$/;"	f	class:FileDescriptorTableEntry
+~SystemCallTraceReplayLogger	../SystemCallTraceReplayLogger.cpp	/^SystemCallTraceReplayLogger::~SystemCallTraceReplayLogger() {$/;"	f	class:SystemCallTraceReplayLogger

@@ -37,7 +37,7 @@
 #include <sys/types.h>
 #include <iostream>
 
-// #define WEBSERVER_TESTING
+#define WEBSERVER_TESTING
 
 ReplayerResourcesManager::ReplayerResourcesManager() {}
 
