@@ -7,3 +7,5 @@ autom4te.cache
 build/
 reanimator_replayer_release/
 .vscode/
+src/tags
+.vimrc
