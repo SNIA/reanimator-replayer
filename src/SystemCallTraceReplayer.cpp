@@ -127,6 +127,8 @@ int64_t replayerIdx = 0;
 tbb::atomic<uint64_t> nThreads = 1;
 tbb::atomic<uint64_t> lastExecutedSyscallID = 1;
 
+std::mutex debug_mutex;
+
 RunningSyscallTable currentExecutions;
 std::function<void(int64_t, SystemCallTraceReplayModule *)> setRunning = [](
     int64_t tid, SystemCallTraceReplayModule *syscall) {
@@ -758,7 +760,7 @@ void prepare_analysis() {
   // sufficiently complex analysis, passing a config file might be the best
   // solution.
   //analysisModules.push_back(new DurationAnalysisModule);
-  analysisModules.push_back(new SyscallCountAnalysisModule);
+  //analysisModules.push_back(new SyscallCountAnalysisModule);
   //analysisModules.push_back(new NumericalAnalysisModule);
   analysisModules.push_back(new CorrelationAnalysisModule);
 }
@@ -770,8 +772,9 @@ inline void batch_syscall_modules(SystemCallTraceReplayModule *module = nullptr,
 
   SystemCallTraceReplayModule *current = nullptr;
 
-  if (finishedModules[module->getReplayerIndex()] ||
-      numberOfSyscalls[module->getReplayerIndex()] > batch_size * 2) {
+  //if (finishedModules[module->getReplayerIndex()] ||
+  //    numberOfSyscalls[module->getReplayerIndex()] > batch_size * 2) {
+  if (finishedModules[module->getReplayerIndex()]) {
     return;
   }
 
@@ -799,10 +802,22 @@ inline void batch_syscall_modules(SystemCallTraceReplayModule *module = nullptr,
         PROFILE_END(5, 6, fileReading_Batch_move)
 
         PROFILE_START(3)
+        //std::cout << "pushed " << ptr->sys_call_name() << " for thread " << ptr->executing_pid() << std::endl;
         executionHeaps[ptr->executing_pid()].push(ptr);
         PROFILE_END(3, 4, fileReading_Batch_push)
 
         numberOfSyscalls[ptr->getReplayerIndex()]++;
+        //int total = 0;
+        //for ( auto it = executionHeaps.begin(); it != executionHeaps.end(); ++it )
+        //    total += it->second.size();
+        //int num_total = 0;
+        //for (int i = 0; i < replayerIdx; i++) {
+        //    if (numberOfSyscalls[i] < LLONG_MAX)
+        //        num_total += numberOfSyscalls[i];
+        //}
+        //debug_mutex.lock();
+        //std::cout << "total syscalls in execHeaps " << total << " numberOfSyscalls " << num_total << std::endl;
+        //debug_mutex.unlock();
       }
 
     } else {
@@ -828,6 +843,12 @@ void batch_for_all_syscalls(int batch_size = 50) {
   isFirstBatch = false;
 }
 
+//auto checkModulesFinished = []() -> bool {
+//  for (int i = 0; i < replayerIdx; ++i) {
+//    if (!finishedModules[i]) return false;
+//  }
+//  return true;
+//};
 auto checkModulesFinished = []() -> bool {
   bool isAllFinished = true;
   for (int i = 0; i < replayerIdx; ++i) {
@@ -876,12 +897,19 @@ void readerThread() {
     PROFILE_START(3)
     // TODO-NEWPEOPLE: Ask Umit what this magic number 100 means. If possible,
     // move it to a named constant.
-    while (getMinSyscall() > (100 * nThreads)) {
-      SystemCallTraceReplayModule *execute_replayer = nullptr;
-      while (allocationQueue.try_pop(execute_replayer)) {
-        delete execute_replayer;
-      }
-    }
+    //while (getMinSyscall() > (100 * nThreads)) {
+    //  debug_mutex.lock();
+    //  std::cout << "minsyscall " << getMinSyscall() << " nthreads " << nThreads << std::endl;
+    //  debug_mutex.unlock();
+    //  SystemCallTraceReplayModule *execute_replayer = nullptr;
+    //  while (allocationQueue.try_pop(execute_replayer)) {
+    //    delete execute_replayer;
+    //  }
+    //  std::this_thread::yield();
+    //}
+    //debug_mutex.lock();
+    //std::cout << "reader looping\n";
+    //debug_mutex.unlock();
     batch_for_all_syscalls(150 * nThreads);
     PROFILE_END(3, 4, fileReading)
   }
@@ -894,8 +922,16 @@ void executionThread(int64_t threadID) {
 
   PROFILE_START(10)
 
-  while (executionHeaps[threadID].try_pop(execute_replayer)) {
+  //while (executionHeaps[threadID].try_pop(execute_replayer)) {
+  while (!checkModulesFinished() || executionHeaps[threadID].size()) {
+    if (!executionHeaps[threadID].try_pop(execute_replayer)) {
+        std::this_thread::yield();
+        continue;
+    }
     PROFILE_END(10, 11, gettingRecord)
+    //debug_mutex.lock();
+    //std::cout << "popped syscall " << execute_replayer->sys_call_name() << " from thread " << threadID << " (" << executionHeaps[threadID].size() << " left)" << std::endl;
+    //debug_mutex.unlock();
 
     numberOfSyscalls[execute_replayer->getReplayerIndex()]--;
 
@@ -911,15 +947,21 @@ void executionThread(int64_t threadID) {
 
     PROFILE_START(1)
     if (nThreads > 1) {
-      if (!checkExecutionValidation(execute_replayer)) {
+      if (!analysis && !checkExecutionValidation(execute_replayer)) {
         setRunning(threadID, nullptr);
         executionHeaps[threadID].push(execute_replayer);
         numberOfSyscalls[execute_replayer->getReplayerIndex()]++;
         prev_replayer = nullptr;
+        debug_mutex.lock();
+        std::cout << threadID << ":invalid\n";
+        debug_mutex.unlock();
+        std::this_thread::yield();
         continue;
       }
     }
-
+    //debug_mutex.lock();
+    //std::cout << threadID << ":valid execution time\n";
+    //debug_mutex.unlock();
     // TODO-NEWPEOPLE: There might be a usecase where we want to execute the
     // trace file while performing analysis at the same time. It might be nice
     // to record metrics of the actual execution so you could later compare
@@ -942,6 +984,9 @@ void executionThread(int64_t threadID) {
         int64_t pid = execute_replayer->return_value();
         setRunning(pid, nullptr);
         threads.emplace_back(executionThread, pid);
+        debug_mutex.lock();
+        std::cout << "created thread " << pid << std::endl;
+        debug_mutex.unlock();
       }
     } else {
       execute_replayer->execute();
@@ -978,7 +1023,9 @@ void executionThread(int64_t threadID) {
     PROFILE_SAMPLE(10)
   }
   currentExecutions.erase(threadID);
-
+  debug_mutex.lock();
+  std::cout << "execThread ended with id " << threadID << std::endl;
+  debug_mutex.unlock();
 }
 
 int main(int argc, char *argv[]) {
@@ -1037,13 +1084,17 @@ int main(int argc, char *argv[]) {
   PROFILE_PRINT("warmup: ", warmup)
 
   std::thread reader(readerThread);
-  std::thread executor(executionThread, mainThreadID);
   reader.join();
+  std::cout << "reader thread finished\n";
+  std::thread executor(executionThread, mainThreadID);
+  std::cout << "main thread started\n";
   executor.join();
-
-  for (auto &thread : threads) {
-    thread.join();
+  std::cout << "main thread finished\n";
+  for (uint64_t i = 0; i < threads.size(); i++) {
+    std::cout << "joining thread at index " << i << "\n";
+    threads[i].join();
   }
+  std::cout << "all threads finished\n";
   if (analysis) {
     for (auto am : analysisModules) {
       am->printMetrics(std::cout);

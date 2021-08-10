@@ -37,6 +37,7 @@
 
 #include <map>
 #include <vector>
+#include <mutex>
 #include "AnalysisModule.hpp"
 #include "SystemCallTraceReplayModule.hpp"
 #include "ReadSystemCallTraceReplayModule.hpp"
@@ -62,6 +63,7 @@ protected:
 class CorrelationAnalysisModule : public AnalysisModule {
  protected:
     std::ofstream csvfile;
+    std::mutex write_mutex;
     const std::string CSVFILENAME = "syscalls.csv";
 
  public:

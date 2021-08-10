@@ -91,7 +91,9 @@ CorrelationAnalysisModule::CorrelationAnalysisModule() {
 void CorrelationAnalysisModule::considerSyscall(
         const SystemCallTraceReplayModule& module) {
     SyscallCsv row(module);
+    write_mutex.lock();
     csvfile << row.to_string();
+    write_mutex.unlock();
 }
 
 CorrelationAnalysisModule::~CorrelationAnalysisModule() {

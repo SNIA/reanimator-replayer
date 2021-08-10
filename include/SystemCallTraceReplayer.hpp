@@ -23,6 +23,7 @@
  */
 
 #include <queue>
+#include <mutex>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/program_options.hpp>
